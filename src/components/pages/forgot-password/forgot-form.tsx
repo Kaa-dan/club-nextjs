@@ -45,7 +45,7 @@ export function ForgotForm() {
             className="py-2"
           />
           <h2 className=" text-2xl font-bold">Forgot password 🔓</h2>
-          <p className="text-xs">
+          <p className="text-xs text-gray-600">
             {`No Worries, we'll send you reset instructions.`}
           </p>
         </div>
@@ -74,6 +74,7 @@ export function ForgotForm() {
 
             <div className="pt-16">
               <Button
+                disabled={form.formState.isSubmitting}
                 type="submit"
                 className="w-full rounded-lg bg-primary p-2 text-white"
               >

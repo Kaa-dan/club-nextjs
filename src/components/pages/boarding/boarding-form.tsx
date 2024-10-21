@@ -10,19 +10,19 @@ import { NodeSearchForm } from "./node-search-form";
 type Step = "Details" | "Picture" | "Interest" | "Node";
 
 export function BoardingForm() {
-  const [step, setStep] = useState<Step>("Details");
+  const [step, setStep] = useState<Step>("Picture");
 
   return (
     <div className="flex min-h-screen items-center justify-center">
       <div className="w-full max-w-2xl">
-        <h2 className="mb-6 text-center text-2xl font-bold">
+        <h2 className="mb-2 text-center text-2xl font-bold">
           Hey, Welcome to Clubwize 👋
         </h2>
-        <p className="mb-6 text-center">
+        <p className="mb-8 text-center text-gray-600">
           Welcome to the team, rookie! Get ready to crush it with Clubwize!
         </p>
 
-        <div className="flex justify-center  px-6">
+        <div className="flex justify-center p-6">
           <ProgressIndicator currentStep={step} />
         </div>
 

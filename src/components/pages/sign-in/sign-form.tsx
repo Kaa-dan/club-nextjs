@@ -53,7 +53,7 @@ export function SignInForm() {
             className="py-2"
           />
           <h2 className=" text-2xl font-bold">Hey, Welcome Back 👋</h2>
-          <p className="text-xs">
+          <p className="text-xs text-gray-600">
             Login to an account and take advantage of exclusive benefits.
           </p>
         </div>
@@ -135,6 +135,7 @@ export function SignInForm() {
             </div>
             <div className="pt-8">
               <Button
+                disabled={form.formState.isSubmitting}
                 type="submit"
                 className="w-full rounded-lg bg-primary p-2 text-white"
               >

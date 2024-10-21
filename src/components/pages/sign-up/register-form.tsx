@@ -18,6 +18,9 @@ import IMG from "@/lib/constants";
 import Link from "next/link";
 import { Checkbox } from "@/components/ui/checkbox";
 import { PasswordInput } from "@/components/ui/password-input";
+import { useState } from "react";
+import { EyeIcon } from "lucide-react";
+import { EmailInput } from "@/components/ui/email-input";
 
 const formSchema = z
   .object({
@@ -25,27 +28,32 @@ const formSchema = z
     password: z
       .string()
       .min(6, { message: "Password must be at least 6 characters." }),
-    confirm: z
+    confirmPassword: z
       .string()
       .min(6, { message: "Password must be at least 6 characters." }),
   })
-  .refine((data) => data.password === data.confirm, {
+  .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
-    path: ["confirm"],
+    path: ["confirmPassword"],
   });
 
 export function SignUpForm() {
+  const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
       password: "",
-      confirm: "",
+      confirmPassword: "",
     },
   });
 
   const onSubmit = (values: any) => {
     console.log(values);
+  };
+
+  const togglePasswordVisibility = () => {
+    setIsPasswordVisible(!isPasswordVisible);
   };
 
   return (
@@ -60,7 +68,7 @@ export function SignUpForm() {
             className="py-2"
           />
           <h2 className=" text-2xl font-bold">Welcome to clubwize 👋</h2>
-          <p className="text-xs">
+          <p className="text-xs text-gray-600">
             Welcome to the team, rookie! Get ready to crush it with Clubwize!
           </p>
         </div>
@@ -97,10 +105,10 @@ export function SignUpForm() {
                   <FormItem>
                     <FormLabel>Email Address</FormLabel>
                     <FormControl>
-                      <Input
-                        type="email"
+                      <EmailInput
                         placeholder="Enter your email"
                         {...field}
+                        isVerified={true}
                       />
                     </FormControl>
                     <FormMessage />
@@ -125,7 +133,7 @@ export function SignUpForm() {
               />
               <FormField
                 control={form.control}
-                name="confirm"
+                name="confirmPassword"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Confirm</FormLabel>
@@ -143,18 +151,19 @@ export function SignUpForm() {
 
             <div className="pt-8">
               <Button
+                disabled={form.formState.isSubmitting}
                 type="submit"
-                className="w-full rounded-lg bg-green-500 p-2 text-white"
+                className="w-full rounded-lg bg-primary p-2 text-white"
               >
                 Continue with Clubwize
               </Button>
             </div>
           </form>
         </Form>
-        <div className="mt-3 text-center">
+        <div className="mt-3 text-center text-gray-600">
           <p>
             Already have an account?{" "}
-            <Link href="/sign-in" className="text-green-500">
+            <Link href="/sign-in" className="text-primary">
               Login
             </Link>
           </p>

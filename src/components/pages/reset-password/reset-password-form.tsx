@@ -62,7 +62,7 @@ export function ResetPasswordForm() {
             className="py-2"
           />
           <h2 className=" text-2xl font-bold">Reset password 🔑</h2>
-          <p className="text-xs">
+          <p className="text-xs text-gray-600">
             Your new password must be different to previously used passwords.
           </p>
         </div>
@@ -75,7 +75,7 @@ export function ResetPasswordForm() {
                 <FormItem>
                   <FormLabel>Current Password</FormLabel>
                   <FormControl>
-                    <PasswordInput placeholder="********" {...field} />
+                    <PasswordInput placeholder="Enter Password" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -88,7 +88,7 @@ export function ResetPasswordForm() {
                 <FormItem>
                   <FormLabel>New Password</FormLabel>
                   <FormControl>
-                    <PasswordInput placeholder="********" {...field} />
+                    <PasswordInput placeholder="Enter Password" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -101,13 +101,14 @@ export function ResetPasswordForm() {
                 <FormItem>
                   <FormLabel>Confirm Password</FormLabel>
                   <FormControl>
-                    <PasswordInput placeholder="********" {...field} />
+                    <PasswordInput placeholder="Enter Password" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <Button
+              disabled={form.formState.isSubmitting}
               type="submit"
               className="w-full rounded-lg bg-primary py-2 text-white"
             >

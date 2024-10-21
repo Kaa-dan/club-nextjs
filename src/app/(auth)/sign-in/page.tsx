@@ -5,11 +5,11 @@ import React from "react";
 const page = () => {
   return (
     <div className="flex h-screen w-full flex-col bg-white md:flex-row">
-      <div className="md:w-[45%]">
-        <LeftScreen/>
+      <div className="hidden md:flex md:w-[45%]">
+        <LeftScreen />
       </div>
-      <div className="md:w-[55%]">
-        <SignInForm/>
+      <div className="px-3 md:w-[55%] md:px-0">
+        <SignInForm />
       </div>
     </div>
   );

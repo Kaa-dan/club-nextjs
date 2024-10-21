@@ -113,11 +113,11 @@ const PictureForm: React.FC<PictureFormProps> = ({ setStep }) => {
                   </FormControl>
                   <FormLabel>
                     I agree to the{" "}
-                    <Link href="#" className="text-blue-500">
+                    <Link href="#" className="text-primary">
                       Terms of Services
                     </Link>{" "}
                     and{" "}
-                    <Link href="#" className="text-blue-500">
+                    <Link href="#" className="text-primary">
                       Privacy Policy
                     </Link>
                   </FormLabel>
@@ -127,11 +127,13 @@ const PictureForm: React.FC<PictureFormProps> = ({ setStep }) => {
             )}
           />
         </div>
-        <div className="flex justify-between">
-          <Button type="button" onClick={() => setStep("Details")}>
+        <div className="flex justify-end gap-4">
+          <Button variant="outline" type="button">
             Back
           </Button>
-          <Button type="submit">Next</Button>
+          <Button type="submit" className="text-white">
+            Next
+          </Button>
         </div>
       </form>
     </Form>
