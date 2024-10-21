@@ -4,7 +4,7 @@ interface NavbarProps {
   title: string;
 }
 
-export function Navbar({title}: NavbarProps) {
+export function Navbar({ title }: NavbarProps) {
   return (
     <header className="sticky top-0 z-10 w-full !bg-primary shadow backdrop-blur supports-[backdrop-filter]:bg-background/60 dark:shadow-secondary">
       <div className="mx-4 flex h-14 items-center sm:mx-8">

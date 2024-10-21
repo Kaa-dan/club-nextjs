@@ -14,12 +14,15 @@ import IMG from "@/lib/constants";
 export function SheetMenu() {
   return (
     <Sheet>
-      <SheetTrigger className="lg:hidden" asChild>
+      <SheetTrigger className="!bg-red-500 lg:hidden" asChild>
         <Button className="h-8" variant="outline" size="icon">
           <MenuIcon size={20} />
         </Button>
       </SheetTrigger>
-      <SheetContent className="flex h-full flex-col px-3 sm:w-72" side="left">
+      <SheetContent
+        className="flex h-full flex-col !bg-red-400 px-3 sm:w-72"
+        side="left"
+      >
         <SheetHeader>
           <Button
             className="flex items-center justify-center pb-2 pt-1"
@@ -32,7 +35,9 @@ export function SheetMenu() {
             </Link>
           </Button>
         </SheetHeader>
-        <Menu isOpen />
+        <div className="!bg-green-700">
+          <Menu isOpen />
+        </div>
       </SheetContent>
     </Sheet>
   );
