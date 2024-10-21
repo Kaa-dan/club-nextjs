@@ -1,0 +1,15 @@
+.idx
+.next
+.vscode
+node_modules
+package.json
+yarn.lock
+next-env.d.ts
+
+./.idx
+./.next
+./.vscode
+./node_modules
+./package.json
+./yarn.lock
+./next-env.d.ts
