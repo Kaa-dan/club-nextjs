@@ -49,7 +49,7 @@ export const checkVerified = async () => {
 
 export const signUp = async (data: any) => {
   try {
-    const response = await axiosConfig.post("/sign-up", { data });
+    const response = await axiosConfig.post("/sign-up", data);
     return response.data;
   } catch (error) {
     throw error;

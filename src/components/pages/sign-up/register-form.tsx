@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 import {
   Form,
   FormControl,
@@ -18,7 +19,8 @@ import Link from "next/link";
 import { PasswordInput } from "@/components/ui/password-input";
 import { useEffect, useState } from "react";
 import { EmailInput } from "./email-input";
-import { checkVerified } from "./endpoint";
+import { checkVerified, signUp } from "./endpoint";
+import { toast } from "sonner";
 
 const formSchema = z
   .object({
@@ -36,6 +38,7 @@ const formSchema = z
   });
 
 export function SignUpForm() {
+  const router = useRouter();
   useEffect(() => {
     checkVerified()
       .then((res) => {
@@ -56,8 +59,15 @@ export function SignUpForm() {
     },
   });
 
-  const onSubmit = (values: any) => {
-    console.log(values);
+  const onSubmit = async (data: any) => {
+    try {
+      const response = await signUp(data);
+      // console.log(response, "resss");
+      router.push("/sign-in");
+      toast.success(response.message);
+    } catch (error) {
+      console.log(error, "errr");
+    }
   };
 
   const togglePasswordVisibility = () => {

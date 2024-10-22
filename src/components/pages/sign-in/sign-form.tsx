@@ -28,6 +28,8 @@ import IMG from "@/lib/constants";
 import Link from "next/link";
 import { Checkbox } from "@/components/ui/checkbox";
 import { PasswordInput } from "@/components/ui/password-input";
+import { login } from "./endpoint";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -47,8 +49,14 @@ export function SignInForm() {
     },
   });
 
-  const onSubmit = (values: any) => {
-    console.log(values);
+  const onSubmit = async (data: any) => {
+    try {
+      const response = await login(data);
+      toast.success(response.message);
+      localStorage.setItem("userToken", response.token);
+    } catch (error) {
+      console.log(error, "Errr");
+    }
   };
 
   return (
