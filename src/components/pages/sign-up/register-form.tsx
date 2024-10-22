@@ -12,15 +12,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import Image from "next/image";
 import IMG from "@/lib/constants";
 import Link from "next/link";
-import { Checkbox } from "@/components/ui/checkbox";
 import { PasswordInput } from "@/components/ui/password-input";
-import { useState } from "react";
-import { EyeIcon } from "lucide-react";
-import { EmailInput } from "@/components/ui/email-input";
+import { useEffect, useState } from "react";
+import { EmailInput } from "./email-input";
+import { checkVerified } from "./endpoint";
 
 const formSchema = z
   .object({
@@ -38,7 +36,17 @@ const formSchema = z
   });
 
 export function SignUpForm() {
+  useEffect(() => {
+    checkVerified()
+      .then((res) => {
+        setVerified(res.status);
+      })
+      .catch((err) => {
+        console.log(err, "errrr");
+      });
+  }, []);
   const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
+  const [verified, setVerified] = useState(false);
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -108,7 +116,9 @@ export function SignUpForm() {
                       <EmailInput
                         placeholder="Enter your email"
                         {...field}
-                        isVerified={true}
+                        setVerified={setVerified}
+                        isVerified={verified}
+                        setValue={form.setValue}
                       />
                     </FormControl>
                     <FormMessage />
@@ -151,9 +161,9 @@ export function SignUpForm() {
 
             <div className="pt-8">
               <Button
-                disabled={form.formState.isSubmitting}
+                disabled={!verified || form.formState.isSubmitting}
                 type="submit"
-                className="w-full rounded-lg bg-primary p-2 text-white"
+                className="w-full rounded-lg disabled bg-primary p-2 text-white"
               >
                 Continue with Clubwize
               </Button>
