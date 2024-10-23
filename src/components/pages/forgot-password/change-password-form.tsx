@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 import {
   Form,
   FormControl,
@@ -16,38 +17,52 @@ import { Input } from "@/components/ui/input";
 import Image from "next/image";
 import IMG from "@/lib/constants";
 import Link from "next/link";
-import { forgotPassword } from "./endpoint";
+import { changePassword } from "./endpoint";
 import { log } from "console";
 import { toast } from "sonner";
 
-const formSchema = z.object({
-  email: z.string().email({ message: "Invalid email address" }),
-});
+// Extend the schema to include password and confirm password fields
+const formSchema = z
+  .object({
+    password: z
+      .string()
+      .min(6, { message: "Password must be at least 6 characters" }),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"], // Specify which field the error message should appear under
+  });
 
-export function ForgotForm() {
+export function ChangePasswordForm() {
+  const router = useRouter();
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "",
+      password: "",
+      confirmPassword: "",
     },
   });
 
   const onSubmit = async (values: any) => {
     try {
-      const { email } = values;
+      const { password } = values;
+      console.log(values);
 
-      const response = await forgotPassword(email);
-      console.log(response, "resss");
+      const response = await changePassword(password);
       toast.success(response.message);
+      router.push("/sign-in");
+      //   const { email, passwo rd } = values;
+      //   const response = await forgotPassword({ email, password });
+      //   console.log(response, "response");
     } catch (error: any) {
       toast.error(error.response.data.message);
-      // console.log(error, "errr");
     }
   };
 
   return (
     <div className="flex min-h-screen items-center justify-center">
-      <div className="w-full max-w-md ">
+      <div className="w-full max-w-md">
         <div className="mb-6 flex flex-col items-center text-center">
           <Image
             src={IMG?.Logo}
@@ -65,17 +80,39 @@ export function ForgotForm() {
         {/* Forgot form */}
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className=" space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            {/* Email field */}
+
+            {/* Password field */}
             <FormField
               control={form.control}
-              name="email"
+              name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email Address</FormLabel>
+                  <FormLabel>Password</FormLabel>
                   <FormControl>
                     <Input
-                      type="email"
-                      placeholder="Enter your email"
+                      type="password"
+                      placeholder="Enter a new password"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Confirm Password field */}
+            <FormField
+              control={form.control}
+              name="confirmPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Confirm Password</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="password"
+                      placeholder="Confirm your password"
                       {...field}
                     />
                   </FormControl>
@@ -90,14 +127,14 @@ export function ForgotForm() {
                 type="submit"
                 className="w-full rounded-lg bg-primary p-2 text-white"
               >
-                Forgot password
+                Reset Password
               </Button>
             </div>
           </form>
         </Form>
         <div className="mt-3 text-center">
           <p>
-            Remember you password?{" "}
+            Remember your password?{" "}
             <Link href="/sign-in" className="text-primary">
               Back
             </Link>

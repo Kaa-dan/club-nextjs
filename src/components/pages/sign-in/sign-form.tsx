@@ -52,7 +52,8 @@ export function SignInForm() {
   const onSubmit = async (data: any) => {
     try {
       const response = await login(data);
-      toast.success(response.message);
+
+      toast.success(response?.message);
       localStorage.setItem("userToken", response.token);
     } catch (error) {
       console.log(error, "Errr");

@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "../../ui/button";
 import RegisterOtp from "./register-otp";
 import { Dialog } from "@/components/ui/dialog";
-import { sendOtp } from "./endpoint";
+import { checkVerified, sendOtp } from "./endpoint";
 import { toast } from "sonner";
 const EmailInput = forwardRef<HTMLInputElement, any>(
   ({ className, setVerified, isVerified, setValue, ...props }, ref) => {
@@ -44,8 +44,19 @@ const EmailInput = forwardRef<HTMLInputElement, any>(
           ref={ref}
           {...props}
           onChange={(e) => {
-            setEmail(e.target.value);
-            setValue("email", e.target.value);
+            const inputEmail = e.target.value;
+            setEmail(inputEmail);
+            setValue("email", inputEmail);
+
+            if (localStorage.getItem("verify-token")) {
+              checkVerified().then((res) => {
+                if (res.data.email === inputEmail) {
+                  setVerified(true);
+                } else {
+                  setVerified(false);
+                }
+              });
+            }
           }}
           value={email}
         />
@@ -65,13 +76,16 @@ const EmailInput = forwardRef<HTMLInputElement, any>(
           )}
         </Button>
 
-        {/* Dialog for OTP input */}
         <Dialog open={open} onOpenChange={setOpen}>
-          <RegisterOtp
-            setVerified={setVerified}
-            setOpen={setOpen}
-            email={email}
-          />
+          {open ? (
+            <RegisterOtp
+              setVerified={setVerified}
+              setOpen={setOpen}
+              email={email}
+            />
+          ) : (
+            ""
+          )}
         </Dialog>
 
         {/* hides browsers password toggles */}

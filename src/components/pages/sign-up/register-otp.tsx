@@ -43,6 +43,19 @@ const RegisterOtp: React.FC<{
     }
   }, [timer]);
 
+  // Reset OTP, timer, and submission state when the dialog is reopened or closed
+  useEffect(() => {
+    const resetOtpPage = () => {
+      setOtp(new Array(6).fill(""));
+      setTimer(60);
+      setCanResend(false);
+      setIsSubmitting(false);
+    };
+
+    // Trigger reset when the page opens/closes
+    resetOtpPage();
+  }, []);
+
   const handleChange = (element: HTMLInputElement, index: number) => {
     if (isNaN(Number(element.value))) return;
 
@@ -113,9 +126,12 @@ const RegisterOtp: React.FC<{
 
       localStorage.setItem("verify-token", response.token);
       toast.success(response.message);
-      setOpen(false);
-      setVerified(true);
-      setOtp(new Array(6).fill(""));
+
+      // Clear the timer and reset OTP
+      setTimer(60); // Reset the timer to 60 seconds
+      setOtp(new Array(6).fill("")); // Reset OTP after successful verification
+      setOpen(false); // Close the dialog
+      setVerified(true); // Mark as verified
     } catch (error: any) {
       if (error.response?.data?.statusCode === 404) {
         toast.error(error.response.data.message);
