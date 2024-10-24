@@ -4,7 +4,7 @@ import React from "react";
 
 const page = () => {
   return (
-    <div className="flex h-screen w-full flex-col bg-white md:flex-row">
+    <div className="flex bg-white h-screen w-full flex-col  md:flex-row">
       <div className="md:w-[45%]">
         <LeftScreen />
       </div>
