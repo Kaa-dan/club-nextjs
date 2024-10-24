@@ -1,6 +1,5 @@
 import LeftScreen from "@/components/globals/auth/auth-left";
 import { ChangePasswordForm } from "@/components/pages/forgot-password/change-password-form";
-import { ForgotForm } from "@/components/pages/forgot-password/forgot-form";
 import React from "react";
 
 const page = () => {

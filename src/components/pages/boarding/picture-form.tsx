@@ -19,7 +19,7 @@ import Link from "next/link";
 
 type Step = "Details" | "Picture" | "Node";
 
-const stepTwoSchema = z.object({
+const   stepTwoSchema = z.object({
   profilePhoto: z
     .instanceof(File)
     .nullable()

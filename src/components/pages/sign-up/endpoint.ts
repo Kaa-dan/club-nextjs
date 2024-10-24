@@ -55,3 +55,12 @@ export const signUp = async (data: any) => {
     throw error;
   }
 };
+
+export const googleAUth = async (data: any) => {
+  try {
+    const response = await axiosConfig.post("/google-singup", data);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

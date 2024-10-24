@@ -5,6 +5,13 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  onAuthStateChanged,
+} from "firebase/auth";
 import {
   Form,
   FormControl,
@@ -19,8 +26,10 @@ import Link from "next/link";
 import { PasswordInput } from "@/components/ui/password-input";
 import { useEffect, useState } from "react";
 import { EmailInput } from "./email-input";
-import { checkVerified, signUp } from "./endpoint";
+import { checkVerified, googleAUth, signUp } from "./endpoint";
 import { toast } from "sonner";
+import router from "next/router";
+import { app } from "@/lib/config/firebase";
 
 const formSchema = z
   .object({
@@ -38,7 +47,9 @@ const formSchema = z
   });
 
 export function SignUpForm() {
-  const router = useRouter();
+  const auth = getAuth(app);
+  const googleProvider = new GoogleAuthProvider();
+  // const router = useRouter();
   useEffect(() => {
     checkVerified()
       .then((res) => {
@@ -73,6 +84,32 @@ export function SignUpForm() {
   const togglePasswordVisibility = () => {
     setIsPasswordVisible(!isPasswordVisible);
   };
+  const handleGoogleSignIn = async () => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      // The signed-in user info
+      const user = result.user;
+      const response = await googleAUth({
+        email: user.email,
+        userName: user.displayName,
+        imageUrl: user.photoURL,
+        phoneNumber: user.phoneNumber,
+      });
+      toast.success(response.message);
+      // You might want to store the user info in your backend
+      try {
+      } catch (error: any) {
+        console.log(error, "errrr");
+
+        toast.error(error.response.data.message);
+      }
+
+      toast.success("Successfully signed in with Google!");
+      // router.push("/dashboard");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to sign in with Google");
+    }
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center">
@@ -91,7 +128,10 @@ export function SignUpForm() {
           </p>
         </div>
         <div className="mb-4 flex justify-between">
-          <button className="mr-2 flex w-full items-center justify-center rounded-lg border p-2">
+          <button
+            onClick={handleGoogleSignIn}
+            className="mr-2 flex w-full items-center justify-center rounded-lg border p-2"
+          >
             <Image src={IMG?.Google} alt="Google" className="mr-2 h-6" />
             Google
           </button>
