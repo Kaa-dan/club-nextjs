@@ -1,5 +1,15 @@
 "use client";
 
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -18,6 +28,8 @@ import IMG from "@/lib/constants";
 import Link from "next/link";
 import { Checkbox } from "@/components/ui/checkbox";
 import { PasswordInput } from "@/components/ui/password-input";
+import { login } from "./endpoint";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -37,8 +49,15 @@ export function SignInForm() {
     },
   });
 
-  const onSubmit = (values: any) => {
-    console.log(values);
+  const onSubmit = async (data: any) => {
+    try {
+      const response = await login(data);
+
+      toast.success(response?.message);
+      localStorage.setItem("userToken", response.token);
+    } catch (error) {
+      console.log(error, "Errr");
+    }
   };
 
   return (
@@ -53,7 +72,7 @@ export function SignInForm() {
             className="py-2"
           />
           <h2 className=" text-2xl font-bold">Hey, Welcome Back 👋</h2>
-          <p className="text-xs">
+          <p className="text-xs text-gray-600">
             Login to an account and take advantage of exclusive benefits.
           </p>
         </div>
@@ -135,6 +154,7 @@ export function SignInForm() {
             </div>
             <div className="pt-8">
               <Button
+                disabled={form.formState.isSubmitting}
                 type="submit"
                 className="w-full rounded-lg bg-primary p-2 text-white"
               >
