@@ -6,7 +6,7 @@ import { Menu } from "./menu";
 import { useSidebarToggle } from "@/hooks/use-sidebar-toggle";
 import { SidebarToggle } from "./sidebar-toggle";
 import Image from "next/image";
-import IMG from "@/lib/constants";
+import { IMGS } from "@/lib/constants";
 
 export function Sidebar() {
   const sidebar = useStore(useSidebarToggle, (state) => state);
@@ -31,7 +31,7 @@ export function Sidebar() {
           asChild
         >
           <Link href="/performance" className="flex items-center gap-2 ">
-            <Image src={IMG.LogoGreen} alt="logo" className="w-fit" />
+            <Image src={IMGS.LogoGreen} alt="logo" className="w-fit" />
             <h1
               className={cn(
                 "font-bold text-lg whitespace-nowrap transition-[transform,opacity,display] ease-in-out duration-300",

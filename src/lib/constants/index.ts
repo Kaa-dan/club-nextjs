@@ -1,3 +1,4 @@
+//images
 import CurvedVector from "../../../public/images/curved-vector.svg";
 import ArrowRounded from "../../../public/images/arrow-rounded.svg";
 import Logo from "../../../public/images/logo.svg";
@@ -12,7 +13,14 @@ import Profile4 from "../../../public/images/profile4.svg";
 import EyeLogo from "../../../public/images/eye.png";
 import ViewLogo from "../../../public/images/view.png";
 
-const IMG = {
+//icons
+import MarketPlaceIcon from "@public/icons/modules/marketplace.icon.svg";
+import DebateIcon from "@public/icons/modules/debate.icon.svg";
+import EventsAndNewsIcon from "@public/icons/modules/events-and-news.svg";
+import RulesAndRegulationsIcon from "@public/icons/modules/rules-and-regulations.icon.svg";
+
+import GreenTickIcon from "@public/icons/green-tick-icon.svg";
+const IMGS = {
   Logo,
   LogoGreen,
   CurvedVector,
@@ -25,7 +33,15 @@ const IMG = {
   Profile3,
   Profile4,
   EyeLogo,
-  ViewLogo
+  ViewLogo,
 };
 
-export default IMG;
+const ICONS = {
+  MarketPlaceIcon,
+  DebateIcon,
+  EventsAndNewsIcon,
+  RulesAndRegulationsIcon,
+  GreenTickIcon,
+};
+
+export { IMGS, ICONS };

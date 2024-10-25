@@ -10,7 +10,7 @@ import { NodeSearchForm } from "./node-search-form";
 type Step = "Details" | "Picture" | "Interest" | "Node";
 
 export function BoardingForm() {
-  const [step, setStep] = useState<Step>("Details");
+  const [step, setStep] = useState<Step>("Node");
 
   return (
     <div className="flex min-h-screen items-center justify-center">
@@ -23,7 +23,10 @@ export function BoardingForm() {
         </p>
 
         <div className="flex justify-center p-6">
-          <ProgressIndicator currentStep={step} />
+          <ProgressIndicator
+            steps={["Details", "Picture", "Interest", "Node"]}
+            currentStep={step}
+          />
         </div>
 
         {step === "Details" && <DetailsForm setStep={setStep} />}

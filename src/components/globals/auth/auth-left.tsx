@@ -1,4 +1,4 @@
-import IMG from "@/lib/constants";
+import { IMGS } from "@/lib/constants";
 import Image from "next/image";
 import React from "react";
 
@@ -8,7 +8,7 @@ const LeftScreen = () => {
       {/* vector-image */}
 
       <div className="h-80">
-        <Image src={IMG.CurvedVector} alt="vector" className="w-full" />
+        <Image src={IMGS.CurvedVector} alt="vector" className="w-full" />
       </div>
 
       {/* title and description */}
@@ -27,7 +27,7 @@ const LeftScreen = () => {
         <button className="flex items-center gap-1 text-black underline">
           Learn more{" "}
           <span>
-            <Image src={IMG?.ArrowRounded} alt=">" />
+            <Image src={IMGS?.ArrowRounded} alt=">" />
           </span>
         </button>
       </div>
@@ -38,27 +38,27 @@ const LeftScreen = () => {
         <div className="flex w-full items-center">
           <div className="relative flex w-1/2 justify-end">
             <Image
-              src={IMG?.Profile1}
+              src={IMGS?.Profile1}
               width={130}
               alt="vector-Profile1"
               className=""
             />
           </div>
           <div className="relative flex w-1/2 justify-center">
-            <Image src={IMG?.Profile2} alt="vector-Profile2" width={70} />
+            <Image src={IMGS?.Profile2} alt="vector-Profile2" width={70} />
           </div>
         </div>
         <div className="-mt-4 flex w-full items-center">
           <div className="relative flex w-1/2 justify-center">
             <Image
-              src={IMG?.Profile3}
+              src={IMGS?.Profile3}
               width={60}
               alt="vector-Profile3"
               className=""
             />
           </div>
           <div className="relative w-1/2 justify-start">
-            <Image src={IMG?.Profile4} alt="vector-Profile4" width={100} />
+            <Image src={IMGS?.Profile4} alt="vector-Profile4" width={100} />
           </div>
         </div>
       </div>

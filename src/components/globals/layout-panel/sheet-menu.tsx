@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/sheet";
 import { Menu } from "./menu";
 import Image from "next/image";
-import IMG from "@/lib/constants";
+import { IMGS } from "@/lib/constants";
 
 export function SheetMenu() {
   return (
@@ -30,7 +30,7 @@ export function SheetMenu() {
             asChild
           >
             <Link href="/dashboard" className="flex items-center gap-2">
-              <Image src={IMG.LogoGreen} alt="logo" className="w-fit" />
+              <Image src={IMGS.LogoGreen} alt="logo" className="w-fit" />
               <h1 className="text-lg font-bold">Clubwize</h1>
             </Link>
           </Button>
