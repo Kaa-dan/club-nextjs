@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { verifyOtp } from "./endpoint";
+import { sendOtp, verifyOtp } from "./endpoint";
 import {
   DialogContent,
   DialogDescription,
@@ -11,6 +11,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { axiosConfig } from "@/lib/axios";
 
 type InputRefType = HTMLInputElement | null;
 
@@ -110,8 +111,9 @@ const RegisterOtp: React.FC<{
       setTimer(60);
       setCanResend(false);
 
-      // Optionally, send the resend OTP request here
-      // await resendOtp(); // Call your resend OTP endpoint
+      const response = await sendOtp(email);
+
+      
     } catch (error) {
       console.error("Failed to resend OTP:", error);
     } finally {

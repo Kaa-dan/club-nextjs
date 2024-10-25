@@ -51,7 +51,9 @@ const EmailInput = forwardRef<HTMLInputElement, any>(
             if (localStorage.getItem("verify-token")) {
               checkVerified().then((res) => {
                 if (res.data.email === inputEmail) {
-                  setVerified(true);
+                  if (inputEmail) {
+                    setVerified(true);
+                  }
                 } else {
                   setVerified(false);
                 }

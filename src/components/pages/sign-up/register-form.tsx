@@ -28,8 +28,13 @@ import { useEffect, useState } from "react";
 import { EmailInput } from "./email-input";
 import { checkVerified, googleAUth, signUp } from "./endpoint";
 import { toast } from "sonner";
-import router from "next/router";
 import { app } from "@/lib/config/firebase";
+
+// interface
+interface SignUpFormData {
+  email: string;
+  password: string;
+}
 
 const formSchema = z
   .object({
@@ -49,7 +54,8 @@ const formSchema = z
 export function SignUpForm() {
   const auth = getAuth(app);
   const googleProvider = new GoogleAuthProvider();
-  // const router = useRouter();
+  const router = useRouter();
+
   useEffect(() => {
     checkVerified()
       .then((res) => {
@@ -59,8 +65,12 @@ export function SignUpForm() {
         console.log(err, "errrr");
       });
   }, []);
+
   const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
+
   const [verified, setVerified] = useState(false);
+
+  // form state default values
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -70,20 +80,27 @@ export function SignUpForm() {
     },
   });
 
-  const onSubmit = async (data: any) => {
+  // form submit handle
+  const onSubmit = async (data: SignUpFormData) => {
     try {
+      //api registartion handler
       const response = await signUp(data);
-      // console.log(response, "resss");
-      router.push("/sign-in");
+
+      //success message
       toast.success(response.message);
-    } catch (error) {
-      console.log(error, "errr");
+
+      //navigate
+      router.push("/onboarding");
+    } catch (error: any) {
+      //toasting message
+      toast.error(`${error.response.data.message} try to login`);
     }
   };
 
   const togglePasswordVisibility = () => {
     setIsPasswordVisible(!isPasswordVisible);
   };
+
   const handleGoogleSignIn = async () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
