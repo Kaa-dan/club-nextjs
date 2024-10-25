@@ -37,7 +37,7 @@ const PhotoInput: React.FC<PhotoInputProps> = ({ onUpload, field }) => {
     <div>
       <div
         onClick={() => document.getElementById(`photo-input-${field}`)?.click()}
-        className="grid cursor-pointer place-items-center border rounded-md border-dashed p-5 transition-colors hover:bg-gray-50"
+        className="grid cursor-pointer place-items-center rounded-md border border-dashed p-5 transition-colors hover:bg-gray-50"
       >
         <p>+ {fileName}</p>
       </div>
@@ -49,7 +49,7 @@ const PhotoInput: React.FC<PhotoInputProps> = ({ onUpload, field }) => {
         onChange={handleFileChange}
       />
       {preview && (
-        <div className="mt-3 flex justify-between items-center rounded-md border px-2 py-1">
+        <div className="mt-3 flex items-center justify-between rounded-md border px-2 py-1">
           <div className="flex items-center">
             <Image
               src={preview}

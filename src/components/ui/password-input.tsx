@@ -1,10 +1,11 @@
 "use client";
 
 import { forwardRef, useState } from "react";
-import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input, InputProps } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import IMG from "@/lib/constants";
+import Image from "next/image";
 
 const PasswordInput = forwardRef<HTMLInputElement, InputProps>(
   ({ className, ...props }, ref) => {
@@ -29,9 +30,19 @@ const PasswordInput = forwardRef<HTMLInputElement, InputProps>(
           disabled={disabled}
         >
           {showPassword && !disabled ? (
-            <EyeIcon className="size-4" aria-hidden="true" />
+            <Image
+              src={IMG.ViewLogo}
+              alt="view"
+              className="size-4"
+              aria-hidden="true"
+            />
           ) : (
-            <EyeOffIcon className="size-4" aria-hidden="true" />
+            <Image
+              src={IMG.EyeLogo}
+              alt="eye"
+              className="size-4"
+              aria-hidden="true"
+            />
           )}
           <span className="sr-only">
             {showPassword ? "Hide password" : "Show password"}
