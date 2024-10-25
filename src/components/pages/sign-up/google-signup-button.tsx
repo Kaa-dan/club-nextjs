@@ -4,8 +4,10 @@ import { googleAUth } from "./endpoint";
 import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import IMG from "@/lib/constants";
 import { app } from "@/lib/config/firebase";
+import { useRouter } from "next/navigation";
 
 const GoogleSignUp = () => {
+  const router = useRouter();
   const googleProvider = new GoogleAuthProvider();
   const auth = getAuth(app);
 
@@ -20,19 +22,10 @@ const GoogleSignUp = () => {
         imageUrl: user.photoURL,
         phoneNumber: user.phoneNumber,
       });
+      router.push("/onboarding");
+
       toast.success(response.message);
-      // You might want to store the user info in your backend
-      try {
-      } catch (error: any) {
-        console.log(error, "errrr");
-
-        toast.error(error.response.data.message);
-      }
-
-      toast.success("Successfully signed in with Google!");
-      // router.push("/dashboard");
     } catch (error: any) {
-      console.log(error, "errr");
       if (error.response) {
         toast.error(
           error.response.data.message || "Failed to sign in with Google"

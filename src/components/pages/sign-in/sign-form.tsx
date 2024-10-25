@@ -23,6 +23,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { PasswordInput } from "@/components/ui/password-input";
 import { googleSignIn, login } from "./endpoint";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -34,6 +35,7 @@ const formSchema = z.object({
 
 export function SignInForm() {
   const auth = getAuth(app);
+  const router = useRouter();
   const googleProvider = new GoogleAuthProvider();
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -50,6 +52,7 @@ export function SignInForm() {
 
       toast.success(response?.message);
       localStorage.setItem("userToken", response.token);
+      router.push("/boarding");
     } catch (error) {
       console.log(error, "Errr");
     }
@@ -66,7 +69,6 @@ export function SignInForm() {
         imageUrl: user.photoURL,
         phoneNumber: user.phoneNumber,
       });
-      console.log(response, "resss");
 
       toast.success(response.message);
     } catch (error: any) {

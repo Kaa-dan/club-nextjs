@@ -70,20 +70,22 @@ export function SignUpForm() {
       confirmPassword: "",
     },
   });
-  console.log(verified, "verii");
 
   const onSubmit = async (data: any) => {
     try {
       const response = await signUp(data);
-      // console.log(response, "resss");
+
       console.log(response, "Ress");
       toast.success(response.message);
-      router.push("/sign-in");
+      router.push("/boarding");
 
       toast.success(response.message);
     } catch (error: any) {
-      // toast.error(error.response.data.message);
-      console.log(error, "errr");
+      if (error.response) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error(error.message);
+      }
     }
   };
 
