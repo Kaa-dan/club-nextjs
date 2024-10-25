@@ -133,11 +133,9 @@ const RegisterOtp: React.FC<{
       setOpen(false); // Close the dialog
       setVerified(true); // Mark as verified
     } catch (error: any) {
-      if (error.response?.data?.statusCode === 404) {
-        toast.error(error.response.data.message);
-      } else {
-        toast.error("Failed to verify OTP.");
-      }
+      console.log(error, "errrr");
+
+      toast.error(error.response.data.message);
     } finally {
       setIsSubmitting(false); // Reset the submission state after response
     }

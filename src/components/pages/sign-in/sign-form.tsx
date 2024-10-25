@@ -1,19 +1,12 @@
 "use client";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
+import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
+import { app } from "@/lib/config/firebase";
+
 import {
   Form,
   FormControl,
@@ -28,7 +21,7 @@ import IMG from "@/lib/constants";
 import Link from "next/link";
 import { Checkbox } from "@/components/ui/checkbox";
 import { PasswordInput } from "@/components/ui/password-input";
-import { login } from "./endpoint";
+import { googleSignIn, login } from "./endpoint";
 import { toast } from "sonner";
 
 const formSchema = z.object({
@@ -40,6 +33,8 @@ const formSchema = z.object({
 });
 
 export function SignInForm() {
+  const auth = getAuth(app);
+  const googleProvider = new GoogleAuthProvider();
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -60,6 +55,25 @@ export function SignInForm() {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+
+      const response = await googleSignIn({
+        email: user.email,
+        userName: user.displayName,
+        imageUrl: user.photoURL,
+        phoneNumber: user.phoneNumber,
+      });
+      console.log(response, "resss");
+
+      toast.success(response.message);
+    } catch (error: any) {
+      console.error("Google Sign-in Error:", error);
+      toast.error(error.response.data.message);
+    }
+  };
   return (
     <div className="flex min-h-screen items-center justify-center">
       <div className="w-full max-w-md ">
@@ -77,7 +91,10 @@ export function SignInForm() {
           </p>
         </div>
         <div className="mb-4 flex justify-between">
-          <button className="mr-2 flex w-full items-center justify-center rounded-lg border p-2">
+          <button
+            onClick={handleGoogleSignIn}
+            className="mr-2 flex w-full items-center justify-center rounded-lg border p-2"
+          >
             <Image src={IMG?.Google} alt="Google" className="mr-2 h-6" />
             Google
           </button>

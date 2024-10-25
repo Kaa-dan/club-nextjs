@@ -31,10 +31,16 @@ const EmailInput = forwardRef<HTMLInputElement, any>(
           toast.success(response.message);
           setOpen(true); // Open the modal if the OTP is sent successfully
         }
-      } catch (error) {
-        console.log(error, "Error"); // Log error if the request fails
+      } catch (error: any) {
+        console.log(error, "err");
+        if (error.response) {
+          toast.error(error.response.data.message); // Log error if the request fails
+        } else {
+          toast.error(error.message);
+        }
       }
     };
+    console.log("--->", email);
 
     return (
       <div className="relative">
@@ -49,13 +55,17 @@ const EmailInput = forwardRef<HTMLInputElement, any>(
             setValue("email", inputEmail);
 
             if (localStorage.getItem("verify-token")) {
-              checkVerified().then((res) => {
-                if (res.data.email === inputEmail) {
-                  setVerified(true);
-                } else {
+              checkVerified()
+                .then((res) => {
+                  if (res.data.email === inputEmail) {
+                    setVerified(true);
+                  } else {
+                    setVerified(false);
+                  }
+                })
+                .catch((err) => {
                   setVerified(false);
-                }
-              });
+                });
             }
           }}
           value={email}
