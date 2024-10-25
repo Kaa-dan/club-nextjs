@@ -5,10 +5,11 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import GoogleSignUp from "./google-signup-button";
 
 import {
   getAuth,
-  GoogleAuthProvider,
+  FacebookAuthProvider,
   signInWithPopup,
   onAuthStateChanged,
 } from "firebase/auth";
@@ -26,7 +27,7 @@ import Link from "next/link";
 import { PasswordInput } from "@/components/ui/password-input";
 import { useEffect, useState } from "react";
 import { EmailInput } from "./email-input";
-import { checkVerified, googleAUth, signUp } from "./endpoint";
+import { signUp } from "./endpoint";
 import { toast } from "sonner";
 import { app } from "@/lib/config/firebase";
 
@@ -52,20 +53,19 @@ const formSchema = z
   });
 
 export function SignUpForm() {
-  const auth = getAuth(app);
-  const googleProvider = new GoogleAuthProvider();
   const router = useRouter();
-
-  useEffect(() => {
-    checkVerified()
-      .then((res) => {
-        setVerified(res.status);
-      })
-      .catch((err) => {
-        console.log(err, "errrr");
-      });
-  }, []);
-
+  const facebookProvider = new FacebookAuthProvider(); // Add Facebook provider
+  const auth = getAuth(app);
+  // const router = useRouter();
+  // useEffect(() => {
+  //   checkVerified()
+  //     .then((res) => {
+  //       setVerified(res.status);
+  //     })
+  //     .catch((err) => {
+  //       console.log(err, "errrr");
+  //     });
+  // }, []);
   const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
 
   const [verified, setVerified] = useState(false);
@@ -86,14 +86,17 @@ export function SignUpForm() {
       //api registartion handler
       const response = await signUp(data);
 
-      //success message
+      console.log(response, "Ress");
       toast.success(response.message);
+      router.push("/boarding");
 
-      //navigate
-      router.push("/onboarding");
+      toast.success(response.message);
     } catch (error: any) {
-      //toasting message
-      toast.error(`${error.response.data.message} try to login`);
+      if (error.response) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error(error.message);
+      }
     }
   };
 
@@ -101,30 +104,23 @@ export function SignUpForm() {
     setIsPasswordVisible(!isPasswordVisible);
   };
 
-  const handleGoogleSignIn = async () => {
+  const handleFacebookSignIn = async () => {
     try {
-      const result = await signInWithPopup(auth, googleProvider);
-      // The signed-in user info
+      const result = await signInWithPopup(auth, facebookProvider);
       const user = result.user;
-      const response = await googleAUth({
-        email: user.email,
-        userName: user.displayName,
-        imageUrl: user.photoURL,
-        phoneNumber: user.phoneNumber,
-      });
-      toast.success(response.message);
-      // You might want to store the user info in your backend
-      try {
-      } catch (error: any) {
-        console.log(error, "errrr");
-
-        toast.error(error.response.data.message);
-      }
-
-      toast.success("Successfully signed in with Google!");
-      // router.push("/dashboard");
+      // const response = await googleAUth({
+      //   email: user.email,
+      //   userName: user.displayName,
+      //   imageUrl: user.photoURL,
+      //   phoneNumber: user.phoneNumber,
+      // });
+      // toast.success(response.message);
+      toast.success("Successfully signed in with Facebook!");
     } catch (error: any) {
-      toast.error(error.message || "Failed to sign in with Google");
+      console.log(error, "errr");
+      toast.error(
+        error.response?.data?.message || "Failed to sign in with Facebook"
+      );
     }
   };
 
@@ -145,14 +141,11 @@ export function SignUpForm() {
           </p>
         </div>
         <div className="mb-4 flex justify-between">
+          <GoogleSignUp />
           <button
-            onClick={handleGoogleSignIn}
+            onClick={handleFacebookSignIn}
             className="mr-2 flex w-full items-center justify-center rounded-lg border p-2"
           >
-            <Image src={IMG?.Google} alt="Google" className="mr-2 h-6" />
-            Google
-          </button>
-          <button className="mr-2 flex w-full items-center justify-center rounded-lg border p-2">
             <Image src={IMG?.Facebook} alt="Facebook" className="mr-2 h-6" />
             Facebook
           </button>
