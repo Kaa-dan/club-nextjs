@@ -9,6 +9,8 @@ import Profile1 from "../../../public/images/profile1.svg";
 import Profile2 from "../../../public/images/profile2.svg";
 import Profile3 from "../../../public/images/profile3.svg";
 import Profile4 from "../../../public/images/profile4.svg";
+import EyeLogo from "../../../public/images/eye.png";
+import ViewLogo from "../../../public/images/view.png";
 
 const IMG = {
   Logo,
@@ -22,6 +24,8 @@ const IMG = {
   Profile2,
   Profile3,
   Profile4,
+  EyeLogo,
+  ViewLogo
 };
 
 export default IMG;

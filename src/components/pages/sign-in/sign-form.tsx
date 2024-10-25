@@ -1,9 +1,12 @@
 "use client";
 
+import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
+import { app } from "@/lib/config/firebase";
+
 import {
   Form,
   FormControl,
@@ -18,6 +21,9 @@ import IMG from "@/lib/constants";
 import Link from "next/link";
 import { Checkbox } from "@/components/ui/checkbox";
 import { PasswordInput } from "@/components/ui/password-input";
+import { googleSignIn, login } from "./endpoint";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -28,6 +34,9 @@ const formSchema = z.object({
 });
 
 export function SignInForm() {
+  const auth = getAuth(app);
+  const router = useRouter();
+  const googleProvider = new GoogleAuthProvider();
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -37,10 +46,36 @@ export function SignInForm() {
     },
   });
 
-  const onSubmit = (values: any) => {
-    console.log(values);
+  const onSubmit = async (data: any) => {
+    try {
+      const response = await login(data);
+
+      toast.success(response?.message);
+      localStorage.setItem("userToken", response.token);
+      router.push("/boarding");
+    } catch (error) {
+      console.log(error, "Errr");
+    }
   };
 
+  const handleGoogleSignIn = async () => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+
+      const response = await googleSignIn({
+        email: user.email,
+        userName: user.displayName,
+        imageUrl: user.photoURL,
+        phoneNumber: user.phoneNumber,
+      });
+
+      toast.success(response.message);
+    } catch (error: any) {
+      console.error("Google Sign-in Error:", error);
+      toast.error(error.response.data.message);
+    }
+  };
   return (
     <div className="flex min-h-screen items-center justify-center">
       <div className="w-full max-w-md ">
@@ -53,12 +88,15 @@ export function SignInForm() {
             className="py-2"
           />
           <h2 className=" text-2xl font-bold">Hey, Welcome Back 👋</h2>
-          <p className="text-xs">
+          <p className="text-xs text-gray-600">
             Login to an account and take advantage of exclusive benefits.
           </p>
         </div>
         <div className="mb-4 flex justify-between">
-          <button className="mr-2 flex w-full items-center justify-center rounded-lg border p-2">
+          <button
+            onClick={handleGoogleSignIn}
+            className="mr-2 flex w-full items-center justify-center rounded-lg border p-2"
+          >
             <Image src={IMG?.Google} alt="Google" className="mr-2 h-6" />
             Google
           </button>
@@ -135,6 +173,7 @@ export function SignInForm() {
             </div>
             <div className="pt-8">
               <Button
+                disabled={form.formState.isSubmitting}
                 type="submit"
                 className="w-full rounded-lg bg-primary p-2 text-white"
               >
