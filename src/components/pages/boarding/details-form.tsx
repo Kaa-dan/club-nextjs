@@ -26,6 +26,7 @@ import Link from "next/link";
 
 type Step = "Details" | "Picture" | "Node";
 
+//form validation using zed
 const stepOneSchema = z.object({
   username: z
     .string()
@@ -53,8 +54,12 @@ interface DetailsFormProps {
 }
 
 const DetailsForm: React.FC<DetailsFormProps> = ({ setStep }) => {
+  //for storign for values
   const [formData, setFormData] = useState<Partial<StepOneType>>({});
 
+  console.log({ formData });
+
+  //form instance with validation
   const form = useForm<StepOneType>({
     resolver: zodResolver(stepOneSchema),
   });
