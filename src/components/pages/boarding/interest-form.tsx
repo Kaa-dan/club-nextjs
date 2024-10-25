@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Form,
   FormControl,
@@ -45,9 +45,7 @@ const interests = [
 ];
 
 const stepTwoSchema = z.object({
-  search: z
-    .string()
-    .min(2, { message: "Search must be at least 2 characters." }),
+  search: z.string().optional(),
   terms: z.boolean().refine((val) => val, {
     message: "You must accept the terms and conditions",
   }),
@@ -63,22 +61,26 @@ interface InterestFormProps {
 
 const InterestForm: React.FC<InterestFormProps> = ({ setStep }) => {
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
-
   const [formData, setFormData] = useState<Partial<StepTwoType>>({});
+  const [filteredInterests, setFilteredInterests] = useState(interests);
 
   const form = useForm<StepTwoType>({
     resolver: zodResolver(stepTwoSchema),
     defaultValues: formData,
   });
 
+  useEffect(() => {
+    form.reset(formData);
+  }, [formData, form]);
+
   const onSubmit: SubmitHandler<StepTwoType> = (data) => {
-    const newFormData = { ...formData, ...data };
+    const newFormData = { terms: data.terms, selectedInterests };
     setFormData(newFormData);
 
     console.log("Data for Picture step:", data);
     console.log("Cumulative form data:", newFormData);
 
-    setStep("Node");
+    // setStep("Node");
   };
 
   const handleInterestClick = (interest: string) => {
@@ -88,6 +90,19 @@ const InterestForm: React.FC<InterestFormProps> = ({ setStep }) => {
       setSelectedInterests(
         selectedInterests.filter((item) => item !== interest)
       );
+    }
+  };
+
+  const handleSearch = (query: string) => {
+    form.setValue("search", query);
+    if (query.trim()) {
+      setFilteredInterests(
+        interests.filter((interest) =>
+          interest.toLowerCase().includes(query.toLowerCase())
+        )
+      );
+    } else {
+      setFilteredInterests(interests);
     }
   };
 
@@ -114,6 +129,7 @@ const InterestForm: React.FC<InterestFormProps> = ({ setStep }) => {
                       className="border-none bg-gray-100"
                       placeholder="Search for tags etc..."
                       {...field}
+                      onChange={(e) => handleSearch(e.target.value)}
                     />
                   </div>
                 </FormControl>
@@ -138,7 +154,7 @@ const InterestForm: React.FC<InterestFormProps> = ({ setStep }) => {
           </div>
 
           <div className="flex flex-wrap gap-2">
-            {interests.map((interest) => (
+            {filteredInterests.map((interest) => (
               <div
                 key={interest}
                 className={`cursor-pointer rounded-lg border px-2 py-1 text-sm font-medium md:text-xs ${
