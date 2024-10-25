@@ -1,41 +1,34 @@
 import Image from "next/image";
-import { toast } from "sonner";
-import { googleAUth } from "./endpoint";
-import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import IMG from "@/lib/constants";
+import { toast } from "sonner";
+import { signinWithSocial } from "./endpoint";
+import { signInWithPopup, GoogleAuthProvider, getAuth } from "firebase/auth";
 import { app } from "@/lib/config/firebase";
-import { useRouter } from "next/navigation";
-
-const GoogleSignUp = () => {
-  const router = useRouter();
-  const googleProvider = new GoogleAuthProvider();
+const GoogleSignIn = () => {
   const auth = getAuth(app);
+  const googleProvider = new GoogleAuthProvider();
 
   const handleGoogleSignIn = async () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
-      // The signed-in user info
       const user = result.user;
-      const response = await googleAUth({
+
+      const response = await signinWithSocial({
         email: user.email,
         userName: user.displayName,
         imageUrl: user.photoURL,
         phoneNumber: user.phoneNumber,
       });
-      localStorage.setItem("token", response.token);
-      router.push("/onboarding");
 
       toast.success(response.message);
     } catch (error: any) {
+      console.error("Google Sign-in Error:", error);
       if (error.response) {
-        toast.error(
-          error.response.data.message || "Failed to sign in with Google"
-        );
-      } else {
-        toast.error(error.message);
+        toast.error(error.response.data.message);
       }
     }
   };
+
   return (
     <button
       onClick={handleGoogleSignIn}
@@ -46,4 +39,5 @@ const GoogleSignUp = () => {
     </button>
   );
 };
-export default GoogleSignUp;
+
+export default GoogleSignIn;

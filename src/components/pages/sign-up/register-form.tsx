@@ -6,13 +6,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import GoogleSignUp from "./google-signup-button";
-
-import {
-  getAuth,
-  FacebookAuthProvider,
-  signInWithPopup,
-  onAuthStateChanged,
-} from "firebase/auth";
+import FacebookSignup from "./facebook-signup-button.";
 import {
   Form,
   FormControl,
@@ -25,12 +19,12 @@ import Image from "next/image";
 import IMG from "@/lib/constants";
 import Link from "next/link";
 import { PasswordInput } from "@/components/ui/password-input";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { EmailInput } from "./email-input";
 import { signUp } from "./endpoint";
 import { toast } from "sonner";
-import { app } from "@/lib/config/firebase";
 
+// Define form schema using Zod for validation
 const formSchema = z
   .object({
     email: z.string().email({ message: "Invalid email address" }),
@@ -48,20 +42,11 @@ const formSchema = z
 
 export function SignUpForm() {
   const router = useRouter();
-  const facebookProvider = new FacebookAuthProvider(); // Add Facebook provider
-  const auth = getAuth(app);
-  // const router = useRouter();
-  // useEffect(() => {
-  //   checkVerified()
-  //     .then((res) => {
-  //       setVerified(res.status);
-  //     })
-  //     .catch((err) => {
-  //       console.log(err, "errrr");
-  //     });
-  // }, []);
-  const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
+
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [verified, setVerified] = useState(false);
+
+  // Initialize react-hook-form with Zod resolver
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -71,51 +56,21 @@ export function SignUpForm() {
     },
   });
 
+  // Form submit handler for email/password signup
   const onSubmit = async (data: any) => {
     try {
       const response = await signUp(data);
-
-      console.log(response, "Ress");
       toast.success(response.message);
-      router.push("/boarding");
-
-      toast.success(response.message);
+      router.push("/onboarding");
     } catch (error: any) {
-      if (error.response) {
-        toast.error(error.response.data.message);
-      } else {
-        toast.error(error.message);
-      }
-    }
-  };
-
-  const togglePasswordVisibility = () => {
-    setIsPasswordVisible(!isPasswordVisible);
-  };
-
-  const handleFacebookSignIn = async () => {
-    try {
-      const result = await signInWithPopup(auth, facebookProvider);
-      const user = result.user;
-      // const response = await googleAUth({
-      //   email: user.email,
-      //   userName: user.displayName,
-      //   imageUrl: user.photoURL,
-      //   phoneNumber: user.phoneNumber,
-      // });
-      // toast.success(response.message);
-      toast.success("Successfully signed in with Facebook!");
-    } catch (error: any) {
-      console.log(error, "errr");
-      toast.error(
-        error.response?.data?.message || "Failed to sign in with Facebook"
-      );
+      toast.error(error.response?.data?.message || error.message);
     }
   };
 
   return (
     <div className="flex min-h-screen items-center justify-center">
-      <div className="w-full max-w-md ">
+      <div className="w-full max-w-md">
+        {/* Header */}
         <div className="mb-6 flex flex-col items-center text-center">
           <Image
             src={IMG?.Logo}
@@ -124,20 +79,16 @@ export function SignUpForm() {
             alt="logo"
             className="py-2"
           />
-          <h2 className=" text-2xl font-bold">Welcome to clubwize 👋</h2>
+          <h2 className="text-2xl font-bold">Welcome to Clubwize 👋</h2>
           <p className="text-xs text-gray-600">
             Welcome to the team, rookie! Get ready to crush it with Clubwize!
           </p>
         </div>
+
+        {/* Social Auth Buttons */}
         <div className="mb-4 flex justify-between">
           <GoogleSignUp />
-          <button
-            onClick={handleFacebookSignIn}
-            className="mr-2 flex w-full items-center justify-center rounded-lg border p-2"
-          >
-            <Image src={IMG?.Facebook} alt="Facebook" className="mr-2 h-6" />
-            Facebook
-          </button>
+          <FacebookSignup />
           <button className="flex w-full items-center justify-center rounded-lg border p-2">
             <Image src={IMG?.Apple} alt="Apple" className="mr-2 h-6" />
             Apple
@@ -151,9 +102,9 @@ export function SignUpForm() {
           <div className="grow border-t border-gray-300"></div>
         </div>
 
-        {/* Sign-in form */}
+        {/* Sign-up form */}
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className=" space-y-2">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
             <div className="space-y-4">
               <FormField
                 control={form.control}
@@ -195,11 +146,11 @@ export function SignUpForm() {
                 name="confirmPassword"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Confirm</FormLabel>
+                    <FormLabel>Confirm Password</FormLabel>
                     <FormControl>
                       <PasswordInput
-                        {...field}
                         placeholder="Confirm your password"
+                        {...field}
                       />
                     </FormControl>
                     <FormMessage />
@@ -212,13 +163,15 @@ export function SignUpForm() {
               <Button
                 disabled={!verified || form.formState.isSubmitting}
                 type="submit"
-                className="w-full rounded-lg disabled bg-primary p-2 text-white"
+                className="w-full rounded-lg bg-primary p-2 text-white"
               >
                 Continue with Clubwize
               </Button>
             </div>
           </form>
         </Form>
+
+        {/* Login link */}
         <div className="mt-3 text-center text-gray-600">
           <p>
             Already have an account?{" "}

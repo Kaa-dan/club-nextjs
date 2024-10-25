@@ -11,7 +11,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-
+import { resendOtp } from "./endpoint";
 type InputRefType = HTMLInputElement | null;
 
 const RegisterOtp: React.FC<{
@@ -109,11 +109,12 @@ const RegisterOtp: React.FC<{
       // Reset timer and disable resend
       setTimer(60);
       setCanResend(false);
-
+      const response = await resendOtp(email);
+      toast.success(response.message);
       // Optionally, send the resend OTP request here
       // await resendOtp(); // Call your resend OTP endpoint
-    } catch (error) {
-      console.error("Failed to resend OTP:", error);
+    } catch (error: any) {
+      toast.error(error.response.data.message);
     } finally {
       setIsSubmitting(false);
     }
@@ -133,8 +134,6 @@ const RegisterOtp: React.FC<{
       setOpen(false); // Close the dialog
       setVerified(true); // Mark as verified
     } catch (error: any) {
-      console.log(error, "errrr");
-
       toast.error(error.response.data.message);
     } finally {
       setIsSubmitting(false); // Reset the submission state after response
