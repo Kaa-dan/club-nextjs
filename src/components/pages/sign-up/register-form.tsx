@@ -31,6 +31,12 @@ import { signUp } from "./endpoint";
 import { toast } from "sonner";
 import { app } from "@/lib/config/firebase";
 
+// interface
+interface SignUpFormData {
+  email: string;
+  password: string;
+}
+
 const formSchema = z
   .object({
     email: z.string().email({ message: "Invalid email address" }),
@@ -61,7 +67,10 @@ export function SignUpForm() {
   //     });
   // }, []);
   const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
+
   const [verified, setVerified] = useState(false);
+
+  // form state default values
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -71,8 +80,10 @@ export function SignUpForm() {
     },
   });
 
-  const onSubmit = async (data: any) => {
+  // form submit handle
+  const onSubmit = async (data: SignUpFormData) => {
     try {
+      //api registartion handler
       const response = await signUp(data);
 
       console.log(response, "Ress");
