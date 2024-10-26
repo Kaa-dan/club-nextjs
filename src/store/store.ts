@@ -17,8 +17,14 @@ export const useTokenStore = create<MainStore>()(
       verifyToken: null,
 
       // Actions to update the state
-      setVerifyToken: (token) => set({ verifyToken: token }),
-      clearVerifyToken: () => set({ verifyToken: null }),
+      setVerifyToken: (token) => {
+        set({ verifyToken: token })
+        document.cookie = `verify-token=${token}; path=/`; // Sync with cookies
+      },
+      clearVerifyToken: () => {
+        set({ verifyToken: null })
+        document.cookie = 'verify-token=; path=/';
+      }
     }),
     {
       // unique name for the storage key
