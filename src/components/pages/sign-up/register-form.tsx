@@ -82,15 +82,16 @@ const formSchema = z
 
 export function SignUpForm(): JSX.Element {
   //global store
-  const { verifyToken, setVerifyToken, clearVerifyToken } = useTokenStore(
-    (state) => ({
+  const { verifyToken, setVerifyToken, globalUser, setGlobalUser } =
+    useTokenStore((state) => ({
       verifyToken: state.verifyToken,
       setVerifyToken: state.setVerifyToken,
       clearVerifyToken: state.clearVerifyToken,
-    })
-  );
+      globalUser: state.globalUser,
+      setGlobalUser: state.setGlobalUser,
+    }));
 
-  console.log({ verifyToken });
+  console.log({ verifyToken, globalUser });
   const router = useRouter();
   const facebookProvider = new FacebookAuthProvider();
   const auth: Auth = getAuth(app);
@@ -123,13 +124,22 @@ export function SignUpForm(): JSX.Element {
   // Type-safe submit handler
   const onSubmit = async (data: SignUpFormData): Promise<void> => {
     try {
-      console.log({ data });
-      // Uncomment when ready to use
-      // const response = await signUp(data);
-      // toast.success(response.message);
-      // router.push("/boarding");
+      // storing response and api calling
+      const response = await signUp(data);
+
+      // setting global state
+      setGlobalUser(response?.data || null);
+
+      // sending message
+      toast.success(response.message);
+
+      //handling route to onboarding section
+      router.push("/onboarding");
     } catch (error) {
+      //checking type
       const typedError = error as FirebaseError;
+
+      // handling error
       if (typedError.response) {
         toast.error(typedError.response.data?.message || "An error occurred");
       } else {

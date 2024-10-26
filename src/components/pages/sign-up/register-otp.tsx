@@ -22,16 +22,17 @@ const RegisterOtp: React.FC<{
   setVerified: (status: boolean) => void;
 }> = ({ email, setOpen, setVerified }) => {
   //global store
-  const { verifyToken, setVerifyToken, clearVerifyToken } = useTokenStore(
+  const { verifyToken, setVerifyToken, globalUser, setGlobalUser } = useTokenStore(
     (state) => ({
       verifyToken: state.verifyToken,
       setVerifyToken: state.setVerifyToken,
       clearVerifyToken: state.clearVerifyToken,
+      globalUser: state.globalUser,
+      setGlobalUser: state.setGlobalUser,
     })
   );
-  
-  const [otp, setOtp] = useState<string[]>(new Array(6).fill(""));
 
+  const [otp, setOtp] = useState<string[]>(new Array(6).fill(""));
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
