@@ -36,7 +36,7 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
   setCurrentPage,
 }) => {
   return (
-    <div className="bg-white rounded-lg shadow-md md:min-w-60 sticky text-sm top-4">
+    <div className="bg-white rounded-lg shadow-md md:min-w-60 md:max-w-60 sticky text-sm top-4">
       <div className="relative">
         <Image
           src={node.coverImage}
@@ -46,7 +46,7 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
           className="w-full h-24 object-cover rounded-t-lg"
           layout="responsive"
         />
-        <div className="absolute top-20 left-4">
+        <div className="absolute top-14 left-4">
           <Image
             src={node.avatar}
             alt="Avatar"
@@ -57,7 +57,7 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
         </div>
       </div>
       <div className="px-4">
-        <div className="pt-10 pl-4">
+        <div className="pt-8 pl-4">
           <h2 className="text-lg font-bold">{node.name}</h2>
           <p className="text-xs text-gray-600">{node.role}</p>
           <p className="text-xs text-gray-500">
