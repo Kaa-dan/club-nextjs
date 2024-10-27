@@ -31,7 +31,7 @@ import { ICONS, IMGS } from "@/lib/constants";
 // Validation schema using Zod
 const formSchema = z.object({
   profilePhoto: z.string().optional(),
-  nodeName: z.string().min(1, { message: "Node name is required" }),
+  name: z.string().min(1, { message: "Node name is required" }),
   about: z.string().min(1, { message: "About is required" }),
   location: z.string().min(1, { message: "Location is required" }),
   description: z.string().optional(),
@@ -49,7 +49,7 @@ const DetailsForm = ({
   form: UseFormReturn<
     {
       profilePhoto: string;
-      nodeName: string;
+      name: string;
       about: string;
       location: string;
       description: string;
@@ -59,7 +59,7 @@ const DetailsForm = ({
   >;
   onSubmit: (values: {
     profilePhoto: string;
-    nodeName: string;
+    name: string;
     about: string;
     location: string;
     description: string;
@@ -76,19 +76,35 @@ const DetailsForm = ({
         <FormField
           control={form.control}
           name="profilePhoto"
-          render={({ field: { value, onChange, ...field } }) => (
+          render={({ field }) => (
             <FormItem>
               <FormLabel>Select profile photo</FormLabel>
               <FormControl>
                 <Input
                   type="file"
+                  accept="image/*"
                   onChange={(e) => {
                     const file = e.target.files?.[0];
-                    onChange(file || "");
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onloadend = () => {
+                        // setPreviewUrl(reader.result);
+                        field.onChange(reader.result);
+                      };
+                      reader.readAsDataURL(file);
+                    }
                   }}
-                  {...field}
                 />
               </FormControl>
+              {/* {previewUrl && (
+                <div className="mt-2">
+                  <img
+                    src={previewUrl}
+                    alt="Preview"
+                    className="w-20 h-20 object-cover rounded"
+                  />
+                </div>
+              )} */}
               <FormMessage />
             </FormItem>
           )}
@@ -97,7 +113,7 @@ const DetailsForm = ({
         {/* Node Name */}
         <FormField
           control={form.control}
-          name="nodeName"
+          name="name"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Enter node name</FormLabel>
@@ -185,7 +201,7 @@ const AddNodeDialog = ({ open, setOpen }: IProps) => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       profilePhoto: "",
-      nodeName: "",
+      name: "",
       about: "",
       location: "",
       description: "",
@@ -248,7 +264,7 @@ const AddNodeDialog = ({ open, setOpen }: IProps) => {
                       module.name
                     );
                     return (
-                      <>
+                      <div className="w-full" key={module.name}>
                         <div className="w-full border "></div>
                         <div className="flex items-center gap-4 py-2">
                           <Card className="p-2 rounded-md">
@@ -283,7 +299,7 @@ const AddNodeDialog = ({ open, setOpen }: IProps) => {
                             )}
                           </Button>
                         </div>
-                      </>
+                      </div>
                     );
                   })}
                   <div className="w-full border mb-4"></div>

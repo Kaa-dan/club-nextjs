@@ -1,23 +1,3 @@
-import { TokensIcon } from "@radix-ui/react-icons";
-import {
-  Tag,
-  Users,
-  Settings,
-  Bookmark,
-  SquarePen,
-  LayoutGrid,
-  Link,
-  Album,
-  Contact,
-  PanelRightClose,
-  User,
-  Contact2,
-  Newspaper,
-  Key,
-  Home,
-  HomeIcon,
-} from "lucide-react";
-
 type Submenu = {
   href: string;
   label: string;
@@ -28,7 +8,7 @@ type Menu = {
   href: string;
   label: string;
   active: boolean;
-  icon: any;
+  image: string;
   submenus: Submenu[];
 };
 
@@ -46,38 +26,38 @@ export function getMenuList(pathname: string): Group[] {
           href: "/home",
           label: "Home",
           active: pathname.includes("/home"),
-          icon: HomeIcon,
+          image: "https://picsum.photos/200",
           submenus: [],
         },
       ],
     },
     {
-      groupLabel: "Node",
+      groupLabel: "Nodes",
       menus: [
         {
           href: "/my-account",
           label: "My Account",
           active: pathname.includes("/my-account"),
-          icon: User,
+          image: "https://picsum.photos/200",
           submenus: [],
         },
         {
           href: "/my-account",
           label: "My Account",
           active: pathname.includes("/my-account"),
-          icon: User,
+          image: "https://picsum.photos/200",
           submenus: [],
         },
       ],
     },
     {
-      groupLabel: "Club",
+      groupLabel: "Clubs",
       menus: [
         {
           href: "/my-account",
           label: "My Account",
           active: pathname.includes("/my-account"),
-          icon: User,
+          image: "https://picsum.photos/200",
           submenus: [],
         },
       ],
