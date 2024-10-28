@@ -1,8 +1,9 @@
 import { axiosConfig } from "@/lib/axios";
+
 export const sendOtp = async (email: string) => {
   try {
     const response = await axiosConfig.post("/send-otp", { email });
-    // console.log(response, "resss");
+    
     return response.data;
   } catch (error) {
     throw error;
@@ -26,6 +27,7 @@ export const verifyOtp = async (otp: string, email: string) => {
     throw error;
   }
 };
+
 export const checkVerified = async () => {
   try {
     const token = localStorage.getItem("verify-token");
@@ -47,9 +49,12 @@ export const checkVerified = async () => {
   }
 };
 
+
+
 export const signUp = async (data: any) => {
   try {
     const response = await axiosConfig.post("/sign-up", data);
+
     return response.data;
   } catch (error) {
     throw error;
@@ -59,7 +64,6 @@ export const signUp = async (data: any) => {
 export const googleAUth = async (data: any) => {
   try {
     const response = await axiosConfig.post("/google-signup", data);
-
     return response.data;
   } catch (error) {
     throw error;
