@@ -1,4 +1,5 @@
 "use client";
+import ModulesBar from "@/components/pages/node/modules-bar";
 import NodeProfileCard from "@/components/pages/node/node-profile-card";
 import NodeTeams from "@/components/pages/node/node-teams";
 import React, { useState } from "react";
@@ -22,7 +23,10 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           setCurrentPage={setCurrentPage}
           node={dummyNodeData}
         />
-        {children}
+        <div className="flex flex-col w-full">
+          <ModulesBar />
+          {children}
+        </div>
       </div>
       <NodeTeams />
     </div>
