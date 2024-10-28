@@ -40,7 +40,6 @@ const EmailInput = forwardRef<HTMLInputElement, any>(
         }
       }
     };
-    console.log("--->", email);
 
     return (
       <div className="relative">

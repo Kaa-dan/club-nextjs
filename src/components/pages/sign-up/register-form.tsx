@@ -24,6 +24,8 @@ import { EmailInput } from "./email-input";
 import { signUp } from "./endpoint";
 import { toast } from "sonner";
 
+import AppleSignup from "./apple-signup-button";
+
 // Define form schema using Zod for validation
 const formSchema = z
   .object({
@@ -89,10 +91,7 @@ export function SignUpForm() {
         <div className="mb-4 flex justify-between">
           <GoogleSignUp />
           <FacebookSignup />
-          <button className="flex w-full items-center justify-center rounded-lg border p-2">
-            <Image src={IMG?.Apple} alt="Apple" className="mr-2 h-6" />
-            Apple
-          </button>
+          <AppleSignup />
         </div>
 
         {/* OR separator */}
