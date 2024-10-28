@@ -1,17 +1,17 @@
 import React from "react";
 
-export type Step = "Details" | "Picture" | "Interest" | "Node";
-
 interface ProgressIndicatorProps {
-  currentStep: Step;
+  currentStep: string;
+  steps: string[];
+  smallText?: boolean;
 }
 
 const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
+  steps,
   currentStep,
+  smallText = false,
 }) => {
-  const steps: Step[] = ["Details", "Picture", "Interest", "Node"];
-
-  const getStepIndex = (step: Step) => steps.indexOf(step);
+  const getStepIndex = (step: string) => steps.indexOf(step);
 
   return (
     <div className="flex ">
@@ -23,12 +23,12 @@ const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
         return (
           <div key={step} className="flex items-center">
             <div
-              className={`flex size-6 items-center  justify-center  rounded-full !p-3 text-base font-medium
+              className={`flex size-6 items-center  justify-center  rounded-full !p-3 font-medium
               ${
                 isCurrent || stepIndex <= currentStepIndex
                   ? "bg-primary text-white"
                   : "bg-gray-200 text-gray-400"
-              }`}
+              } ${smallText ? "text-xs" : "text-base"}`}
             >
               {stepIndex < currentStepIndex ? (
                 <svg
@@ -58,7 +58,7 @@ const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
             {index < steps.length - 1 && (
               <div className=" flex justify-center ">
                 <div
-                  className={`mx-3 h-0.5 w-6 ${stepIndex < currentStepIndex ? "bg-primary" : "bg-gray-200"}`}
+                  className={`mx-3 h-0.5 w-6 ${stepIndex < currentStepIndex ? "bg-primary text-white" : "bg-gray-200"}`}
                 ></div>
               </div>
             )}

@@ -1,8 +1,8 @@
 import Image from "next/image";
 import { toast } from "sonner";
-import { googleAUth } from "./endpoint";
+import { socialAuth } from "./endpoint";
 import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import IMG from "@/lib/constants";
+import { IMGS } from "@/lib/constants";
 import { app } from "@/lib/config/firebase";
 import { useRouter } from "next/navigation";
 
@@ -11,17 +11,19 @@ const GoogleSignUp = () => {
   const googleProvider = new GoogleAuthProvider();
   const auth = getAuth(app);
 
-  const handleGoogleSignIn = async () => {
+  const socialSignup = async () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       // The signed-in user info
       const user = result.user;
-      const response = await googleAUth({
+      const response = await socialAuth({
         email: user.email,
         userName: user.displayName,
         imageUrl: user.photoURL,
         phoneNumber: user.phoneNumber,
+        signupThrough: "google",
       });
+      localStorage.setItem("token", response.token);
       router.push("/onboarding");
 
       toast.success(response.message);
@@ -38,10 +40,10 @@ const GoogleSignUp = () => {
   return (
     <>
       <button
-        onClick={handleGoogleSignIn}
+        onClick={socialSignup}
         className="mr-2 flex w-full items-center justify-center rounded-lg border p-2"
       >
-        <Image src={IMG?.Google} alt="Google" className="mr-2 h-6" />
+        <Image src={IMGS?.Google} alt="Google" className="mr-2 h-6" />
         Google
       </button>
     </>

@@ -16,10 +16,12 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import PhotoInput from "@/components/ui/photo-input";
 import Link from "next/link";
+import { postPicture } from "./endpoint";
+import { useTokenStore } from "@/store/store";
 
 type Step = "Details" | "Picture" | "Node";
 
-const   stepTwoSchema = z.object({
+const stepTwoSchema = z.object({
   profilePhoto: z
     .instanceof(File)
     .nullable()
@@ -37,10 +39,22 @@ type StepTwoType = z.infer<typeof stepTwoSchema>;
 
 interface PictureFormProps {
   setStep: (step: Step) => void;
+  userId?: string; // Add userId prop if you need to pass it
 }
 
-const PictureForm: React.FC<PictureFormProps> = ({ setStep }) => {
+const PictureForm: React.FC<PictureFormProps> = ({ setStep, userId }) => {
+  //global store
+  const { verifyToken, setVerifyToken, globalUser, setGlobalUser } =
+    useTokenStore((state) => ({
+      verifyToken: state.verifyToken,
+      setVerifyToken: state.setVerifyToken,
+      clearVerifyToken: state.clearVerifyToken,
+      globalUser: state.globalUser,
+      setGlobalUser: state.setGlobalUser,
+    }));
+
   const [formData, setFormData] = useState<Partial<StepTwoType>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<StepTwoType>({
     resolver: zodResolver(stepTwoSchema),
@@ -51,14 +65,48 @@ const PictureForm: React.FC<PictureFormProps> = ({ setStep }) => {
     form.reset(formData);
   }, [formData, form]);
 
-  const onSubmit: SubmitHandler<StepTwoType> = (data) => {
-    const newFormData = { ...formData, ...data };
-    setFormData(newFormData);
+  const onSubmit: SubmitHandler<StepTwoType> = async (data) => {
+    try {
+      setIsSubmitting(true);
 
-    console.log("Data for Picture step:", data);
-    console.log("Cumulative form data:", newFormData);
+      // Create FormData instance
+      const formDataToSend = new FormData();
 
-    setStep("Node");
+      // Append the files with the names matching your Multer configuration
+      if (data.profilePhoto) {
+        formDataToSend.append("profileImage", data.profilePhoto);
+      }
+      if (data.coverPhoto) {
+        formDataToSend.append("coverImage", data.coverPhoto);
+      }
+
+      // Append userId if needed
+      if (userId) {
+        formDataToSend.append("userId", userId);
+      }
+
+      // Make the API call
+      console.log("clicked");
+      if (globalUser) {
+        console.log("clicked");
+        const response = await postPicture(globalUser._id, formDataToSend);
+
+        if (!response.ok) {
+          throw new Error("Upload failed");
+        }
+
+        const result = await response.json();
+        console.log("Upload successful:", result);
+
+        // Move to next step if successful
+        setStep("Node");
+      }
+    } catch (error) {
+      console.error("Upload error:", error);
+      // Handle error (you might want to show an error message to the user)
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -131,8 +179,8 @@ const PictureForm: React.FC<PictureFormProps> = ({ setStep }) => {
           <Button variant="outline" type="button">
             Back
           </Button>
-          <Button type="submit" className="text-white">
-            Next
+          <Button type="submit" className="text-white" disabled={isSubmitting}>
+            {isSubmitting ? "Uploading..." : "Next"}
           </Button>
         </div>
       </form>

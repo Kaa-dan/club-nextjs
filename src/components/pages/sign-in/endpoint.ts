@@ -8,10 +8,9 @@ export const login = async (data: any) => {
     throw error;
   }
 };
-export const googleSignIn = async (data: any) => {
+export const signinWithSocial = async (data: any) => {
   try {
     const response = await axiosConfig.post("/google-signin", data);
-    console.log(response, "Ress");
 
     return response.data;
   } catch (error) {

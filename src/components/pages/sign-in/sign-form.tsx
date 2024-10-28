@@ -1,11 +1,11 @@
 "use client";
 
-import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import { app } from "@/lib/config/firebase";
+import GoogleSignIn from "./google-signin-button";
+import FacebookSignIn from "./facebook-signin-button";
 
 import {
   Form,
@@ -17,11 +17,11 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
-import IMG from "@/lib/constants";
+import { IMGS } from "@/lib/constants";
 import Link from "next/link";
 import { Checkbox } from "@/components/ui/checkbox";
 import { PasswordInput } from "@/components/ui/password-input";
-import { googleSignIn, login } from "./endpoint";
+import { login } from "./endpoint";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
@@ -34,9 +34,7 @@ const formSchema = z.object({
 });
 
 export function SignInForm() {
-  const auth = getAuth(app);
   const router = useRouter();
-  const googleProvider = new GoogleAuthProvider();
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -53,35 +51,17 @@ export function SignInForm() {
       toast.success(response?.message);
       localStorage.setItem("userToken", response.token);
       router.push("/boarding");
-    } catch (error) {
-      console.log(error, "Errr");
-    }
-  };
-
-  const handleGoogleSignIn = async () => {
-    try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const user = result.user;
-
-      const response = await googleSignIn({
-        email: user.email,
-        userName: user.displayName,
-        imageUrl: user.photoURL,
-        phoneNumber: user.phoneNumber,
-      });
-
-      toast.success(response.message);
     } catch (error: any) {
-      console.error("Google Sign-in Error:", error);
       toast.error(error.response.data.message);
     }
   };
+
   return (
     <div className="flex min-h-screen items-center justify-center">
       <div className="w-full max-w-md ">
         <div className="mb-6 flex flex-col items-center text-center">
           <Image
-            src={IMG?.Logo}
+            src={IMGS?.Logo}
             width={40}
             height={40}
             alt="logo"
@@ -93,19 +73,10 @@ export function SignInForm() {
           </p>
         </div>
         <div className="mb-4 flex justify-between">
-          <button
-            onClick={handleGoogleSignIn}
-            className="mr-2 flex w-full items-center justify-center rounded-lg border p-2"
-          >
-            <Image src={IMG?.Google} alt="Google" className="mr-2 h-6" />
-            Google
-          </button>
-          <button className="mr-2 flex w-full items-center justify-center rounded-lg border p-2">
-            <Image src={IMG?.Facebook} alt="Facebook" className="mr-2 h-6" />
-            Facebook
-          </button>
+          <GoogleSignIn />
+          <FacebookSignIn />
           <button className="flex w-full items-center justify-center rounded-lg border p-2">
-            <Image src={IMG?.Apple} alt="Apple" className="mr-2 h-6" />
+            <Image src={IMGS?.Apple} alt="Apple" className="mr-2 h-6" />
             Apple
           </button>
         </div>

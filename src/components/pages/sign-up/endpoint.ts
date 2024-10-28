@@ -61,7 +61,9 @@ export const signUp = async (data: any) => {
   }
 };
 
-export const googleAUth = async (data: any) => {
+export const socialAuth = async (data: any) => {
+  console.log(data, "daat");
+
   try {
     const response = await axiosConfig.post("/google-signup", data);
     return response.data;
