@@ -1,5 +1,5 @@
 import Image from "next/image";
-import IMG from "@/lib/constants";
+import { IMGS } from "@/lib/constants";
 import { toast } from "sonner";
 import { signinWithSocial } from "./endpoint";
 import { signInWithPopup, GoogleAuthProvider, getAuth } from "firebase/auth";
@@ -34,7 +34,7 @@ const GoogleSignIn = () => {
       onClick={handleGoogleSignIn}
       className="mr-2 flex w-full items-center justify-center rounded-lg border p-2"
     >
-      <Image src={IMG?.Google} alt="Google" className="mr-2 h-6" />
+      <Image src={IMGS?.Google} alt="Google" className="mr-2 h-6" />
       Google
     </button>
   );
