@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { verifyOtp } from "./endpoint";
+import { sendOtp, verifyOtp } from "./endpoint";
 import {
   DialogContent,
   DialogDescription,
@@ -11,7 +11,9 @@ import {
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { resendOtp } from "./endpoint";
+import { axiosConfig } from "@/lib/axios";
+import { useTokenStore } from "@/store/store";
+
 type InputRefType = HTMLInputElement | null;
 
 const RegisterOtp: React.FC<{
@@ -19,10 +21,24 @@ const RegisterOtp: React.FC<{
   setOpen: (open: boolean) => void;
   setVerified: (status: boolean) => void;
 }> = ({ email, setOpen, setVerified }) => {
+  //global store
+  const { verifyToken, setVerifyToken, globalUser, setGlobalUser } =
+    useTokenStore((state) => ({
+      verifyToken: state.verifyToken,
+      setVerifyToken: state.setVerifyToken,
+      clearVerifyToken: state.clearVerifyToken,
+      globalUser: state.globalUser,
+      setGlobalUser: state.setGlobalUser,
+    }));
+
   const [otp, setOtp] = useState<string[]>(new Array(6).fill(""));
+
   const [isSubmitting, setIsSubmitting] = useState(false);
+
   const inputRefs = useRef<InputRefType[]>([]);
+
   const [timer, setTimer] = useState(60);
+
   const [canResend, setCanResend] = useState(false);
 
   // Timer countdown logic
@@ -109,12 +125,10 @@ const RegisterOtp: React.FC<{
       // Reset timer and disable resend
       setTimer(60);
       setCanResend(false);
-      const response = await resendOtp(email);
-      toast.success(response.message);
-      // Optionally, send the resend OTP request here
-      // await resendOtp(); // Call your resend OTP endpoint
-    } catch (error: any) {
-      toast.error(error.response.data.message);
+
+      const response = await sendOtp(email);
+    } catch (error) {
+      console.error("Failed to resend OTP:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -123,9 +137,12 @@ const RegisterOtp: React.FC<{
   const handleSubmit = async () => {
     setIsSubmitting(true); // Mark as submitting
     try {
+      // api call and storing response
       const response = await verifyOtp(otp.join(""), email);
+      //setting token in store
+      setVerifyToken(response.token);
 
-      localStorage.setItem("verify-token", response.token);
+      // message toast
       toast.success(response.message);
 
       // Clear the timer and reset OTP
@@ -134,7 +151,11 @@ const RegisterOtp: React.FC<{
       setOpen(false); // Close the dialog
       setVerified(true); // Mark as verified
     } catch (error: any) {
-      toast.error(error.response.data.message);
+      //  toast error
+      toast.error(
+        error?.response?.data?.message ||
+          "something went wrong please try again"
+      );
     } finally {
       setIsSubmitting(false); // Reset the submission state after response
     }
@@ -170,10 +191,10 @@ const RegisterOtp: React.FC<{
               onKeyDown={(e) => handleKeyDown(e, index)}
               onPaste={handlePaste}
               className={cn(
-                "h-14 w-14 rounded-md border text-center text-xl transition-all",
+                "h-14 w-14 rounded-md border text-center  text-xl transition-all",
                 "focus:border-2 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20",
                 "disabled:cursor-not-allowed disabled:opacity-50",
-                digit ? "border-primary/50 bg-primary/5" : "border-input"
+                digit ? "border-primary/50 bg-primary/5" : "border-slate-500"
               )}
             />
           ))}

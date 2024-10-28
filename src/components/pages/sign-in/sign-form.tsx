@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
-import IMG from "@/lib/constants";
+import { IMGS } from "@/lib/constants";
 import Link from "next/link";
 import { Checkbox } from "@/components/ui/checkbox";
 import { PasswordInput } from "@/components/ui/password-input";
@@ -61,7 +61,7 @@ export function SignInForm() {
       <div className="w-full max-w-md ">
         <div className="mb-6 flex flex-col items-center text-center">
           <Image
-            src={IMG?.Logo}
+            src={IMGS?.Logo}
             width={40}
             height={40}
             alt="logo"
@@ -76,7 +76,7 @@ export function SignInForm() {
           <GoogleSignIn />
           <FacebookSignIn />
           <button className="flex w-full items-center justify-center rounded-lg border p-2">
-            <Image src={IMG?.Apple} alt="Apple" className="mr-2 h-6" />
+            <Image src={IMGS?.Apple} alt="Apple" className="mr-2 h-6" />
             Apple
           </button>
         </div>

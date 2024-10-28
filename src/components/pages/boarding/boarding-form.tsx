@@ -6,6 +6,7 @@ import PictureForm from "./picture-form";
 
 import DetailsForm from "./details-form";
 import { NodeSearchForm } from "./node-search-form";
+import InterestForm from "./interest-form";
 
 type Step = "Details" | "Picture" | "Interest" | "Node";
 
@@ -14,7 +15,7 @@ export function BoardingForm() {
 
   return (
     <div className="flex min-h-screen items-center justify-center">
-      <div className="w-full max-w-2xl">
+      <div className="w-full max-w-2xl px-2">
         <h2 className="mb-2 text-center text-2xl font-bold">
           Hey, Welcome to Clubwize 👋
         </h2>
@@ -23,14 +24,17 @@ export function BoardingForm() {
         </p>
 
         <div className="flex justify-center p-6">
-          <ProgressIndicator currentStep={step} />
+          <ProgressIndicator
+            steps={["Details", "Picture", "Interest", "Node"]}
+            currentStep={step}
+          />
         </div>
 
         {step === "Details" && <DetailsForm setStep={setStep} />}
 
         {step === "Picture" && <PictureForm setStep={setStep} />}
 
-        {/* {step === "Interest" && <InterestForm setStep={setStep} />} */}
+        {step === "Interest" && <InterestForm setStep={setStep} />}
 
         {step === "Node" && <NodeSearchForm />}
       </div>

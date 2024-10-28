@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
-import IMG from "@/lib/constants";
+import { IMGS } from "@/lib/constants";
 import Link from "next/link";
 import { forgotPassword } from "./endpoint";
 import { log } from "console";
@@ -50,7 +50,7 @@ export function ForgotForm() {
       <div className="w-full max-w-md ">
         <div className="mb-6 flex flex-col items-center text-center">
           <Image
-            src={IMG?.Logo}
+            src={IMGS?.Logo}
             width={40}
             height={40}
             alt="logo"

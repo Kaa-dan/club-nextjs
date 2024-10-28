@@ -4,7 +4,7 @@ import { forwardRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input, InputProps } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import IMG from "@/lib/constants";
+import { IMGS } from "@/lib/constants";
 import Image from "next/image";
 
 const PasswordInput = forwardRef<HTMLInputElement, InputProps>(
@@ -31,14 +31,14 @@ const PasswordInput = forwardRef<HTMLInputElement, InputProps>(
         >
           {showPassword && !disabled ? (
             <Image
-              src={IMG.ViewLogo}
+              src={IMGS.ViewLogo}
               alt="view"
               className="size-4"
               aria-hidden="true"
             />
           ) : (
             <Image
-              src={IMG.EyeLogo}
+              src={IMGS.EyeLogo}
               alt="eye"
               className="size-4"
               aria-hidden="true"

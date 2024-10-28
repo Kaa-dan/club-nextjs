@@ -23,8 +23,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Link from "next/link";
+import { postDetails } from "./endpoint";
+import { useTokenStore } from "@/store/store";
 
-type Step = "Details" | "Picture" | "Node";
+type Step = "Details" | "Picture" | "Node" | "Interest";
+
+//form validation using zed
 
 const stepOneSchema = z.object({
   username: z
@@ -32,10 +36,12 @@ const stepOneSchema = z.object({
     .min(2, { message: "Username must be at least 2 characters." }),
   firstName: z
     .string()
-    .min(2, { message: "First name must be at least 2 characters." }),
+    .min(2, { message: "First name must be at least 2 characters." })
+    .regex(/^[^\s]+$/, { message: "First name should not contain spaces" }),
   lastName: z
     .string()
-    .min(2, { message: "Last name must be at least 2 characters." }),
+    .min(2, { message: "Last name must be at least 2 characters." })
+    .regex(/^[^\s]+$/, { message: "Last name should not contain spaces" }),
   phoneNumber: z
     .string()
     .min(10, { message: "Phone number must be at least 10 characters." }),
@@ -45,7 +51,6 @@ const stepOneSchema = z.object({
     message: "You must accept the terms and conditions",
   }),
 });
-
 type StepOneType = z.infer<typeof stepOneSchema>;
 
 interface DetailsFormProps {
@@ -53,8 +58,20 @@ interface DetailsFormProps {
 }
 
 const DetailsForm: React.FC<DetailsFormProps> = ({ setStep }) => {
+  //global store
+  const { verifyToken, setVerifyToken, globalUser, setGlobalUser } =
+    useTokenStore((state) => ({
+      verifyToken: state.verifyToken,
+      setVerifyToken: state.setVerifyToken,
+      clearVerifyToken: state.clearVerifyToken,
+      globalUser: state.globalUser,
+      setGlobalUser: state.setGlobalUser,
+    }));
+
+  //for storign for values
   const [formData, setFormData] = useState<Partial<StepOneType>>({});
 
+  //form instance with validation
   const form = useForm<StepOneType>({
     resolver: zodResolver(stepOneSchema),
   });
@@ -63,14 +80,18 @@ const DetailsForm: React.FC<DetailsFormProps> = ({ setStep }) => {
     form.reset(formData);
   }, [formData, form]);
 
-  const onSubmit: SubmitHandler<StepOneType> = (data) => {
+  // submit handler
+  const onSubmit: SubmitHandler<StepOneType> = async (data) => {
     const newFormData = { ...formData, ...data };
     setFormData(newFormData);
+    console.log({ newFormData });
+    if (globalUser) {
+      const RESPONSE = await postDetails(globalUser._id, newFormData);
 
-    console.log("Data for Details step:", data);
-    console.log("Cumulative form data:", newFormData);
-
-    setStep("Picture");
+      console.log({ RESPONSE });
+      setGlobalUser(RESPONSE.data);
+      setStep("Picture");
+    }
   };
 
   return (

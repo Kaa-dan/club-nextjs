@@ -8,33 +8,48 @@ import RegisterOtp from "./register-otp";
 import { Dialog } from "@/components/ui/dialog";
 import { checkVerified, sendOtp } from "./endpoint";
 import { toast } from "sonner";
+import { useTokenStore } from "@/store/store";
+
 const EmailInput = forwardRef<HTMLInputElement, any>(
   ({ className, setVerified, isVerified, setValue, ...props }, ref) => {
+    //global store
+    const { verifyToken, setVerifyToken, clearVerifyToken } = useTokenStore(
+      (state) => ({
+        verifyToken: state.verifyToken,
+        setVerifyToken: state.setVerifyToken,
+        clearVerifyToken: state.clearVerifyToken,
+      })
+    );
+    //state for email
     const [email, setEmail] = useState("");
-    const [open, setOpen] = useState(false); // Modal open state
+
+    // Modal open state
+    const [open, setOpen] = useState(false);
 
     const handleSubmit = async () => {
-      // const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
       // Validate email format
-      // if (!emailRegex.test(email)) {
-      //   console.log("Invalid email format");
-      //   return;
-      // }
+      if (!emailRegex.test(email)) {
+        toast.success("Invalid email format");
+        return;
+      }
 
       try {
+        // storing response and senting otp
         const response = await sendOtp(email);
-        // console.log(response.status, "resss");
 
-        // Assuming the API returns an object with a `status` field
         if (response.status.status) {
+          // sending message
           toast.success(response.message);
-          setOpen(true); // Open the modal if the OTP is sent successfully
+
+          //open modal
+          setOpen(true);
         }
       } catch (error: any) {
-        console.log(error, "err");
+        //handling error
         if (error.response) {
-          toast.error(error.response.data.message); // Log error if the request fails
+          toast.error(error.response.data.message);
         } else {
           toast.error(error.message);
         }
@@ -50,10 +65,10 @@ const EmailInput = forwardRef<HTMLInputElement, any>(
           {...props}
           onChange={(e) => {
             const inputEmail = e.target.value;
-            setEmail(inputEmail);
-            setValue("email", inputEmail);
+            setEmail(inputEmail.toLowerCase().trim());
+            setValue("email", inputEmail.toLowerCase().trim());
 
-            if (localStorage.getItem("verify-token")) {
+            if (verifyToken) {
               checkVerified()
                 .then((res) => {
                   if (res.data.email === inputEmail) {
@@ -77,9 +92,9 @@ const EmailInput = forwardRef<HTMLInputElement, any>(
           disabled={isVerified}
         >
           {isVerified ? (
-            <span className="text-xs text-gray-500">Verified!</span>
+            <span className="text-xs text-primary">Verified!</span>
           ) : (
-            <span onClick={handleSubmit} className="text-xs text-primary">
+            <span onClick={handleSubmit} className="text-xs text-danger">
               Verify
             </span>
           )}
