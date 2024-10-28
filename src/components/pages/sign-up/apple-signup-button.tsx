@@ -1,4 +1,4 @@
-import IMG from "@/lib/constants";
+import { IMGS } from "@/lib/constants";
 import { getAuth, signInWithPopup, OAuthProvider } from "firebase/auth";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -47,7 +47,7 @@ const AppleSignup = () => {
       onClick={socialSignup} // Place onClick here
       className="flex w-full items-center justify-center rounded-lg border p-2"
     >
-      <Image src={IMG?.Apple} alt="Apple" className="mr-2 h-6" />
+      <Image src={IMGS?.Apple} alt="Apple" className="mr-2 h-6" />
       Apple
     </button>
   );
