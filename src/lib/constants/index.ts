@@ -18,6 +18,11 @@ import MarketPlaceIcon from "@public/icons/modules/marketplace.icon.svg";
 import DebateIcon from "@public/icons/modules/debate.icon.svg";
 import EventsAndNewsIcon from "@public/icons/modules/events-and-news.svg";
 import RulesAndRegulationsIcon from "@public/icons/modules/rules-and-regulations.icon.svg";
+import BarDebateIcon from "@public/icons/modules/bar/debate.icon.svg";
+import BarEventsIcon from "@public/icons/modules/bar/events-and-news.icon.svg";
+import BarFunnyIcon from "@public/icons/modules/bar/funny.icon.svg";
+import BarMarketPlaceIcon from "@public/icons/modules/bar/market-place.icon.svg";
+import BarRulesIcon from "@public/icons/modules/bar/rules.icon.svg";
 import NodeGreyIcon from "@public/icons/node-grey.icon.svg";
 import ClubGreyIcon from "@public/icons/club-grey.icon.svg";
 import HeaderMessageIcon from "@public/icons/header-message.icon.svg";
@@ -70,6 +75,11 @@ const ICONS = {
   NodeNewsFeedIcon,
   NodePreferencesIcon,
   NodeProfileIcon,
+  BarEventsIcon,
+  BarFunnyIcon,
+  BarMarketPlaceIcon,
+  BarRulesIcon,
+  BarDebateIcon,
 };
 
 export { IMGS, ICONS };

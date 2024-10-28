@@ -52,7 +52,7 @@ const NodeTeams: React.FC = () => {
   ];
 
   return (
-    <div className="bg-white shadow-md rounded-lg p-4 w-[25%] h-fit text-xs max-w-sm mx-auto">
+    <div className="bg-white shadow-md rounded-lg p-4 w-[25%] h-fit text-xs max-w-sm mx-auto sticky top-16">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-base font-semibold text-gray-800">Gretchen Team</h2>

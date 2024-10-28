@@ -4,7 +4,7 @@ import React from "react";
 
 const LeftScreen = () => {
   return (
-    <div className="size-full bg-[#D8FAE9]">
+    <div className="size-full max-h-[100dvh] overflow-hidden h-screen bg-[#D8FAE9]">
       {/* vector-image */}
 
       <div className="h-80">
