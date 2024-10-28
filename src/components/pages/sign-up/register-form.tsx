@@ -23,6 +23,7 @@ import { useState } from "react";
 import { EmailInput } from "./email-input";
 import { signUp } from "./endpoint";
 import { toast } from "sonner";
+import AppleSignup from "./apple-signup-button";
 
 // Define form schema using Zod for validation
 const formSchema = z
@@ -89,6 +90,7 @@ export function SignUpForm() {
         <div className="mb-4 flex justify-between">
           <GoogleSignUp />
           <FacebookSignup />
+          <AppleSignup />
         </div>
 
         {/* OR separator */}

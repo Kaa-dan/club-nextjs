@@ -19,6 +19,7 @@ const FacebookSignIn = () => {
         userName: user.displayName,
         imageUrl: user.photoURL,
         phoneNumber: user.phoneNumber,
+        signupThrough: "facebook",
       });
 
       toast.success(response.message);
