@@ -15,3 +15,12 @@ export const postDetails = async (id: string, userData: any) => {
     throw error;
   }
 };
+
+export const postPicture = async(id:string,userData:any)=>{
+  try{
+    const response = await axiosConfig.put(`/onboarding/images/${id}`,userData)
+    return response.data
+  }catch(error){
+    throw error
+  }
+}
