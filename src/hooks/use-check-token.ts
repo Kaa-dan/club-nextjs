@@ -9,7 +9,7 @@ interface UseCheckTokenReturn {
 
 function useCheckToken(dependencies: any[] = []): UseCheckTokenReturn {
     const [loading, setLoading] = useState<boolean>(true);
-    const { accessToken, clearAccessToken } = useTokenStore();
+    const { accessToken, clearAccessToken, globalUser } = useTokenStore();
 
     useEffect(() => {
         const checkToken = async () => {
