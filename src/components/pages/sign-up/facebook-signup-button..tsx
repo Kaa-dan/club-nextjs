@@ -1,4 +1,4 @@
-import IMG from "@/lib/constants";
+import { IMGS } from "@/lib/constants";
 import { FacebookAuthProvider, getAuth, signInWithPopup } from "firebase/auth";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -43,7 +43,7 @@ const FacebookSignup = () => {
       onClick={socialSignup}
       className="mr-2 flex w-full items-center justify-center rounded-lg border p-2"
     >
-      <Image src={IMG?.Facebook} alt="Facebook" className="mr-2 h-6" />
+      <Image src={IMGS?.Facebook} alt="Facebook" className="mr-2 h-6" />
       Facebook
     </button>
   );
