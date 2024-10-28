@@ -6,6 +6,9 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import GoogleSignUp from "./google-signup-button";
+<<<<<<< HEAD
+import FacebookSignup from "./facebook-signup-button.";
+=======
 import {
   getAuth,
   FacebookAuthProvider,
@@ -14,6 +17,7 @@ import {
   UserCredential,
   Auth,
 } from "firebase/auth";
+>>>>>>> bc64ce6db8d4a6a671aaed2b0f0290e142078a95
 import {
   Form,
   FormControl,
@@ -26,6 +30,16 @@ import Image from "next/image";
 import { IMGS } from "@/lib/constants";
 import Link from "next/link";
 import { PasswordInput } from "@/components/ui/password-input";
+<<<<<<< HEAD
+import { useState } from "react";
+import { EmailInput } from "./email-input";
+import { signUp } from "./endpoint";
+import { toast } from "sonner";
+
+import AppleSignup from "./apple-signup-button";
+
+// Define form schema using Zod for validation
+=======
 import { useEffect, useState, Dispatch, SetStateAction } from "react";
 import { EmailInput } from "./email-input";
 import { signUp } from "./endpoint";
@@ -62,6 +76,7 @@ type FirebaseError = {
 };
 
 // Zod schema with types
+>>>>>>> bc64ce6db8d4a6a671aaed2b0f0290e142078a95
 const formSchema = z
   .object({
     email: z
@@ -93,12 +108,21 @@ export function SignUpForm(): JSX.Element {
 
   console.log({ verifyToken, globalUser });
   const router = useRouter();
+<<<<<<< HEAD
+
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [verified, setVerified] = useState(false);
+
+  // Initialize react-hook-form with Zod resolver
+  const form = useForm({
+=======
   const facebookProvider = new FacebookAuthProvider();
   const auth: Auth = getAuth(app);
 
   const [verified, setVerified] = useState<boolean>(false);
 
   const form = useForm<FormSchema>({
+>>>>>>> bc64ce6db8d4a6a671aaed2b0f0290e142078a95
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
@@ -107,6 +131,10 @@ export function SignUpForm(): JSX.Element {
     },
   });
 
+<<<<<<< HEAD
+  // Form submit handler for email/password signup
+  const onSubmit = async (data: any) => {
+=======
   // Type-safe email change handler
   const handleEmailChange = (
     value: string,
@@ -123,9 +151,16 @@ export function SignUpForm(): JSX.Element {
 
   // Type-safe submit handler
   const onSubmit = async (data: SignUpFormData): Promise<void> => {
+>>>>>>> bc64ce6db8d4a6a671aaed2b0f0290e142078a95
     try {
       // storing response and api calling
       const response = await signUp(data);
+<<<<<<< HEAD
+      toast.success(response.message);
+      router.push("/onboarding");
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || error.message);
+=======
 
       // setting global state
       setGlobalUser(response?.data || null);
@@ -171,12 +206,17 @@ export function SignUpForm(): JSX.Element {
       toast.error(
         typedError.response?.data?.message || "Failed to sign in with Facebook"
       );
+>>>>>>> bc64ce6db8d4a6a671aaed2b0f0290e142078a95
     }
   };
 
   return (
     <div className="flex min-h-screen items-center justify-center">
       <div className="w-full max-w-md">
+<<<<<<< HEAD
+        {/* Header */}
+=======
+>>>>>>> bc64ce6db8d4a6a671aaed2b0f0290e142078a95
         <div className="mb-6 flex flex-col items-center text-center">
           <Image
             src={IMGS?.Logo}
@@ -186,12 +226,23 @@ export function SignUpForm(): JSX.Element {
             className="py-2"
             priority
           />
+<<<<<<< HEAD
+          <h2 className="text-2xl font-bold">Welcome to Clubwize 👋</h2>
+=======
           <h2 className="text-2xl font-bold">Welcome to clubwize 👋</h2>
+>>>>>>> bc64ce6db8d4a6a671aaed2b0f0290e142078a95
           <p className="text-xs text-gray-600">
             Welcome to the team, rookie! Get ready to crush it with Clubwize!
           </p>
         </div>
 
+<<<<<<< HEAD
+        {/* Social Auth Buttons */}
+        <div className="mb-4 flex justify-between">
+          <GoogleSignUp />
+          <FacebookSignup />
+          <AppleSignup />
+=======
         <div className="mb-4 flex justify-between">
           <GoogleSignUp />
           <button
@@ -221,6 +272,7 @@ export function SignUpForm(): JSX.Element {
             />
             Apple
           </button>
+>>>>>>> bc64ce6db8d4a6a671aaed2b0f0290e142078a95
         </div>
 
         <div className="flex items-center px-16 py-4">
@@ -229,6 +281,10 @@ export function SignUpForm(): JSX.Element {
           <div className="grow border-t border-gray-300"></div>
         </div>
 
+<<<<<<< HEAD
+        {/* Sign-up form */}
+=======
+>>>>>>> bc64ce6db8d4a6a671aaed2b0f0290e142078a95
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
             <div className="space-y-4">
@@ -277,11 +333,11 @@ export function SignUpForm(): JSX.Element {
                 name="confirmPassword"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Confirm</FormLabel>
+                    <FormLabel>Confirm Password</FormLabel>
                     <FormControl>
                       <PasswordInput
-                        {...field}
                         placeholder="Confirm your password"
+                        {...field}
                       />
                     </FormControl>
                     <FormMessage />
@@ -294,7 +350,11 @@ export function SignUpForm(): JSX.Element {
               <Button
                 disabled={!verified || form.formState.isSubmitting}
                 type="submit"
+<<<<<<< HEAD
+                className="w-full rounded-lg bg-primary p-2 text-white"
+=======
                 className="w-full rounded-lg disabled:opacity-50 bg-primary p-2 text-white"
+>>>>>>> bc64ce6db8d4a6a671aaed2b0f0290e142078a95
               >
                 Continue with Clubwize
               </Button>
@@ -302,6 +362,10 @@ export function SignUpForm(): JSX.Element {
           </form>
         </Form>
 
+<<<<<<< HEAD
+        {/* Login link */}
+=======
+>>>>>>> bc64ce6db8d4a6a671aaed2b0f0290e142078a95
         <div className="mt-3 text-center text-gray-600">
           <p>
             Already have an account?{" "}

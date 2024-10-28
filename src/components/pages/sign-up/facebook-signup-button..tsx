@@ -1,27 +1,28 @@
+import IMG from "@/lib/constants";
+import { FacebookAuthProvider, getAuth, signInWithPopup } from "firebase/auth";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { socialAuth } from "./endpoint";
-import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { IMGS } from "@/lib/constants";
 import { app } from "@/lib/config/firebase";
-import { useRouter } from "next/navigation";
 
-const GoogleSignUp = () => {
+const FacebookSignup = () => {
   const router = useRouter();
-  const googleProvider = new GoogleAuthProvider();
-  const auth = getAuth(app);
-
+  // Facebook sign-in handler
   const socialSignup = async () => {
     try {
-      const result = await signInWithPopup(auth, googleProvider);
-      // The signed-in user info
+      const auth = getAuth(app); // Firebase auth instance
+      const facebookProvider = new FacebookAuthProvider(); // Facebook provider
+      facebookProvider.addScope("email");
+      const result = await signInWithPopup(auth, facebookProvider);
       const user = result.user;
+
       const response = await socialAuth({
         email: user.email,
         userName: user.displayName,
         imageUrl: user.photoURL,
         phoneNumber: user.phoneNumber,
-        signupThrough: "google",
+        signupThrough: "facebook",
       });
       localStorage.setItem("token", response.token);
       router.push("/onboarding");
@@ -38,15 +39,14 @@ const GoogleSignUp = () => {
     }
   };
   return (
-    <>
-      <button
-        onClick={socialSignup}
-        className="mr-2 flex w-full items-center justify-center rounded-lg border p-2"
-      >
-        <Image src={IMGS?.Google} alt="Google" className="mr-2 h-6" />
-        Google
-      </button>
-    </>
+    <button
+      onClick={socialSignup}
+      className="mr-2 flex w-full items-center justify-center rounded-lg border p-2"
+    >
+      <Image src={IMG?.Facebook} alt="Facebook" className="mr-2 h-6" />
+      Facebook
+    </button>
   );
 };
-export default GoogleSignUp;
+
+export default FacebookSignup;
