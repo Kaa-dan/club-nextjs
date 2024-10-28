@@ -18,6 +18,7 @@ const GoogleSignIn = () => {
         userName: user.displayName,
         imageUrl: user.photoURL,
         phoneNumber: user.phoneNumber,
+        signupThrough: "google",
       });
 
       toast.success(response.message);

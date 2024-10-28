@@ -20,6 +20,7 @@ const EmailInput = forwardRef<HTMLInputElement, any>(
         clearVerifyToken: state.clearVerifyToken,
       })
     );
+
     //state for email
     const [email, setEmail] = useState("");
 
@@ -69,8 +70,12 @@ const EmailInput = forwardRef<HTMLInputElement, any>(
             setValue("email", inputEmail.toLowerCase().trim());
 
             if (verifyToken) {
+              console.log(verifyToken, "verif");
+
               checkVerified()
                 .then((res) => {
+                  console.log(res, "resss");
+
                   if (res.data.email === inputEmail) {
                     setVerified(true);
                   } else {

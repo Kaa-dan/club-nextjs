@@ -1,9 +1,6 @@
 import { axiosConfig } from "@/lib/axios";
 import { useTokenStore } from "@/store/store";
 
-
-
-
 export const sendOtp = async (email: string) => {
   try {
     const response = await axiosConfig.post("/send-otp", { email });
@@ -34,10 +31,7 @@ export const verifyOtp = async (otp: string, email: string) => {
 
 export const checkVerified = async () => {
   try {
-    // const token = localStorage.getItem("verify-token");
     const token = useTokenStore.getState().verifyToken;
-
-    console.log(token, "ssd")
 
     // Make the request and send the token in the headers
     const response = await axiosConfig.post(
