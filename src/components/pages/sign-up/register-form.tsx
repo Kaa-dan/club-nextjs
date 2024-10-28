@@ -23,7 +23,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import Image from "next/image";
-import IMG from "@/lib/constants";
+import { IMGS } from "@/lib/constants";
 import Link from "next/link";
 import { PasswordInput } from "@/components/ui/password-input";
 import { useEffect, useState, Dispatch, SetStateAction } from "react";
@@ -179,7 +179,7 @@ export function SignUpForm(): JSX.Element {
       <div className="w-full max-w-md">
         <div className="mb-6 flex flex-col items-center text-center">
           <Image
-            src={IMG?.Logo}
+            src={IMGS?.Logo}
             width={40}
             height={40}
             alt="logo"
@@ -200,7 +200,7 @@ export function SignUpForm(): JSX.Element {
             type="button"
           >
             <Image
-              src={IMG?.Facebook}
+              src={IMGS?.Facebook}
               alt="Facebook"
               className="mr-2 h-6"
               width={24}
@@ -213,7 +213,7 @@ export function SignUpForm(): JSX.Element {
             className="flex w-full items-center justify-center rounded-lg border p-2"
           >
             <Image
-              src={IMG?.Apple}
+              src={IMGS?.Apple}
               alt="Apple"
               className="mr-2 h-6"
               width={24}

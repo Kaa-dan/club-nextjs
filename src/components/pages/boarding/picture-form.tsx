@@ -32,7 +32,7 @@ const stepTwoSchema = z.object({
     .refine((file) => file, { message: "Cover photo is required." }),
   terms: z.boolean().refine((val) => val, {
     message: "You must accept the terms and conditions",
-  }),g
+  }),
 });
 
 type StepTwoType = z.infer<typeof stepTwoSchema>;

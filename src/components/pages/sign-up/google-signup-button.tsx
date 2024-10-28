@@ -2,7 +2,7 @@ import Image from "next/image";
 import { toast } from "sonner";
 import { googleAUth } from "./endpoint";
 import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import IMG from "@/lib/constants";
+import { IMGS } from "@/lib/constants";
 import { app } from "@/lib/config/firebase";
 import { useRouter } from "next/navigation";
 
@@ -41,7 +41,7 @@ const GoogleSignUp = () => {
         onClick={handleGoogleSignIn}
         className="mr-2 flex w-full items-center justify-center rounded-lg border p-2"
       >
-        <Image src={IMG?.Google} alt="Google" className="mr-2 h-6" />
+        <Image src={IMGS?.Google} alt="Google" className="mr-2 h-6" />
         Google
       </button>
     </>
