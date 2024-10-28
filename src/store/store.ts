@@ -6,6 +6,7 @@ type User = {
   email: string;
   onBoardingStage: string;
   isOnBoarded: boolean;
+  _id: string;
 } | null;
 
 // type for store
