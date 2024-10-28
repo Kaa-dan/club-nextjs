@@ -1,7 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import { ICONS } from "@/lib/constants";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Globe2, Lock } from "lucide-react";
 
 const SECTIONS = [
   { name: "News Feed", icon: ICONS.NodeNewsFeedIcon },
@@ -17,29 +17,29 @@ const SECTIONS = [
 
 interface NodeData {
   name: string;
-  role: string;
-  location: string;
+  descripion: string;
+  isPublic: boolean;
   membersCount: string;
   avatar: string;
   coverImage: string;
 }
 
 interface ProfileCardProps {
-  node: NodeData;
+  club: NodeData;
   currentPage: string;
   setCurrentPage: (page: string) => void;
 }
 
-const NodeProfileCard: React.FC<ProfileCardProps> = ({
-  node,
+const ClubProfileCard: React.FC<ProfileCardProps> = ({
+  club,
   currentPage,
   setCurrentPage,
 }) => {
   return (
-    <div className="bg-white rounded-lg shadow-md md:min-w-60 md:max-w-60 sticky text-sm top-16 h-fit max-h-[80vh] overflow-hidden pb-2">
+    <div className="bg-white rounded-lg shadow-md md:min-w-60 md:max-w-60 sticky top-16 h-fit max-h-[80vh] overflow-hidden pb-2">
       <div className="relative">
         <Image
-          src={node.coverImage}
+          src={club.coverImage}
           alt="Cover"
           width={300}
           height={150}
@@ -48,7 +48,7 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
         />
         <div className="absolute top-14 left-4">
           <Image
-            src={node.avatar}
+            src={club.avatar}
             alt="Avatar"
             width={64}
             height={64}
@@ -58,10 +58,23 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
       </div>
       <div className="px-4">
         <div className="pt-8">
-          <h2 className="text-lg font-bold">{node.name}</h2>
-          <p className="text-xs text-gray-600">{node.role}</p>
-          <p className="text-xs text-gray-500">
-            {node.location} • {node.membersCount}
+          <h2 className="text-lg font-bold">{club.name}</h2>
+          <p className="text-xs text-gray-500">{club.descripion}</p>
+          <p className="text-xs text-gray-700 mt-2 font-medium flex">
+            <span className="flex gap-1 items-center">
+              {club.isPublic ? (
+                <>
+                  <Globe2 size={"0.8rem"} />
+                  Public
+                </>
+              ) : (
+                <>
+                  <Lock size={"0.8rem"} />
+                  Private
+                </>
+              )}{" "}
+            </span>
+            • {club.membersCount}
           </p>
         </div>
         <div className="mt-4 space-y-2 overflow-y-auto max-h-[50vh] thin-scrollbar pb-4">
@@ -104,4 +117,4 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
   );
 };
 
-export default NodeProfileCard;
+export default ClubProfileCard;
