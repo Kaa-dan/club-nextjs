@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { endPoints } from "@/utils/endpoint";
+import { Endpoints } from "@/utils/endpoint";
 
 // Define types for member data and status
 interface MemberStatus {
@@ -18,7 +18,7 @@ const Page: React.FC = () => {
   useEffect(() => {
     const fetchMembers = async () => {
       try {
-        const response = await endPoints.getMembers(); // Fetch members from the backend
+        const response = await Endpoints.getMembers(); // Fetch members from the backend
         setMembers(response.data);
 
         // Initialize status for each member
@@ -49,7 +49,7 @@ const Page: React.FC = () => {
 
     try {
       // Call the API to toggle the member's request status
-      const response = await endPoints.toggleMembersRequest(userId, action); // Pass the action to the API
+      const response = await Endpoints.toggleMembersRequest(userId, action); // Pass the action to the API
 
       // Use the response status to update the member's status in the UI
       setMemberStatus((prevStatus) => ({
