@@ -54,7 +54,7 @@ export const verifyToken = async (token: any): Promise<boolean> => {
   try {
 
     // Make the request and send the token in the headers
-    const response = await axiosConfig.post(
+    const response = await axiosInstance.post(
       "/verify-token",
       {},
       {
