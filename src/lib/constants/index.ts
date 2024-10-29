@@ -37,7 +37,7 @@ import NodeModulesIcon from "@public/icons/node-profile/node-modules.icon.svg";
 import NodeNewsFeedIcon from "@public/icons/node-profile/node-news-feed.icon.svg";
 import NodePreferencesIcon from "@public/icons/node-profile/node-preferences.icon.svg";
 import NodeProfileIcon from "@public/icons/node-profile/node-profile.icon.svg";
-
+import ApprovalIcon from "@public/icons/approval.icon.svg";
 import GreenTickIcon from "@public/icons/green-tick-icon.svg";
 const IMGS = {
   Logo,
@@ -56,6 +56,7 @@ const IMGS = {
 };
 
 const ICONS = {
+  ApprovalIcon,
   MarketPlaceIcon,
   DebateIcon,
   EventsAndNewsIcon,

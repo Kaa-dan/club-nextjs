@@ -19,7 +19,7 @@ interface NodeData {
   name: string;
   role: string;
   location: string;
-  membersCount: string;
+  members: any[];
   avatar: string;
   coverImage: string;
 }
