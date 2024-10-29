@@ -1,9 +1,9 @@
-import { axiosConfig } from "@/lib/axios";
+import { axiosInstance } from "@/lib/axios";
 import { useTokenStore } from "@/store/store";
 
 export const sendOtp = async (email: string) => {
   try {
-    const response = await axiosConfig.post("/send-otp", { email });
+    const response = await axiosInstance.post("/send-otp", { email });
 
     return response.data;
   } catch (error) {
@@ -13,7 +13,7 @@ export const sendOtp = async (email: string) => {
 
 export const resendOtp = async (email: string) => {
   try {
-    const response = await axiosConfig.post("/resend-otp", { email });
+    const response = await axiosInstance.post("/resend-otp", { email });
     return response.data;
   } catch (error) {
     throw error;
@@ -22,7 +22,7 @@ export const resendOtp = async (email: string) => {
 
 export const verifyOtp = async (otp: string, email: string) => {
   try {
-    const response = await axiosConfig.patch("/verify-otp", { otp, email });
+    const response = await axiosInstance.patch("/verify-otp", { otp, email });
     return response.data;
   } catch (error) {
     throw error;
@@ -34,7 +34,7 @@ export const checkVerified = async () => {
     const token = useTokenStore.getState().verifyToken;
 
     // Make the request and send the token in the headers
-    const response = await axiosConfig.post(
+    const response = await axiosInstance.post(
       "/verify-token",
       {},
       {
@@ -72,7 +72,7 @@ export const verifyToken = async (token: any): Promise<boolean> => {
 
 export const signUp = async (data: any) => {
   try {
-    const response = await axiosConfig.post("/sign-up", data);
+    const response = await axiosInstance.post("/sign-up", data);
 
     return response.data;
   } catch (error) {
@@ -84,7 +84,7 @@ export const socialAuth = async (data: any) => {
   console.log(data, "daat");
 
   try {
-    const response = await axiosConfig.post("/google-signup", data);
+    const response = await axiosInstance.post("/google-signup", data);
     return response.data;
   } catch (error) {
     throw error;
