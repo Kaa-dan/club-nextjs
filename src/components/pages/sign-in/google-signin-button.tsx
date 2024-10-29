@@ -1,45 +1,38 @@
 import Image from "next/image";
-import { toast } from "sonner";
-import { socialAuth } from "./endpoint";
-import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { IMGS } from "@/lib/constants";
+import { toast } from "sonner";
+import { signinWithSocial } from "./endpoint";
+import { signInWithPopup, GoogleAuthProvider, getAuth } from "firebase/auth";
 import { app } from "@/lib/config/firebase";
-import { useRouter } from "next/navigation";
-
-const GoogleSignUp = () => {
-  const router = useRouter();
-  const googleProvider = new GoogleAuthProvider();
+const GoogleSignIn = () => {
   const auth = getAuth(app);
+  const googleProvider = new GoogleAuthProvider();
 
-  const socialSignup = async () => {
+  const handleGoogleSignIn = async () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
-      // The signed-in user info
       const user = result.user;
-      const response = await socialAuth({
+
+      const response = await signinWithSocial({
         email: user.email,
         userName: user.displayName,
         imageUrl: user.photoURL,
         phoneNumber: user.phoneNumber,
         signupThrough: "google",
       });
-      localStorage.setItem("token", response.token);
-      router.push("/onboarding");
 
       toast.success(response.message);
     } catch (error: any) {
+      console.error("Google Sign-in Error:", error);
       if (error.response) {
-        toast.error(
-          error.response.data.message || "Failed to sign in with Google"
-        );
-      } else {
-        toast.error(error.message);
+        toast.error(error.response.data.message);
       }
     }
   };
+
   return (
     <button
-      onClick={socialSignup}
+      onClick={handleGoogleSignIn}
       className="mr-2 flex w-full items-center justify-center rounded-lg border p-2"
     >
       <Image src={IMGS?.Google} alt="Google" className="mr-2 h-6" />
@@ -47,4 +40,5 @@ const GoogleSignUp = () => {
     </button>
   );
 };
-export default GoogleSignUp;
+
+export default GoogleSignIn;
