@@ -2,6 +2,7 @@ import React from "react";
 import Image from "next/image";
 import { ICONS } from "@/lib/constants";
 import { ChevronRight } from "lucide-react";
+import { NodeData } from "@/types";
 
 const SECTIONS = [
   { name: "News Feed", icon: ICONS.NodeNewsFeedIcon },
@@ -14,15 +15,6 @@ const SECTIONS = [
   { name: "Activities", icon: ICONS.NodeActivitiesIcon },
   { name: "Preferences", icon: ICONS.NodePreferencesIcon },
 ];
-
-interface NodeData {
-  name: string;
-  role: string;
-  location: string;
-  members: any[];
-  avatar: string;
-  coverImage: string;
-}
 
 interface ProfileCardProps {
   node: NodeData;
@@ -48,7 +40,7 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
         />
         <div className="absolute top-14 left-4">
           <Image
-            src={node.avatar}
+            src={node.profileImage}
             alt="Avatar"
             width={64}
             height={64}
@@ -59,9 +51,9 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
       <div className="px-4">
         <div className="pt-8">
           <h2 className="text-lg font-bold">{node.name}</h2>
-          <p className="text-xs text-gray-600">{node.role}</p>
+          <p className="text-xs text-gray-600">{node.about}</p>
           <p className="text-xs text-gray-500">
-            {node.location} • {node.membersCount}
+            {node.location} • {node.members.length}
           </p>
         </div>
         <div className="mt-4 space-y-2 overflow-y-auto max-h-[50vh] thin-scrollbar pb-4">

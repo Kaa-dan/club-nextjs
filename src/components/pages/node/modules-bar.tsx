@@ -21,11 +21,11 @@ const modules: Module[] = [
 
 const ModulesBar: React.FC = () => {
   return (
-    <div className="flex items-center bg-white shadow-md w-fit rounded-lg p-4  max-w-screen-lg mx-auto space-x-6 overflow-x-auto">
+    <div className="flex items-center bg-white shadow-md w-fit rounded-lg p-4  max-w-screen-lg mx-auto  overflow-x-auto text-xs">
       {modules.map((module, index) => (
         <div
           key={index}
-          className="relative flex flex-col gap-1 items-center px-1 p-1 hover:bg-slate-50 rounded-sm"
+          className="relative flex flex-col gap-1 items-center px-4 p-1 hover:bg-slate-50 rounded-sm cursor-pointer"
         >
           {/* Icon with Badge */}
           <div className="relative size-fit">
@@ -43,7 +43,7 @@ const ModulesBar: React.FC = () => {
           </div>
 
           {/* Label */}
-          <p className="text-sm text-gray-700 mt-1">{module.name}</p>
+          <p className=" text-gray-700 mt-1">{module.name}</p>
         </div>
       ))}
 

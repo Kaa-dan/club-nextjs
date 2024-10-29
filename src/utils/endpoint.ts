@@ -1,21 +1,26 @@
 import { mainAxios } from "@/lib/mainAxios";
 
-export const endPoints = {
-  toggleMembersRequest: async (userId: string, action: string) => {
+export class Endpoints {
+  static async fetchNodeDetails(nodeId: string) {
+    const { data } = await mainAxios.get("/node/" + nodeId);
+    return data;
+  }
+
+  static async toggleMembersRequest(userId: string, action: string) {
     try {
       const response = await mainAxios.patch(`/user/:${userId}`);
       return response.data;
     } catch (error) {
       throw error;
     }
-  },
+  }
 
-  getMembers: async () => {
+  static async getMembers() {
     try {
       const response = await mainAxios.get("/request");
       return response.data;
     } catch (error) {
       throw error;
     }
-  },
-};
+  }
+}
