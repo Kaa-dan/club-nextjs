@@ -27,3 +27,12 @@ export const postPicture = async (id: string, userData: any) => {
     throw error;
   }
 };
+
+export const addNode = async (data: any) => {
+  try {
+    const response = await axiosInstance.post("/add-node", data);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

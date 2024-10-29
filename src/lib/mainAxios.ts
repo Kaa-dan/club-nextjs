@@ -1,6 +1,7 @@
 // src/api/axiosInstance.ts
 import axios from "axios";
 import env from "./env.config";
+import { useTokenStore } from "@/store/store";
 
 const createAxiosInstance = () => {
   const axiosInstance = axios.create({
@@ -10,7 +11,7 @@ const createAxiosInstance = () => {
   // Request interceptor to attach token
   axiosInstance.interceptors.request.use(
     (config) => {
-      const token = localStorage.getItem("token"); // Retrieve token from localStorage or other storage
+      const token = useTokenStore.getState().accessToken;
 
       if (token) {
         config.headers["Authorization"] = `Bearer ${token}`;
@@ -39,4 +40,4 @@ const createAxiosInstance = () => {
   return axiosInstance;
 };
 
-export const axiosInstance = createAxiosInstance();
+export const mainAxios = createAxiosInstance();

@@ -33,7 +33,7 @@ const SearchResults = ({ setShowAddNodeDialog }: ISearchResultsProps) => {
           <span>Create Node</span>
         </div>
         {NODES.map((node, index) => {
-          return <NodeCardMini node={node} />;
+          return <NodeCardMini key={node.name} node={node} />;
         })}
       </div>
     </div>
