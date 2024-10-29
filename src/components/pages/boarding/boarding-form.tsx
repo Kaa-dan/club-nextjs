@@ -11,7 +11,7 @@ import InterestForm from "./interest-form";
 type Step = "Details" | "Picture" | "Interest" | "Node";
 
 export function BoardingForm() {
-  const [step, setStep] = useState<Step>("Details");
+  const [step, setStep] = useState<Step>("Node"); //.remove
 
   return (
     <div className="flex min-h-screen items-center justify-center">
