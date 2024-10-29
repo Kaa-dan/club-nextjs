@@ -15,25 +15,25 @@ interface ISearchResultsProps {
 }
 const SearchResults = ({ setShowAddNodeDialog }: ISearchResultsProps) => {
   return (
-    <div className="flex flex-col px-8 gap-2">
+    <div className="flex flex-col gap-2 px-8">
       <h2 className="text-lg font-semibold">Search node</h2>
-      <div className="flex items-center gap-2 bg-slate-100 rounded-sm">
+      <div className="flex items-center gap-2 rounded-sm bg-slate-100">
         <Input
           placeholder="Enter name"
-          className="w-full h-8 bg-slate-100 border-none"
+          className="h-8 w-full border-none bg-slate-100"
         />
         <X className="text-slate-600" />
       </div>
-      <div className="flex flex-wrap gap-5 mt-4">
+      <div className="mt-4 flex flex-wrap gap-5">
         <div
-          className="flex flex-col items-center justify-center text-base text-primary border-2 border-primary border-dashed rounded-sm gap-1 size-[9rem] p-3 cursor-pointer"
+          className="flex size-36 cursor-pointer flex-col items-center justify-center gap-1 rounded-sm border-2 border-dashed border-primary p-3 text-base text-primary"
           onClick={() => setShowAddNodeDialog(true)}
         >
           <Plus />
           <span>Create Node</span>
         </div>
         {NODES.map((node, index) => {
-          return <NodeCardMini node={node} />;
+          return <NodeCardMini key={node.name} node={node} />;
         })}
       </div>
     </div>
@@ -45,19 +45,19 @@ export const NodeSearchForm = () => {
   const [showResults, setShowResults] = useState(false);
   const [showAddNodeDialog, setShowAddNodeDialog] = useState(false);
   return (
-    <div className="w-full flex flex-col mb-6">
+    <div className="mb-6 flex w-full flex-col">
       <AddNodeDialog open={showAddNodeDialog} setOpen={setShowAddNodeDialog} />
       {showResults ? (
         <SearchResults setShowAddNodeDialog={setShowAddNodeDialog} />
       ) : (
         <>
-          <div className="flex flex-col gap-2 w-3/5 mx-auto">
+          <div className="mx-auto flex w-3/5 flex-col gap-2">
             <Label>Enter your node name</Label>
             <Input className="mb-4" placeholder="Enter name" />
             <Label>Pin code</Label>
             <Input placeholder="Enter code" />
             <Button
-              className="w-full mt-6"
+              className="mt-6 w-full"
               onClick={() => setShowResults(true)}
             >
               Search for node
@@ -73,7 +73,7 @@ export const NodeSearchForm = () => {
         </>
       )}
 
-      <div className="my-4 w-full flex items-center space-x-2">
+      <div className="my-4 flex w-full items-center space-x-2">
         <Checkbox
           checked={tncAccepted}
           onCheckedChange={(bool) => setTncAccepted(bool ? true : false)}
@@ -91,7 +91,7 @@ export const NodeSearchForm = () => {
       </div>
       <Button
         variant={"outline"}
-        className="hover:bg-black hover:text-white px-6 self-end mr-8"
+        className="mr-8 self-end px-6 hover:bg-black hover:text-white"
       >
         Back
       </Button>

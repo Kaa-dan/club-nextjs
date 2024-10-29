@@ -53,7 +53,7 @@ const stepTwoSchema = z.object({
 
 type StepTwoType = z.infer<typeof stepTwoSchema>;
 
-type Step = "Details" | "Picture" | "Interest" | "Node";
+type Step = "details" | "image" | "interest" | "node";
 
 interface InterestFormProps {
   setStep: (step: Step) => void;
@@ -80,7 +80,7 @@ const InterestForm: React.FC<InterestFormProps> = ({ setStep }) => {
     console.log("Data for Picture step:", data);
     console.log("Cumulative form data:", newFormData);
 
-    // setStep("Node");
+    setStep("node");
   };
 
   const handleInterestClick = (interest: string) => {

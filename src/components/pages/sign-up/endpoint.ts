@@ -50,6 +50,26 @@ export const checkVerified = async () => {
   }
 };
 
+export const verifyToken = async (token: any): Promise<boolean> => {
+  try {
+
+    // Make the request and send the token in the headers
+    const response = await axiosConfig.post(
+      "/verify-token",
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`, // Add the token to the Authorization header
+        },
+      }
+    );
+    return response?.data?.status
+
+  } catch (error) {
+    return false
+  }
+}
+
 export const signUp = async (data: any) => {
   try {
     const response = await axiosConfig.post("/sign-up", data);

@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
+import Cookies from 'js-cookie';
 
 // User type definition
 type User = {
@@ -44,20 +45,44 @@ export const useTokenStore = create<MainStore>()(
       accessToken: null,
       globalUser: null,
 
-      setGlobalUser: (detail) => set({ globalUser: detail }),
+      setGlobalUser: (detail) => {
+        set({ globalUser: detail })
+        if (detail) {
+          Cookies.set('isOnboarded', detail.isOnBoarded.toString(), { path: '/' });
+        } else {
+          Cookies.remove('isOnboarded'); // Remove if token is null
+        }
+      },
 
       setVerifyToken: (token) => set({ verifyToken: token }),
 
-      setAccessToken: (token) => set({ accessToken: token }),
+      setAccessToken: (token) => {
+        set({ accessToken: token })
+        if (token) {
+          Cookies.set('accessToken', token, { path: '/' });
+        } else {
+          Cookies.remove('accessToken'); // Remove if token is null
+        }
+      },
 
-      clearAccessToken: () => set({ accessToken: null }),
+      clearAccessToken: () => {
+        set({ accessToken: null })
+        Cookies.remove('accessToken');
+      },
 
       clearVerifyToken: () => set({ verifyToken: null }),
 
-      clearGlobalUser: () => set({ globalUser: null }),
+      clearGlobalUser: () => {
+        set({ globalUser: null })
+        Cookies.remove('isOnboarded');
+      },
 
       // Utility function to clear all data
-      clearStore: () => set({ verifyToken: null, globalUser: null }),
+      clearStore: () => {
+        set({ verifyToken: null, globalUser: null })
+        Cookies.remove('accessToken');
+        Cookies.remove('isOnboarded');
+      },
     }),
     {
       name: "auth-storage", // Updated name to reflect both token and user storage

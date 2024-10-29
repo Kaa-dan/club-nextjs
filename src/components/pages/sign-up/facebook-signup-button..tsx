@@ -5,8 +5,19 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { socialAuth } from "./endpoint";
 import { app } from "@/lib/config/firebase";
+import { useTokenStore } from "@/store/store";
 
 const FacebookSignup = () => {
+  const { globalUser, setGlobalUser, setAccessToken } = useTokenStore(
+    (state) => ({
+      verifyToken: state.verifyToken,
+      setVerifyToken: state.setVerifyToken,
+      clearVerifyToken: state.clearVerifyToken,
+      globalUser: state.globalUser,
+      setGlobalUser: state.setGlobalUser,
+      setAccessToken: state.setAccessToken,
+    })
+  );
   const router = useRouter();
   // Facebook sign-in handler
   const socialSignup = async () => {
@@ -24,10 +35,16 @@ const FacebookSignup = () => {
         phoneNumber: user.phoneNumber,
         signupThrough: "facebook",
       });
-      localStorage.setItem("token", response.token);
-      router.push("/onboarding");
 
       toast.success(response.message);
+
+      // setting global state
+      setGlobalUser(response?.data || null);
+      setAccessToken(response?.token);
+
+      globalUser?.isOnBoarded
+        ? router.replace("/")
+        : router.replace("/onboarding");
     } catch (error: any) {
       if (error.response) {
         toast.error(

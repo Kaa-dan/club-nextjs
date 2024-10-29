@@ -19,7 +19,7 @@ import Link from "next/link";
 import { postPicture } from "./endpoint";
 import { useTokenStore } from "@/store/store";
 
-type Step = "Details" | "Picture" | "Node";
+type Step = "details" | "image" | "interest" | "node";
 
 const stepTwoSchema = z.object({
   profilePhoto: z
@@ -99,7 +99,7 @@ const PictureForm: React.FC<PictureFormProps> = ({ setStep, userId }) => {
         console.log("Upload successful:", result);
 
         // Move to next step if successful
-        setStep("Node");
+        setStep("node");
       }
     } catch (error) {
       console.error("Upload error:", error);
