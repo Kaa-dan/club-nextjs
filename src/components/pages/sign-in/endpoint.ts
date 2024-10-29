@@ -1,8 +1,8 @@
-import { axiosConfig } from "@/lib/axios";
+import { axiosInstance } from "@/lib/axios";
 
 export const login = async (data: any) => {
   try {
-    const response = await axiosConfig.post("/login", data);
+    const response = await axiosInstance.post("/login", data);
     return response.data;
   } catch (error) {
     throw error;
@@ -10,7 +10,7 @@ export const login = async (data: any) => {
 };
 export const signinWithSocial = async (data: any) => {
   try {
-    const response = await axiosConfig.post("/google-signin", data);
+    const response = await axiosInstance.post("/google-signin", data);
 
     return response.data;
   } catch (error) {
