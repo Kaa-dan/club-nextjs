@@ -5,8 +5,20 @@ import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { IMGS } from "@/lib/constants";
 import { app } from "@/lib/config/firebase";
 import { useRouter } from "next/navigation";
+import { useTokenStore } from "@/store/store";
 
 const GoogleSignUp = () => {
+  const { globalUser, setGlobalUser, setAccessToken } = useTokenStore(
+    (state) => ({
+      verifyToken: state.verifyToken,
+      setVerifyToken: state.setVerifyToken,
+      clearVerifyToken: state.clearVerifyToken,
+      globalUser: state.globalUser,
+      setGlobalUser: state.setGlobalUser,
+      setAccessToken: state.setAccessToken,
+    })
+  );
+
   const router = useRouter();
   const googleProvider = new GoogleAuthProvider();
   const auth = getAuth(app);
@@ -23,10 +35,15 @@ const GoogleSignUp = () => {
         phoneNumber: user.phoneNumber,
         signupThrough: "google",
       });
-      localStorage.setItem("token", response.token);
-      router.push("/onboarding");
-
       toast.success(response.message);
+
+      // setting global state
+      setGlobalUser(response?.data || null);
+      setAccessToken(response?.token);
+
+      globalUser?.isOnBoarded
+        ? router.replace("/")
+        : router.replace("/onboarding");
     } catch (error: any) {
       if (error.response) {
         toast.error(
@@ -38,15 +55,13 @@ const GoogleSignUp = () => {
     }
   };
   return (
-    <>
-      <button
-        onClick={socialSignup}
-        className="mr-2 flex w-full items-center justify-center rounded-lg border p-2"
-      >
-        <Image src={IMGS?.Google} alt="Google" className="mr-2 h-6" />
-        Google
-      </button>
-    </>
+    <button
+      onClick={socialSignup}
+      className="mr-2 flex w-full items-center justify-center rounded-lg border p-2"
+    >
+      <Image src={IMGS?.Google} alt="Google" className="mr-2 h-6" />
+      Google
+    </button>
   );
 };
 export default GoogleSignUp;

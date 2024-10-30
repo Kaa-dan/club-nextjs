@@ -26,7 +26,7 @@ import Link from "next/link";
 import { postDetails } from "./endpoint";
 import { useTokenStore } from "@/store/store";
 
-type Step = "Details" | "Picture" | "Node" | "Interest";
+type Step = "details" | "image" | "interest" | "node";
 
 //form validation using zed
 
@@ -90,7 +90,7 @@ const DetailsForm: React.FC<DetailsFormProps> = ({ setStep }) => {
 
       console.log({ RESPONSE });
       setGlobalUser(RESPONSE.data);
-      setStep("Picture");
+      setStep("image");
     }
   };
 
