@@ -40,7 +40,7 @@ const SearchResults = ({
           )
         : nodes
     );
-  }, [searchTerm]);
+  }, [searchTerm, nodes]);
   const requestToJoinNode = async (nodeId: string) => {
     try {
       setLoading(true);
