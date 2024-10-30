@@ -87,7 +87,7 @@ export const useTokenStore = create<MainStore>()(
     {
       name: "auth-storage", // Updated name to reflect both token and user storage
 
-      storage: createJSONStorage(() => sessionStorage),
+      storage: createJSONStorage(() => localStorage),
 
       // Specify which parts of the state to persist
       partialize: (state) => ({
