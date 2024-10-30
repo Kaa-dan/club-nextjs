@@ -10,6 +10,7 @@ type Menu = {
   active: boolean;
   image: string;
   submenus: Submenu[];
+  key?: string;
 };
 
 type Group = {
@@ -55,6 +56,21 @@ export function getMenuList(pathname: string): Group[] {
           image: "https://picsum.photos/200",
           submenus: [],
         },
+        {
+          href: "/Brooklyn-Simmons",
+          label: "Brooklyn Simmons",
+          active: pathname.includes("/my-account"),
+          image: "https://picsum.photos/200",
+          submenus: [],
+        },
+        {
+          href: "",
+          key: "createNode",
+          label: "Create Node",
+          active: pathname.includes("/my-account"),
+          image: "https://picsum.photos/200",
+          submenus: [],
+        },
       ],
     },
     {
@@ -77,6 +93,14 @@ export function getMenuList(pathname: string): Group[] {
         {
           href: "/Devon-Lane",
           label: "Devon Lane",
+          active: pathname.includes("/my-account"),
+          image: "https://picsum.photos/200",
+          submenus: [],
+        },
+        {
+          href: "",
+          key: "createClub",
+          label: "Create Club",
           active: pathname.includes("/my-account"),
           image: "https://picsum.photos/200",
           submenus: [],
