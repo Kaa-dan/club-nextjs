@@ -86,16 +86,13 @@ const InterestForm: React.FC<InterestFormProps> = ({ setStep }) => {
   }, [formData, form]);
 
   const onSubmit: SubmitHandler<StepTwoType> = async (data) => {
-    const newFormData = { terms: data.terms, selectedInterests };
+    const newFormData = { terms: data.terms, interests: selectedInterests };
     setFormData(newFormData);
     console.log("Data for Picture step:", data);
     console.log("Cumulative form data:", newFormData);
 
     if (globalUser) {
-      const response = await postInterest(
-        globalUser._id,
-        newFormData.selectedInterests
-      );
+      const response = await postInterest(globalUser._id, newFormData);
       setGlobalUser(response.data);
       setStep("node");
     }
