@@ -84,14 +84,20 @@ const formSchema = z
 
 export function SignUpForm(): React.JSX.Element {
   //global store
-  const { verifyToken, setVerifyToken, globalUser, setGlobalUser } =
-    useTokenStore((state) => ({
-      verifyToken: state.verifyToken,
-      setVerifyToken: state.setVerifyToken,
-      clearVerifyToken: state.clearVerifyToken,
-      globalUser: state.globalUser,
-      setGlobalUser: state.setGlobalUser,
-    }));
+  const {
+    verifyToken,
+    setVerifyToken,
+    globalUser,
+    setGlobalUser,
+    setAccessToken,
+  } = useTokenStore((state) => ({
+    verifyToken: state.verifyToken,
+    setVerifyToken: state.setVerifyToken,
+    clearVerifyToken: state.clearVerifyToken,
+    globalUser: state.globalUser,
+    setGlobalUser: state.setGlobalUser,
+    setAccessToken: state.setAccessToken,
+  }));
 
   console.log({ verifyToken, globalUser });
   const router = useRouter();
@@ -130,10 +136,12 @@ export function SignUpForm(): React.JSX.Element {
       // storing response and api calling
       const response = await signUp(data);
       toast.success(response.message);
-      router.push("/onboarding");
 
       // setting global state
       setGlobalUser(response?.data || null);
+      setAccessToken(response?.token);
+
+      router.replace("/onboarding");
     } catch (error) {
       //checking type
       const typedError = error as FirebaseError;
@@ -173,7 +181,7 @@ export function SignUpForm(): React.JSX.Element {
     }
   };
   return (
-    <div className="flex max-h-[100dvh] overflow-hidden h-screen items-center justify-center">
+    <div className="flex h-screen max-h-dvh items-center justify-center overflow-hidden">
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="mb-6 flex flex-col items-center text-center">
@@ -271,7 +279,7 @@ export function SignUpForm(): React.JSX.Element {
                 <Button
                   disabled={!verified || form.formState.isSubmitting}
                   type="submit"
-                  className="w-full rounded-lg disabled:opacity-50 bg-primary p-2 text-white"
+                  className="w-full rounded-lg bg-primary p-2 text-white disabled:opacity-50"
                 >
                   Continue with Clubwize
                 </Button>

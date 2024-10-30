@@ -20,6 +20,8 @@ import { toast } from "sonner";
 import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useTokenStore } from "@/store/store";
+import { postInterest } from "./endpoint";
 
 const interests = [
   "UI designs",
@@ -53,13 +55,23 @@ const stepTwoSchema = z.object({
 
 type StepTwoType = z.infer<typeof stepTwoSchema>;
 
-type Step = "Details" | "Picture" | "Interest" | "Node";
+type Step = "details" | "image" | "interest" | "node";
 
 interface InterestFormProps {
   setStep: (step: Step) => void;
 }
 
 const InterestForm: React.FC<InterestFormProps> = ({ setStep }) => {
+  //global store
+  const { verifyToken, setVerifyToken, globalUser, setGlobalUser } =
+    useTokenStore((state) => ({
+      verifyToken: state.verifyToken,
+      setVerifyToken: state.setVerifyToken,
+      clearVerifyToken: state.clearVerifyToken,
+      globalUser: state.globalUser,
+      setGlobalUser: state.setGlobalUser,
+    }));
+
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   const [formData, setFormData] = useState<Partial<StepTwoType>>({});
   const [filteredInterests, setFilteredInterests] = useState(interests);
@@ -73,14 +85,17 @@ const InterestForm: React.FC<InterestFormProps> = ({ setStep }) => {
     form.reset(formData);
   }, [formData, form]);
 
-  const onSubmit: SubmitHandler<StepTwoType> = (data) => {
-    const newFormData = { terms: data.terms, selectedInterests };
+  const onSubmit: SubmitHandler<StepTwoType> = async (data) => {
+    const newFormData = { terms: data.terms, interests: selectedInterests };
     setFormData(newFormData);
-
     console.log("Data for Picture step:", data);
     console.log("Cumulative form data:", newFormData);
 
-    // setStep("Node");
+    if (globalUser) {
+      const response = await postInterest(globalUser._id, newFormData);
+      setGlobalUser(response.data);
+      setStep("node");
+    }
   };
 
   const handleInterestClick = (interest: string) => {
