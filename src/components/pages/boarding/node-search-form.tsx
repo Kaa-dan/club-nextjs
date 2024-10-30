@@ -78,6 +78,7 @@ export const NodeSearchForm = () => {
           checked={tncAccepted}
           onCheckedChange={(bool) => setTncAccepted(bool ? true : false)}
         />
+
         <Label className="flex gap-1">
           I agree to the{" "}
           <Link href="#" className="text-primary">
