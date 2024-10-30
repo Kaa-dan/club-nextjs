@@ -24,7 +24,7 @@ const SearchResults = ({ setShowAddNodeDialog }: ISearchResultsProps) => {
         />
         <X className="text-slate-600" />
       </div>
-      <div className="mt-4 flex flex-wrap gap-5">
+      <div className="mt-4 flex flex-wrap justify-evenly gap-5">
         <div
           className="flex size-36 cursor-pointer flex-col items-center justify-center gap-1 rounded-sm border-2 border-dashed border-primary p-3 text-base text-primary"
           onClick={() => setShowAddNodeDialog(true)}
@@ -95,13 +95,15 @@ export const NodeSearchForm: React.FC<InterestFormProps> = ({ setStep }) => {
           </Link>
         </Label>
       </div>
-      <Button
-        variant={"outline"}
-        className="mr-8 self-end px-6 hover:bg-black hover:text-white"
-        onClick={() => setStep("interest")}
-      >
-        Back
-      </Button>
+
+      <div className="flex justify-end gap-4">
+        <Button variant="outline" type="button">
+          Back
+        </Button>
+        <Button type="submit" className="text-white">
+          Next
+        </Button>
+      </div>
     </div>
   );
 };
