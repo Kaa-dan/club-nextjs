@@ -1,3 +1,7 @@
+"use client";
+
+import { Endpoints } from "@/utils/endpoint";
+
 type Submenu = {
   href: string;
   label: string;
@@ -18,7 +22,9 @@ type Group = {
   menus: Menu[];
 };
 
-export function getMenuList(pathname: string): Group[] {
+export async function getMenuList(pathname: string): Promise<Group[]> {
+  const response = await Endpoints.fetchAllNodes();
+  console.log({ response });
   return [
     {
       groupLabel: "",

@@ -24,6 +24,7 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { login } from "./endpoint";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useTokenStore } from "@/store/store";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -34,6 +35,17 @@ const formSchema = z.object({
 });
 
 export function SignInForm() {
+  const { globalUser, setGlobalUser, setAccessToken } = useTokenStore(
+    (state) => ({
+      verifyToken: state.verifyToken,
+      setVerifyToken: state.setVerifyToken,
+      clearVerifyToken: state.clearVerifyToken,
+      globalUser: state.globalUser,
+      setGlobalUser: state.setGlobalUser,
+      setAccessToken: state.setAccessToken,
+    })
+  );
+
   const router = useRouter();
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -47,10 +59,13 @@ export function SignInForm() {
   const onSubmit = async (data: any) => {
     try {
       const response = await login(data);
-
+      console.log(response);
       toast.success(response?.message);
-      localStorage.setItem("userToken", response.token);
-      router.push("/onboarding");
+      setGlobalUser(response?.data || null);
+      setAccessToken(response?.token);
+      globalUser?.isOnBoarded
+        ? router.replace("/")
+        : router.replace("/onboarding");
     } catch (error: any) {
       toast.error(error.response.data.message);
     }
