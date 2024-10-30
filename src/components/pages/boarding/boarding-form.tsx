@@ -51,7 +51,7 @@ export function BoardingForm() {
 
             {step === "interest" && <InterestForm setStep={setStep} />}
 
-            {step === "node" && <NodeSearchForm />}
+            {step === "node" && <NodeSearchForm setStep={setStep} />}
           </div>
         </div>
       ) : (

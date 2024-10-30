@@ -1,11 +1,9 @@
 // middleware.ts
 
-"use-client";
-
 import { verifyToken } from "@/components/pages/sign-up/endpoint";
-// import cookies  from 'next-nex';
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { type } from "os";
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -53,6 +51,7 @@ export async function middleware(request: NextRequest) {
       // Redirect to login if token is invalid
       return NextResponse.redirect(new URL("/sign-in", request.url));
     }
+    console.log(isOnboarded);
 
     if (isPublicRoute) {
       const redirectUrl = referer

@@ -63,7 +63,7 @@ export function SignInForm() {
       toast.success(response?.message);
       setGlobalUser(response?.data || null);
       setAccessToken(response?.token);
-      globalUser?.isOnBoarded
+      response?.data?.isOnBoarded
         ? router.replace("/")
         : router.replace("/onboarding");
     } catch (error: any) {

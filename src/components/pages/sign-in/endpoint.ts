@@ -11,7 +11,7 @@ export const login = async (data: any) => {
 export const signinWithSocial = async (data: any) => {
   try {
     const response = await axiosInstance.post("/google-signin", data);
-
+    console.log("response", response.data)
     return response.data;
   } catch (error) {
     throw error;
