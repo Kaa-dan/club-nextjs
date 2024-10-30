@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Ellipsis, Icon, LogOut } from "lucide-react";
+import { Ellipsis, HomeIcon, Icon, LogOut } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -28,18 +28,37 @@ export function Menu({ isOpen }: MenuProps) {
   return (
     <ScrollArea className=" [&>div>div[style]]:!block">
       <nav className="mt-8 size-full">
-        <ul className="flex min-h-[calc(100vh-48px-36px-16px-32px)] flex-col items-start space-y-1 px-2 lg:min-h-[calc(100vh-32px-40px-32px)]">
+        <ul className="flex min-h-[calc(100vh-48px-36px-16px-32px)] flex-col items-start space-y-1  px-2 lg:min-h-[calc(100vh-32px-40px-32px)]">
           {menuList.map(({ groupLabel, menus }, index) => (
-            <li className={cn("w-fit", groupLabel ? "pt-5" : "")} key={index}>
+            <li className={cn("w-full ", groupLabel ? "pt-5" : "")} key={index}>
               {(isOpen && groupLabel) || isOpen === undefined ? (
-                <p className="max-w-[248px] truncate px-4 pb-2 text-sm font-medium text-muted-foreground">
-                  {groupLabel}
+                <p className="max-w-[248px] truncate  px-4 pb-2 text-sm font-medium text-muted-foreground">
+                  {/* {groupLabel} */}
+                  {groupLabel === "Nodes" ? (
+                    <Image
+                      src={ICONS.NodeGreyIcon}
+                      alt="node_logo"
+                      height={50}
+                      width={50}
+                      className="ml-2 size-4 object-cover"
+                    />
+                  ) : groupLabel === "Clubs" ? (
+                    <Image
+                      src={ICONS.ClubGreyIcon}
+                      alt="club_logo"
+                      height={50}
+                      width={50}
+                      className="ml-2 size-4 object-cover"
+                    />
+                  ) : (
+                    <Ellipsis size={30} />
+                  )}
                 </p>
               ) : !isOpen && isOpen !== undefined && groupLabel ? (
                 <TooltipProvider>
                   <Tooltip delayDuration={100}>
-                    <TooltipTrigger className="w-full">
-                      <div className="flex w-full items-center justify-center">
+                    <TooltipTrigger className="mb-2 w-full ">
+                      <div className="flex w-full items-center justify-center ">
                         {groupLabel === "Nodes" ? (
                           <Image
                             src={ICONS.NodeGreyIcon}
@@ -71,26 +90,42 @@ export function Menu({ isOpen }: MenuProps) {
               )}
               {menus.map(({ href, label, image, active, submenus }, index) =>
                 submenus.length === 0 ? (
-                  <div className="w-full" key={index}>
+                  <div className="relative w-full " key={index}>
                     <TooltipProvider disableHoverableContent>
                       <Tooltip delayDuration={100}>
                         <TooltipTrigger asChild>
                           <Button
                             variant={active ? "default" : "ghost"}
-                            className="mb-1 w-full justify-start"
+                            className="relative mx-1 mb-1 w-full justify-start   !py-6"
                             asChild
                           >
                             <Link href={href}>
                               <span
                                 className={cn(isOpen === false ? "" : "mr-4")}
                               >
-                                <Image
-                                  src={image}
-                                  height={50}
-                                  width={50}
-                                  className="size-9 object-cover rounded-md"
-                                  alt={label}
-                                />
+                                {label === "Home" ? (
+                                  <HomeIcon />
+                                ) : (
+                                  <div
+                                    className={cn(
+                                      "rounded-xl  object-cover",
+                                      index === 0 && groupLabel === "Nodes"
+                                        ? "p-[5px] bg-primary/80 -ml-[5px]"
+                                        : ""
+                                    )}
+                                  >
+                                    <Image
+                                      src={image}
+                                      height={50}
+                                      width={50}
+                                      // className="size-9 rounded-md border-[5px] border-primary object-cover"
+                                      className={cn(
+                                        "size-9 rounded-lg  object-cover"
+                                      )}
+                                      alt={label}
+                                    />
+                                  </div>
+                                )}
                               </span>
                               <span
                                 hidden={!isOpen}
@@ -104,6 +139,7 @@ export function Menu({ isOpen }: MenuProps) {
                                 {label}
                               </span>
                             </Link>
+                            {/* Active marker */}
                           </Button>
                         </TooltipTrigger>
                         {isOpen === false && (
@@ -111,11 +147,14 @@ export function Menu({ isOpen }: MenuProps) {
                         )}
                       </Tooltip>
                     </TooltipProvider>
+                    {index === 0 && groupLabel === "Nodes" && (
+                      <span className="absolute -left-2 top-1.5 h-9 w-2 rounded-r-md bg-primary/80"></span>
+                    )}
                   </div>
                 ) : (
                   <div className="w-full" key={index}>
                     {/* <CollapseMenuButton
-                      icon={Icon}
+                      icon={HamburgerMenuIcon}
                       label={label}
                       active={active}
                       submenus={submenus}
@@ -124,9 +163,10 @@ export function Menu({ isOpen }: MenuProps) {
                   </div>
                 )
               )}
+              <div className="h-0.5 w-full bg-gray-300/50"></div>
             </li>
           ))}
-          <li className="flex w-full grow items-end">
+          <li className="flex w-full grow items-end ">
             <TooltipProvider disableHoverableContent>
               <Tooltip delayDuration={100}>
                 <TooltipTrigger asChild>

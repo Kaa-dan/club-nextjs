@@ -35,15 +35,22 @@ export function getMenuList(pathname: string): Group[] {
       groupLabel: "Nodes",
       menus: [
         {
-          href: "/my-account",
-          label: "My Account",
+          href: "/nodes/gretchen-lencher",
+          label: "Gretchen Lencher",
           active: pathname.includes("/my-account"),
           image: "https://picsum.photos/200",
           submenus: [],
         },
         {
-          href: "/my-account",
-          label: "My Account",
+          href: "/Aarlene-McCoy",
+          label: "Arlene McCoy",
+          active: pathname.includes("/my-account"),
+          image: "https://picsum.photos/200",
+          submenus: [],
+        },
+        {
+          href: "/Brooklyn-Simmons",
+          label: "Brooklyn Simmons",
           active: pathname.includes("/my-account"),
           image: "https://picsum.photos/200",
           submenus: [],
@@ -54,8 +61,22 @@ export function getMenuList(pathname: string): Group[] {
       groupLabel: "Clubs",
       menus: [
         {
-          href: "/my-account",
-          label: "My Account",
+          href: "/Annette-Black",
+          label: "Annette Black",
+          active: pathname.includes("/my-account"),
+          image: "https://picsum.photos/200",
+          submenus: [],
+        },
+        {
+          href: "/Cameron-Williamson",
+          label: "Cameron Williamson",
+          active: pathname.includes("/my-account"),
+          image: "https://picsum.photos/200",
+          submenus: [],
+        },
+        {
+          href: "/Devon-Lane",
+          label: "Devon Lane",
           active: pathname.includes("/my-account"),
           image: "https://picsum.photos/200",
           submenus: [],

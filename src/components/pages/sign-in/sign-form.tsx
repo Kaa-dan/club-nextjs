@@ -50,7 +50,7 @@ export function SignInForm() {
 
       toast.success(response?.message);
       localStorage.setItem("userToken", response.token);
-      router.push("/boarding");
+      router.push("/onboarding");
     } catch (error: any) {
       toast.error(error.response.data.message);
     }
