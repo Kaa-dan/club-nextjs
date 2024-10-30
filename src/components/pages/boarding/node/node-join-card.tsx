@@ -74,9 +74,9 @@ const NodeJoinCard: React.FC<{
             onClick={onJoin}
           >
             {isLoading ? (
-              "isLoading"
+              <Loader2 className="text-white animate-spin" />
             ) : (
-              <Loader2 className="text-white animate-spin" size={"1rem"} />
+              "Confirm"
             )}
           </Button>
         </DialogContent>
