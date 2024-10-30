@@ -19,7 +19,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const [currentPage, setCurrentPage] = useState("modules");
   return (
     <div className="flex gap-6 w-full">
-      <div className="w-[75%] flex gap-6">
+      <div className="flex gap-6">
         <ClubProfileCard
           currentPage={currentPage}
           setCurrentPage={setCurrentPage}
@@ -30,7 +30,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           {children}
         </div>
       </div>
-      <NodeTeams />
+      {/* <NodeTeams /> */}
     </div>
   );
 };
