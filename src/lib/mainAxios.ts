@@ -1,3 +1,4 @@
+"use client";
 // src/api/axiosInstance.ts
 import axios from "axios";
 import env from "./env.config";

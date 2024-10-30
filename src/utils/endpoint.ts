@@ -6,6 +6,15 @@ export class Endpoints {
     return data;
   }
 
+  static async fetchAllNodes() {
+    try {
+      const { data } = await mainAxios.get("/node");
+      return data;
+    } catch (error) {
+      console.log({ error });
+    }
+  }
+
   static async toggleMembersRequest(userId: string, action: string) {
     try {
       const response = await mainAxios.patch(`/user/:${userId}`);
