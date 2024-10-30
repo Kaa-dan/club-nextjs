@@ -40,7 +40,13 @@ const SearchResults = ({ setShowAddNodeDialog }: ISearchResultsProps) => {
   );
 };
 
-export const NodeSearchForm = () => {
+type Step = "details" | "image" | "interest" | "node";
+
+interface InterestFormProps {
+  setStep: (step: Step) => void;
+}
+
+export const NodeSearchForm: React.FC<InterestFormProps> = ({ setStep }) => {
   const [tncAccepted, setTncAccepted] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [showAddNodeDialog, setShowAddNodeDialog] = useState(false);
@@ -92,6 +98,7 @@ export const NodeSearchForm = () => {
       <Button
         variant={"outline"}
         className="mr-8 self-end px-6 hover:bg-black hover:text-white"
+        onClick={() => setStep("interest")}
       >
         Back
       </Button>
