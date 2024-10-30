@@ -1,3 +1,4 @@
+import { Check } from "lucide-react";
 import React from "react";
 
 interface ProgressIndicatorProps {
@@ -31,20 +32,23 @@ const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
               } ${smallText ? "text-xs" : "text-base"}`}
             >
               {stepIndex < currentStepIndex ? (
-                <svg
-                  className="size-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
+                // <svg
+                //   className="size-5"
+                //   fill="none"
+                //   stroke="currentColor"
+                //   viewBox="0 0 24 24"
+                //   xmlns="http://www.w3.org/2000/svg"
+                // >
+                //   <path
+                //     strokeLinecap="round"
+                //     strokeLinejoin="round"
+                //     strokeWidth={1}
+                //     d="M5 13l4 4L19 7"
+                //   />
+                // </svg>
+                <div>
+                  <Check className="size-4" />
+                </div>
               ) : (
                 index + 1
               )}

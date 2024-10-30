@@ -4,7 +4,23 @@ import { FacebookAuthProvider, getAuth, signInWithPopup } from "firebase/auth";
 import { toast } from "sonner";
 import { app } from "@/lib/config/firebase";
 import { signinWithSocial } from "./endpoint";
+import { useTokenStore } from "@/store/store";
+import { useRouter } from "next/navigation";
+
 const FacebookSignIn = () => {
+  const { globalUser, setGlobalUser, setAccessToken } = useTokenStore(
+    (state) => ({
+      verifyToken: state.verifyToken,
+      setVerifyToken: state.setVerifyToken,
+      clearVerifyToken: state.clearVerifyToken,
+      globalUser: state.globalUser,
+      setGlobalUser: state.setGlobalUser,
+      setAccessToken: state.setAccessToken,
+    })
+  );
+
+  const router = useRouter();
+
   const handleFacebookSignIn = async () => {
     const facebookProvider = new FacebookAuthProvider(); // Facebook provider
     facebookProvider.addScope("email");
@@ -23,6 +39,14 @@ const FacebookSignIn = () => {
       });
 
       toast.success(response.message);
+
+      // setting global state
+      setGlobalUser(response?.data || null);
+      setAccessToken(response?.token);
+
+      globalUser?.isOnBoarded
+        ? router.replace("/")
+        : router.replace("/onboarding");
     } catch (error: any) {
       console.error("Facebook Sign-in Error:", error);
       toast.error(error.response.data.message);
