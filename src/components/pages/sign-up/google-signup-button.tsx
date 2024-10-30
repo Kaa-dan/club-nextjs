@@ -37,6 +37,8 @@ const GoogleSignUp = () => {
       });
       toast.success(response.message);
 
+      console.log(response);
+
       // setting global state
       setGlobalUser(response?.data || null);
       setAccessToken(response?.token);
