@@ -8,18 +8,20 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { NodeData } from "@/types";
-import { MapPin, Users } from "lucide-react";
+import { Loader2, MapPin, Users } from "lucide-react";
 import Image from "next/image";
 import React from "react";
 
 const NodeJoinCard: React.FC<{
   node: NodeData;
   requested: boolean;
+  isLoading: boolean;
   onJoin: () => void;
 }> = ({
   node: { name, profileImage, members, coverImage, location },
   requested,
   onJoin,
+  isLoading,
 }) => {
   return (
     <Card className="flex flex-col text-xs rounded-sm gap-1 w-[9rem] p-3">
@@ -66,8 +68,16 @@ const NodeJoinCard: React.FC<{
           <span className="text-center text-base text-slate-500">
             Are you sure you want to join this node?
           </span>
-          <Button className="w-1/3 mx-auto" onClick={onJoin}>
-            Confirm
+          <Button
+            disabled={isLoading}
+            className="w-1/3 mx-auto"
+            onClick={onJoin}
+          >
+            {isLoading ? (
+              "isLoading"
+            ) : (
+              <Loader2 className="text-white animate-spin" size={"1rem"} />
+            )}
           </Button>
         </DialogContent>
       </Dialog>

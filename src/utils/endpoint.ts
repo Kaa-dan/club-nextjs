@@ -15,6 +15,15 @@ export class Endpoints {
     }
   }
 
+  static async requestToJoinNode(nodeId: string) {
+    try {
+      const { data } = await mainAxios.post("/node/" + nodeId);
+      return data;
+    } catch (error) {
+      console.log({ error });
+    }
+  }
+
   static async toggleMembersRequest(userId: string, action: string) {
     try {
       const response = await mainAxios.patch(`/user/:${userId}`);

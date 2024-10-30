@@ -11,6 +11,7 @@ import NodeCardMini from "@/components/globals/node/node-card";
 import AddNodeDialog from "./node/add-node-dialog";
 import { getNodes } from "./endpoint";
 import NodeJoinCard from "./node/node-join-card";
+import { Endpoints } from "@/utils/endpoint";
 
 interface ISearchResultsProps {
   setShowAddNodeDialog: (bool: boolean) => void;
@@ -23,7 +24,9 @@ const SearchResults = ({
   setSearchTerm,
 }: ISearchResultsProps) => {
   const [nodes, setNodes] = useState([]);
+  const [requestedNodes, setRequestedNodes] = useState<string[]>([]);
   const [filteredNodes, setFilteredNodes] = useState([]);
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     getNodes().then((res) => {
       setNodes(res);
@@ -38,6 +41,17 @@ const SearchResults = ({
         : nodes
     );
   }, [searchTerm]);
+  const requestToJoinNode = async (nodeId: string) => {
+    try {
+      setLoading(true);
+      const response = await Endpoints.requestToJoinNode(nodeId);
+      setRequestedNodes((prev) => [...prev, nodeId]);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div className="flex flex-col gap-2 px-8">
       <h2 className="text-lg font-semibold">Search node</h2>
@@ -64,7 +78,8 @@ const SearchResults = ({
         {filteredNodes.map((node: any, index) => {
           return (
             <NodeJoinCard
-              onJoin={() => {}}
+              onJoin={() => requestToJoinNode}
+              isLoading={loading}
               requested={false}
               key={node.name}
               node={node}
