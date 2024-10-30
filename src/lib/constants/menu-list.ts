@@ -1,3 +1,7 @@
+"use client";
+
+import { Endpoints } from "@/utils/endpoint";
+
 type Submenu = {
   href: string;
   label: string;
@@ -10,6 +14,7 @@ type Menu = {
   active: boolean;
   image: string;
   submenus: Submenu[];
+  key?: string;
 };
 
 type Group = {
@@ -17,7 +22,9 @@ type Group = {
   menus: Menu[];
 };
 
-export function getMenuList(pathname: string): Group[] {
+export async function getMenuList(pathname: string): Promise<Group[]> {
+  const response = await Endpoints.fetchAllNodes();
+  console.log({ response });
   return [
     {
       groupLabel: "",
@@ -35,15 +42,37 @@ export function getMenuList(pathname: string): Group[] {
       groupLabel: "Nodes",
       menus: [
         {
-          href: "/my-account",
-          label: "My Account",
+          href: "/nodes/gretchen-lencher",
+          label: "Gretchen Lencher",
           active: pathname.includes("/my-account"),
           image: "https://picsum.photos/200",
           submenus: [],
         },
         {
-          href: "/my-account",
-          label: "My Account",
+          href: "/Aarlene-McCoy",
+          label: "Arlene McCoy",
+          active: pathname.includes("/my-account"),
+          image: "https://picsum.photos/200",
+          submenus: [],
+        },
+        {
+          href: "/Brooklyn-Simmons",
+          label: "Brooklyn Simmons",
+          active: pathname.includes("/my-account"),
+          image: "https://picsum.photos/200",
+          submenus: [],
+        },
+        {
+          href: "/Brooklyn-Simmons",
+          label: "Brooklyn Simmons",
+          active: pathname.includes("/my-account"),
+          image: "https://picsum.photos/200",
+          submenus: [],
+        },
+        {
+          href: "",
+          key: "createNode",
+          label: "Create Node",
           active: pathname.includes("/my-account"),
           image: "https://picsum.photos/200",
           submenus: [],
@@ -54,8 +83,30 @@ export function getMenuList(pathname: string): Group[] {
       groupLabel: "Clubs",
       menus: [
         {
-          href: "/my-account",
-          label: "My Account",
+          href: "/Annette-Black",
+          label: "Annette Black",
+          active: pathname.includes("/my-account"),
+          image: "https://picsum.photos/200",
+          submenus: [],
+        },
+        {
+          href: "/Cameron-Williamson",
+          label: "Cameron Williamson",
+          active: pathname.includes("/my-account"),
+          image: "https://picsum.photos/200",
+          submenus: [],
+        },
+        {
+          href: "/Devon-Lane",
+          label: "Devon Lane",
+          active: pathname.includes("/my-account"),
+          image: "https://picsum.photos/200",
+          submenus: [],
+        },
+        {
+          href: "",
+          key: "createClub",
+          label: "Create Club",
           active: pathname.includes("/my-account"),
           image: "https://picsum.photos/200",
           submenus: [],

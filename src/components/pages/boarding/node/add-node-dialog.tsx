@@ -30,13 +30,9 @@ import { Camera, Search, X } from "lucide-react";
 import { ICONS, IMGS } from "@/lib/constants";
 import { formatName } from "@/utils/text";
 import { toast } from "sonner";
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-const ACCEPTED_IMAGE_TYPES = [
-  "image/jpeg",
-  "image/jpg",
-  "image/png",
-  "image/webp",
-];
+
+const MAX_FILE_SIZE = 2 * 1024 * 1024; // 5MB
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
 const fileSchema = z.z
   .custom<File>()
   .refine((file) => {
@@ -46,11 +42,11 @@ const fileSchema = z.z
   .refine((file) => {
     if (!file) return true;
     return file.size <= MAX_FILE_SIZE;
-  }, `File size should be less than 5MB`)
+  }, `File size should be less than 2MB`)
   .refine((file) => {
     if (!file) return true;
     return ACCEPTED_IMAGE_TYPES.includes(file.type);
-  }, "Only .jpg, .jpeg, .png and .webp formats are supported");
+  }, "Only .jpg, .jpeg, and .png formats are supported");
 
 // Validation schema using Zod
 const formSchema = z.object({
@@ -104,6 +100,7 @@ interface IProps {
 
 const DetailsForm = ({
   onSubmit,
+  form,
 }: {
   onSubmit: (values: {
     profilePhoto?: File | null;
@@ -113,21 +110,28 @@ const DetailsForm = ({
     location: string;
     description: string;
   }) => void;
-}) => {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      profilePhoto: null,
-      coverPhoto: null,
-      name: "",
-      about: "",
-      location: "",
-      description: "",
+  form: UseFormReturn<
+    {
+      profilePhoto?: File | null;
+      coverPhoto?: File | null;
+      name: string;
+      about: string;
+      location: string;
+      description: string;
     },
-  });
-  const [coverPreviewUrl, setCoverPreviewUrl] = useState<string | null>(null);
+    any,
+    undefined
+  >;
+}) => {
+  const [coverPreviewUrl, setCoverPreviewUrl] = useState<string | null>(
+    form.getValues().coverPhoto
+      ? URL.createObjectURL(form.getValues().coverPhoto as File)
+      : null
+  );
   const [profilePreviewUrl, setProfilePreviewUrl] = useState<string | null>(
-    null
+    form.getValues().profilePhoto
+      ? URL.createObjectURL(form.getValues().profilePhoto as File)
+      : null
   );
 
   console.log("errors", form.formState.errors);
@@ -341,9 +345,23 @@ const AddNodeDialog = ({ open, setOpen }: IProps) => {
     "Details" | "Modules" | "Success"
   >("Details");
   const [selectedModules, setSelectedModules] = useState<string[]>([]);
-
-  const onSubmit = async (values: any) => {
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      profilePhoto: null,
+      coverPhoto: null,
+      name: "",
+      about: "",
+      location: "",
+      description: "",
+    },
+  });
+  const onSubmitDetails = () => {
+    setCurrentStep("Modules");
+  };
+  const onFinalSubmit = async () => {
     const formData = new FormData();
+    const values = form.getValues();
     if (values.profilePhoto)
       formData.append("profileImage", values.profilePhoto);
 
@@ -352,13 +370,13 @@ const AddNodeDialog = ({ open, setOpen }: IProps) => {
     formData.append("about", values.about);
     formData.append("location", values.location);
     formData.append("description", values.description);
+    console.log("values", values);
     try {
       const response = await addNode(formData);
-      setCurrentStep("Modules");
       toast.success(response.message);
+      setCurrentStep("Success");
     } catch (error: any) {
       console.log(error);
-
       toast.error(
         error.message || error.response.data.message || "something went wrong"
       );
@@ -400,7 +418,7 @@ const AddNodeDialog = ({ open, setOpen }: IProps) => {
               />
             </div>
             {currentStep === "Details" ? (
-              <DetailsForm onSubmit={onSubmit} />
+              <DetailsForm form={form} onSubmit={onSubmitDetails} />
             ) : (
               <>
                 <div className="flex items-center gap-2 bg-slate-100 rounded-sm px-2">
@@ -466,10 +484,7 @@ const AddNodeDialog = ({ open, setOpen }: IProps) => {
                     </Button>
                     <Button
                       disabled={selectedModules.length === 0}
-                      onClick={
-                        // form.handleSubmit(onSubmit)
-                        () => setCurrentStep("Success")
-                      }
+                      onClick={onFinalSubmit}
                       className="w-full text-white py-2 rounded-lg"
                     >
                       Next
