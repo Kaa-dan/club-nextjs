@@ -123,9 +123,15 @@ const DetailsForm = ({
     undefined
   >;
 }) => {
-  const [coverPreviewUrl, setCoverPreviewUrl] = useState<string | null>(null);
+  const [coverPreviewUrl, setCoverPreviewUrl] = useState<string | null>(
+    form.getValues().coverPhoto
+      ? URL.createObjectURL(form.getValues().coverPhoto as File)
+      : null
+  );
   const [profilePreviewUrl, setProfilePreviewUrl] = useState<string | null>(
-    null
+    form.getValues().profilePhoto
+      ? URL.createObjectURL(form.getValues().profilePhoto as File)
+      : null
   );
 
   console.log("errors", form.formState.errors);
@@ -364,9 +370,9 @@ const AddNodeDialog = ({ open, setOpen }: IProps) => {
     formData.append("about", values.about);
     formData.append("location", values.location);
     formData.append("description", values.description);
+    console.log("values", values);
     try {
       const response = await addNode(formData);
-      setCurrentStep("Modules");
       toast.success(response.message);
       setCurrentStep("Success");
     } catch (error: any) {
