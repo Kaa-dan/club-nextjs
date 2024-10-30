@@ -43,7 +43,7 @@ const GoogleSignUp = () => {
       setGlobalUser(response?.data || null);
       setAccessToken(response?.token);
 
-      globalUser?.isOnBoarded
+      response?.data?.isOnBoarded
         ? router.replace("/")
         : router.replace("/onboarding");
     } catch (error: any) {

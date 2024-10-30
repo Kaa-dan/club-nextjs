@@ -3,6 +3,7 @@
 import { verifyToken } from '@/components/pages/sign-up/endpoint';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { type } from 'os';
 
 export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
@@ -45,6 +46,7 @@ export async function middleware(request: NextRequest) {
             return NextResponse.redirect(new URL('/sign-in', request.url));
         }
 
+        console.log(isOnboarded)
 
         if (isPublicRoute) {
             const redirectUrl = referer ? new URL(referer).href : (isOnboarded == 'false' ? new URL('/onboarding', request.url).href : new URL('/', request.url).href); // Fallback to home if no referrer
