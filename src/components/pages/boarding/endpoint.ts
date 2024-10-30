@@ -30,7 +30,7 @@ export const postPicture = async (id: string, userData: any) => {
 
 export const addNode = async (data: any) => {
   try {
-    const response = await axiosInstance.post("/add-node", data);
+    const response = await axiosInstance.post("/node", data);
     return response.data;
   } catch (error) {
     throw error;
