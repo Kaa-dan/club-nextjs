@@ -89,7 +89,7 @@ const DetailsForm: React.FC<DetailsFormProps> = ({ setStep }) => {
       const RESPONSE = await postDetails(globalUser._id, newFormData);
 
       console.log({ RESPONSE });
-      setGlobalUser(RESPONSE.data);
+      setGlobalUser(RESPONSE?.data);
       setStep("image");
     }
   };

@@ -1,9 +1,6 @@
 // middleware.ts
 
-"use-client";
-
 import { verifyToken } from '@/components/pages/sign-up/endpoint';
-// import cookies  from 'next-nex';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
