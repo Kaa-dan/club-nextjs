@@ -5,15 +5,22 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@radix-ui/react-checkbox";
 import { Plus, X } from "lucide-react";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { NODES } from "@/lib/constants/nodes";
 import NodeCardMini from "@/components/globals/node/node-card";
 import AddNodeDialog from "./node/add-node-dialog";
+import { getNodes } from "./endpoint";
 
 interface ISearchResultsProps {
   setShowAddNodeDialog: (bool: boolean) => void;
 }
 const SearchResults = ({ setShowAddNodeDialog }: ISearchResultsProps) => {
+  const [nodes, setNodes] = useState([]);
+  useEffect(() => {
+    getNodes().then((res) => {
+      setNodes(res);
+    });
+  }, []);
   return (
     <div className="flex flex-col gap-2 px-8">
       <h2 className="text-lg font-semibold">Search node</h2>
@@ -24,7 +31,7 @@ const SearchResults = ({ setShowAddNodeDialog }: ISearchResultsProps) => {
         />
         <X className="text-slate-600" />
       </div>
-      <div className="mt-4 flex flex-wrap gap-5">
+      <div className="mt-4 flex flex-wrap gap-5 overflow-y-scroll h-52 ">
         <div
           className="flex size-36 cursor-pointer flex-col items-center justify-center gap-1 rounded-sm border-2 border-dashed border-primary p-3 text-base text-primary"
           onClick={() => setShowAddNodeDialog(true)}
@@ -32,7 +39,7 @@ const SearchResults = ({ setShowAddNodeDialog }: ISearchResultsProps) => {
           <Plus />
           <span>Create Node</span>
         </div>
-        {NODES.map((node, index) => {
+        {nodes.map((node: any, index) => {
           return <NodeCardMini key={node.name} node={node} />;
         })}
       </div>
