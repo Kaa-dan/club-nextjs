@@ -97,7 +97,11 @@ export const NodeSearchForm: React.FC<InterestFormProps> = ({ setStep }) => {
       </div>
 
       <div className="flex justify-end gap-4">
-        <Button variant="outline" type="button">
+        <Button
+          variant="outline"
+          type="button"
+          onClick={() => setStep("interest")}
+        >
           Back
         </Button>
         <Button type="submit" className="text-white">
