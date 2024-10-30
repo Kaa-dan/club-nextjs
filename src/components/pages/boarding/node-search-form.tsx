@@ -91,7 +91,13 @@ const SearchResults = ({
   );
 };
 
-export const NodeSearchForm = () => {
+type Step = "details" | "image" | "interest" | "node";
+
+interface InterestFormProps {
+  setStep: (step: Step) => void;
+}
+
+export const NodeSearchForm: React.FC<InterestFormProps> = ({ setStep }) => {
   const [tncAccepted, setTncAccepted] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [showAddNodeDialog, setShowAddNodeDialog] = useState(false);
@@ -153,7 +159,11 @@ export const NodeSearchForm = () => {
       </div>
 
       <div className="flex justify-end gap-4">
-        <Button variant="outline" type="button">
+        <Button
+          variant="outline"
+          type="button"
+          onClick={() => setStep("interest")}
+        >
           Back
         </Button>
         <Button type="submit" className="text-white">

@@ -37,11 +37,13 @@ const GoogleSignUp = () => {
       });
       toast.success(response.message);
 
+      console.log(response);
+
       // setting global state
       setGlobalUser(response?.data || null);
       setAccessToken(response?.token);
 
-      globalUser?.isOnBoarded
+      response?.data?.isOnBoarded
         ? router.replace("/")
         : router.replace("/onboarding");
     } catch (error: any) {
