@@ -47,11 +47,9 @@ const FacebookSignup = () => {
         : router.replace("/onboarding");
     } catch (error: any) {
       if (error.response) {
-        toast.error(
-          error.response.data.message || "Failed to sign in with Google"
-        );
+        toast.error(error.response.data.message);
       } else {
-        toast.error(error.message);
+        toast.error("Something went wrong");
       }
     }
   };

@@ -43,3 +43,12 @@ export const addNode = async (data: any) => {
     throw error;
   }
 };
+
+export const getNodes = async () => {
+  try {
+    const response = await mainAxios.get("/node");
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
