@@ -30,7 +30,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           {children}
         </div>
       </div>
-      {/* <NodeTeams /> */}
+      <NodeTeams />
     </div>
   );
 };
