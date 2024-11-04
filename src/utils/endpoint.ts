@@ -25,12 +25,8 @@ export class Endpoints {
   }
 
   static async toggleMembersRequest(userId: string, action: string) {
-    try {
-      const response = await mainAxios.patch(`/user/:${userId}`);
-      return response.data as string;
-    } catch (error) {
-      console.log(error);
-    }
+    const response = await mainAxios.patch(`/user/:${userId}`);
+    return response.data;
   }
 
   static async getMembers() {
