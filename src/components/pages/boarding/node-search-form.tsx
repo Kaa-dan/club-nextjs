@@ -9,9 +9,11 @@ import React, { useEffect, useState } from "react";
 import { NODES } from "@/lib/constants/nodes";
 import NodeCardMini from "@/components/globals/node/node-card";
 import AddNodeDialog from "./node/add-node-dialog";
-import { getNodes } from "./endpoint";
+import { completeOnboarding, getNodes } from "./endpoint";
 import NodeJoinCard from "./node/node-join-card";
 import { Endpoints } from "@/utils/endpoint";
+import { useTokenStore } from "@/store/store";
+import { useRouter } from "next/navigation";
 
 interface ISearchResultsProps {
   setShowAddNodeDialog: (bool: boolean) => void;
@@ -67,7 +69,7 @@ const SearchResults = ({
           className="text-slate-600 cursor-pointer"
         />
       </div>
-      <div className="mt-4 flex flex-wrap gap-5 justify-center items-center overflow-y-scroll h-52 ">
+      <div className="mt-4 flex flex-wrap gap-5 justify-center items-center overflow-y-scroll thin-scrollbar h-72 ">
         <div
           className="flex size-36 cursor-pointer flex-col items-center justify-center gap-1 rounded-sm border-2 border-dashed border-primary p-3 text-base text-primary"
           onClick={() => setShowAddNodeDialog(true)}
@@ -78,7 +80,7 @@ const SearchResults = ({
         {filteredNodes.map((node: any, index) => {
           return (
             <NodeJoinCard
-              onJoin={() => requestToJoinNode}
+              onJoin={requestToJoinNode}
               isLoading={loading}
               requested={false}
               key={node.name}
@@ -98,10 +100,26 @@ interface InterestFormProps {
 }
 
 export const NodeSearchForm: React.FC<InterestFormProps> = ({ setStep }) => {
+  const { setGlobalUser } = useTokenStore((state) => state);
+  const [isLoading, setIsLoading] = useState(false);
   const [tncAccepted, setTncAccepted] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [showAddNodeDialog, setShowAddNodeDialog] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const router = useRouter();
+  const onSubmit = async () => {
+    try {
+      setIsLoading(true);
+      const response = await completeOnboarding();
+      setGlobalUser(response.data);
+      router.push("/");
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   return (
     <div className="mb-6 flex w-full flex-col">
       <AddNodeDialog open={showAddNodeDialog} setOpen={setShowAddNodeDialog} />
@@ -166,7 +184,7 @@ export const NodeSearchForm: React.FC<InterestFormProps> = ({ setStep }) => {
         >
           Back
         </Button>
-        <Button type="submit" className="text-white">
+        <Button onClick={onSubmit} className="text-white">
           Next
         </Button>
       </div>

@@ -16,9 +16,9 @@ const NodeJoinCard: React.FC<{
   node: NodeData;
   requested: boolean;
   isLoading: boolean;
-  onJoin: () => void;
+  onJoin: (id: string) => void;
 }> = ({
-  node: { name, profileImage, members, coverImage, location },
+  node: { name, profileImage, members, coverImage, location, ...node },
   requested,
   onJoin,
   isLoading,
@@ -50,8 +50,8 @@ const NodeJoinCard: React.FC<{
           {/*cover photo and profile photo : profile photo half should cover bottom of cover photo*/}
           <div className="relative mb-8">
             <Image
-              height={200}
-              width={400}
+              height={100}
+              width={200}
               src={coverImage}
               alt={name}
               className="h-32 w-96 mx-auto"
@@ -66,12 +66,12 @@ const NodeJoinCard: React.FC<{
           </div>
 
           <span className="text-center text-base text-slate-500">
-            Are you sure you want to join this node?
+            Request to join this node?
           </span>
           <Button
             disabled={isLoading}
             className="w-1/3 mx-auto"
-            onClick={onJoin}
+            onClick={() => onJoin(node._id)}
           >
             {isLoading ? (
               <Loader2 className="text-white animate-spin" />

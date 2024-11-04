@@ -17,7 +17,7 @@ export class Endpoints {
 
   static async requestToJoinNode(nodeId: string) {
     try {
-      const { data } = await mainAxios.post("/node/" + nodeId);
+      const { data } = await mainAxios.post("/node/request-to-join/" + nodeId);
       return data;
     } catch (error) {
       console.log({ error });
@@ -27,9 +27,9 @@ export class Endpoints {
   static async toggleMembersRequest(userId: string, action: string) {
     try {
       const response = await mainAxios.patch(`/user/:${userId}`);
-      return response.data;
+      return response.data as string;
     } catch (error) {
-      throw error;
+      console.log(error);
     }
   }
 

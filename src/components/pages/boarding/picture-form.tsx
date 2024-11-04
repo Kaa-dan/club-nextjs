@@ -45,13 +45,7 @@ interface PictureFormProps {
 const PictureForm: React.FC<PictureFormProps> = ({ setStep, userId }) => {
   //global store
   const { verifyToken, setVerifyToken, globalUser, setGlobalUser } =
-    useTokenStore((state) => ({
-      verifyToken: state.verifyToken,
-      setVerifyToken: state.setVerifyToken,
-      clearVerifyToken: state.clearVerifyToken,
-      globalUser: state.globalUser,
-      setGlobalUser: state.setGlobalUser,
-    }));
+    useTokenStore((state) => state);
 
   const [formData, setFormData] = useState<Partial<StepTwoType>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
