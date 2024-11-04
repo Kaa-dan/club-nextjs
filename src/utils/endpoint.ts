@@ -29,9 +29,9 @@ export class Endpoints {
     return response.data;
   }
 
-  static async getMembers() {
+  static async getJoinRequests(nodeId: string) {
     try {
-      const response = await mainAxios.get("/request");
+      const response = await mainAxios.get("/join-requests/" + nodeId);
       return response.data;
     } catch (error) {
       throw error;
