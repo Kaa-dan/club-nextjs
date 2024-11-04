@@ -31,7 +31,7 @@ type Step = "details" | "image" | "interest" | "node";
 //form validation using zed
 
 const stepOneSchema = z.object({
-  username: z
+  userName: z
     .string()
     .min(2, { message: "Username must be at least 2 characters." }),
   firstName: z
@@ -45,7 +45,7 @@ const stepOneSchema = z.object({
   phoneNumber: z
     .string()
     .min(10, { message: "Phone number must be at least 10 characters." }),
-  birthdate: z.string().nonempty({ message: "Birthdate is required." }),
+  dateOfBirth: z.string().nonempty({ message: "Birthdate is required." }),
   gender: z.string().nonempty({ message: "Gender is required." }),
   terms: z.boolean().refine((val) => val, {
     message: "You must accept the terms and conditions",
@@ -59,14 +59,7 @@ interface DetailsFormProps {
 
 const DetailsForm: React.FC<DetailsFormProps> = ({ setStep }) => {
   //global store
-  const { verifyToken, setVerifyToken, globalUser, setGlobalUser } =
-    useTokenStore((state) => ({
-      verifyToken: state.verifyToken,
-      setVerifyToken: state.setVerifyToken,
-      clearVerifyToken: state.clearVerifyToken,
-      globalUser: state.globalUser,
-      setGlobalUser: state.setGlobalUser,
-    }));
+  const { globalUser, setGlobalUser } = useTokenStore((state) => state);
 
   //for storign for values
   const [formData, setFormData] = useState<Partial<StepOneType>>({});
@@ -74,6 +67,16 @@ const DetailsForm: React.FC<DetailsFormProps> = ({ setStep }) => {
   //form instance with validation
   const form = useForm<StepOneType>({
     resolver: zodResolver(stepOneSchema),
+    defaultValues: {
+      userName: globalUser?.userName || "",
+      firstName: globalUser?.firstName || "",
+      lastName: globalUser?.lastName || "",
+      phoneNumber: globalUser?.phoneNumber || "",
+      dateOfBirth: globalUser?.dateOfBirth
+        ? new Date(globalUser?.dateOfBirth).toISOString().split("T")[0]
+        : "",
+      gender: globalUser?.gender || "",
+    },
   });
 
   useEffect(() => {
@@ -86,10 +89,9 @@ const DetailsForm: React.FC<DetailsFormProps> = ({ setStep }) => {
     setFormData(newFormData);
     console.log({ newFormData });
     if (globalUser) {
-      const RESPONSE = await postDetails(globalUser._id, newFormData);
-
-      console.log({ RESPONSE });
-      setGlobalUser(RESPONSE?.data);
+      const response = await postDetails(globalUser._id, newFormData);
+      console.log({ response });
+      setGlobalUser(response?.data);
       setStep("image");
     }
   };
@@ -100,7 +102,7 @@ const DetailsForm: React.FC<DetailsFormProps> = ({ setStep }) => {
         <div className="mt-4 grid grid-cols-2 gap-4">
           <FormField
             control={form.control}
-            name="username"
+            name="userName"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Username</FormLabel>
@@ -139,7 +141,7 @@ const DetailsForm: React.FC<DetailsFormProps> = ({ setStep }) => {
           />
           <FormField
             control={form.control}
-            name="birthdate"
+            name="dateOfBirth"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Birthdate</FormLabel>

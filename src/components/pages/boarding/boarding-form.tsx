@@ -8,17 +8,31 @@ import DetailsForm from "./details-form";
 import { NodeSearchForm } from "./node-search-form";
 import InterestForm from "./interest-form";
 import { useTokenStore } from "@/store/store";
+import { getOnboarding } from "./endpoint";
 
 type Step = "details" | "image" | "interest" | "node";
 
 export function BoardingForm() {
-  const { globalUser } = useTokenStore((state) => ({
-    globalUser: state.globalUser,
-  }));
-
-  console.log(globalUser?.onBoardingStage);
+  const { globalUser, setGlobalUser } = useTokenStore((state) => state);
 
   const [step, setStep] = useState(globalUser?.onBoardingStage ?? "details");
+
+  const fetchOnboarding = async () => {
+    try {
+      const response = await getOnboarding();
+      console.log(`response at step ${step}:`, response.data);
+      if (response.data) {
+        setGlobalUser(response.data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // fetch onboarding
+  useEffect(() => {
+    fetchOnboarding();
+  }, [step]);
 
   useEffect(() => {
     if (globalUser?.onBoardingStage) {
