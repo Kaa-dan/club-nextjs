@@ -2,7 +2,7 @@ import React from "react";
 import Image from "next/image";
 import { ICONS } from "@/lib/constants";
 import { ChevronRight } from "lucide-react";
-import { NodeData } from "@/types";
+import { TNodeData } from "@/types";
 
 const SECTIONS = [
   { name: "News Feed", icon: ICONS.NodeNewsFeedIcon },
@@ -17,7 +17,7 @@ const SECTIONS = [
 ];
 
 interface ProfileCardProps {
-  node: NodeData;
+  node: TNodeData;
   currentPage: string;
   setCurrentPage: (page: string) => void;
 }
@@ -86,7 +86,7 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
                     {section.notifications}
                   </span>
                 ) : null}
-                {/* <ChevronRight size={"1rem"} /> */}
+                <ChevronRight size={"1rem"} />
               </div>
             </button>
           ))}
