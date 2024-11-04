@@ -89,7 +89,7 @@ const DetailsForm: React.FC<DetailsFormProps> = ({ setStep }) => {
       const RESPONSE = await postDetails(globalUser._id, newFormData);
 
       console.log({ RESPONSE });
-      setGlobalUser(RESPONSE.data);
+      setGlobalUser(RESPONSE?.data);
       setStep("image");
     }
   };
@@ -217,10 +217,14 @@ const DetailsForm: React.FC<DetailsFormProps> = ({ setStep }) => {
           )}
         />
         <div className="flex justify-end gap-4">
-          <Button variant="outline" type="button">
+          {/* <Button variant="outline" type="button">
             Back
-          </Button>
-          <Button type="submit" className="text-white">
+          </Button> */}
+          <Button
+            type="submit"
+            className="text-white"
+            disabled={form?.formState?.isSubmitting}
+          >
             Next
           </Button>
         </div>

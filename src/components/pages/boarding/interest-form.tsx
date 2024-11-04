@@ -214,10 +214,19 @@ const InterestForm: React.FC<InterestFormProps> = ({ setStep }) => {
             />
           </div>
           <div className="flex justify-end gap-4">
-            <Button variant="outline" type="button">
+            <Button
+              variant="outline"
+              type="button"
+              onClick={() => setStep("image")}
+              disabled={form?.formState?.isSubmitting}
+            >
               Back
             </Button>
-            <Button type="submit" className="text-white">
+            <Button
+              type="submit"
+              className="text-white"
+              disabled={form?.formState?.isSubmitting}
+            >
               Next
             </Button>
           </div>

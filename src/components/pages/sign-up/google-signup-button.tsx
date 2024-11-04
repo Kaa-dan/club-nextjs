@@ -37,20 +37,20 @@ const GoogleSignUp = () => {
       });
       toast.success(response.message);
 
+      console.log(response);
+
       // setting global state
       setGlobalUser(response?.data || null);
       setAccessToken(response?.token);
 
-      globalUser?.isOnBoarded
+      response?.data?.isOnBoarded
         ? router.replace("/")
         : router.replace("/onboarding");
     } catch (error: any) {
       if (error.response) {
-        toast.error(
-          error.response.data.message || "Failed to sign in with Google"
-        );
+        toast.error(error.response.data.message || "Something went wrong");
       } else {
-        toast.error(error.message);
+        toast.error("Something went wrong");
       }
     }
   };
