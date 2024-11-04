@@ -81,7 +81,7 @@
 }
 
 .thin-scrollbar::-webkit-scrollbar-thumb {
-  background-color: black; /* Color of the scrollbar thumb */
+  background-color: gray; /* Color of the scrollbar thumb */
   border-radius: 10px; /* Rounded edges for the thumb */
 }
 

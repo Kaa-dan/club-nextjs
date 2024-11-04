@@ -85,6 +85,7 @@ export const socialAuth = async (data: any) => {
 
   try {
     const response = await axiosInstance.post("/google-signup", data);
+    console.log("response", response)
     return response.data;
   } catch (error) {
     throw error;

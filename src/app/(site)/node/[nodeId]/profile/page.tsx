@@ -24,7 +24,6 @@ import {
 import { useState } from "react";
 
 const members = [
-
   {
     id: 1,
     name: "Cameron Williamson",
@@ -34,7 +33,7 @@ const members = [
     joinDate: "October 30, 2017",
     avatar: "/placeholder.svg",
   },
-  
+
   {
     id: 2,
     name: "Bessie Cooper",
@@ -189,7 +188,7 @@ export default function Page() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Member's Name</TableHead>
+                <TableHead>Member&#39;s Name</TableHead>
                 <TableHead>Level</TableHead>
                 <TableHead>Contribution</TableHead>
                 <TableHead>Join Date</TableHead>

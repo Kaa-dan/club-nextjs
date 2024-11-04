@@ -45,13 +45,7 @@ interface PictureFormProps {
 const PictureForm: React.FC<PictureFormProps> = ({ setStep, userId }) => {
   //global store
   const { verifyToken, setVerifyToken, globalUser, setGlobalUser } =
-    useTokenStore((state) => ({
-      verifyToken: state.verifyToken,
-      setVerifyToken: state.setVerifyToken,
-      clearVerifyToken: state.clearVerifyToken,
-      globalUser: state.globalUser,
-      setGlobalUser: state.setGlobalUser,
-    }));
+    useTokenStore((state) => state);
 
   const [formData, setFormData] = useState<Partial<StepTwoType>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -180,7 +174,12 @@ const PictureForm: React.FC<PictureFormProps> = ({ setStep, userId }) => {
           />
         </div>
         <div className="flex justify-end gap-4">
-          <Button variant="outline" type="button">
+          <Button
+            variant="outline"
+            type="button"
+            onClick={() => setStep("details")}
+            disabled={isSubmitting}
+          >
             Back
           </Button>
           <Button type="submit" className="text-white" disabled={isSubmitting}>

@@ -3,19 +3,33 @@ import ModulesBar from "@/components/pages/node/modules-bar";
 import NodeProfileCard from "@/components/pages/node/node-profile-card";
 import NodeTeams from "@/components/pages/node/node-teams";
 import { Endpoints } from "@/utils/endpoint";
-import React, { useEffect, useState } from "react";
-import { NodeData } from "@/types";
+import React, { use, useEffect, useState } from "react";
+import { TNodeData } from "@/types";
 
-const Layout = ({ children }: { children: React.ReactNode }) => {
+const Layout = ({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: { nodeId: string };
+}) => {
   const [currentPage, setCurrentPage] = useState("modules");
-  const [node, setNode] = useState<NodeData | null>(null);
-  const nodeID = "kasjdkljasdfklasdf";
+  const [node, setNode] = useState<TNodeData | null>(null);
+  const [nodeId, setNodeId] = useState<string | null>(null);
+  console.log("nodeId", nodeId);
 
+  // Fetch nodeId from params
+  useEffect(() => {
+    const unwrapParams = async () => {
+      const resolvedParams = await params;
+      setNodeId(resolvedParams.nodeId);
+    };
+    unwrapParams();
+  }, [params]);
   const fetchNodeDetails = async () => {
+    if (!nodeId) return;
     try {
-      const response = await Endpoints.fetchNodeDetails(nodeID);
-      console.log(response, "REsss");
-
+      const response = await Endpoints.fetchNodeDetails(nodeId);
       setNode(response.data);
     } catch (error) {
       console.log(error);
@@ -23,7 +37,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   };
   useEffect(() => {
     fetchNodeDetails();
-  }, []);
+  }, [nodeId]);
+  use;
   return (
     <div className="flex gap-6 w-full">
       {node ? (
