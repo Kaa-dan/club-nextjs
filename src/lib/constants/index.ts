@@ -82,7 +82,7 @@ const ICONS = {
   BarMarketPlaceIcon,
   BarRulesIcon,
   BarDebateIcon,
-  // ArrowIcon,
+    // ArrowIcon,
 };
 
 export { IMGS, ICONS };
