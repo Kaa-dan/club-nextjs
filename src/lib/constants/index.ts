@@ -39,6 +39,7 @@ import NodePreferencesIcon from "@public/icons/node-profile/node-preferences.ico
 import NodeProfileIcon from "@public/icons/node-profile/node-profile.icon.svg";
 import ApprovalIcon from "@public/icons/approval.icon.svg";
 import GreenTickIcon from "@public/icons/green-tick-icon.svg";
+// import ArrowIcon from "@public/icons/arrow-icon.svg";
 const IMGS = {
   Logo,
   LogoGreen,
@@ -81,6 +82,7 @@ const ICONS = {
   BarMarketPlaceIcon,
   BarRulesIcon,
   BarDebateIcon,
+  // ArrowIcon,
 };
 
 export { IMGS, ICONS };

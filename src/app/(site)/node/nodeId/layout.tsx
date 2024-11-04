@@ -14,6 +14,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const fetchNodeDetails = async () => {
     try {
       const response = await Endpoints.fetchNodeDetails(nodeID);
+      console.log(response, "REsss");
+
       setNode(response.data);
     } catch (error) {
       console.log(error);

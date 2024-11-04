@@ -36,7 +36,7 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
   setCurrentPage,
 }) => {
   return (
-    <div className="bg-white rounded-lg shadow-md md:min-w-60 md:max-w-60 sticky top-16 h-fit max-h-[80vh] overflow-hidden pb-2">
+    <div className="bg-white rounded-lg shadow-md  sticky top-16 h-fit max-h-[80vh] overflow-hidden pb-2">
       <div className="relative">
         <Image
           src={club.coverImage}
@@ -56,7 +56,7 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
           />
         </div>
       </div>
-      <div className="px-4">
+      <div className="px-4 mt-6">
         <div className="pt-8">
           <h2 className="text-lg font-bold">{club.name}</h2>
           <p className="text-xs text-gray-500">{club.descripion}</p>

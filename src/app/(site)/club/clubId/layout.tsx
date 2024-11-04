@@ -1,6 +1,6 @@
 "use client";
 import ClubProfileCard from "@/components/pages/club/club-profile-card";
-import ModulesBar from "@/components/pages/node/modules-bar";
+import ModulesBar from "@/components/pages/club/module-bar";
 import NodeProfileCard from "@/components/pages/node/node-profile-card";
 import NodeTeams from "@/components/pages/node/node-teams";
 import React, { useState } from "react";
@@ -19,13 +19,17 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const [currentPage, setCurrentPage] = useState("modules");
   return (
     <div className="flex gap-6 w-full">
-      <div className="flex gap-6">
-        <ClubProfileCard
-          currentPage={currentPage}
-          setCurrentPage={setCurrentPage}
-          club={dummyClubData}
-        />
-        <div className="flex flex-col w-full">
+      <div className="flex gap-6 w-[75%]">
+        <div className="w-[25%]">
+          {" "}
+          <ClubProfileCard
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+            club={dummyClubData}
+          />
+        </div>
+
+        <div className="flex flex-col w-[75%]">
           <ModulesBar />
           {children}
         </div>

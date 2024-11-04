@@ -1,3 +1,4 @@
+import { axiosInstance } from "@/lib/axios";
 import { mainAxios } from "@/lib/mainAxios";
 
 export const postDetails = async (id: string, userData: any) => {
@@ -36,7 +37,7 @@ export const postInterest = async (id: string, userData: any) => {
 
 export const addNode = async (data: any) => {
   try {
-    const response = await mainAxios.post("/add-node", data);
+    const response = await mainAxios.post("/node", data);
     return response.data;
   } catch (error) {
     throw error;

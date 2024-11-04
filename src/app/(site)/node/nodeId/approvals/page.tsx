@@ -4,18 +4,18 @@ import Image from "next/image";
 
 const page = () => {
   return (
-    <div className="flex flex-col items-center space-y-4 p-4 bg-gray-50">
+    <div className="flex flex-col items-center space-y-4 bg-gray-50 p-4">
       {/* Header with horizontal lines */}
-      <div className="flex items-center w-full">
-        <hr className="flex-grow border-t border-gray-300" />
-        <span className="px-4 text-gray-500 text-xs font-medium">
+      <div className="flex w-full items-center">
+        <hr className="grow border-t border-gray-300" />
+        <span className="px-4 text-xs font-medium text-gray-500">
           Approvals
         </span>
-        <hr className="flex-grow border-t border-gray-300" />
+        <hr className="grow border-t border-gray-300" />
       </div>
 
       {/* Approval card */}
-      <div className="flex items-center justify-between p-4 bg-white rounded-lg shadow-md border border-gray-200 w-full max-w-full">
+      <div className="flex w-full max-w-full items-center justify-between rounded-lg border border-gray-200 bg-white p-4 shadow-md">
         <div className="flex items-center">
           {/* <FaUserFriends className="text-gray-600 text-2xl mr-4" /> */}
           <div className="p-4">
@@ -28,16 +28,16 @@ const page = () => {
           </div>
 
           <div>
-            <h2 className="font-semibold text-lg text-gray-800">
+            <h2 className="text-lg font-semibold text-gray-800">
               Member Approval
             </h2>
-            <p className="text-gray-500 text-sm">
+            <p className="text-sm text-gray-500">
               Evaluate and decide on requests by either approving or rejecting
               them.
             </p>
           </div>
         </div>
-        <button className="text-white bg-orange-500 hover:bg-orange-600 rounded-full px-4 py-2 font-semibold">
+        <button className="rounded-full bg-orange-500 px-4 py-2 font-semibold text-white hover:bg-orange-600">
           561+
         </button>
       </div>

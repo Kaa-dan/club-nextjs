@@ -86,7 +86,7 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
                     {section.notifications}
                   </span>
                 ) : null}
-                <ChevronRight size={"1rem"} />
+                {/* <ChevronRight size={"1rem"} /> */}
               </div>
             </button>
           ))}

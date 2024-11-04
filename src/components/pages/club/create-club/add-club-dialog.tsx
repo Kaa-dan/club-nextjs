@@ -4,7 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { addNode } from "../endpoint";
 import {
   Select,
   SelectContent,
@@ -21,7 +20,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import ProgressIndicator from "../progress-bar";
+import ProgressIndicator from "./progress-bar";
 import { Button } from "@/components/ui/button";
 import { MODULES } from "@/lib/constants/modules";
 import { Card } from "@/components/ui/card";
@@ -30,6 +29,7 @@ import { Camera, Search, X } from "lucide-react";
 import { ICONS, IMGS } from "@/lib/constants";
 import { formatName } from "@/utils/text";
 import { toast } from "sonner";
+import { addNode } from "../../boarding/endpoint";
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 5MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
@@ -299,12 +299,11 @@ const DetailsForm = ({
               <FormControl>
                 <Select onValueChange={field.onChange}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select location" />
+                    <SelectValue placeholder="select an option" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Location1">Location 1</SelectItem>
-                    <SelectItem value="Location2">Location 2</SelectItem>
-                    <SelectItem value="Location3">Location 3</SelectItem>
+                    <SelectItem value="Private">Private</SelectItem>
+                    <SelectItem value="Public">Public</SelectItem>
                   </SelectContent>
                 </Select>
               </FormControl>
@@ -340,7 +339,7 @@ const DetailsForm = ({
   );
 };
 
-const AddNodeDialog = ({ open, setOpen }: IProps) => {
+const AddClubDialog = ({ open, setOpen }: IProps) => {
   const [currentStep, setCurrentStep] = useState<
     "Details" | "Modules" | "Success"
   >("Details");
@@ -407,7 +406,7 @@ const AddNodeDialog = ({ open, setOpen }: IProps) => {
           </div>
         ) : (
           <>
-            <DialogTitle>Create a node</DialogTitle>
+            <DialogTitle>Create a Club</DialogTitle>
             <div className="w-full border"></div>
 
             <div className="w-fit mx-auto">
@@ -500,4 +499,4 @@ const AddNodeDialog = ({ open, setOpen }: IProps) => {
   );
 };
 
-export default AddNodeDialog;
+export default AddClubDialog;
