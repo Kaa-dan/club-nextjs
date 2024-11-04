@@ -111,8 +111,9 @@ export const NodeSearchForm: React.FC<InterestFormProps> = ({ setStep }) => {
     try {
       setIsLoading(true);
       const response = await completeOnboarding();
+      console.log("response", response.data);
       setGlobalUser(response.data);
-      router.push("/");
+      router.replace("/");
       console.log(response);
     } catch (error) {
       console.log(error);

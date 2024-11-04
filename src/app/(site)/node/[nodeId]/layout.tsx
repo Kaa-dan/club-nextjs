@@ -57,7 +57,7 @@ const Layout = ({
           <NodeTeams />
         </>
       ) : (
-        "Loading"
+        "Loading..."
       )}
     </div>
   );
