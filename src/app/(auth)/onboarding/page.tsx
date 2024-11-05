@@ -13,7 +13,7 @@ const Page = () => {
     if (!accessToken) {
       router.replace("/sign-in");
     }
-  }, [accessToken, router]);
+  }, [accessToken]);
 
   return (
     <div className="flex h-screen w-full flex-col bg-white md:flex-row">

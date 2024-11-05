@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { z } from "zod";
@@ -63,6 +63,8 @@ const DetailsForm: React.FC<DetailsFormProps> = ({ setStep }) => {
 
   //for storign for values
   const [formData, setFormData] = useState<Partial<StepOneType>>({});
+  const [initialValues, setInitialValues] = useState<StepOneType | null>(null);
+  const [isChanged, setIsChanged] = useState(false);
 
   //form instance with validation
   const form = useForm<StepOneType>({
@@ -76,12 +78,29 @@ const DetailsForm: React.FC<DetailsFormProps> = ({ setStep }) => {
         ? new Date(globalUser?.dateOfBirth).toISOString().split("T")[0]
         : "",
       gender: globalUser?.gender || "",
+      terms: globalUser ? true : false,
     },
   });
 
+  // Set initial values for comparison
   useEffect(() => {
-    form.reset(formData);
-  }, [formData, form]);
+    setInitialValues(form.getValues());
+  }, [form]);
+
+  // Watch all form values and detect changes
+  const watchedValues = form.watch();
+
+  useEffect(() => {
+    // Check if current values are different from initial values
+    if (
+      initialValues &&
+      JSON.stringify(initialValues) !== JSON.stringify(watchedValues)
+    ) {
+      setIsChanged(true);
+    } else {
+      setIsChanged(false);
+    }
+  }, [watchedValues, initialValues]);
 
   // submit handler
   const onSubmit: SubmitHandler<StepOneType> = async (data) => {
@@ -222,13 +241,25 @@ const DetailsForm: React.FC<DetailsFormProps> = ({ setStep }) => {
           {/* <Button variant="outline" type="button">
             Back
           </Button> */}
-          <Button
-            type="submit"
-            className="text-white"
-            disabled={form?.formState?.isSubmitting}
-          >
-            Next
-          </Button>
+          {isChanged ? (
+            <Button
+              type="submit"
+              className="text-white"
+              disabled={form?.formState?.isSubmitting}
+            >
+              Next
+            </Button>
+          ) : (
+            <Button
+              className="text-white"
+              onClick={(e) => {
+                e.preventDefault();
+                setStep("image");
+              }}
+            >
+              Next
+            </Button>
+          )}
         </div>
       </form>
     </Form>

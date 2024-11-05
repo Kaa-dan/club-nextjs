@@ -5,12 +5,22 @@ import { Trash2 } from "lucide-react";
 interface PhotoInputProps {
   onUpload: (file: File | null) => void;
   field: string;
+  initialUrl?: string;
+  name?: string;
+  initialImageName?: string;
 }
 
-const PhotoInput: React.FC<PhotoInputProps> = ({ onUpload, field }) => {
-  const [preview, setPreview] = useState<string | null>(null);
+const PhotoInput: React.FC<PhotoInputProps> = ({
+  onUpload,
+  field,
+  initialUrl,
+  initialImageName,
+}) => {
+  const [preview, setPreview] = useState<string | null>(initialUrl || null);
   const [fileName, setFileName] = useState<string>(`Upload ${field}`);
-  const [originalFileName, setOriginalFileName] = useState<string | null>(null);
+  const [originalFileName, setOriginalFileName] = useState<string | null>(
+    initialImageName || null
+  );
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];

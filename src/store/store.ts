@@ -14,6 +14,7 @@ type User = {
   phoneNumber?: string;
   profileImage?: string;
   coverImage?: string;
+  interests?: string[];
   _id: string;
 } | null;
 
