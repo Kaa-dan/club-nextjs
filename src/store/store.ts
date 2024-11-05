@@ -1,13 +1,20 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import Cookies from "js-cookie";
-import { access } from "fs";
 
 // User type definition
 type User = {
   email: string;
   onBoardingStage: string;
   isOnBoarded: boolean;
+  userName?: string;
+  firstName?: string;
+  lastName?: string;
+  dateOfBirth?: string;
+  gender?: string;
+  phoneNumber?: string;
+  profileImage?: string;
+  coverImage?: string;
+  interests?: string[];
   _id: string;
 } | null;
 

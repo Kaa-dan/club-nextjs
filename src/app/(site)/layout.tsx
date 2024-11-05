@@ -16,7 +16,7 @@ const SiteLayout = ({ children }: { children: React.ReactNode }) => {
     } else if (!globalUser?.isOnBoarded) {
       router.replace("/onboarding");
     }
-  }, [accessToken, globalUser, router]);
+  }, [accessToken, globalUser]);
 
   return (
     <section>
