@@ -7,13 +7,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { NodeData } from "@/types";
+import { TNodeData } from "@/types";
 import { Loader2, MapPin, Users } from "lucide-react";
 import Image from "next/image";
 import React from "react";
 
 const NodeJoinCard: React.FC<{
-  node: NodeData;
+  node: TNodeData;
   requested: boolean;
   isLoading: boolean;
   onJoin: (id: string) => void;
@@ -24,26 +24,26 @@ const NodeJoinCard: React.FC<{
   isLoading,
 }) => {
   return (
-    <Card className="flex flex-col text-xs rounded-sm gap-1 w-[9rem] p-3">
+    <Card className="flex w-36 flex-col gap-1 rounded-sm p-3 text-xs">
       <Image
         height={200}
         width={200}
         src={profileImage}
         alt={name}
-        className="size-10 object-cover rounded-md"
+        className="size-10 rounded-md object-cover"
       />
-      <span className="text-sm font-semibold w-full truncate">{name}</span>
+      <span className="w-full truncate text-sm font-semibold">{name}</span>
       <div className="flex items-center gap-1">
         <Users size={"1rem"} />
         {members.length}
       </div>
-      <div className="w-4/5 p-1 bg-slate-50 rounded-md flex items-center">
+      <div className="flex w-4/5 items-center rounded-md bg-slate-50 p-1">
         <MapPin size={"1rem"} className="text-red-500" />
         <span className="truncate">{`${location}`}</span>
       </div>
       <Dialog>
         <DialogTrigger className="w-full">
-          <Button className="p-0 h-6 w-full">Join</Button>
+          <Button className="h-6 w-full p-0">Join</Button>
         </DialogTrigger>
         <DialogContent>
           <DialogTitle>Join {name}</DialogTitle>
@@ -54,14 +54,14 @@ const NodeJoinCard: React.FC<{
               width={200}
               src={coverImage}
               alt={name}
-              className="h-32 w-96 mx-auto"
+              className="mx-auto h-32 w-96"
             />
             <Image
               height={200}
               width={200}
               src={profileImage}
               alt={name}
-              className="size-20 object-cover absolute rounded-full border-4 border-white -bottom-10 left-1/2 -translate-x-1/2"
+              className="absolute -bottom-10 left-1/2 size-20 -translate-x-1/2 rounded-full border-4 border-white object-cover"
             />
           </div>
 
@@ -70,11 +70,11 @@ const NodeJoinCard: React.FC<{
           </span>
           <Button
             disabled={isLoading}
-            className="w-1/3 mx-auto"
+            className="mx-auto w-1/3"
             onClick={() => onJoin(node._id)}
           >
             {isLoading ? (
-              <Loader2 className="text-white animate-spin" />
+              <Loader2 className="animate-spin text-white" />
             ) : (
               "Confirm"
             )}

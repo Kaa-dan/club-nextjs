@@ -5,31 +5,17 @@ import NodeTeams from "@/components/pages/node/node-teams";
 import { Endpoints } from "@/utils/endpoint";
 import React, { use, useEffect, useState } from "react";
 import { TNodeData } from "@/types";
+import { useParams } from "next/navigation";
 
-const Layout = ({
-  children,
-  params,
-}: {
-  children: React.ReactNode;
-  params: { nodeId: string };
-}) => {
+const Layout = ({ children }: { children: React.ReactNode }) => {
   const [currentPage, setCurrentPage] = useState("modules");
   const [node, setNode] = useState<TNodeData | null>(null);
-  const [nodeId, setNodeId] = useState<string | null>(null);
-  console.log("nodeId", nodeId);
+  const params = useParams<{ nodeId: string }>();
 
-  // Fetch nodeId from params
-  useEffect(() => {
-    const unwrapParams = async () => {
-      const resolvedParams = await params;
-      setNodeId(resolvedParams.nodeId);
-    };
-    unwrapParams();
-  }, [params]);
   const fetchNodeDetails = async () => {
-    if (!nodeId) return;
+    if (!params.nodeId) return;
     try {
-      const response = await Endpoints.fetchNodeDetails(nodeId);
+      const response = await Endpoints.fetchNodeDetails(params.nodeId);
       setNode(response.data);
     } catch (error) {
       console.log(error);
@@ -37,19 +23,19 @@ const Layout = ({
   };
   useEffect(() => {
     fetchNodeDetails();
-  }, [nodeId]);
+  }, [params.nodeId]);
   use;
   return (
-    <div className="flex gap-6 w-full">
+    <div className="flex w-full gap-6">
       {node ? (
         <>
-          <div className="w-[75%] flex gap-6">
+          <div className="flex w-[75%] gap-6">
             <NodeProfileCard
               currentPage={currentPage}
               setCurrentPage={setCurrentPage}
               node={node}
             />
-            <div className="flex flex-col w-full">
+            <div className="flex w-full flex-col">
               <ModulesBar />
               {children}
             </div>
