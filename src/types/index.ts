@@ -49,4 +49,6 @@ export type TClub = {
     url: string;
   };
   isPublic: boolean;
+  status: string;
+  members?: any[];
 };

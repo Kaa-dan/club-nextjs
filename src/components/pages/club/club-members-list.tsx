@@ -25,12 +25,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+type ClubMemberListProps = {
+  isModalOpen: boolean;
+  setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  members: Array<any>;
+};
 
-export default function ClubMembersList({
+const ClubMembersList: React.FC<ClubMemberListProps> = ({
   isModalOpen,
-  setIsModalOpen,
   members,
-}) {
+  setIsModalOpen,
+}) => {
   return (
     <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
       <DialogContent className="max-w-4xl p-0 gap-0">
@@ -78,7 +83,7 @@ export default function ClubMembersList({
             </thead>
             <tbody>
               {members.map((member) => (
-                <tr key={member.id} className="hover:bg-muted/50">
+                <tr key={member._id} className="hover:bg-muted/50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <Avatar className="h-10 w-10">
@@ -201,4 +206,5 @@ export default function ClubMembersList({
       </DialogContent>
     </Dialog>
   );
-}
+};
+export default ClubMembersList;

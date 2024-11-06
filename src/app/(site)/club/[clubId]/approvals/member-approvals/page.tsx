@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -11,43 +11,28 @@ import {
 } from "@/components/ui/breadcrumb"; // Replace with the actual import path if needed
 import ClubRequest from "@/components/pages/club/club-request";
 import { Endpoints } from "@/utils/endpoint";
-import { useHandleParams } from "@/hooks/use-handle-params";
-interface LayoutParams {
-  clubId: string;
-}
 
-const Page = ({
-  children,
-  params,
-}: {
-  children: React.ReactNode;
-  params: Promise<LayoutParams> | LayoutParams;
-}) => {
-  const {
-    error,
-    isLoading,
-    params: ResolvedParams,
-  } = useHandleParams<LayoutParams>(params);
-  console.log({ ResolvedParams });
+const Page = ({ children }: { children: React.ReactNode }) => {
+  const params = useParams<{ clubId: string }>();
   const [requests, setRequests] = useState([]);
   useEffect(() => {
-    if (!isLoading && ResolvedParams.clubId) {
-      Endpoints.fetchRequests(
-        ResolvedParams && (ResolvedParams.clubId as string)
-      )
+    if (params?.clubId) {
+      Endpoints.fetchRequests(params && (params.clubId as string))
         .then((res) => {})
         .catch((err) => {
           console.log(err, "err");
         });
     }
-  }, [ResolvedParams.clubId]);
+  }, [params?.clubId]);
   return (
     <>
       <div className="mt-2">
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink href="/">Approvals</BreadcrumbLink>
+              <BreadcrumbLink href={`/club/${params.clubId}/approvals`}>
+                Approvals
+              </BreadcrumbLink>
             </BreadcrumbItem>
 
             <BreadcrumbSeparator />

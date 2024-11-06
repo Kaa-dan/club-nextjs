@@ -81,4 +81,12 @@ export class Endpoints {
       throw error;
     }
   }
+  static async leaveClub(clubId: string) {
+    try {
+      const response = await mainAxios.delete(`clubs/leave-club/${clubId}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
 }

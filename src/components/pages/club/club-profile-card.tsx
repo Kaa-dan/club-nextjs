@@ -122,16 +122,16 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
               {club?.isPublic ? (
                 <>
                   <Globe2 size={"0.8rem"} />
-                  Public
+                  Public{" "}
                 </>
               ) : (
                 <>
                   <Lock size={"0.8rem"} />
-                  Private
+                  Private{" "}
                 </>
               )}{" "}
-            </span>
-            • {club?.members.length}
+            </span>{" "}
+            • {club?.members?.length} Members
           </p>
           <div>
             <Button

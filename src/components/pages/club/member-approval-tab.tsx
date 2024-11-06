@@ -2,11 +2,15 @@ import React from "react";
 import Image from "next/image";
 import { ICONS } from "@/lib/constants";
 import { ChevronRight } from "lucide-react";
+import Link from "next/link";
 
 const MemberApprovalTab = () => {
   return (
-    <div className="flex justify-between items-center bg-white rounded-lg p-3 shadow-sm">
-      <div className="flex items-center   ">
+    <Link
+      href={"approvals/member-approvals"}
+      className="flex justify-between items-center bg-white rounded-lg p-3 shadow-sm"
+    >
+      <div className="flex items-center ">
         <div className="p-4">
           <Image
             src={ICONS.ApprovalIcon}
@@ -32,7 +36,7 @@ const MemberApprovalTab = () => {
           <ChevronRight />
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 

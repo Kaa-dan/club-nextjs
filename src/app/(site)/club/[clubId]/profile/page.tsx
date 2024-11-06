@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 
 export default function Page() {
   const [members, setMembers] = useState([]);
@@ -51,6 +52,16 @@ export default function Page() {
       });
   }, []);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const leaveMyClub = (clubId: string) => {
+    Endpoints.leaveClub(params.clubId)
+      .then((res) => {
+        console.log(res, "ress");
+        toast.warning(res.message);
+      })
+      .catch((err) => {
+        console.log({ err });
+      });
+  };
   return (
     <>
       <Card className="w-full max-w-3xl mx-auto">
@@ -144,7 +155,10 @@ export default function Page() {
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction className="bg-red-500 hover:bg-red-600 text-white">
+                    <AlertDialogAction
+                      onClick={() => leaveMyClub(params.clubId)}
+                      className="bg-red-500 hover:bg-red-600 text-white"
+                    >
                       Leave Club
                     </AlertDialogAction>
                   </AlertDialogFooter>

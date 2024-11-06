@@ -6,7 +6,6 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 
-import Link from "next/link";
 import { Ellipsis, HomeIcon, Icon, LogOut, Pin, Plus, X } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -393,9 +392,9 @@ export function Menu({ isOpen }: MenuProps) {
                                                         } else if (
                                                           groupLabel === "Nodes"
                                                         ) {
-                                                          togglePinNode(
-                                                            node._id
-                                                          );
+                                                          // togglePinNode(
+                                                          //   node._id
+                                                          // );
                                                         }
                                                       }}
                                                       strokeWidth={0.75}
@@ -501,7 +500,7 @@ export function Menu({ isOpen }: MenuProps) {
                                                 } else if (
                                                   groupLabel === "Nodes"
                                                 ) {
-                                                  togglePinNode(_id);
+                                                  // togglePinNode(_id);
                                                 }
                                               }}
                                               strokeWidth={0.75}

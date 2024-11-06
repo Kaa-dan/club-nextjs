@@ -378,7 +378,6 @@ const AddNodeDialog = ({ open, setOpen }: IProps) => {
       toast.success(response.message);
       setCurrentStep("Success");
     } catch (error: any) {
-      console.log(error);
       toast.error(
         error.message || error.response.data.message || "something went wrong"
       );
