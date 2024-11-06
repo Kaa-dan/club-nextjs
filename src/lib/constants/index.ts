@@ -12,7 +12,6 @@ import Profile3 from "../../../public/images/profile3.svg";
 import Profile4 from "../../../public/images/profile4.svg";
 import EyeLogo from "../../../public/images/eye.png";
 import ViewLogo from "../../../public/images/view.png";
-
 //icons
 import MarketPlaceIcon from "@public/icons/modules/marketplace.icon.svg";
 import DebateIcon from "@public/icons/modules/debate.icon.svg";
@@ -39,6 +38,8 @@ import NodePreferencesIcon from "@public/icons/node-profile/node-preferences.ico
 import NodeProfileIcon from "@public/icons/node-profile/node-profile.icon.svg";
 import ApprovalIcon from "@public/icons/approval.icon.svg";
 import GreenTickIcon from "@public/icons/green-tick-icon.svg";
+import GreenCheckMark from "@public/icons/green-checkmark.svg";
+// import ArrowIcon from "@public/icons/arrow-icon.svg";
 const IMGS = {
   Logo,
   LogoGreen,
@@ -81,6 +82,8 @@ const ICONS = {
   BarMarketPlaceIcon,
   BarRulesIcon,
   BarDebateIcon,
+  GreenCheckMark,
+  // ArrowIcon,
 };
 
 export { IMGS, ICONS };

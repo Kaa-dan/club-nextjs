@@ -1,6 +1,5 @@
 import { Card } from "@/components/ui/card";
 import { MapPin, Users } from "lucide-react";
-import image from "next/image";
 import Image from "next/image";
 import React from "react";
 
@@ -37,7 +36,7 @@ const NodeCardMini: React.FC<{ node: INode }> = ({
       <span className="text-sm font-semibold w-full truncate">{name}</span>
       <div className="flex items-center gap-1">
         <Users size={"1rem"} />
-        {}
+        {members.length}
       </div>
       <div className="w-4/5 p-1 bg-slate-50 rounded-md flex items-center">
         <MapPin size={"1rem"} className="text-red-500" />

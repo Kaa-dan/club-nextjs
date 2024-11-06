@@ -3,8 +3,8 @@ import Image from "next/image";
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 flex w-full max-w-5xl items-center justify-center gap-5 bg-green-500 text-center text-heading-h1 font-extrabold tracking-wide text-white shadow-larger sm:p-16 xl:p-0">
+    <main className="flex min-h-screen !bg-green-200 flex-col items-center justify-between p-24">
+      <div className="z-10  flex w-full max-w-5xl items-center justify-center gap-5 bg-green-500 text-center text-heading-h1 font-extrabold tracking-wide text-white shadow-larger sm:p-16 xl:p-0">
         <Image
           src={IMGS.Logo}
           alt="ClubWize"
