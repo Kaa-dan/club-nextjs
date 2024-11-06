@@ -24,14 +24,24 @@ export class Endpoints {
     }
   }
 
-  static async toggleMembersRequest(userId: string, action: string) {
-    const response = await mainAxios.patch(`/user/:${userId}`);
+  static async toggleMembersRequest(
+    nodeId: string,
+    userId: string,
+    action: string
+  ) {
+    const response = await mainAxios.put(
+      `/node/join-requests/status/${action}`,
+      {
+        nodeId,
+        userId,
+      }
+    );
     return response.data;
   }
 
   static async getJoinRequests(nodeId: string) {
     try {
-      const response = await mainAxios.get("/join-requests/" + nodeId);
+      const response = await mainAxios.get("/node/join-requests/" + nodeId);
       return response.data;
     } catch (error) {
       throw error;

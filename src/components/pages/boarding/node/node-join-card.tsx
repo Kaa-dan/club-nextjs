@@ -42,8 +42,9 @@ const NodeJoinCard: React.FC<{
         <span className="truncate">{`${location}`}</span>
       </div>
       <Dialog>
-        <DialogTrigger className="w-full">
-          <Button className="h-6 w-full p-0">Join</Button>
+        <DialogTrigger className="w-full rounded bg-primary text-white shadow">
+          {/* <Button className="h-6 w-full p-0">Join</Button> */}
+          Join
         </DialogTrigger>
         <DialogContent>
           <DialogTitle>Join {name}</DialogTitle>
