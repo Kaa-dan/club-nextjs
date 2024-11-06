@@ -31,6 +31,7 @@ export default function Page() {
   const visibleUsers = 5;
   const totalUsers = members.length;
   const remainingUsers = totalUsers - visibleUsers;
+  const displayRemainingCount = remainingUsers > 100 ? "100+" : remainingUsers;
 
   useEffect(() => {
     Endpoints.fetchClubMembers(params.clubId as string)
@@ -66,7 +67,7 @@ export default function Page() {
                   ))}
                   {remainingUsers > 0 && (
                     <div className="flex items-center justify-center w-8 h-8 rounded-full bg-muted text-xs">
-                      {remainingUsers}+ {/* Display remaining users count */}
+                      {displayRemainingCount}+
                     </div>
                   )}
                 </div>
