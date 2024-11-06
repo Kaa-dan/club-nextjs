@@ -6,24 +6,32 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link, Copy, LogOut, Search, Filter } from "lucide-react";
 import { useParams } from "next/navigation";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
 import { useEffect, useState } from "react";
 import { fetchSpecificClub } from "@/components/pages/club/endpoint";
 import { Endpoints } from "@/utils/endpoint";
+import ClubMembersList from "@/components/pages/club/club-members-list";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function Page() {
   const [members, setMembers] = useState([]);
@@ -57,14 +65,23 @@ export default function Page() {
               </h2>
               <div className="flex items-center gap-2">
                 <div className="flex -space-x-2">
-                  {members.slice(0, visibleUsers).map((i) => (
-                    <Avatar key={i} className="border-2 border-background">
+                  {members.slice(0, visibleUsers).map((member: any) => (
+                    <Avatar
+                      key={member._id}
+                      className="border-2 border-background"
+                    >
                       <AvatarImage
-                        src={`/placeholder.svg?height=32&width=32`}
+                        src={
+                          member.user.profileImage ||
+                          `/placeholder.svg?height=32&width=32`
+                        } // Replace with dynamic src
                       />
-                      <AvatarFallback>U{i}</AvatarFallback>
+                      <AvatarFallback>
+                        {member.user.firstName.charAt(0)}
+                      </AvatarFallback>
                     </Avatar>
                   ))}
+
                   {remainingUsers > 0 && (
                     <div className="flex items-center justify-center w-8 h-8 rounded-full bg-muted text-xs">
                       {displayRemainingCount}+
@@ -78,6 +95,21 @@ export default function Page() {
                 >
                   See all
                 </Button>
+                {/* <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="outline">Edit Profile</Button>
+                  </DialogTrigger>
+                  <ClubMembersList
+                    isModalOpen={isModalOpen}
+                    setIsModalOpen={setIsModalOpen}
+                  />
+                </Dialog> */}
+                {/* <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="outline">Edit Profile</Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]"></DialogContent>
+                </Dialog> */}
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -88,13 +120,36 @@ export default function Page() {
                 <Copy className="h-4 w-4" />
                 <span>Copy Link</span>
               </Button>
-              <Button
-                variant="outline"
-                className="text-red-500 hover:text-red-600 gap-2"
-              >
-                <LogOut className="h-4 w-4" />
-                <span>Leave</span>
-              </Button>
+
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="text-red-500 hover:text-red-600 gap-2"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    <span>Leave Club</span>
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      Are you sure you want to leave the club?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. Leaving the club will remove
+                      you from the members list and you will lose access to all
+                      club activities and resources.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction className="bg-red-500 hover:bg-red-600 text-white">
+                      Leave Club
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           </div>
 
@@ -150,91 +205,13 @@ export default function Page() {
         </CardContent>
       </Card>
 
-      {/* dialogue  */}
+      <ClubMembersList
+        members={members}
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+      />
 
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-4xl">
-          <DialogHeader>
-            <DialogTitle>All Members</DialogTitle>
-          </DialogHeader>
-          <div className="flex items-center justify-between gap-4 my-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Search for Members..." className="pl-8" />
-            </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="icon">
-                <Filter className="h-4 w-4" />
-              </Button>
-              <Button variant="outline" size="icon">
-                <Copy className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Member&#39;s Name</TableHead>
-                <TableHead>Level</TableHead>
-                <TableHead>Contribution</TableHead>
-                <TableHead>Join Date</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {/* {members.map((member) => (
-                <TableRow key={member.id}>
-                  <TableCell className="flex items-center gap-2">
-                    <Avatar>
-                      <AvatarImage src={member.avatar} />
-                      <AvatarFallback>{member.name[0]}</AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <div className="font-medium">{member.name}</div>
-                      <div className="text-sm text-muted-foreground">
-                        {member.role}
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge
-                      variant="secondary"
-                      className={
-                        member.level === "Admin"
-                          ? "bg-green-100 text-green-800"
-                          : member.level === "Moderator"
-                            ? "bg-orange-100 text-orange-800"
-                            : undefined
-                      }
-                    >
-                      {member.level}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{member.contribution}</TableCell>
-                  <TableCell>{member.joinDate}</TableCell>
-                </TableRow>
-              ))} */}
-            </TableBody>
-          </Table>
-          <div className="flex items-center justify-between mt-4">
-            <div className="text-sm text-muted-foreground">
-              Total 85 Members
-            </div>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" disabled>
-                Previous
-              </Button>
-              <Button variant="outline" size="sm">
-                Next
-              </Button>
-              <select className="px-2 py-1 border rounded-md">
-                <option>10 / page</option>
-                <option>20 / page</option>
-                <option>50 / page</option>
-              </select>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      {/* dialogue  */}
     </>
   );
 }

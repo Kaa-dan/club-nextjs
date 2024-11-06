@@ -3,9 +3,7 @@ import Image from "next/image";
 import { ICONS } from "@/lib/constants";
 import { ChevronRight } from "lucide-react";
 import { TNodeData } from "@/types";
-<<<<<<< HEAD
 import { useRouter } from "next/navigation";
-=======
 
 const SECTIONS = [
   { name: "News Feed", icon: ICONS.NodeNewsFeedIcon },
@@ -18,7 +16,6 @@ const SECTIONS = [
   { name: "Activities", icon: ICONS.NodeActivitiesIcon },
   { name: "Preferences", icon: ICONS.NodePreferencesIcon },
 ];
->>>>>>> 2f54d0faf91c7dd38c764d74166b6a63ad80f9c9
 
 interface ProfileCardProps {
   node: TNodeData;

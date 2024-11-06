@@ -2,6 +2,7 @@ import React from "react";
 import Image from "next/image";
 import { ICONS } from "@/lib/constants";
 import { ChevronRight } from "lucide-react";
+
 const MemberApprovalTab = () => {
   return (
     <div className="flex justify-between items-center bg-white rounded-lg p-3 shadow-sm">
