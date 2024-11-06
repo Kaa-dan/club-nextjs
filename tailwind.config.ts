@@ -397,6 +397,7 @@ const config = {
         larger: "0px 16px 48px rgba(0, 0, 0, 0.175)",
         regular: "0px 8px 16px rgba(0, 0, 0, 0.15)",
         small: "0px 2px 4px rgba(0, 0, 0, 0.075)",
+        "full-screen-overlay": "0 0 0 100vmax rgba(0, 0, 0, 0.2)",
       },
     },
   },
