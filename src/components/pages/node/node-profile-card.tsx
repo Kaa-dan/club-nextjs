@@ -3,18 +3,7 @@ import Image from "next/image";
 import { ICONS } from "@/lib/constants";
 import { ChevronRight } from "lucide-react";
 import { TNodeData } from "@/types";
-
-const SECTIONS = [
-  { name: "News Feed", icon: ICONS.NodeNewsFeedIcon },
-  { name: "Modules", icon: ICONS.NodeModulesIcon },
-  { name: "Profile", icon: ICONS.NodeProfileIcon },
-  { name: "Chapters", icon: ICONS.NodeChaptersIcon, notifications: 8 },
-  { name: "Members", icon: ICONS.NodeMembersIcon },
-  { name: "Approvals", icon: ICONS.NodeApprovalsIcon, notifications: 3 },
-  { name: "Insights/Analytics", icon: ICONS.NodeInsightsIcon },
-  { name: "Activities", icon: ICONS.NodeActivitiesIcon },
-  { name: "Preferences", icon: ICONS.NodePreferencesIcon },
-];
+import { useRouter } from "next/navigation";
 
 interface ProfileCardProps {
   node: TNodeData;
@@ -27,6 +16,48 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
   currentPage,
   setCurrentPage,
 }) => {
+  const SECTIONS = [
+    { name: "News Feed", icon: ICONS.NodeNewsFeedIcon, path: "/news-feed" },
+    { name: "Modules", icon: ICONS.NodeModulesIcon, path: "/modules" },
+    {
+      name: "Profile",
+      icon: ICONS.NodeProfileIcon,
+      path: `/node/${node._id}/profile`,
+    },
+    {
+      name: "Chapters",
+      icon: ICONS.NodeChaptersIcon,
+      notifications: 8,
+      path: "/chapters",
+    },
+    {
+      name: "Members",
+      icon: ICONS.NodeMembersIcon,
+      path: `/node/${node._id}/members`,
+    },
+    {
+      name: "Approvals",
+      icon: ICONS.NodeApprovalsIcon,
+      notifications: 3,
+      path: `/node/${node._id}/approvals`,
+    },
+    {
+      name: "Insights/Analytics",
+      icon: ICONS.NodeInsightsIcon,
+      path: "/insights",
+    },
+    {
+      name: "Activities",
+      icon: ICONS.NodeActivitiesIcon,
+      path: `/node/${node._id}/approvals`,
+    },
+    {
+      name: "Preferences",
+      icon: ICONS.NodePreferencesIcon,
+      path: "/preferences",
+    },
+  ];
+  const router = useRouter();
   return (
     <div className="bg-white rounded-lg shadow-md md:min-w-60 md:max-w-60 sticky text-sm top-16 h-fit max-h-[80vh] overflow-hidden pb-2">
       <div className="relative">
@@ -65,7 +96,10 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
                   ? "bg-green-50 border-primary border"
                   : "hover:bg-gray-100 border border-white"
               }`}
-              onClick={() => setCurrentPage(section.name)}
+              onClick={() => {
+                setCurrentPage(section.name);
+                router.push(section.path);
+              }}
             >
               <span className="flex items-center space-x-2">
                 <Image

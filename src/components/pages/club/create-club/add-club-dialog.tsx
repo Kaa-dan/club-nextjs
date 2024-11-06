@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { addClub } from "../endpoint";
 import {
   Select,
   SelectContent,
@@ -29,7 +30,6 @@ import { Camera, Search, X } from "lucide-react";
 import { ICONS, IMGS } from "@/lib/constants";
 import { formatName } from "@/utils/text";
 import { toast } from "sonner";
-import { addNode } from "../../boarding/endpoint";
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 5MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
@@ -371,8 +371,9 @@ const AddClubDialog = ({ open, setOpen }: IProps) => {
     formData.append("description", values.description);
     console.log("values", values);
     try {
-      const response = await addNode(formData);
-      toast.success(response.message);
+      const response = await addClub(formData);
+
+      toast.success(response.descripion);
       setCurrentStep("Success");
     } catch (error: any) {
       console.log(error);

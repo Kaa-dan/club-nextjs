@@ -1,7 +1,13 @@
 "use client";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
 
 import Link from "next/link";
-import { Ellipsis, HomeIcon, Icon, LogOut, Plus, X } from "lucide-react";
+import { Ellipsis, HomeIcon, Icon, LogOut, Pin, Plus, X } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -34,6 +40,8 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { boolean } from "zod";
+import { pinClub } from "@/components/pages/club/endpoint";
+import { toast } from "sonner";
 interface MenuProps {
   isOpen: boolean | undefined;
 }
@@ -121,6 +129,14 @@ const nodes: Node[] = [
 ];
 
 export function Menu({ isOpen }: MenuProps) {
+  const togglePinClub = async (clubId: string) => {
+    try {
+      const response = await pinClub(clubId);
+      toast.success(response.message);
+    } catch (error) {
+      console.log({ error });
+    }
+  };
   const pathname = usePathname();
   const [menuList, setMenuList] = useState<any[]>();
   const [open, setOpen] = useState<boolean>(false);
@@ -140,10 +156,10 @@ export function Menu({ isOpen }: MenuProps) {
   return (
     <ScrollArea className=" [&>div>div[style]]:!block">
       <nav className="mt-8 size-full">
-        <ul className="flex min-h-[calc(100vh-48px-36px-16px-32px)] flex-col items-start space-y-1  px-2 lg:min-h-[calc(100vh-32px-40px-32px)]">
+        <ul className="  flex min-h-[calc(100vh-48px-36px-16px-32px)] flex-col items-start space-y-1  px-2 lg:min-h-[calc(100vh-32px-40px-32px)]">
           {menuList &&
             menuList?.length > 0 &&
-            menuList?.map(({ groupLabel, menus }, index) => (
+            menuList?.map(({ groupLabel, menus, menuItems }, index) => (
               <li
                 className={cn("w-full ", groupLabel ? "pt-5" : "")}
                 key={index}
@@ -207,7 +223,7 @@ export function Menu({ isOpen }: MenuProps) {
                 )}
                 {menus?.map(
                   (
-                    { href, label, key, image, active, submenus }: any,
+                    { href, label, key, image, active, submenus, _id }: any,
                     index: any
                   ) =>
                     submenus.length === 0 ? (
@@ -300,7 +316,7 @@ export function Menu({ isOpen }: MenuProps) {
                                   >
                                     <div className="flex items-center justify-between border-b p-2">
                                       <div className="px-2 font-semibold">
-                                        Nodes
+                                        {groupLabel}
                                       </div>
                                       <div className="flex items-center gap-2">
                                         {groupLabel === "Nodes" && (
@@ -345,19 +361,51 @@ export function Menu({ isOpen }: MenuProps) {
                                       </div>
                                     </div>
                                     <div className="grid grid-cols-5 gap-3 p-4">
-                                      {nodes.map((node) => (
+                                      {menuItems.map((node: any) => (
                                         <button
-                                          key={node.id}
+                                          key={node._id}
                                           className="flex flex-col items-center gap-1 rounded-lg p-1 text-center hover:bg-muted"
                                         >
-                                          <div className="relative size-12 overflow-hidden rounded-lg">
-                                            <Image
-                                              src={node.image}
-                                              alt={node.name}
-                                              fill
-                                              className="object-cover"
-                                            />
-                                          </div>
+                                          <ContextMenu>
+                                            <ContextMenuTrigger>
+                                              <div className="relative size-12 overflow-hidden rounded-lg">
+                                                <Image
+                                                  src={node?.image}
+                                                  alt={node?.name || "profile"}
+                                                  fill
+                                                  className="object-cover"
+                                                />
+                                              </div>
+                                            </ContextMenuTrigger>
+                                            <ContextMenuContent>
+                                              <ContextMenuItem>
+                                                <div className="flex cursor-pointer  w-[100%] items-center justify-between">
+                                                  <div>Pin</div>
+                                                  <div>
+                                                    <Pin
+                                                      onClick={() => {
+                                                        if (
+                                                          groupLabel === "Clubs"
+                                                        ) {
+                                                          togglePinClub(
+                                                            node._id
+                                                          );
+                                                        } else if (
+                                                          groupLabel === "Nodes"
+                                                        ) {
+                                                          togglePinNode(
+                                                            node._id
+                                                          );
+                                                        }
+                                                      }}
+                                                      strokeWidth={0.75}
+                                                    />
+                                                  </div>
+                                                </div>
+                                              </ContextMenuItem>
+                                            </ContextMenuContent>
+                                          </ContextMenu>
+
                                           <span className="text-[11px] leading-tight">
                                             {node.name}
                                           </span>
@@ -381,7 +429,7 @@ export function Menu({ isOpen }: MenuProps) {
                                     }
                                   }}
                                 >
-                                  <div className="">
+                                  <div className="flex">
                                     <span
                                       className={cn(
                                         isOpen === false ? "" : "mr-4"
@@ -400,7 +448,7 @@ export function Menu({ isOpen }: MenuProps) {
                                           )}
                                         >
                                           <Image
-                                            src={image}
+                                            src={image && image}
                                             height={50}
                                             width={50}
                                             className={cn(
@@ -426,18 +474,44 @@ export function Menu({ isOpen }: MenuProps) {
                                         </div>
                                       )}
                                     </span>
-                                    <span
-                                      hidden={!isOpen}
-                                      className={cn(
-                                        "max-w-[200px] truncate",
-                                        isOpen === false
-                                          ? "-translate-x-96 opacity-0"
-                                          : "translate-x-0 opacity-100 "
-                                      )}
-                                    >
-                                      {label}
-                                    </span>
+                                    <ContextMenu>
+                                      <ContextMenuTrigger>
+                                        <span
+                                          hidden={!isOpen}
+                                          className={cn(
+                                            "max-w-[200px]  truncate",
+                                            isOpen === false
+                                              ? "-translate-x-96 opacity-0"
+                                              : "translate-x-0 opacity-100 "
+                                          )}
+                                        >
+                                          {label}
+                                        </span>
+                                      </ContextMenuTrigger>
+                                      <ContextMenuContent>
+                                        <ContextMenuItem>
+                                          <div className="flex justify-between cursor-pointer items-center w-[100%]">
+                                            <div>
+                                              <div>Pins</div>
+                                            </div>
+                                            <Pin
+                                              onClick={() => {
+                                                if (groupLabel === "Clubs") {
+                                                  togglePinClub(_id);
+                                                } else if (
+                                                  groupLabel === "Nodes"
+                                                ) {
+                                                  togglePinNode(_id);
+                                                }
+                                              }}
+                                              strokeWidth={0.75}
+                                            />
+                                          </div>
+                                        </ContextMenuItem>
+                                      </ContextMenuContent>
+                                    </ContextMenu>
                                   </div>
+
                                   {/* Active marker */}
                                 </Button>
                               )}
@@ -469,7 +543,7 @@ export function Menu({ isOpen }: MenuProps) {
                 <div className="h-0.5 w-full bg-gray-300/50"></div>
               </li>
             ))}
-          <li className="flex w-full grow items-end ">
+          <li className="flex w-full  grow items-end ">
             <TooltipProvider disableHoverableContent>
               <Tooltip delayDuration={100}>
                 <TooltipTrigger asChild>
@@ -492,7 +566,7 @@ export function Menu({ isOpen }: MenuProps) {
                   </Button>
                 </TooltipTrigger>
                 {isOpen === false && (
-                  <TooltipContent side="right">SigFvn out</TooltipContent>
+                  <TooltipContent side="right">Sign out</TooltipContent>
                 )}
               </Tooltip>
             </TooltipProvider>

@@ -362,6 +362,8 @@ const AddNodeDialog = ({ open, setOpen }: IProps) => {
   const onFinalSubmit = async () => {
     const formData = new FormData();
     const values = form.getValues();
+    console.log(values, "vall");
+
     if (values.profilePhoto)
       formData.append("profileImage", values.profilePhoto);
 

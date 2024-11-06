@@ -39,6 +39,8 @@ export const postInterest = async (id: string, userData: any) => {
 
 export const addNode = async (data: any) => {
   try {
+    console.log(data, "dsdsd");
+
     const response = await mainAxios.post("/node", data);
     return response.data;
   } catch (error) {

@@ -37,4 +37,48 @@ export class Endpoints {
       throw error;
     }
   }
+
+  static async getAllClubs() {
+    try {
+      const response = await mainAxios.get("/clubs");
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async fetchSpecificClubs() {
+    try {
+      const response = await mainAxios.get(`/clubs/user-clubs`);
+      console.log({ response });
+
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+  static async fetchRequests(cludId: string) {
+    try {
+      const response = await mainAxios.get(`clubs/club-requests/${cludId}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+  static async fetchClubUserStatus(clubdId: string) {
+    try {
+      const response = await mainAxios.get(`clubs/check-status/${clubdId}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+  static async fetchClubMembers(clubdId: string) {
+    try {
+      const response = await mainAxios.get(`/clubs/club-members/${clubdId}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
