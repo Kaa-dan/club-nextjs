@@ -56,3 +56,14 @@ export const getNodes = async () => {
     throw error;
   }
 };
+
+
+/**
+ * Fetches the onboarding data from the server.
+ *
+ * @returns The onboarding data from the server.
+ */
+export const getOnboarding = async () => {
+  const response = await mainAxios.get("/onboarding");
+  return response.data;
+};

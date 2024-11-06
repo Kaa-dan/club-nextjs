@@ -24,33 +24,30 @@ import { useTokenStore } from "@/store/store";
 import { postInterest } from "./endpoint";
 
 const interests = [
-  "UI designs",
-  "User interfaces",
-  "UI/UX",
-  "User interface designs",
-  "UX design",
-  "Graphic designs",
-  "User interfaces design",
-  "Users interface",
-  "Graphics design",
-  "UX designs",
-  "UI/UX designs",
-  "UI & UX",
-  "User Interface",
-  "UI Design",
-  "UI UX",
-  "User interface",
-  "UX Design",
-  "Graphic design",
-  "User interface design",
-  "UI design",
+  "Artificial Intelligence",
+  "Machine Learning",
+  "Blockchain Technology",
+  "Web Development",
+  "Mobile App Development",
+  "Cybersecurity",
+  "Cloud Computing",
+  "Data Science",
+  "Internet of Things (IoT)",
+  "Augmented Reality (AR)",
+  "Virtual Reality (VR)",
+  "DevOps Practices",
+  "UI/UX Design",
+  "Software Engineering",
+  "Open Source Contribution",
+  "Big Data Analytics",
+  "Game Development",
+  "Quantum Computing",
+  "Digital Marketing",
+  "Product Management",
 ];
 
 const stepTwoSchema = z.object({
   search: z.string().optional(),
-  terms: z.boolean().refine((val) => val, {
-    message: "You must accept the terms and conditions",
-  }),
 });
 
 type StepTwoType = z.infer<typeof stepTwoSchema>;
@@ -72,9 +69,15 @@ const InterestForm: React.FC<InterestFormProps> = ({ setStep }) => {
       setGlobalUser: state.setGlobalUser,
     }));
 
-  const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
+  const [selectedInterests, setSelectedInterests] = useState<string[]>(
+    globalUser?.interests ? globalUser.interests : []
+  );
   const [formData, setFormData] = useState<Partial<StepTwoType>>({});
   const [filteredInterests, setFilteredInterests] = useState(interests);
+
+  const [initialInterests, setInitialInterests] = useState<string[]>(
+    globalUser?.interests ? globalUser.interests : []
+  );
 
   const form = useForm<StepTwoType>({
     resolver: zodResolver(stepTwoSchema),
@@ -85,14 +88,34 @@ const InterestForm: React.FC<InterestFormProps> = ({ setStep }) => {
     form.reset(formData);
   }, [formData, form]);
 
+  const hasSameSelectedInterests = (): boolean => {
+    if (selectedInterests.length === 0) return false;
+
+    // Check if both arrays have the same length
+    if (selectedInterests.length !== initialInterests.length) {
+      return false; // Return false if lengths are different
+    }
+
+    // Check if every selected interest is in the initial interests
+    return selectedInterests.every((interest) =>
+      initialInterests.includes(interest)
+    );
+  };
+
   const onSubmit: SubmitHandler<StepTwoType> = async (data) => {
-    const newFormData = { terms: data.terms, interests: selectedInterests };
+    if (selectedInterests.length <= 0) {
+      toast.error("Please select at least one interest");
+      return;
+    }
+
+    const newFormData = { ...data, interests: selectedInterests };
     setFormData(newFormData);
     console.log("Data for Picture step:", data);
     console.log("Cumulative form data:", newFormData);
+    const postFromData = { interests: selectedInterests };
 
     if (globalUser) {
-      const response = await postInterest(globalUser._id, newFormData);
+      const response = await postInterest(globalUser._id, postFromData);
       setGlobalUser(response.data);
       setStep("node");
     }
@@ -184,7 +207,7 @@ const InterestForm: React.FC<InterestFormProps> = ({ setStep }) => {
             ))}
           </div>
 
-          <div className="mt-8">
+          {/* <div className="mt-8">
             <FormField
               control={form.control}
               name="terms"
@@ -212,7 +235,7 @@ const InterestForm: React.FC<InterestFormProps> = ({ setStep }) => {
                 </FormItem>
               )}
             />
-          </div>
+          </div> */}
           <div className="flex justify-end gap-4">
             <Button
               variant="outline"
@@ -222,13 +245,25 @@ const InterestForm: React.FC<InterestFormProps> = ({ setStep }) => {
             >
               Back
             </Button>
-            <Button
-              type="submit"
-              className="text-white"
-              disabled={form?.formState?.isSubmitting}
-            >
-              Next
-            </Button>
+            {!hasSameSelectedInterests() ? (
+              <Button
+                type="submit"
+                className="text-white"
+                disabled={form?.formState?.isSubmitting}
+              >
+                Next
+              </Button>
+            ) : (
+              <Button
+                className="text-white"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setStep("node");
+                }}
+              >
+                Next
+              </Button>
+            )}
           </div>
         </div>
       </form>

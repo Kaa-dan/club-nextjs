@@ -8,15 +8,15 @@ import { useEffect } from "react";
 const SiteLayout = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const { globalUser } = useTokenStore((state) => state);
-  const accessToken = localStorage.getItem("access-token");
 
   useEffect(() => {
+    const accessToken = localStorage.getItem("access-token");
     if (!accessToken) {
       router.replace("/sign-in");
     } else if (!globalUser?.isOnBoarded) {
       router.replace("/onboarding");
     }
-  }, [accessToken, globalUser, router]);
+  }, [globalUser]);
 
   return (
     <section>

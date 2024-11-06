@@ -7,13 +7,13 @@ import { useEffect } from "react";
 
 const Page = () => {
   const router = useRouter();
-  const accessToken = localStorage.getItem("access-token");
 
   useEffect(() => {
+    const accessToken = localStorage.getItem("access-token");
     if (!accessToken) {
       router.replace("/sign-in");
     }
-  }, [accessToken, router]);
+  }, []);
 
   return (
     <div className="flex h-screen w-full flex-col bg-white md:flex-row">

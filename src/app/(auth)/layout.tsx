@@ -12,7 +12,7 @@ export default function AuthLayout({
   const router = useRouter();
   const { globalUser } = useTokenStore((state) => state);
   const [isLoading, setIsLoading] = useState(true);
-
+  
   useEffect(() => {
     const accessToken = localStorage.getItem("access-token");
     if (accessToken) {
@@ -20,7 +20,7 @@ export default function AuthLayout({
       router.replace(destination);
     }
     setIsLoading(false);
-  }, [router, globalUser]);
+  }, [globalUser]);
 
   if (isLoading) {
     return <div>loading....</div>;
