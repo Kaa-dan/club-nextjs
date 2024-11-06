@@ -12,7 +12,7 @@ import {
 import ClubRequest from "@/components/pages/club/club-request";
 import { Endpoints } from "@/utils/endpoint";
 
-const Page = ({ children }: { children: React.ReactNode }) => {
+const Page = () => {
   const params = useParams<{ clubId: string }>();
   const [requests, setRequests] = useState([]);
   useEffect(() => {

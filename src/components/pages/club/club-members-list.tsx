@@ -65,7 +65,7 @@ const ClubMembersList: React.FC<ClubMemberListProps> = ({
             <thead>
               <tr className="border-b">
                 <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider py-3 px-6">
-                  Member's Name
+                  {`Member's Name`}
                 </th>
                 <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider py-3 px-6">
                   Level

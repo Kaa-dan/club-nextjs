@@ -1,4 +1,5 @@
 import { Eye, MoreHorizontal } from "lucide-react";
+import Image from "next/image";
 
 function ActivityFeed() {
   const activities = [
@@ -31,7 +32,7 @@ function ActivityFeed() {
             }`}
           >
             <div className="flex items-center space-x-3">
-              <img
+              <Image
                 src={`https://i.pravatar.cc/50?img=${index + 1}`}
                 alt="avatar"
                 className="w-10 h-10 rounded-full"
@@ -39,9 +40,9 @@ function ActivityFeed() {
               <div>
                 <p className="text-gray-700 text-sm">
                   You like{" "}
-                  <span className="font-semibold">{activity.user}</span>'s post
-                  in <span className="text-blue-600">{activity.club}</span>{" "}
-                  club.
+                  <span className="font-semibold">{activity.user}</span>
+                  {`'s post in`}{" "}
+                  <span className="text-blue-600">{activity.club}</span> club.
                 </p>
                 <p className="text-gray-400 text-xs">{activity.time}</p>
               </div>
@@ -68,7 +69,7 @@ function ActivityFeed() {
             }`}
           >
             <div className="flex items-center space-x-3">
-              <img
+              <Image
                 src={`https://i.pravatar.cc/50?img=${index + 1}`}
                 alt="avatar"
                 className="w-10 h-10 rounded-full"
@@ -76,9 +77,9 @@ function ActivityFeed() {
               <div>
                 <p className="text-gray-700 text-sm">
                   You like{" "}
-                  <span className="font-semibold">{activity.user}</span>'s post
-                  in <span className="text-blue-600">{activity.club}</span>{" "}
-                  club.
+                  <span className="font-semibold">{activity.user}</span>
+                  {`'s post in`}{" "}
+                  <span className="text-blue-600">{activity.club}</span> club.
                 </p>
                 <p className="text-gray-400 text-xs">{activity.time}</p>
               </div>

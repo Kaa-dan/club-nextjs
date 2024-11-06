@@ -14,7 +14,7 @@ const ClubRequest = ({ name, role }: any) => {
           />
         </div>
         <div>
-          <h3 className="text-sm font-medium">"rishal</h3>
+          <h3 className="text-sm font-medium">rishal</h3>
           <p className="text-xs text-gray-500">admin</p>
         </div>
       </div>
