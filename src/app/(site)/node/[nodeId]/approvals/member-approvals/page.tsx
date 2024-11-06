@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Endpoints } from "@/utils/endpoint";
 import Image from "next/image";
 import { TNodeJoinRequest } from "@/types";
+import { useParams } from "next/navigation";
 
 // Define types for member data and status
 interface MemberStatus {
@@ -10,26 +11,18 @@ interface MemberStatus {
   status: "Accepted" | "Rejected" | null;
 }
 
-const Page = ({ params }: { params: { nodeId: string } }) => {
+const Page = () => {
   const [memberRequests, setMemberRequests] = useState<TNodeJoinRequest[]>([]);
   const [memberStatus, setMemberStatus] = useState<
     Record<string, MemberStatus>
   >({});
-  const [nodeId, setNodeId] = useState<string | null>(null);
-  useEffect(() => {
-    const unwrapParams = async () => {
-      const resolvedParams = await params;
-      setNodeId(resolvedParams.nodeId);
-    };
-    unwrapParams();
-  }, [params]);
+  const params = useParams<{ nodeId: string }>();
 
-  // Fetch members data from backend
   useEffect(() => {
     const fetchMembers = async () => {
-      if (!nodeId) return;
+      if (!params.nodeId) return;
       try {
-        const response = await Endpoints.getJoinRequests(nodeId); // Fetch members from the backend
+        const response = await Endpoints.getJoinRequests(params.nodeId);
         setMemberRequests(response.data);
         6;
         // Initialize status for each member
@@ -82,13 +75,13 @@ const Page = ({ params }: { params: { nodeId: string } }) => {
   };
 
   return (
-    <div className="p-6 mt-10 bg-white shadow-md rounded-lg">
-      <h2 className="text-xl font-semibold mb-4">All Members Request</h2>
+    <div className="mt-10 rounded-lg bg-white p-6 shadow-md">
+      <h2 className="mb-4 text-xl font-semibold">All Members Request</h2>
       <div className="space-y-4">
         {memberRequests.map((request) => (
           <div
             key={request.user._id}
-            className="flex items-center justify-between p-2 border rounded-lg hover:shadow-md"
+            className="flex items-center justify-between rounded-lg border p-2 hover:shadow-md"
           >
             <div className="flex items-center space-x-4">
               <Image
@@ -96,7 +89,7 @@ const Page = ({ params }: { params: { nodeId: string } }) => {
                 width={50}
                 src={request.user.profileImage}
                 alt={request.user.firstName}
-                className="w-10 h-10 rounded-sm"
+                className="size-10 rounded-sm"
               />
               <div>
                 <h3 className="font-medium">
@@ -113,7 +106,7 @@ const Page = ({ params }: { params: { nodeId: string } }) => {
                     memberStatus[request.user._id].status === "Accepted"
                       ? "text-green-500"
                       : "text-red-500"
-                  } border rounded`}
+                  } rounded border`}
                 >
                   {memberStatus[request.user._id].status}
                 </span>
@@ -125,7 +118,7 @@ const Page = ({ params }: { params: { nodeId: string } }) => {
                     className={`px-2 py-1 ${
                       memberStatus[request.user._id]?.loading
                         ? "bg-gray-300"
-                        : "text-red-500 border border-red-500 hover:bg-red-500 hover:text-white"
+                        : "border border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
                     } rounded`}
                   >
                     {memberStatus[request.user._id]?.loading
@@ -138,7 +131,7 @@ const Page = ({ params }: { params: { nodeId: string } }) => {
                     className={`px-2 py-1 ${
                       memberStatus[request.user._id]?.loading
                         ? "bg-gray-300"
-                        : "text-green-500 border border-green-500 hover:bg-green-500 hover:text-white"
+                        : "border border-green-500 text-green-500 hover:bg-green-500 hover:text-white"
                     } rounded`}
                   >
                     {memberStatus[request.user._id]?.loading
