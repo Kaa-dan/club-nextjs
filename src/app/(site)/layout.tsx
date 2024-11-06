@@ -9,6 +9,7 @@ const SiteLayout = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const { globalUser } = useTokenStore((state) => state);
   const accessToken = localStorage.getItem("access-token");
+  console.log(accessToken, "accessToken");
 
   useEffect(() => {
     if (!accessToken) {
@@ -16,7 +17,7 @@ const SiteLayout = ({ children }: { children: React.ReactNode }) => {
     } else if (!globalUser?.isOnBoarded) {
       router.replace("/onboarding");
     }
-  }, [accessToken, globalUser]);
+  }, [globalUser, accessToken]);
 
   return (
     <section>
