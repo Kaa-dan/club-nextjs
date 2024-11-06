@@ -3,6 +3,7 @@ import Image from "next/image";
 import { ICONS } from "@/lib/constants";
 import { ChevronRight } from "lucide-react";
 import { TNodeData } from "@/types";
+import { useRouter } from "next/navigation";
 
 const SECTIONS = [
   { name: "News Feed", icon: ICONS.NodeNewsFeedIcon },
@@ -27,6 +28,48 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
   currentPage,
   setCurrentPage,
 }) => {
+  const SECTIONS = [
+    { name: "News Feed", icon: ICONS.NodeNewsFeedIcon, path: "/news-feed" },
+    { name: "Modules", icon: ICONS.NodeModulesIcon, path: "/modules" },
+    {
+      name: "Profile",
+      icon: ICONS.NodeProfileIcon,
+      path: `/node/${node._id}/profile`,
+    },
+    {
+      name: "Chapters",
+      icon: ICONS.NodeChaptersIcon,
+      notifications: 8,
+      path: "/chapters",
+    },
+    {
+      name: "Members",
+      icon: ICONS.NodeMembersIcon,
+      path: `/node/${node._id}/members`,
+    },
+    {
+      name: "Approvals",
+      icon: ICONS.NodeApprovalsIcon,
+      notifications: 3,
+      path: `/node/${node._id}/approvals`,
+    },
+    {
+      name: "Insights/Analytics",
+      icon: ICONS.NodeInsightsIcon,
+      path: "/insights",
+    },
+    {
+      name: "Activities",
+      icon: ICONS.NodeActivitiesIcon,
+      path: `/node/${node._id}/approvals`,
+    },
+    {
+      name: "Preferences",
+      icon: ICONS.NodePreferencesIcon,
+      path: "/preferences",
+    },
+  ];
+  const router = useRouter();
   return (
     <div className="sticky top-16 h-fit max-h-[80vh] overflow-hidden rounded-lg bg-white pb-2 text-sm shadow-md md:min-w-60 md:max-w-60">
       <div className="relative">
@@ -65,7 +108,10 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
                   ? "border border-primary bg-green-50"
                   : "border border-white hover:bg-gray-100"
               }`}
-              onClick={() => setCurrentPage(section.name)}
+              onClick={() => {
+                setCurrentPage(section.name);
+                router.push(section.path);
+              }}
             >
               <span className="flex items-center space-x-2">
                 <Image
