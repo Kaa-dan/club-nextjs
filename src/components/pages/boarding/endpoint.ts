@@ -5,7 +5,7 @@ export const postDetails = async (id: string, userData: any) => {
   try {
     console.log({ id, userData });
     //api calling and storing response
-    const response = await mainAxios.put(`/onboarding/details/${id}`, userData);
+    const response = await mainAxios.put(`/onboarding/details`, userData);
     console.log({ response });
     // returning the response
     return response.data;
@@ -16,19 +16,21 @@ export const postDetails = async (id: string, userData: any) => {
 
 export const postPicture = async (id: string, userData: any) => {
   try {
-    const response = await mainAxios.put(`/onboarding/images/${id}`, userData);
+    const response = await mainAxios.put(`/onboarding/images`, userData);
     return response.data;
   } catch (error) {
     throw error;
   }
 };
 
+export const completeOnboarding = async () => {
+  const { data } = await mainAxios.put("/onboarding/complete");
+  return data;
+};
+
 export const postInterest = async (id: string, userData: any) => {
   try {
-    const response = await mainAxios.put(
-      `/onboarding/interest/${id}`,
-      userData
-    );
+    const response = await mainAxios.put(`/onboarding/interest`, userData);
     return response.data;
   } catch (error) {
     throw error;
@@ -51,4 +53,15 @@ export const getNodes = async () => {
   } catch (error) {
     throw error;
   }
+};
+
+
+/**
+ * Fetches the onboarding data from the server.
+ *
+ * @returns The onboarding data from the server.
+ */
+export const getOnboarding = async () => {
+  const response = await mainAxios.get("/onboarding");
+  return response.data;
 };

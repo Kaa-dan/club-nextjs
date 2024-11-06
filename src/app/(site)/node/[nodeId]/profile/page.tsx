@@ -33,6 +33,7 @@ const members = [
     joinDate: "October 30, 2017",
     avatar: "/placeholder.svg",
   },
+
   {
     id: 2,
     name: "Bessie Cooper",
@@ -42,6 +43,7 @@ const members = [
     joinDate: "July 14, 2015",
     avatar: "/placeholder.svg",
   },
+
   {
     id: 3,
     name: "Ronald Richards",
@@ -51,6 +53,7 @@ const members = [
     joinDate: "October 25, 2019",
     avatar: "/placeholder.svg",
   },
+
   // Add more members as needed
 ];
 
@@ -185,7 +188,7 @@ export default function Page() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Member's Name</TableHead>
+                <TableHead>Member&#39;s Name</TableHead>
                 <TableHead>Level</TableHead>
                 <TableHead>Contribution</TableHead>
                 <TableHead>Join Date</TableHead>

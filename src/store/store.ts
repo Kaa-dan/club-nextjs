@@ -1,12 +1,20 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import Cookies from "js-cookie";
 
 // User type definition
 type User = {
   email: string;
   onBoardingStage: string;
   isOnBoarded: boolean;
+  userName?: string;
+  firstName?: string;
+  lastName?: string;
+  dateOfBirth?: string;
+  gender?: string;
+  phoneNumber?: string;
+  profileImage?: string;
+  coverImage?: string;
+  interests?: string[];
   _id: string;
 } | null;
 
@@ -47,43 +55,30 @@ export const useTokenStore = create<MainStore>()(
 
       setGlobalUser: (detail) => {
         set({ globalUser: detail });
-        if (detail) {
-          Cookies.set("isOnboarded", detail.isOnBoarded.toString(), {
-            path: "/",
-          });
-        } else {
-          Cookies.remove("isOnboarded"); // Remove if token is null
-        }
       },
 
       setVerifyToken: (token) => set({ verifyToken: token }),
 
       setAccessToken: (token) => {
         set({ accessToken: token });
-        if (token) {
-          Cookies.set("accessToken", token, { path: "/" });
-        } else {
-          Cookies.remove("accessToken"); // Remove if token is null
-        }
+        if (token) localStorage.setItem("access-token", token);
       },
 
       clearAccessToken: () => {
         set({ accessToken: null });
-        Cookies.remove("accessToken");
+        localStorage.removeItem("access-token");
       },
 
       clearVerifyToken: () => set({ verifyToken: null }),
 
       clearGlobalUser: () => {
         set({ globalUser: null });
-        Cookies.remove("isOnboarded");
       },
 
       // Utility function to clear all data
       clearStore: () => {
         set({ verifyToken: null, globalUser: null });
-        Cookies.remove("accessToken");
-        Cookies.remove("isOnboarded");
+        localStorage.removeItem("access-token");
       },
     }),
     {
@@ -100,3 +95,4 @@ export const useTokenStore = create<MainStore>()(
     }
   )
 );
+
