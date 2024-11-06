@@ -1,11 +1,11 @@
 "use client";
 
-import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import { app } from "@/lib/config/firebase";
+import GoogleSignIn from "./google-signin-button";
+import FacebookSignIn from "./facebook-signin-button";
 
 import {
   Form,
@@ -21,9 +21,10 @@ import { IMGS } from "@/lib/constants";
 import Link from "next/link";
 import { Checkbox } from "@/components/ui/checkbox";
 import { PasswordInput } from "@/components/ui/password-input";
-import { googleSignIn, login } from "./endpoint";
+import { login } from "./endpoint";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useTokenStore } from "@/store/store";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -34,9 +35,18 @@ const formSchema = z.object({
 });
 
 export function SignInForm() {
-  const auth = getAuth(app);
+  const { globalUser, setGlobalUser, setAccessToken } = useTokenStore(
+    (state) => ({
+      verifyToken: state.verifyToken,
+      setVerifyToken: state.setVerifyToken,
+      clearVerifyToken: state.clearVerifyToken,
+      globalUser: state.globalUser,
+      setGlobalUser: state.setGlobalUser,
+      setAccessToken: state.setAccessToken,
+    })
+  );
+
   const router = useRouter();
-  const googleProvider = new GoogleAuthProvider();
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -49,33 +59,18 @@ export function SignInForm() {
   const onSubmit = async (data: any) => {
     try {
       const response = await login(data);
-
+      console.log(response);
       toast.success(response?.message);
-      localStorage.setItem("userToken", response.token);
-      router.push("/boarding");
-    } catch (error) {
-      console.log(error, "Errr");
-    }
-  };
-
-  const handleGoogleSignIn = async () => {
-    try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const user = result.user;
-
-      const response = await googleSignIn({
-        email: user.email,
-        userName: user.displayName,
-        imageUrl: user.photoURL,
-        phoneNumber: user.phoneNumber,
-      });
-
-      toast.success(response.message);
+      setGlobalUser(response?.data || null);
+      setAccessToken(response?.token);
+      response?.data?.isOnBoarded
+        ? router.replace("/")
+        : router.replace("/onboarding");
     } catch (error: any) {
-      console.error("Google Sign-in Error:", error);
       toast.error(error.response.data.message);
     }
   };
+
   return (
     <div className="flex min-h-screen items-center justify-center">
       <div className="w-full max-w-md ">
@@ -93,17 +88,8 @@ export function SignInForm() {
           </p>
         </div>
         <div className="mb-4 flex justify-between">
-          <button
-            onClick={handleGoogleSignIn}
-            className="mr-2 flex w-full items-center justify-center rounded-lg border p-2"
-          >
-            <Image src={IMGS?.Google} alt="Google" className="mr-2 h-6" />
-            Google
-          </button>
-          <button className="mr-2 flex w-full items-center justify-center rounded-lg border p-2">
-            <Image src={IMGS?.Facebook} alt="Facebook" className="mr-2 h-6" />
-            Facebook
-          </button>
+          <GoogleSignIn />
+          <FacebookSignIn />
           <button className="flex w-full items-center justify-center rounded-lg border p-2">
             <Image src={IMGS?.Apple} alt="Apple" className="mr-2 h-6" />
             Apple

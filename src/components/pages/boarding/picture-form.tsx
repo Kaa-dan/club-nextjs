@@ -16,31 +16,40 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import PhotoInput from "@/components/ui/photo-input";
 import Link from "next/link";
+import { postPicture } from "./endpoint";
+import { useTokenStore } from "@/store/store";
 
-type Step = "Details" | "Picture" | "Node";
+type Step = "details" | "image" | "interest" | "node";
 
-const   stepTwoSchema = z.object({
+const stepTwoSchema = z.object({
   profilePhoto: z
     .instanceof(File)
     .nullable()
-    .refine((file) => file, { message: "Profile photo is required." }),
+    .refine((file) => file, { message: "Profile photo is required." })
+    .optional(),
   coverPhoto: z
     .instanceof(File)
     .nullable()
-    .refine((file) => file, { message: "Cover photo is required." }),
-  terms: z.boolean().refine((val) => val, {
-    message: "You must accept the terms and conditions",
-  }),
+    .refine((file) => file, { message: "Cover photo is required." })
+    .optional(),
 });
 
 type StepTwoType = z.infer<typeof stepTwoSchema>;
 
 interface PictureFormProps {
   setStep: (step: Step) => void;
+  userId?: string; // Add userId prop if you need to pass it
 }
 
-const PictureForm: React.FC<PictureFormProps> = ({ setStep }) => {
+const PictureForm: React.FC<PictureFormProps> = ({ setStep, userId }) => {
+  //global store
+  const { verifyToken, setVerifyToken, globalUser, setGlobalUser } =
+    useTokenStore((state) => state);
+
   const [formData, setFormData] = useState<Partial<StepTwoType>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [initialValues, setInitialValues] = useState<StepTwoType | null>(null);
+  const [isChanged, setIsChanged] = useState(false);
 
   const form = useForm<StepTwoType>({
     resolver: zodResolver(stepTwoSchema),
@@ -51,14 +60,72 @@ const PictureForm: React.FC<PictureFormProps> = ({ setStep }) => {
     form.reset(formData);
   }, [formData, form]);
 
-  const onSubmit: SubmitHandler<StepTwoType> = (data) => {
-    const newFormData = { ...formData, ...data };
-    setFormData(newFormData);
+  // Set initial values for comparison
+  useEffect(() => {
+    setInitialValues(form.getValues());
+  }, [form]);
 
-    console.log("Data for Picture step:", data);
-    console.log("Cumulative form data:", newFormData);
+  // Watch all form values and detect changes
+  const watchedValues = form.watch();
 
-    setStep("Node");
+  useEffect(() => {
+    // Check if current values are different from initial values
+    if (
+      initialValues &&
+      JSON.stringify(initialValues) !== JSON.stringify(watchedValues)
+    ) {
+      setIsChanged(true);
+    } else {
+      setIsChanged(false);
+    }
+  }, [watchedValues, initialValues]);
+
+  const onSubmit: SubmitHandler<StepTwoType> = async (data) => {
+    try {
+      setIsSubmitting(true);
+
+      // Create FormData instance
+      const formDataToSend = new FormData();
+
+      // Append the files with the names matching your Multer configuration
+      if (data.profilePhoto) {
+        formDataToSend.append("profileImage", data.profilePhoto);
+      }
+      if (data.coverPhoto) {
+        formDataToSend.append("coverImage", data.coverPhoto);
+      }
+
+      // Append userId if needed
+      if (userId) {
+        formDataToSend.append("userId", userId);
+      }
+
+      // Make the API call
+      console.log("clicked");
+      if (globalUser) {
+        console.log("clicked");
+        const response = await postPicture(globalUser._id, formDataToSend);
+
+        console.log(response);
+
+        if (!response.status) {
+          throw new Error("Upload failed");
+        }
+
+        setGlobalUser(response.data);
+
+        // const result = await response.json();
+        // console.log("Upload successful:", result);
+
+        // Move to next step if successful
+        setStep("node");
+      }
+    } catch (error) {
+      console.error("Upload error:", error);
+      // Handle error (you might want to show an error message to the user)
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -75,6 +142,10 @@ const PictureForm: React.FC<PictureFormProps> = ({ setStep }) => {
                   <PhotoInput
                     field="Profile"
                     onUpload={(file) => field.onChange(file)}
+                    initialUrl={globalUser?.profileImage}
+                    initialImageName={
+                      globalUser?.profileImage && "currentProfileImage.jpg"
+                    }
                   />
                 </FormControl>
                 <FormMessage />
@@ -91,6 +162,10 @@ const PictureForm: React.FC<PictureFormProps> = ({ setStep }) => {
                   <PhotoInput
                     field="Cover"
                     onUpload={(file) => field.onChange(file)}
+                    initialUrl={globalUser?.coverImage}
+                    initialImageName={
+                      globalUser?.coverImage && "currentCoverImage.jpg"
+                    }
                   />
                 </FormControl>
                 <FormMessage />
@@ -98,7 +173,7 @@ const PictureForm: React.FC<PictureFormProps> = ({ setStep }) => {
             )}
           />
         </div>
-        <div>
+        {/* <div>
           <FormField
             control={form.control}
             name="terms"
@@ -126,14 +201,35 @@ const PictureForm: React.FC<PictureFormProps> = ({ setStep }) => {
               </FormItem>
             )}
           />
-        </div>
+        </div> */}
         <div className="flex justify-end gap-4">
-          <Button variant="outline" type="button">
+          <Button
+            variant="outline"
+            type="button"
+            onClick={() => setStep("details")}
+            disabled={isSubmitting}
+          >
             Back
           </Button>
-          <Button type="submit" className="text-white">
-            Next
-          </Button>
+          {isChanged ? (
+            <Button
+              type="submit"
+              className="text-white"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Uploading..." : "Next"}
+            </Button>
+          ) : (
+            <Button
+              className="text-white"
+              onClick={(e) => {
+                e.preventDefault();
+                setStep("interest");
+              }}
+            >
+              Next
+            </Button>
+          )}
         </div>
       </form>
     </Form>

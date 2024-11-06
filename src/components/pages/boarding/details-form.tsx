@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { z } from "zod";
@@ -23,30 +23,34 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Link from "next/link";
+import { postDetails } from "./endpoint";
+import { useTokenStore } from "@/store/store";
 
-type Step = "Details" | "Picture" | "Node";
+type Step = "details" | "image" | "interest" | "node";
 
 //form validation using zed
+
 const stepOneSchema = z.object({
-  username: z
+  userName: z
     .string()
     .min(2, { message: "Username must be at least 2 characters." }),
   firstName: z
     .string()
-    .min(2, { message: "First name must be at least 2 characters." }),
+    .min(2, { message: "First name must be at least 2 characters." })
+    .regex(/^[^\s]+$/, { message: "First name should not contain spaces" }),
   lastName: z
     .string()
-    .min(2, { message: "Last name must be at least 2 characters." }),
+    .min(2, { message: "Last name must be at least 2 characters." })
+    .regex(/^[^\s]+$/, { message: "Last name should not contain spaces" }),
   phoneNumber: z
     .string()
     .min(10, { message: "Phone number must be at least 10 characters." }),
-  birthdate: z.string().nonempty({ message: "Birthdate is required." }),
+  dateOfBirth: z.string().nonempty({ message: "Birthdate is required." }),
   gender: z.string().nonempty({ message: "Gender is required." }),
   terms: z.boolean().refine((val) => val, {
     message: "You must accept the terms and conditions",
   }),
 });
-
 type StepOneType = z.infer<typeof stepOneSchema>;
 
 interface DetailsFormProps {
@@ -54,28 +58,61 @@ interface DetailsFormProps {
 }
 
 const DetailsForm: React.FC<DetailsFormProps> = ({ setStep }) => {
+  //global store
+  const { globalUser, setGlobalUser } = useTokenStore((state) => state);
+
   //for storign for values
   const [formData, setFormData] = useState<Partial<StepOneType>>({});
-
-  console.log({ formData });
+  const [initialValues, setInitialValues] = useState<StepOneType | null>(null);
+  const [isChanged, setIsChanged] = useState(false);
 
   //form instance with validation
   const form = useForm<StepOneType>({
     resolver: zodResolver(stepOneSchema),
+    defaultValues: {
+      userName: globalUser?.userName || "",
+      firstName: globalUser?.firstName || "",
+      lastName: globalUser?.lastName || "",
+      phoneNumber: globalUser?.phoneNumber || "",
+      dateOfBirth: globalUser?.dateOfBirth
+        ? new Date(globalUser?.dateOfBirth).toISOString().split("T")[0]
+        : "",
+      gender: globalUser?.gender || "",
+      terms: globalUser ? true : false,
+    },
   });
 
+  // Set initial values for comparison
   useEffect(() => {
-    form.reset(formData);
-  }, [formData, form]);
+    setInitialValues(form.getValues());
+  }, [form]);
 
-  const onSubmit: SubmitHandler<StepOneType> = (data) => {
+  // Watch all form values and detect changes
+  const watchedValues = form.watch();
+
+  useEffect(() => {
+    // Check if current values are different from initial values
+    if (
+      initialValues &&
+      JSON.stringify(initialValues) !== JSON.stringify(watchedValues)
+    ) {
+      setIsChanged(true);
+    } else {
+      setIsChanged(false);
+    }
+  }, [watchedValues, initialValues]);
+
+  // submit handler
+  const onSubmit: SubmitHandler<StepOneType> = async (data) => {
     const newFormData = { ...formData, ...data };
     setFormData(newFormData);
-
-    console.log("Data for Details step:", data);
-    console.log("Cumulative form data:", newFormData);
-
-    setStep("Picture");
+    console.log({ newFormData });
+    if (globalUser) {
+      const response = await postDetails(globalUser._id, newFormData);
+      console.log({ response });
+      setGlobalUser(response?.data);
+      setStep("image");
+    }
   };
 
   return (
@@ -84,7 +121,7 @@ const DetailsForm: React.FC<DetailsFormProps> = ({ setStep }) => {
         <div className="mt-4 grid grid-cols-2 gap-4">
           <FormField
             control={form.control}
-            name="username"
+            name="userName"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Username</FormLabel>
@@ -123,7 +160,7 @@ const DetailsForm: React.FC<DetailsFormProps> = ({ setStep }) => {
           />
           <FormField
             control={form.control}
-            name="birthdate"
+            name="dateOfBirth"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Birthdate</FormLabel>
@@ -201,12 +238,28 @@ const DetailsForm: React.FC<DetailsFormProps> = ({ setStep }) => {
           )}
         />
         <div className="flex justify-end gap-4">
-          <Button variant="outline" type="button">
+          {/* <Button variant="outline" type="button">
             Back
-          </Button>
-          <Button type="submit" className="text-white">
-            Next
-          </Button>
+          </Button> */}
+          {isChanged ? (
+            <Button
+              type="submit"
+              className="text-white"
+              disabled={form?.formState?.isSubmitting}
+            >
+              Next
+            </Button>
+          ) : (
+            <Button
+              className="text-white"
+              onClick={(e) => {
+                e.preventDefault();
+                setStep("image");
+              }}
+            >
+              Next
+            </Button>
+          )}
         </div>
       </form>
     </Form>

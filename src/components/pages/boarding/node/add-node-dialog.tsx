@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { addNode } from "../endpoint";
 import {
   Select,
   SelectContent,
@@ -25,16 +26,71 @@ import { Button } from "@/components/ui/button";
 import { MODULES } from "@/lib/constants/modules";
 import { Card } from "@/components/ui/card";
 import Image from "next/image";
-import { Search, X } from "lucide-react";
+import { Camera, Search, X } from "lucide-react";
 import { ICONS, IMGS } from "@/lib/constants";
+import { formatName } from "@/utils/text";
+import { toast } from "sonner";
+
+const MAX_FILE_SIZE = 2 * 1024 * 1024; // 5MB
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
+const fileSchema = z.z
+  .custom<File>()
+  .refine((file) => {
+    if (!file) return true; // Allow empty for optional files
+    return file instanceof File;
+  }, "Must be a valid file")
+  .refine((file) => {
+    if (!file) return true;
+    return file.size <= MAX_FILE_SIZE;
+  }, `File size should be less than 2MB`)
+  .refine((file) => {
+    if (!file) return true;
+    return ACCEPTED_IMAGE_TYPES.includes(file.type);
+  }, "Only .jpg, .jpeg, and .png formats are supported");
 
 // Validation schema using Zod
 const formSchema = z.object({
-  profilePhoto: z.string().optional(),
-  name: z.string().min(1, { message: "Node name is required" }),
-  about: z.string().min(1, { message: "About is required" }),
-  location: z.string().min(1, { message: "Location is required" }),
-  description: z.string().optional(),
+  profilePhoto: z
+    .union([
+      z.any(), // For existing image URLs
+      fileSchema,
+      z.undefined(),
+    ])
+    .optional(),
+  coverPhoto: z
+    .union([
+      z.any(), // For existing image URLs
+      fileSchema,
+      z.undefined(),
+    ])
+    .optional(),
+  name: z
+    .string()
+    .min(1, { message: "Node name is required" })
+    .refine((value) => value.trim().length > 0, {
+      message: "Node name cannot be empty ",
+    }),
+
+  about: z
+    .string()
+    .min(1, { message: "About is required" })
+    .refine((value) => value.trim().length > 0, {
+      message: "About cannot be empty ",
+    }),
+
+  location: z
+    .string()
+    .min(1, { message: "Location is required" })
+    .refine((value) => value.trim().length > 0, {
+      message: "Location cannot be empty ",
+    }),
+
+  description: z
+    .string()
+    .min(1, { message: "Description is required" }) // Ensure description is also required
+    .refine((value) => value.trim().length > 0, {
+      message: "Description cannot be empty ",
+    }), // Trim check
 });
 
 interface IProps {
@@ -43,12 +99,21 @@ interface IProps {
 }
 
 const DetailsForm = ({
-  form,
   onSubmit,
+  form,
 }: {
+  onSubmit: (values: {
+    profilePhoto?: File | null;
+    coverPhoto?: File | null;
+    name: string;
+    about: string;
+    location: string;
+    description: string;
+  }) => void;
   form: UseFormReturn<
     {
-      profilePhoto: string;
+      profilePhoto?: File | null;
+      coverPhoto?: File | null;
       name: string;
       about: string;
       location: string;
@@ -57,14 +122,18 @@ const DetailsForm = ({
     any,
     undefined
   >;
-  onSubmit: (values: {
-    profilePhoto: string;
-    name: string;
-    about: string;
-    location: string;
-    description: string;
-  }) => void;
 }) => {
+  const [coverPreviewUrl, setCoverPreviewUrl] = useState<string | null>(
+    form.getValues().coverPhoto
+      ? URL.createObjectURL(form.getValues().coverPhoto as File)
+      : null
+  );
+  const [profilePreviewUrl, setProfilePreviewUrl] = useState<string | null>(
+    form.getValues().profilePhoto
+      ? URL.createObjectURL(form.getValues().profilePhoto as File)
+      : null
+  );
+
   console.log("errors", form.formState.errors);
   return (
     <Form {...form}>
@@ -78,33 +147,113 @@ const DetailsForm = ({
           name="profilePhoto"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Select profile photo</FormLabel>
+              <FormLabel>Profile Photo</FormLabel>
               <FormControl>
-                <Input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      const reader = new FileReader();
-                      reader.onloadend = () => {
-                        // setPreviewUrl(reader.result);
-                        field.onChange(reader.result);
-                      };
-                      reader.readAsDataURL(file);
-                    }
-                  }}
-                />
+                <div className="flex flex-col items-center gap-4">
+                  <div className="relative group">
+                    <div className="relative w-24 h-24">
+                      {profilePreviewUrl ? (
+                        <img
+                          src={profilePreviewUrl}
+                          alt="Profile preview"
+                          className="w-24 h-24 rounded-md object-cover border-2 border-gray-200"
+                        />
+                      ) : (
+                        <div className="w-24 h-24 rounded-md bg-gray-100 flex items-center justify-center border-2 border-gray-200">
+                          <Camera className="w-8 h-8 text-gray-400" />
+                        </div>
+                      )}
+                      <label
+                        htmlFor="profilePhotoInput"
+                        className="absolute inset-0 flex items-center justify-center rounded-md cursor-pointer bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200"
+                      >
+                        <div className="text-white opacity-0 group-hover:opacity-100 flex flex-col items-center">
+                          <Camera className="w-6 h-6" />
+                          <span className="text-xs">Upload</span>
+                        </div>
+                      </label>
+                    </div>
+                    <input
+                      id="profilePhotoInput"
+                      type="file"
+                      className="hidden"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const url = URL.createObjectURL(file);
+                          setProfilePreviewUrl(url);
+                          field.onChange(file);
+                        }
+                      }}
+                    />
+                  </div>
+                  {profilePreviewUrl && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="text-red-500 hover:text-red-600 text-sm"
+                      onClick={() => {
+                        setProfilePreviewUrl(null);
+                        field.onChange("");
+                      }}
+                    >
+                      Remove photo
+                    </Button>
+                  )}
+                </div>
               </FormControl>
-              {/* {previewUrl && (
-                <div className="mt-2">
-                  <img
-                    src={previewUrl}
-                    alt="Preview"
-                    className="w-20 h-20 object-cover rounded"
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Cover Photo */}
+        <FormField
+          control={form.control}
+          name="coverPhoto"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-base font-medium">
+                Cover Photo
+              </FormLabel>
+              <FormControl>
+                <div className="relative">
+                  <label
+                    htmlFor="coverPhotoInput"
+                    className="block w-full h-48 rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors duration-200 cursor-pointer overflow-hidden group"
+                  >
+                    {coverPreviewUrl ? (
+                      <img
+                        src={coverPreviewUrl}
+                        alt="Cover preview"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex flex-col items-center justify-center h-full space-y-2">
+                        <Camera className="w-8 h-8 text-gray-400 group-hover:text-gray-500" />
+                        <span className="text-sm text-gray-500 group-hover:text-gray-600">
+                          Click to upload cover photo
+                        </span>
+                      </div>
+                    )}
+                  </label>
+                  <input
+                    id="coverPhotoInput"
+                    type="file"
+                    className="hidden"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const url = URL.createObjectURL(file);
+                        form.setValue("coverPhoto", file);
+                        setCoverPreviewUrl(url);
+                      }
+                    }}
                   />
                 </div>
-              )} */}
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
@@ -196,21 +345,42 @@ const AddNodeDialog = ({ open, setOpen }: IProps) => {
     "Details" | "Modules" | "Success"
   >("Details");
   const [selectedModules, setSelectedModules] = useState<string[]>([]);
-
-  const form = useForm({
+  const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      profilePhoto: "",
+      profilePhoto: null,
+      coverPhoto: null,
       name: "",
       about: "",
       location: "",
       description: "",
     },
   });
-
-  const onSubmit = (values: any) => {
-    console.log(values);
+  const onSubmitDetails = () => {
     setCurrentStep("Modules");
+  };
+  const onFinalSubmit = async () => {
+    const formData = new FormData();
+    const values = form.getValues();
+    if (values.profilePhoto)
+      formData.append("profileImage", values.profilePhoto);
+
+    if (values.coverPhoto) formData.append("coverImage", values.coverPhoto);
+    formData.append("name", formatName(values.name));
+    formData.append("about", values.about);
+    formData.append("location", values.location);
+    formData.append("description", values.description);
+    console.log("values", values);
+    try {
+      const response = await addNode(formData);
+      toast.success(response.message);
+      setCurrentStep("Success");
+    } catch (error: any) {
+      console.log(error);
+      toast.error(
+        error.message || error.response.data.message || "something went wrong"
+      );
+    }
   };
 
   return (
@@ -248,7 +418,7 @@ const AddNodeDialog = ({ open, setOpen }: IProps) => {
               />
             </div>
             {currentStep === "Details" ? (
-              <DetailsForm form={form} onSubmit={onSubmit} />
+              <DetailsForm form={form} onSubmit={onSubmitDetails} />
             ) : (
               <>
                 <div className="flex items-center gap-2 bg-slate-100 rounded-sm px-2">
@@ -314,10 +484,7 @@ const AddNodeDialog = ({ open, setOpen }: IProps) => {
                     </Button>
                     <Button
                       disabled={selectedModules.length === 0}
-                      onClick={
-                        // form.handleSubmit(onSubmit)
-                        () => setCurrentStep("Success")
-                      }
+                      onClick={onFinalSubmit}
                       className="w-full text-white py-2 rounded-lg"
                     >
                       Next
