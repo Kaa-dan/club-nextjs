@@ -28,10 +28,12 @@ const createAxiosInstance = () => {
   axiosInstance.interceptors.response.use(
     (response) => response, // Pass through successful responses
     (error) => {
+      const { clearStore } = useTokenStore((state) => state);
       if (error.response && error.response.status === 401) {
         // Redirect to /login if status is 401
         if (typeof window !== undefined) {
           window.location.href = "/sign-in";
+          clearStore();
         }
       }
       return Promise.reject(error);

@@ -43,7 +43,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           <NodeTeams />
         </>
       ) : (
-        "Loading"
+        "Loading..."
       )}
     </div>
   );
