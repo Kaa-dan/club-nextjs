@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link, Copy, LogOut, Search, Filter } from "lucide-react";
 import { useParams } from "next/navigation";
+import Invite from "@/components/pages/club/invite/invite";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,6 +34,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import CopyLink from "@/components/pages/club/invite/copy-link";
 
 export default function Page() {
   const [members, setMembers] = useState([]);
@@ -50,7 +52,7 @@ export default function Page() {
       .catch((err) => {
         console.log({ err });
       });
-  }, []);
+  }, [params.clubId]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const leaveMyClub = (clubId: string) => {
     Endpoints.leaveClub(params.clubId)
@@ -124,13 +126,25 @@ export default function Page() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Button className="gap-2">
-                <span>+ Invite</span>
-              </Button>
-              <Button variant="outline" className="gap-2">
-                <Copy className="h-4 w-4" />
-                <span>Copy Link</span>
-              </Button>
+              <Dialog>
+                <DialogTrigger>
+                  <Button className="gap-2">
+                    <span>+ Invite</span>
+                  </Button>
+                  <Invite />
+                </DialogTrigger>
+              </Dialog>
+
+              <Dialog>
+                <DialogTrigger>
+                  <Button variant="outline" className="gap-2">
+                    <Copy className="h-4 w-4" />
+
+                    <span>Copy Link</span>
+                  </Button>
+                </DialogTrigger>
+                <CopyLink />
+              </Dialog>
 
               <AlertDialog>
                 <AlertDialogTrigger asChild>
