@@ -99,4 +99,25 @@ export class Endpoints {
       throw error;
     }
   }
+
+  static async handleRequest(
+    clubId: string,
+    requestId: string,
+    status: string // Added closing quote here
+  ) {
+    console.log("api called");
+
+    try {
+      const response = await mainAxios.post("/clubs/handle-request", {
+        clubId,
+        requestId,
+        status,
+      });
+      console.log({ response });
+
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
 }

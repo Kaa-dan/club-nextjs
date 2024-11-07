@@ -52,3 +52,11 @@ export type TClub = {
   status: string;
   members?: any[];
 };
+
+export interface Request {
+  _id: string;
+  club: TClub;
+  user: TUser;
+  role: "member" | "admin" | "otherRole";
+  status: "REQUESTED" | "APPROVED" | "REJECTED";
+}

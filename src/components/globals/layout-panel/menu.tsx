@@ -139,6 +139,7 @@ export function Menu({ isOpen }: MenuProps) {
   const pathname = usePathname();
   const [menuList, setMenuList] = useState<any[]>();
   const [open, setOpen] = useState<boolean>(false);
+  console.log({ menuList });
 
   async function fetchMenuList() {
     const _menuList = await getMenuList(pathname);
