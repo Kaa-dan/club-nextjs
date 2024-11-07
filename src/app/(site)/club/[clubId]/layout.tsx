@@ -29,7 +29,7 @@ const Layout = ({
   params: Promise<LayoutParams> | LayoutParams;
 }) => {
   const [currentPage, setCurrentPage] = useState("modules");
-  const [club, setCLub] = useState<TClub>();
+  const [club, setCLub] = useState<{ club: TClub; members: Array<any> }>();
   const params = useParams<{ clubId: string }>();
   console.log({ params });
   // const {
@@ -57,7 +57,7 @@ const Layout = ({
             clubId={params?.clubId as string}
             currentPage={currentPage}
             setCurrentPage={setCurrentPage}
-            club={club as TClub}
+            club={club as { club: TClub; members: Array<any> }}
           />
         </div>
 

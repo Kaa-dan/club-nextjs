@@ -1,10 +1,18 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { ICONS } from "@/lib/constants";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
+import { Endpoints } from "@/utils/endpoint";
 
-const MemberApprovalTab = () => {
+const MemberApprovalTab: React.FC<{ clubId: string }> = ({ clubId }) => {
+  const [request, setRequest] = useState<number>(0);
+  const requestToShow = request > 10 ? "10" : request;
+  useEffect(() => {
+    Endpoints.fetchRequests(clubId).then((res) => {
+      setRequest(res.length);
+    });
+  }, []);
   return (
     <Link
       href={"approvals/member-approvals"}
@@ -28,9 +36,11 @@ const MemberApprovalTab = () => {
         </div>
       </div>
       <div className="flex justify-between gap-5">
-        <div className="bg-orange-500   p-2   rounded-xl">
-          <p className="text-white text-xs text-center ">1000+</p>
-        </div>
+        {request > 0 && (
+          <div className="bg-orange-500   p-2   rounded-xl">
+            <p className="text-white text-xs text-center ">{requestToShow}</p>
+          </div>
+        )}
 
         <div>
           <ChevronRight />

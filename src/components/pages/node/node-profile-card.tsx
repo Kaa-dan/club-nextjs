@@ -28,6 +28,8 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
   currentPage,
   setCurrentPage,
 }) => {
+  console.log({ node });
+
   const SECTIONS = [
     { name: "News Feed", icon: ICONS.NodeNewsFeedIcon, path: "/news-feed" },
     { name: "Modules", icon: ICONS.NodeModulesIcon, path: "/modules" },
@@ -70,11 +72,13 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
     },
   ];
   const router = useRouter();
+  console.log({ nodeImg: node });
+
   return (
     <div className="sticky top-16 h-fit max-h-[80vh] overflow-hidden rounded-lg bg-white pb-2 text-sm shadow-md md:min-w-60 md:max-w-60">
       <div className="relative">
         <Image
-          src={node.coverImage}
+          src={node?.coverImage?.url}
           alt="Cover"
           width={300}
           height={150}
@@ -83,7 +87,7 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
         />
         <div className="absolute left-4 top-14">
           <Image
-            src={node.profileImage}
+            src={node?.profileImage?.url as string}
             alt="Avatar"
             width={64}
             height={64}
@@ -93,10 +97,10 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
       </div>
       <div className="px-4">
         <div className="pt-8">
-          <h2 className="text-lg font-bold">{node.name}</h2>
-          <p className="text-xs text-gray-600">{node.about}</p>
+          <h2 className="text-lg font-bold">{node?.name}</h2>
+          <p className="text-xs text-gray-600">{node?.about}</p>
           <p className="text-xs text-gray-500">
-            {node.location} • {node.members.length}
+            {node?.location} • {node?.members?.length}
           </p>
         </div>
         <div className="thin-scrollbar mt-4 max-h-[50vh] space-y-2 overflow-y-auto pb-4">
@@ -115,21 +119,21 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
             >
               <span className="flex items-center space-x-2">
                 <Image
-                  src={section.icon}
-                  alt={section.name}
+                  src={section?.icon as string}
+                  alt={section?.name}
                   height={30}
                   width={30}
                   className="size-4"
                 />
-                <span>{section.name}</span>
+                <span>{section?.name}</span>
               </span>
               <div className="flex gap-2">
-                {section.notifications ? (
+                {section?.notifications ? (
                   <span
                     className="flex size-5 items-center justify-center rounded-full bg-orange-500 text-xs
                    font-medium text-white"
                   >
-                    {section.notifications}
+                    {section?.notifications}
                   </span>
                 ) : null}
                 <ChevronRight size={"1rem"} />

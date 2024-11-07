@@ -35,6 +35,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import CopyLink from "@/components/pages/club/invite/copy-link";
+import { TClub } from "@/types";
 
 export default function Page() {
   const [members, setMembers] = useState([]);
@@ -43,7 +44,7 @@ export default function Page() {
   const totalUsers = members.length;
   const remainingUsers = totalUsers - visibleUsers;
   const displayRemainingCount = remainingUsers > 100 ? "100+" : remainingUsers;
-
+  const [club, setClub] = useState<TClub>();
   useEffect(() => {
     Endpoints.fetchClubMembers(params.clubId as string)
       .then((res) => {
@@ -52,10 +53,18 @@ export default function Page() {
       .catch((err) => {
         console.log({ err });
       });
+
+    fetchSpecificClub(params.clubId)
+      .then((res) => {
+        setClub(res.club);
+      })
+      .catch((err) => {
+        console.log({ err });
+      });
   }, [params.clubId]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const leaveMyClub = (clubId: string) => {
-    Endpoints.leaveClub(params.clubId)
+    Endpoints.leaveClub(clubId)
       .then((res) => {
         console.log(res, "ress");
         toast.warning(res.message);
@@ -183,11 +192,7 @@ export default function Page() {
 
           <div className="space-y-2">
             <h3 className="font-semibold">Description</h3>
-            <p className="text-sm text-muted-foreground">
-              Our mission is simple but crucial: to protect and promote the
-              well-being of trees and forests. Together, we can make a positive
-              impact on our environment and leave a legacy
-            </p>
+            <p className="text-sm text-muted-foreground">{club?.description}</p>
           </div>
 
           <div className="grid grid-cols-4 gap-4 pt-4 border-t">
@@ -217,15 +222,7 @@ export default function Page() {
         <CardContent>
           <div className="space-y-2">
             <h3 className="font-semibold">About</h3>
-            <p className="text-sm text-muted-foreground">
-              Our mission is simple but crucial: to protect and promote the
-              well-being of trees and forests. Together, we can make a positive
-              impact on our environment and leave a legacy for generations to
-              come. Our mission is simple but crucial: to protect and promote
-              the well-being of trees and forests. Together, we can make a
-              positive impact on our environment and leave a legacy for
-              generations to come.
-            </p>
+            <p className="text-sm text-muted-foreground">{club?.about}</p>
             <Button variant="link" className="text-sm p-0">
               see all
             </Button>

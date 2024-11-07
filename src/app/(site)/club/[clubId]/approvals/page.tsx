@@ -1,11 +1,15 @@
+"use client";
 import React from "react";
 import Image from "next/image";
 import { ICONS } from "@/lib/constants";
 import ClubPostApproval from "@/components/pages/club/club-post-approval";
 import MemberApprovalTab from "@/components/pages/club/member-approval-tab";
 import { Button } from "@/components/ui/button";
+import { useParams } from "next/navigation";
 
 const page = () => {
+  const params = useParams<{ clubId: string }>();
+
   return (
     <>
       <div className="flex items-center justify-center ">
@@ -14,7 +18,7 @@ const page = () => {
         <div className="w-16 border-t border-gray-300"></div>
       </div>
 
-      <MemberApprovalTab />
+      <MemberApprovalTab clubId={params.clubId} />
       <div className="bg-white   shadow-sm flex justify-between items-center p-4 rounded-md">
         <div className="flex items-center gap-2">
           <Image

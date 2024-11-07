@@ -5,8 +5,14 @@ export type TNodeData = {
   location: string;
   descripion: string;
   members: { user: any; role: "admin" | "moderator" | "member" }[];
-  coverImage: string;
-  profileImage: string;
+  coverImage: {
+    fileName: string;
+    url: string;
+  };
+  profileImage: {
+    fileName: string;
+    url: string;
+  };
 };
 
 export type TUser = {

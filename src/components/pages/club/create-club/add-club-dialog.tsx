@@ -5,6 +5,7 @@ import * as z from "zod";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { addClub } from "../endpoint";
+import { useRouter } from "next/navigation";
 import {
   Select,
   SelectContent,
@@ -26,7 +27,7 @@ import { Button } from "@/components/ui/button";
 import { MODULES } from "@/lib/constants/modules";
 import { Card } from "@/components/ui/card";
 import Image from "next/image";
-import { Camera, Search, X } from "lucide-react";
+import { Camera, LoaderCircle, Search, X } from "lucide-react";
 import { ICONS, IMGS } from "@/lib/constants";
 import { formatName } from "@/utils/text";
 import { toast } from "sonner";
@@ -340,6 +341,9 @@ const DetailsForm = ({
 };
 
 const AddClubDialog = ({ open, setOpen }: IProps) => {
+  const [load, setLoad] = useState<Boolean>(false);
+  const router = useRouter();
+  const [clubId, setClubId] = useState<string>();
   const [currentStep, setCurrentStep] = useState<
     "Details" | "Modules" | "Success"
   >("Details");
@@ -359,6 +363,7 @@ const AddClubDialog = ({ open, setOpen }: IProps) => {
     setCurrentStep("Modules");
   };
   const onFinalSubmit = async () => {
+    setLoad(true);
     const formData = new FormData();
     const values = form.getValues();
     if (values.profilePhoto)
@@ -372,17 +377,22 @@ const AddClubDialog = ({ open, setOpen }: IProps) => {
     console.log("values", values);
     try {
       const response = await addClub(formData);
+      setClubId(response._id);
 
-      toast.success(response.descripion);
       setCurrentStep("Success");
     } catch (error: any) {
       console.log(error);
       toast.error(
         error.message || error.response.data.message || "something went wrong"
       );
+    } finally {
+      setLoad(false);
     }
   };
-
+  const handleModal = () => {
+    router.push(`/club/${clubId}`);
+    setOpen(false);
+  };
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent>
@@ -401,8 +411,12 @@ const AddClubDialog = ({ open, setOpen }: IProps) => {
                 "Creating a code of conduct for a social media group is essential to maintain a positive and respectful online "
               }
             </span>
-            <Button variant={"outline"} className="text-black border-black">
-              View node
+            <Button
+              onClick={handleModal}
+              variant={"outline"}
+              className="text-black border-black"
+            >
+              View Club
             </Button>
           </div>
         ) : (
@@ -476,6 +490,7 @@ const AddClubDialog = ({ open, setOpen }: IProps) => {
 
                   <div className="flex gap-2 w-1/2 ml-auto">
                     <Button
+                      disabled={load as boolean}
                       onClick={() => setCurrentStep("Details")}
                       variant={"outline"}
                       className="w-full text-black border-black py-2 rounded-lg"
@@ -483,11 +498,17 @@ const AddClubDialog = ({ open, setOpen }: IProps) => {
                       Previous
                     </Button>
                     <Button
-                      disabled={selectedModules.length === 0}
+                      disabled={
+                        selectedModules.length === 0 || (load as boolean)
+                      }
                       onClick={onFinalSubmit}
                       className="w-full text-white py-2 rounded-lg"
                     >
-                      Next
+                      {load ? (
+                        <LoaderCircle className="animate-spin" />
+                      ) : (
+                        "Next"
+                      )}
                     </Button>
                   </div>
                 </div>
