@@ -2,6 +2,7 @@
 
 import LeftScreen from "@/components/globals/auth/auth-left";
 import { BoardingForm } from "@/components/pages/boarding/boarding-form";
+import { useTokenStore } from "@/store/store";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 

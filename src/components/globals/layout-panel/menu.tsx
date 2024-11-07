@@ -41,6 +41,7 @@ import { Label } from "@/components/ui/label";
 import { boolean } from "zod";
 import { pinClub } from "@/components/pages/club/endpoint";
 import { toast } from "sonner";
+import { useTokenStore } from "@/store/store";
 interface MenuProps {
   isOpen: boolean | undefined;
 }
@@ -128,6 +129,8 @@ const nodes: Node[] = [
 ];
 
 export function Menu({ isOpen }: MenuProps) {
+  const { clearStore } = useTokenStore((state) => state);
+
   const togglePinClub = async (clubId: string) => {
     try {
       const response = await pinClub(clubId);
@@ -165,7 +168,7 @@ export function Menu({ isOpen }: MenuProps) {
                 key={index}
               >
                 {(isOpen && groupLabel) || isOpen === undefined ? (
-                  <p className="max-w-[248px] truncate  px-4 pb-2 text-sm font-medium text-muted-foreground">
+                  <p className="text-muted-foreground max-w-[248px]  truncate px-4 pb-2 text-sm font-medium">
                     {/* {groupLabel} */}
                     {groupLabel === "Nodes" ? (
                       <Image
@@ -364,7 +367,7 @@ export function Menu({ isOpen }: MenuProps) {
                                       {menuItems.map((node: any) => (
                                         <button
                                           key={node._id}
-                                          className="flex flex-col items-center gap-1 rounded-lg p-1 text-center hover:bg-muted"
+                                          className="hover:bg-muted flex flex-col items-center gap-1 rounded-lg p-1 text-center"
                                         >
                                           <ContextMenu>
                                             <ContextMenuTrigger>
@@ -379,7 +382,7 @@ export function Menu({ isOpen }: MenuProps) {
                                             </ContextMenuTrigger>
                                             <ContextMenuContent>
                                               <ContextMenuItem>
-                                                <div className="flex cursor-pointer  w-[100%] items-center justify-between">
+                                                <div className="flex w-full  cursor-pointer items-center justify-between">
                                                   <div>Pin</div>
                                                   <div>
                                                     <Pin
@@ -490,7 +493,7 @@ export function Menu({ isOpen }: MenuProps) {
                                       </ContextMenuTrigger>
                                       <ContextMenuContent>
                                         <ContextMenuItem>
-                                          <div className="flex justify-between cursor-pointer items-center w-[100%]">
+                                          <div className="flex w-full cursor-pointer items-center justify-between">
                                             <div>
                                               <div>Pins</div>
                                             </div>
@@ -524,7 +527,7 @@ export function Menu({ isOpen }: MenuProps) {
                           </Tooltip>
                         </TooltipProvider>
                         {index === 0 && groupLabel === "Nodes" && (
-                          <span className="absolute -left-2 top-1.5 h-9 w-2 rounded-r-md bg-primary/80"></span>
+                          <span className="bg-primary/80 absolute -left-2 top-1.5 h-9 w-2 rounded-r-md"></span>
                         )}
                       </div>
                     ) : (
@@ -548,7 +551,10 @@ export function Menu({ isOpen }: MenuProps) {
               <Tooltip delayDuration={100}>
                 <TooltipTrigger asChild>
                   <Button
-                    onClick={() => {}}
+                    onClick={() => {
+                      clearStore();
+                      router.replace("/sign-in");
+                    }}
                     variant="outline"
                     className="mt-5 h-10 w-full justify-center"
                   >

@@ -11,14 +11,14 @@ const SiteLayout = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const accessToken = localStorage.getItem("access-token");
-    if (globalUser !== null) {
-      if (!accessToken) {
-        router.replace("/sign-in");
-      } else if (!globalUser?.isOnBoarded) {
-        router.replace("/onboarding");
-      }
+    const isOnBoarded = localStorage.getItem("isOnboarded") === "true";
+    console.log("site", isOnBoarded);
+    if (!accessToken) {
+      router.replace("/sign-in");
+    } else if (!isOnBoarded) {
+      router.replace("/onboarding");
     }
-  }, [globalUser]);
+  }, [router]);
 
   return (
     <section className="bg-green-400">
