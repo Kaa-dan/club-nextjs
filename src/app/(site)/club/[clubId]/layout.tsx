@@ -1,22 +1,11 @@
 "use client";
 import ClubProfileCard from "@/components/pages/club/club-profile-card";
 import ModulesBar from "@/components/pages/club/module-bar";
-import NodeProfileCard from "@/components/pages/node/node-profile-card";
 import NodeTeams from "@/components/pages/node/node-teams";
 import React, { useEffect, useState } from "react";
 import { fetchSpecificClub } from "@/components/pages/club/endpoint";
 import { useParams } from "next/navigation";
-import { useHandleParams } from "@/hooks/use-handle-params";
 import { TClub } from "@/types";
-// const dummyClubData = {
-//   name: "Gretchen Lehner",
-//   descripion:
-//     "Lead Markets Architect  with an actual image path or URL with an actual image path or URL",
-//   isPublic: false,
-//   membersCount: "2.4k Members",
-//   avatar: "https://picsum.photos/200", // Replace with an actual image path or URL
-//   coverImage: "https://picsum.photos/500/200", // Replace with an actual image path or URL
-// };
 
 interface LayoutParams {
   clubId: string;
@@ -31,12 +20,6 @@ const Layout = ({
   const [currentPage, setCurrentPage] = useState("modules");
   const [club, setCLub] = useState<TClub>();
   const params = useParams<{ clubId: string }>();
-  console.log({ params });
-  // const {
-  //   params: resolvedParams,
-  //   isLoading,
-  //   error,
-  // } = useHandleParams<LayoutParams>(params);
 
   useEffect(() => {
     if (params.clubId) {
@@ -51,49 +34,30 @@ const Layout = ({
   }, [params.clubId]);
 
   return (
-    <div className="flex w-full gap-6 bg-green-200">
-      <div className="flex w-3/4 gap-2 bg-red-100">
-        <div className="min-w-56 bg-yellow-200">
-          {" "}
-          <ClubProfileCard
-            clubId={params?.clubId as string}
-            currentPage={currentPage}
-            setCurrentPage={setCurrentPage}
-            club={club as TClub}
-          />
+    <div className="flex h-screen ">
+      <div className="hidden w-56 shrink-0 flex-col  py-4 lg:flex">
+        <ClubProfileCard
+          clubId={params?.clubId as string}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          club={club as TClub}
+        />
+      </div>
+
+      <div className="flex w-full flex-col lg:w-3/5">
+        <div className="sticky top-0 z-10  p-4">
+          <ModulesBar />
         </div>
 
-        <div className="flex w-3/5 flex-col gap-4 ">
-          <ModulesBar />
+        <div className="thin-scrollbar grow overflow-y-auto p-4">
           {children}
         </div>
       </div>
-      <div className="w-1/4">
+
+      <div className="hidden w-56 shrink-0 flex-col  py-4 lg:flex">
         <NodeTeams />
       </div>
     </div>
-    // <div className="flex w-full gap-4">
-    //   {/* Left section - ClubProfileCard */}
-    //   <div className="w-1/4">
-    //     <ClubProfileCard
-    //       clubId={params?.clubId as string}
-    //       currentPage={currentPage}
-    //       setCurrentPage={setCurrentPage}
-    //       club={club as TClub}
-    //     />
-    //   </div>
-
-    //   {/* Middle section - Main content */}
-    //   <div className="flex w-1/2 flex-col gap-4">
-    //     <ModulesBar />
-    //     {children}
-    //   </div>
-
-    //   {/* Right section - Teams */}
-    //   <div className="w-1/4">
-    //     <NodeTeams />
-    //   </div>
-    // </div>
   );
 };
 

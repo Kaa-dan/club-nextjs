@@ -88,7 +88,7 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
       });
   }, [club?._id]);
   return (
-    <div className="sticky top-16 h-fit  max-h-[80vh] overflow-hidden rounded-lg bg-white pb-2 shadow-md">
+    <div className="sticky top-16 h-fit max-h-[80vh]  w-full overflow-hidden rounded-lg bg-white pb-2 shadow-md">
       <div className="relative">
         {club?.coverImage && (
           <Image
@@ -152,7 +152,7 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
               key={section.name}
               className={`flex w-full items-center justify-between rounded-md p-2 ${
                 currentPage === section.name
-                  ? "border border-primary bg-green-50"
+                  ? "border-primary border bg-green-50"
                   : "border border-white hover:bg-gray-100"
               }`}
               onClick={() => {

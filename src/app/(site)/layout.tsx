@@ -21,7 +21,7 @@ const SiteLayout = ({ children }: { children: React.ReactNode }) => {
   }, [globalUser]);
 
   return (
-    <section>
+    <section className="bg-green-400">
       <LayoutPanel>{children}</LayoutPanel>
     </section>
   );

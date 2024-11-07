@@ -52,9 +52,9 @@ const NodeTeams: React.FC = () => {
   ];
 
   return (
-    <div className="bg-white shadow-md rounded-lg p-4 w-[25%] h-fit text-xs max-w-sm mx-auto sticky top-16">
+    <div className="sticky top-16 mx-auto h-fit max-w-sm rounded-lg bg-white p-4 text-xs shadow-md ">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="mb-4 flex items-center justify-between">
         <h2 className="text-base font-semibold text-gray-800">Gretchen Team</h2>
         <Button variant="outline" className="text-xs text-black" size={"sm"}>
           + Create team
@@ -66,7 +66,7 @@ const NodeTeams: React.FC = () => {
         {teams.map((team, index) => (
           <div
             key={index}
-            className="flex items-center justify-between p-1 py-2 rounded-lg border-t hover:bg-gray-100"
+            className="flex items-center justify-between rounded-lg border-t p-1 py-2 hover:bg-gray-100"
           >
             {/* Team Icon */}
             <div className="flex items-center gap-2">
@@ -79,10 +79,10 @@ const NodeTeams: React.FC = () => {
               />
 
               {/* Team Info */}
-              <div className=" flex-grow w-2/3">
+              <div className=" w-2/3 grow">
                 <p className="font-semibold text-gray-800">{team.name}</p>
                 <p
-                  className={`text-xs ${team.badge ? "text-gray-700 font-medium" : "text-gray-500"}  truncate`}
+                  className={`text-xs ${team.badge ? "font-medium text-gray-700" : "text-gray-500"}  truncate`}
                 >
                   {team.message}
                 </p>
@@ -92,17 +92,17 @@ const NodeTeams: React.FC = () => {
             {/* Badge */}
             <div className="flex items-center">
               {team.badge && (
-                <Badge className="bg-green-500 text-white text-xs px-2 py-1 rounded-full">
+                <Badge className="rounded-full bg-green-500 px-2 py-1 text-xs text-white">
                   {team.badge}
                 </Badge>
               )}
 
               {/* Options Dropdown Menu */}
               <DropdownMenu>
-                <DropdownMenuTrigger className="p-2 outline-none rounded-full">
+                <DropdownMenuTrigger className="rounded-full p-2 outline-none">
                   <Ellipsis
                     size={"1.2rem"}
-                    className="text-slate-500 rotate-90"
+                    className="rotate-90 text-slate-500"
                   />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-32">
