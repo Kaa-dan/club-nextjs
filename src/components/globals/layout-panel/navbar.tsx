@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ICONS } from "@/lib/constants";
 import { Cross, Search, X } from "lucide-react";
-import dummyImage from "/home/ashmil/Pictures/wall/asdfasdfasdfcom_wallpaper.jpg";
 import { toast } from "sonner";
 import { SharedEndpoints } from "@/utils/endpoints/shared";
 import club from "/public/icons/club-grey.icon.svg";
@@ -205,7 +204,7 @@ export const Navbar: React.FC = () => {
         {isSearchModal && (
           <div
             ref={modalRef}
-            className="absolute left-4 top-14 flex max-h-[65vh] min-w-[36vw] flex-col gap-4 overflow-y-scroll rounded-lg bg-white p-4 shadow-full-screen-overlay"
+            className="shadow-full-screen-overlay absolute left-4 top-14 flex max-h-[65vh] min-w-[36vw] flex-col gap-4 overflow-y-scroll rounded-lg bg-white p-4"
           >
             <div className="flex flex-col gap-2">
               <div className="text-base text-gray-600">Looking For....</div>
@@ -240,7 +239,7 @@ export const Navbar: React.FC = () => {
                           className="flex cursor-pointer items-center gap-6"
                         >
                           <Image
-                            src={node?.profileImage?.url || dummyImage}
+                            src={node?.profileImage?.url}
                             className="size-8 rounded-sm"
                             alt="search-icon"
                           />
@@ -264,7 +263,7 @@ export const Navbar: React.FC = () => {
                           className="flex cursor-pointer items-center gap-6"
                         >
                           <Image
-                            src={club?.profileImage?.url || dummyImage}
+                            src={club?.profileImage?.url}
                             className="size-8 rounded-sm"
                             width={32}
                             height={32}

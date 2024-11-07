@@ -67,7 +67,8 @@ export function SignInForm() {
         ? router.replace("/")
         : router.replace("/onboarding");
     } catch (error: any) {
-      toast.error(error.response.data.message);
+      console.log(error.message);
+      toast.error(error?.response?.data?.message);
     }
   };
 
@@ -161,7 +162,7 @@ export function SignInForm() {
               <Button
                 disabled={form.formState.isSubmitting}
                 type="submit"
-                className="w-full rounded-lg bg-primary p-2 text-white"
+                className="bg-primary w-full rounded-lg p-2 text-white"
               >
                 Login with Clubwize
               </Button>
