@@ -1,7 +1,7 @@
 "use client";
 
 // components/Navbar.tsx
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import Image from "next/image";
@@ -16,16 +16,19 @@ import { Cross, Search, X } from "lucide-react";
 import dummyImage from "/home/ashmil/Pictures/wall/asdfasdfasdfcom_wallpaper.jpg";
 import { toast } from "sonner";
 import { SharedEndpoints } from "@/utils/endpoints/shared";
+import club from "/public/icons/club-grey.icon.svg";
+import node from "/public/icons/node-grey.icon.svg";
 
 interface searchBtn {
   id: number;
+  icon: string;
   Btn: string;
   alt: string;
 }
 
 const searchBtns: searchBtn[] = [
-  { id: 1, Btn: "Node", alt: "Node Icon" },
-  { id: 2, Btn: "Club", alt: "club Icon" },
+  { id: 1, icon: node, Btn: "Node", alt: "Node Icon" },
+  { id: 2, icon: club, Btn: "Club", alt: "club Icon" },
   // { id: 3, Btn: "Tags", alt: "hash Icon" },
   // { id: 4, Btn: "Post", alt: "plus Icon" },
   // { id: 5, Btn: "People", alt: "people Icon" },
@@ -43,10 +46,31 @@ export const Navbar: React.FC = () => {
   const [selectedButton, setSelectedButton] = useState<searchBtn | null>(null);
   const [tag, setTag] = useState<string | null>(null);
 
+  const modalRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        modalRef.current &&
+        inputRef.current &&
+        !modalRef.current.contains(event.target as Node) &&
+        !inputRef.current.contains(event.target as Node)
+      ) {
+        setIsSearchModal(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   const handleSearch = async (term: string, tag?: string) => {
     try {
-      const response = await SharedEndpoints.search(term);
-      console.log(response?.data?.clubs, "response");
+      const response = await SharedEndpoints.search(term, tag);
+      console.log(response?.data, "response");
       setClubs(response?.data?.clubs || []);
       setNodes(response?.data?.nodes || []);
     } catch (error) {
@@ -60,6 +84,7 @@ export const Navbar: React.FC = () => {
   ) => {
     const term = event.target.value;
     console.log(term, "term");
+    console.log(tag, "tag");
     setSearchTerm(term);
     if (term !== "") {
       tag ? handleSearch(term, tag) : handleSearch(term);
@@ -79,14 +104,21 @@ export const Navbar: React.FC = () => {
       <div className="relative w-full">
         <div className="flex w-full gap-4">
           {/* Search Bar */}
-          <div className="z-30 flex w-[75%] items-center rounded-md bg-white px-2 shadow-md">
+          <div
+            ref={inputRef}
+            className="z-30 flex w-3/4 items-center rounded-md bg-white px-2 shadow-md"
+          >
             <Search className="text-slate-500" size={"1.2rem"} />
             {selectedButton && (
-              <div className="ml-2 flex w-max cursor-pointer gap-2 rounded-md border-2 border-gray-400 bg-white px-2 text-base">
+              <div className="ml-2 flex w-max cursor-pointer items-center gap-2 rounded-md border-2 border-gray-400 bg-white px-2 text-base">
+                <Image src={selectedButton.icon} alt={selectedButton.alt} />
                 {selectedButton.Btn}
                 <X
-                  className="size-4 self-center"
-                  onClick={() => setSelectedButton(null)}
+                  className="size-8 self-center"
+                  onClick={() => {
+                    setSelectedButton(null);
+                    setTag(null);
+                  }}
                 />
               </div>
             )}
@@ -171,16 +203,20 @@ export const Navbar: React.FC = () => {
           </div>
         </div>
         {isSearchModal && (
-          <div className="absolute left-4 top-14 flex max-h-[65vh] min-w-[36vw] flex-col gap-4 overflow-y-scroll rounded-lg bg-white p-4 shadow-full-screen-overlay">
+          <div
+            ref={modalRef}
+            className="absolute left-4 top-14 flex max-h-[65vh] min-w-[36vw] flex-col gap-4 overflow-y-scroll rounded-lg bg-white p-4 shadow-full-screen-overlay"
+          >
             <div className="flex flex-col gap-2">
               <div className="text-base text-gray-600">Looking For....</div>
               <div className="flex gap-3">
                 {searchBtns.map((button, index) => (
                   <div
                     key={index}
-                    className="w-max cursor-pointer rounded-md border-2 border-gray-400 bg-gray-200 px-2 text-base hover:border-gray-300 hover:bg-gray-300"
+                    className="flex w-max cursor-pointer gap-2 rounded-md border-2 border-gray-400 bg-gray-200 px-2 text-base hover:border-gray-300 hover:bg-gray-300"
                     onClick={() => handleButtonClick(button)}
                   >
+                    <Image src={button.icon} alt={button.alt} />
                     {button.Btn}
                   </div>
                 ))}
@@ -189,7 +225,7 @@ export const Navbar: React.FC = () => {
                 </div> */}
               </div>
             </div>
-            {nodes.length > 0 && clubs.length > 0 ? (
+            {!(nodes.length <= 0 && clubs.length <= 0) ? (
               <>
                 {nodes.length > 0 && (
                   <div className="flex flex-col gap-2">
