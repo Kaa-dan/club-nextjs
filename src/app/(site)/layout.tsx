@@ -11,14 +11,13 @@ const SiteLayout = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const accessToken = localStorage.getItem("access-token");
-    console.log("site");
-    // if (globalUser !== null) {
+    const isOnBoarded = localStorage.getItem("isOnboarded") === "true";
+    console.log("site", isOnBoarded);
     if (!accessToken) {
       router.replace("/sign-in");
-    } else if (!globalUser?.isOnBoarded) {
+    } else if (!isOnBoarded) {
       router.replace("/onboarding");
     }
-    // }
   }, [globalUser]);
 
   return (

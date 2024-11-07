@@ -15,11 +15,11 @@ export default function AuthLayout({
 
   useEffect(() => {
     const accessToken = localStorage.getItem("access-token");
-    if (globalUser !== null) {
-      if (accessToken) {
-        const destination = globalUser?.isOnBoarded ? "/" : "/onboarding";
-        router.replace(destination);
-      }
+    const isOnBoarded = localStorage.getItem("isOnboarded") === "true";
+    console.log("auth", isOnBoarded);
+    if (accessToken) {
+      const destination = isOnBoarded ? "/" : "/onboarding";
+      router.replace(destination);
     }
     setIsLoading(false);
   }, [globalUser]);
