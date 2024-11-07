@@ -139,7 +139,6 @@ export function Menu({ isOpen }: MenuProps) {
   const pathname = usePathname();
   const [menuList, setMenuList] = useState<any[]>();
   const [open, setOpen] = useState<boolean>(false);
-  console.log({ menuList });
 
   async function fetchMenuList() {
     const _menuList = await getMenuList(pathname);
@@ -360,58 +359,67 @@ export function Menu({ isOpen }: MenuProps) {
                                         </Button>
                                       </div>
                                     </div>
-                                    <div className="grid grid-cols-5 gap-3 p-4">
-                                      {menuItems.map((node: any) => (
-                                        <button
-                                          key={node._id}
-                                          className="flex flex-col items-center gap-1 rounded-lg p-1 text-center hover:bg-muted"
-                                        >
-                                          <ContextMenu>
-                                            <ContextMenuTrigger>
-                                              <div className="relative size-12 overflow-hidden rounded-lg">
-                                                <Image
-                                                  src={node?.image}
-                                                  alt={node?.name || "profile"}
-                                                  fill
-                                                  className="object-cover"
-                                                />
-                                              </div>
-                                            </ContextMenuTrigger>
-                                            <ContextMenuContent>
-                                              <ContextMenuItem>
-                                                <div className="flex cursor-pointer  w-[100%] items-center justify-between">
-                                                  <div>Pin</div>
-                                                  <div>
-                                                    <Pin
-                                                      onClick={() => {
-                                                        if (
-                                                          groupLabel === "Clubs"
-                                                        ) {
-                                                          togglePinClub(
-                                                            node._id
-                                                          );
-                                                        } else if (
-                                                          groupLabel === "Nodes"
-                                                        ) {
-                                                          // togglePinNode(
-                                                          //   node._id
-                                                          // );
-                                                        }
-                                                      }}
-                                                      strokeWidth={0.75}
-                                                    />
-                                                  </div>
+                                    {menuItems.length > 0 ? (
+                                      <div className="grid grid-cols-5 gap-3 p-4">
+                                        {menuItems.map((node: any) => (
+                                          <button
+                                            key={node._id}
+                                            className="flex flex-col items-center gap-1 rounded-lg p-1 text-center hover:bg-muted"
+                                          >
+                                            <ContextMenu>
+                                              <ContextMenuTrigger>
+                                                <div className="relative size-12 overflow-hidden rounded-lg">
+                                                  <Image
+                                                    src={node?.image}
+                                                    alt={
+                                                      node?.name || "profile"
+                                                    }
+                                                    fill
+                                                    className="object-cover"
+                                                  />
                                                 </div>
-                                              </ContextMenuItem>
-                                            </ContextMenuContent>
-                                          </ContextMenu>
-
-                                          <span className="text-[11px] leading-tight">
-                                            {node.name}
-                                          </span>
-                                        </button>
-                                      ))}
-                                    </div>
+                                              </ContextMenuTrigger>
+                                              <ContextMenuContent>
+                                                <ContextMenuItem>
+                                                  <div className="flex cursor-pointer w-[100%] items-center justify-between">
+                                                    <div>Pin</div>
+                                                    <div>
+                                                      <Pin
+                                                        onClick={() => {
+                                                          if (
+                                                            groupLabel ===
+                                                            "Clubs"
+                                                          ) {
+                                                            togglePinClub(
+                                                              node._id
+                                                            );
+                                                          } else if (
+                                                            groupLabel ===
+                                                            "Nodes"
+                                                          ) {
+                                                            // togglePinNode(node._id);
+                                                          }
+                                                        }}
+                                                        strokeWidth={0.75}
+                                                      />
+                                                    </div>
+                                                  </div>
+                                                </ContextMenuItem>
+                                              </ContextMenuContent>
+                                            </ContextMenu>
+                                            <span className="text-[11px] leading-tight">
+                                              {node.name}
+                                            </span>
+                                          </button>
+                                        ))}
+                                      </div>
+                                    ) : (
+                                      <p className="text-center text-gray-600 p-10">
+                                        You haven’t joined any {groupLabel} yet.
+                                        Start exploring and join one to see it
+                                        here!
+                                      </p>
+                                    )}
                                   </PopoverContent>
                                 </Popover>
                               ) : (
