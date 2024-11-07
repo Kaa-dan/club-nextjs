@@ -22,8 +22,6 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
   setCurrentPage,
   clubId,
 }) => {
-  console.log(club?._id, "ceee");
-
   const [joinStatus, setJoinStatus] = useState<String>("");
   const router = useRouter();
   const SECTIONS = [
@@ -88,7 +86,7 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
       });
   }, [club?._id]);
   return (
-    <div className="bg-white rounded-lg shadow-md  sticky top-16 h-fit max-h-[80vh] overflow-hidden pb-2">
+    <div className="sticky top-16 h-fit max-h-[80vh]  w-full overflow-hidden rounded-lg bg-white pb-2 shadow-md">
       <div className="relative">
         {club?.coverImage && (
           <Image
@@ -96,12 +94,12 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
             alt="Cover"
             width={300}
             height={150}
-            className="w-full h-24 object-cover rounded-t-lg"
+            className="h-24 w-full rounded-t-lg object-cover"
             layout="responsive"
           />
         )}
 
-        <div className="absolute top-14 left-4">
+        <div className="absolute left-4 top-14">
           {club?.profileImage?.url && (
             <Image
               src={club?.profileImage?.url}
@@ -113,12 +111,12 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
           )}
         </div>
       </div>
-      <div className="px-4 mt-6">
-        <div className="gap-2 flex justify-center flex-col">
+      <div className="mt-6 px-4">
+        <div className="flex flex-col justify-center gap-2">
           <h2 className="text-lg font-bold">{club?.name}</h2>
           <p className="text-xs text-gray-500">{club?.description}</p>
-          <p className="text-xs text-gray-700 mt-2 font-medium flex">
-            <span className="flex gap-1 items-center">
+          <p className="mt-2 flex text-xs font-medium text-gray-700">
+            <span className="flex items-center gap-1">
               {club?.isPublic ? (
                 <>
                   <Globe2 size={"0.8rem"} />
@@ -136,7 +134,7 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
           <div>
             <Button
               onClick={() => joinToClub(clubId)}
-              className="w-full h-8 bg-transparent text-gray-500 hover:bg-transparent border-gray-500 border"
+              className="h-8 w-full border border-gray-500 bg-transparent text-gray-500 hover:bg-transparent"
               disabled={joinStatus === "REQUESTED" || joinStatus === "MEMBER"} // Disable when requested or joined
             >
               {club?.isPublic && joinStatus === "VISITOR" && "Join"}
@@ -146,14 +144,14 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
             </Button>
           </div>
         </div>
-        <div className="mt-4 space-y-2 overflow-y-auto max-h-[50vh] thin-scrollbar pb-4">
+        <div className="thin-scrollbar mt-4 max-h-[50vh] space-y-2 overflow-y-auto pb-4">
           {SECTIONS.map((section) => (
             <button
               key={section.name}
-              className={`flex items-center justify-between w-full p-2 rounded-md ${
+              className={`flex w-full items-center justify-between rounded-md p-2 ${
                 currentPage === section.name
-                  ? "bg-green-50 border-primary border"
-                  : "hover:bg-gray-100 border border-white"
+                  ? "border-primary border bg-green-50"
+                  : "border border-white hover:bg-gray-100"
               }`}
               onClick={() => {
                 setCurrentPage(section.name);
@@ -173,8 +171,8 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
               <div className="flex gap-2">
                 {section.notifications ? (
                   <span
-                    className="bg-orange-500 text-white text-xs font-medium rounded-full flex items-center
-                   justify-center size-5"
+                    className="flex size-5 items-center justify-center rounded-full bg-orange-500 text-xs
+                   font-medium text-white"
                   >
                     {section.notifications}
                   </span>

@@ -11,17 +11,16 @@ const SiteLayout = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const accessToken = localStorage.getItem("access-token");
-    if (globalUser !== null) {
-      if (!accessToken) {
-        router.replace("/sign-in");
-      } else if (!globalUser?.isOnBoarded) {
-        router.replace("/onboarding");
-      }
+    const isOnBoarded = localStorage.getItem("isOnboarded") === "true";
+    if (!accessToken) {
+      router.replace("/sign-in");
+    } else if (!isOnBoarded) {
+      router.replace("/onboarding");
     }
-  }, [globalUser]);
+  }, [router]);
 
   return (
-    <section>
+    <section className="bg-green-400">
       <LayoutPanel>{children}</LayoutPanel>
     </section>
   );
