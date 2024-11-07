@@ -12,15 +12,17 @@ export default function AuthLayout({
   const router = useRouter();
   const { globalUser } = useTokenStore((state) => state);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   useEffect(() => {
     const accessToken = localStorage.getItem("access-token");
+    const isOnBoarded = localStorage.getItem("isOnboarded") === "true";
+    console.log("auth", isOnBoarded);
     if (accessToken) {
-      const destination = globalUser?.isOnBoarded ? "/" : "/onboarding";
+      const destination = isOnBoarded ? "/" : "/onboarding";
       router.replace(destination);
     }
     setIsLoading(false);
-  }, [globalUser]);
+  }, [router]);
 
   if (isLoading) {
     return <div>loading....</div>;

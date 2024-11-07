@@ -55,6 +55,7 @@ export const useTokenStore = create<MainStore>()(
 
       setGlobalUser: (detail) => {
         set({ globalUser: detail });
+        if (detail) localStorage.setItem("isOnboarded", JSON.stringify(detail.isOnBoarded));
       },
 
       setVerifyToken: (token) => set({ verifyToken: token }),
@@ -73,12 +74,14 @@ export const useTokenStore = create<MainStore>()(
 
       clearGlobalUser: () => {
         set({ globalUser: null });
+        localStorage.removeItem("isOnboarded");
       },
 
       // Utility function to clear all data
       clearStore: () => {
         set({ verifyToken: null, globalUser: null });
         localStorage.removeItem("access-token");
+        localStorage.removeItem("isOnboarded");
       },
     }),
     {
