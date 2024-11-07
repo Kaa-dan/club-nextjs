@@ -22,7 +22,7 @@ export default function AuthLayout({
       router.replace(destination);
     }
     setIsLoading(false);
-  }, [globalUser]);
+  }, [router]);
 
   if (isLoading) {
     return <div>loading....</div>;
