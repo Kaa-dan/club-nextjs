@@ -37,10 +37,10 @@ export const Navbar: React.FC = () => {
   const [isSearchModal, setIsSearchModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [clubs, setClubs] = useState<
-    { name: string; profileImage: { url: string } }[]
+    { _id: string; name: string; profileImage: { url: string } }[]
   >([]);
   const [nodes, setNodes] = useState<
-    { name: string; profileImage: { url: string } }[]
+    { _id: string; name: string; profileImage: { url: string } }[]
   >([]);
   const [selectedButton, setSelectedButton] = useState<searchBtn | null>(null);
   const [tag, setTag] = useState<string | null>(null);
@@ -110,7 +110,7 @@ export const Navbar: React.FC = () => {
             <Search className="text-slate-500" size={"1.2rem"} />
             {selectedButton && (
               <div className="ml-2 flex w-max cursor-pointer items-center gap-2 rounded-md border-2 border-gray-400 bg-white px-2 text-base">
-                <Image src={selectedButton.icon} alt={selectedButton.alt} />
+                <Image src={selectedButton?.icon} alt={selectedButton.alt} />
                 {selectedButton.Btn}
                 <X
                   className="size-8 self-center"
@@ -150,7 +150,7 @@ export const Navbar: React.FC = () => {
             {/* Notification Icon with Badge */}
             <button className="relative z-20 rounded-md p-2 shadow-md hover:bg-gray-100">
               <Image
-                src={ICONS.HeaderNotificationIcon}
+                src={ICONS?.HeaderNotificationIcon}
                 alt="Notification Icon"
                 width={16}
                 height={16}
@@ -204,7 +204,7 @@ export const Navbar: React.FC = () => {
         {isSearchModal && (
           <div
             ref={modalRef}
-            className="shadow-full-screen-overlay absolute left-4 top-14 flex max-h-[65vh] min-w-[36vw] flex-col gap-4 overflow-y-scroll rounded-lg bg-white p-4"
+            className="absolute left-4 top-14 flex max-h-[65vh] min-w-[36vw] flex-col gap-4 overflow-y-scroll rounded-lg bg-white p-4 shadow-full-screen-overlay"
           >
             <div className="flex flex-col gap-2">
               <div className="text-base text-gray-600">Looking For....</div>
@@ -224,29 +224,32 @@ export const Navbar: React.FC = () => {
                 </div> */}
               </div>
             </div>
-            {!(nodes.length <= 0 && clubs.length <= 0) ? (
+            {!(nodes?.length <= 0 && clubs?.length <= 0) ? (
               <>
-                {nodes.length > 0 && (
+                {nodes?.length > 0 && (
                   <div className="flex flex-col gap-2">
                     <div className="flex flex-col gap-1">
                       <div className="text-base text-gray-800">Nodes</div>
                       <hr className="border-gray-600" />
                     </div>
-                    {nodes.length > 0 &&
-                      nodes.map((node, index) => (
-                        <div
+                    {nodes?.length > 0 &&
+                      nodes?.map((node, index) => (
+                        <Link
+                          href={`/node/${node?._id}`}
                           key={index}
                           className="flex cursor-pointer items-center gap-6"
                         >
-                          <Image
-                            src={node?.profileImage?.url}
-                            className="size-8 rounded-sm"
-                            alt="search-icon"
-                          />
+                          {node?.profileImage?.url && (
+                            <Image
+                              src={node?.profileImage?.url}
+                              className="size-8 rounded-sm"
+                              alt="search-icon"
+                            />
+                          )}
                           <div className="text-sm font-semibold text-gray-800">
                             {node?.name}
                           </div>
-                        </div>
+                        </Link>
                       ))}
                   </div>
                 )}
@@ -256,23 +259,26 @@ export const Navbar: React.FC = () => {
                       <div className="text-base text-gray-800">Clubs</div>
                       <hr className="border-gray-600" />
                     </div>
-                    {clubs.length > 0 &&
-                      clubs.map((club, index) => (
-                        <div
+                    {clubs?.length > 0 &&
+                      clubs?.map((club, index) => (
+                        <Link
+                          href={`/club/${club._id}`}
                           key={index}
-                          className="flex cursor-pointer items-center gap-6"
+                          className="flex cursor-pointer items-center gap-6 "
                         >
-                          <Image
-                            src={club?.profileImage?.url}
-                            className="size-8 rounded-sm"
-                            width={32}
-                            height={32}
-                            alt="search-icon"
-                          />
+                          {club?.profileImage?.url && (
+                            <Image
+                              src={club?.profileImage?.url}
+                              className="size-8 rounded-sm"
+                              width={32}
+                              height={32}
+                              alt="search-icon"
+                            />
+                          )}
                           <div className="text-sm font-semibold text-gray-800">
                             {club?.name}
                           </div>
-                        </div>
+                        </Link>
                       ))}
                   </div>
                 )}

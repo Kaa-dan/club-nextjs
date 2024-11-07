@@ -42,6 +42,9 @@ import { boolean } from "zod";
 import { pinClub } from "@/components/pages/club/endpoint";
 import { toast } from "sonner";
 import { useTokenStore } from "@/store/store";
+import { Endpoints } from "@/utils/endpoint";
+import { useClubStore } from "@/store/clubs-store";
+import Link from "next/link";
 interface MenuProps {
   isOpen: boolean | undefined;
 }
@@ -138,6 +141,9 @@ const nodes: Node[] = [
 
 export function Menu({ isOpen }: MenuProps) {
   const { clearStore } = useTokenStore((state) => state);
+  const { setUserJoinedClubs, userJoinedClubs } = useClubStore(
+    (state) => state
+  );
   const togglePinClub = async (clubId: string) => {
     try {
       const response = await pinClub(clubId);
@@ -154,10 +160,13 @@ export function Menu({ isOpen }: MenuProps) {
   const [menuList, setMenuList] = useState<any[]>();
   const [open, setOpen] = useState<boolean>(false);
 
+  async function fetchJoinedClubs() {
+    const joinedClubs = await Endpoints.fetchUserJoinedClubs();
+    setUserJoinedClubs(joinedClubs);
+  }
   async function fetchMenuList() {
-    const _menuList = await getMenuList(pathname);
+    const _menuList = await getMenuList(pathname, userJoinedClubs);
     setMenuList(_menuList);
-    console.log("menuList", menuList);
     return menuList;
   }
   const router = useRouter();
@@ -179,8 +188,12 @@ export function Menu({ isOpen }: MenuProps) {
   };
 
   useEffect(() => {
-    fetchMenuList();
+    fetchJoinedClubs();
   }, []);
+
+  useEffect(() => {
+    if (userJoinedClubs) fetchMenuList();
+  }, [userJoinedClubs]);
   if (!menuList) return;
   return (
     <ScrollArea className=" [&>div>div[style]]:!block">
@@ -194,7 +207,7 @@ export function Menu({ isOpen }: MenuProps) {
                 key={index}
               >
                 {(isOpen && groupLabel) || isOpen === undefined ? (
-                  <p className="text-muted-foreground max-w-[248px]  truncate px-4 pb-2 text-sm font-medium">
+                  <p className="max-w-[248px] truncate  px-4 pb-2 text-sm font-medium text-muted-foreground">
                     {/* {groupLabel} */}
                     {groupLabel === "Nodes" ? (
                       <Image
@@ -398,9 +411,14 @@ export function Menu({ isOpen }: MenuProps) {
                                     {menuItems.length > 0 ? (
                                       <div className="grid grid-cols-5 gap-3 p-4">
                                         {menuItems.map((node: any) => (
-                                          <button
+                                          <Link
+                                            href={`/${
+                                              groupLabel === "Nodes"
+                                                ? "node"
+                                                : "club"
+                                            }/${node?._id}`}
                                             key={node._id}
-                                            className="flex flex-col items-center gap-1 rounded-lg p-1 text-center hover:bg-muted"
+                                            className="flex flex-col items-center gap-1 rounded-lg  p-1 text-center hover:bg-muted"
                                           >
                                             <ContextMenu>
                                               <ContextMenuTrigger>
@@ -417,7 +435,7 @@ export function Menu({ isOpen }: MenuProps) {
                                               </ContextMenuTrigger>
                                               <ContextMenuContent>
                                                 <ContextMenuItem>
-                                                  <div className="flex cursor-pointer w-[100%] items-center justify-between">
+                                                  <div className="flex w-full cursor-pointer items-center justify-between">
                                                     <div>Pin</div>
                                                     <div>
                                                       <Pin
@@ -446,11 +464,11 @@ export function Menu({ isOpen }: MenuProps) {
                                             <span className="text-[11px] leading-tight">
                                               {node.name}
                                             </span>
-                                          </button>
+                                          </Link>
                                         ))}
                                       </div>
                                     ) : (
-                                      <p className="text-center text-gray-600 p-10">
+                                      <p className="p-10 text-center text-gray-600">
                                         You haven’t joined any {groupLabel} yet.
                                         Start exploring and join one to see it
                                         here!
@@ -581,7 +599,7 @@ export function Menu({ isOpen }: MenuProps) {
                           clubId,
                           _id,
                         }) && (
-                          <span className="bg-primary/80 absolute -left-2 top-1.5 h-9 w-2 rounded-r-md"></span>
+                          <span className="absolute -left-2 top-1.5 h-9 w-2 rounded-r-md bg-primary/80"></span>
                         )}
                       </div>
                     ) : (

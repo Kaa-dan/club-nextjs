@@ -57,7 +57,7 @@ export class Endpoints {
     }
   }
 
-  static async fetchSpecificClubs() {
+  static async fetchUserJoinedClubs() {
     try {
       const response = await mainAxios.get(`/clubs/user-clubs`);
       console.log({ response });

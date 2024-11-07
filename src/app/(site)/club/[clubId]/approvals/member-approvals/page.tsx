@@ -94,19 +94,19 @@ const Page = () => {
   return (
     <>
       <div className="mt-2">{/* Breadcrumbs and other UI elements */}</div>
-      <div className="p-6 bg-white shadow-lg rounded-lg mt-2">
-        <h2 className="text-lg font-semibold mb-4">All Members request</h2>
+      <div className="mt-2 rounded-lg bg-white p-6 shadow-lg">
+        <h2 className="mb-4 text-lg font-semibold">All Members request</h2>
         <div className="space-y-4">
           {alertVisible && (
             <Alert>
-              <Terminal className="h-4 w-4" />
+              <Terminal className="size-4" />
               <AlertTitle>Action in Progress</AlertTitle>
-              <div className="flex justify-between items-center">
+              <div className="flex items-center justify-between">
                 <AlertDescription>
                   Processing your request. You can undo within 5 seconds.
                 </AlertDescription>
                 <Button
-                  className="bg-transparent border w-16 h-6 border-gray-500 text-gray-700"
+                  className="h-6 w-16 border border-gray-500 bg-transparent text-gray-700"
                   onClick={undoAction}
                 >
                   Undo
@@ -116,7 +116,9 @@ const Page = () => {
           )}
 
           {requests.length === 0 ? (
-            <h1>No request</h1>
+            <h1 className="my-3 text-center text-muted-foreground">
+              No request
+            </h1>
           ) : (
             requests.map((request) => (
               <ClubRequest

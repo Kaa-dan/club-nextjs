@@ -1,4 +1,6 @@
 "use client";
+import { useClubStore } from "@/store/clubs-store";
+import { TClub } from "@/types";
 import { Endpoints } from "@/utils/endpoint";
 
 type Submenu = {
@@ -23,13 +25,13 @@ type Group = {
   menuItems?: Menu[];
 };
 
-export async function getMenuList(pathname: string): Promise<Group[]> {
+export async function getMenuList(
+  pathname: string,
+  joinedClubs: TClub[]
+): Promise<Group[]> {
   const response = await Endpoints.fetchAllNodes();
-  const clubsResponse = await Endpoints.fetchSpecificClubs();
 
-  console.log({ response, clubsResponse });
-
-  const clubMenus: Menu[] = clubsResponse.map((club: any) => ({
+  const clubMenus: Menu[] = joinedClubs?.map((club: any) => ({
     _id: club.club._id, // Store the _id directly
     label: club.club.name, // Assuming clubs have a `name`
     active: pathname.includes(`/club/${club.club._d}`),

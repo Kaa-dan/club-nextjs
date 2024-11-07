@@ -31,13 +31,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import CopyLink from "@/components/pages/club/invite/copy-link";
 import { TClub } from "@/types";
+import { useClubStore } from "@/store/clubs-store";
 
 export default function Page() {
+  const { setUserJoinedClubs } = useClubStore((state) => state);
   const [members, setMembers] = useState([]);
   const params = useParams<{ clubId: string }>();
   const visibleUsers = 5;
@@ -63,23 +63,21 @@ export default function Page() {
       });
   }, [params.clubId]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const leaveMyClub = (clubId: string) => {
-    Endpoints.leaveClub(clubId)
-      .then((res) => {
-        console.log(res, "ress");
-        toast.warning(res.message);
-      })
-      .catch((err) => {
-        console.log({ err });
-      });
+  const leaveMyClub = async (clubId: string) => {
+    try {
+      const response = await Endpoints.leaveClub(clubId);
+      const joinedClubs = await Endpoints.fetchUserJoinedClubs();
+      setUserJoinedClubs(joinedClubs);
+      toast.warning(response.message);
+    } catch (error) {}
   };
   return (
     <>
-      <Card className="w-full max-w-3xl mx-auto">
+      <Card className="mx-auto w-full max-w-3xl">
         <CardHeader className="space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-2">
-              <h2 className="text-lg font-semibold flex items-center gap-2">
+              <h2 className="flex items-center gap-2 text-lg font-semibold">
                 Members
                 <span className="text-sm font-normal text-muted-foreground">
                   • {members.length} Members
@@ -105,7 +103,7 @@ export default function Page() {
                   ))}
 
                   {remainingUsers > 0 && (
-                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-muted text-xs">
+                    <div className="flex size-8 items-center justify-center rounded-full bg-muted text-xs">
                       {displayRemainingCount}+
                     </div>
                   )}
@@ -147,7 +145,7 @@ export default function Page() {
               <Dialog>
                 <DialogTrigger>
                   <Button variant="outline" className="gap-2">
-                    <Copy className="h-4 w-4" />
+                    <Copy className="size-4" />
 
                     <span>Copy Link</span>
                   </Button>
@@ -159,9 +157,9 @@ export default function Page() {
                 <AlertDialogTrigger asChild>
                   <Button
                     variant="outline"
-                    className="text-red-500 hover:text-red-600 gap-2"
+                    className="gap-2 text-red-500 hover:text-red-600"
                   >
-                    <LogOut className="h-4 w-4" />
+                    <LogOut className="size-4" />
                     <span>Leave Club</span>
                   </Button>
                 </AlertDialogTrigger>
@@ -180,7 +178,7 @@ export default function Page() {
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
                     <AlertDialogAction
                       onClick={() => leaveMyClub(params.clubId)}
-                      className="bg-red-500 hover:bg-red-600 text-white"
+                      className="bg-red-500 text-white hover:bg-red-600"
                     >
                       Leave Club
                     </AlertDialogAction>
@@ -195,7 +193,7 @@ export default function Page() {
             <p className="text-sm text-muted-foreground">{club?.description}</p>
           </div>
 
-          <div className="grid grid-cols-4 gap-4 pt-4 border-t">
+          <div className="grid grid-cols-4 gap-4 border-t pt-4">
             <div>
               <h4 className="font-semibold">Modules</h4>
               <p className="text-sm">
@@ -223,7 +221,7 @@ export default function Page() {
           <div className="space-y-2">
             <h3 className="font-semibold">About</h3>
             <p className="text-sm text-muted-foreground">{club?.about}</p>
-            <Button variant="link" className="text-sm p-0">
+            <Button variant="link" className="p-0 text-sm">
               see all
             </Button>
           </div>

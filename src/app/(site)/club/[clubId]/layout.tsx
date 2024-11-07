@@ -33,7 +33,8 @@ const Layout = ({
 
   return (
     <div className="flex h-screen ">
-      <div className="hidden w-56 shrink-0 flex-col  py-4 lg:flex">
+      {/* <div className="hidden w-56 shrink-0 flex-col  py-4 lg:flex"> */}
+      <div className=" w-56 shrink-0 flex-col  py-4">
         <ClubProfileCard
           clubId={params?.clubId as string}
           currentPage={currentPage}
