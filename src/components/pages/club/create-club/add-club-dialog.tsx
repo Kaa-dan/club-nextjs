@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { addNode } from "../endpoint";
+import { addClub } from "../endpoint";
 import {
   Select,
   SelectContent,
@@ -21,7 +21,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import ProgressIndicator from "../progress-bar";
+import ProgressIndicator from "./progress-bar";
 import { Button } from "@/components/ui/button";
 import { MODULES } from "@/lib/constants/modules";
 import { Card } from "@/components/ui/card";
@@ -299,12 +299,11 @@ const DetailsForm = ({
               <FormControl>
                 <Select onValueChange={field.onChange}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select location" />
+                    <SelectValue placeholder="select an option" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Location1">Location 1</SelectItem>
-                    <SelectItem value="Location2">Location 2</SelectItem>
-                    <SelectItem value="Location3">Location 3</SelectItem>
+                    <SelectItem value="Private">Private</SelectItem>
+                    <SelectItem value="Public">Public</SelectItem>
                   </SelectContent>
                 </Select>
               </FormControl>
@@ -340,7 +339,7 @@ const DetailsForm = ({
   );
 };
 
-const AddNodeDialog = ({ open, setOpen }: IProps) => {
+const AddClubDialog = ({ open, setOpen }: IProps) => {
   const [currentStep, setCurrentStep] = useState<
     "Details" | "Modules" | "Success"
   >("Details");
@@ -362,8 +361,6 @@ const AddNodeDialog = ({ open, setOpen }: IProps) => {
   const onFinalSubmit = async () => {
     const formData = new FormData();
     const values = form.getValues();
-    console.log(values, "vall");
-
     if (values.profilePhoto)
       formData.append("profileImage", values.profilePhoto);
 
@@ -374,10 +371,12 @@ const AddNodeDialog = ({ open, setOpen }: IProps) => {
     formData.append("description", values.description);
     console.log("values", values);
     try {
-      const response = await addNode(formData);
-      toast.success(response.message);
+      const response = await addClub(formData);
+
+      toast.success(response.descripion);
       setCurrentStep("Success");
     } catch (error: any) {
+      console.log(error);
       toast.error(
         error.message || error.response.data.message || "something went wrong"
       );
@@ -408,7 +407,7 @@ const AddNodeDialog = ({ open, setOpen }: IProps) => {
           </div>
         ) : (
           <>
-            <DialogTitle>Create a node</DialogTitle>
+            <DialogTitle>Create a Club</DialogTitle>
             <div className="w-full border"></div>
 
             <div className="w-fit mx-auto">
@@ -501,4 +500,4 @@ const AddNodeDialog = ({ open, setOpen }: IProps) => {
   );
 };
 
-export default AddNodeDialog;
+export default AddClubDialog;

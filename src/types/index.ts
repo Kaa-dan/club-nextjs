@@ -34,3 +34,21 @@ export type TNodeJoinRequest = {
   node: string | TNodeData;
   user: TUser;
 };
+
+export type TClub = {
+  _id: string;
+  name: string;
+  about: string;
+  description: string;
+  profileImage: {
+    filename: string;
+    url: string;
+  };
+  coverImage: {
+    filename: string;
+    url: string;
+  };
+  isPublic: boolean;
+  status: string;
+  members?: any[];
+};
