@@ -18,9 +18,7 @@ export async function middleware(request: NextRequest) {
     "/sign-up",
     "/reset-password",
     "/forgot-password",
-
     "/test",
-    "/node/nodeId/profile",
   ];
 
   // Skip public routes and API routes (if desired)

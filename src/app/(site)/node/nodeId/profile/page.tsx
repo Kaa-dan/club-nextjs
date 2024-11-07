@@ -24,7 +24,6 @@ import {
 import { useState } from "react";
 
 const members = [
-
   {
     id: 1,
     name: "Cameron Williamson",
@@ -34,7 +33,7 @@ const members = [
     joinDate: "October 30, 2017",
     avatar: "/placeholder.svg",
   },
-  
+
   {
     id: 2,
     name: "Bessie Cooper",
