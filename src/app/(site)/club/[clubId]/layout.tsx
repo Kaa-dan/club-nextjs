@@ -51,9 +51,9 @@ const Layout = ({
   }, [params.clubId]);
 
   return (
-    <div className="flex gap-6 w-full">
-      <div className="flex gap-6 w-[75%]">
-        <div className="w-[25%]">
+    <div className="flex w-full gap-6 bg-green-200">
+      <div className="flex w-3/4 gap-2 bg-red-100">
+        <div className="min-w-56 bg-yellow-200">
           {" "}
           <ClubProfileCard
             clubId={params?.clubId as string}
@@ -63,13 +63,37 @@ const Layout = ({
           />
         </div>
 
-        <div className="flex flex-col gap-4 w-[75%]">
+        <div className="flex w-3/5 flex-col gap-4 ">
           <ModulesBar />
           {children}
         </div>
       </div>
-      <NodeTeams />
+      <div className="w-1/4">
+        <NodeTeams />
+      </div>
     </div>
+    // <div className="flex w-full gap-4">
+    //   {/* Left section - ClubProfileCard */}
+    //   <div className="w-1/4">
+    //     <ClubProfileCard
+    //       clubId={params?.clubId as string}
+    //       currentPage={currentPage}
+    //       setCurrentPage={setCurrentPage}
+    //       club={club as TClub}
+    //     />
+    //   </div>
+
+    //   {/* Middle section - Main content */}
+    //   <div className="flex w-1/2 flex-col gap-4">
+    //     <ModulesBar />
+    //     {children}
+    //   </div>
+
+    //   {/* Right section - Teams */}
+    //   <div className="w-1/4">
+    //     <NodeTeams />
+    //   </div>
+    // </div>
   );
 };
 
