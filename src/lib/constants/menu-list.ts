@@ -27,18 +27,20 @@ export async function getMenuList(pathname: string): Promise<Group[]> {
   const response = await Endpoints.fetchAllNodes();
   const clubsResponse = await Endpoints.fetchSpecificClubs();
 
+  console.log({ response, clubsResponse });
+
   const clubMenus: Menu[] = clubsResponse.map((club: any) => ({
-    _id: club?.club?._id, // Store the _id directly
-    label: club?.club?.name, // Assuming clubs have a `name`
-    active: pathname.includes(`/club/${club?.club?._d}`),
-    image: club?.club?.profileImage.url || "https://picsum.photos/200", // Use the club's image if available
+    _id: club.club._id, // Store the _id directly
+    label: club.club.name, // Assuming clubs have a `name`
+    active: pathname.includes(`/club/${club.club._d}`),
+    image: club.club.profileImage.url || "https://picsum.photos/200", // Use the club's image if available
     submenus: [],
-    href: `/club/${club?.club?._id}`,
+    href: `/club/${club.club._id}`,
   }));
   const nodeMenus: Menu[] = response.map((node: any) => ({
-    _id: node?._id, // Store the _id directly
+    _id: node._id, // Store the _id directly
     label: node.name, // Assuming clubs have a `name`
-    active: pathname.includes(`/node/${node?._d}`),
+    active: pathname.includes(`/node/${node._d}`),
     image: node.profileImage || "https://picsum.photos/200", // Use the node's image if available
     submenus: [],
     href: `/node/${node._id}`,
