@@ -12,7 +12,6 @@ const SiteLayout = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const accessToken = localStorage.getItem("access-token");
     const isOnBoarded = localStorage.getItem("isOnboarded") === "true";
-    console.log("site", isOnBoarded);
     if (!accessToken) {
       router.replace("/sign-in");
     } else if (!isOnBoarded) {
@@ -21,7 +20,7 @@ const SiteLayout = ({ children }: { children: React.ReactNode }) => {
   }, [router]);
 
   return (
-    <section>
+    <section className="bg-green-400">
       <LayoutPanel>{children}</LayoutPanel>
     </section>
   );

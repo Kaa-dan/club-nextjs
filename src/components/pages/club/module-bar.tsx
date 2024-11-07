@@ -21,11 +21,11 @@ const modules: Module[] = [
 
 const ModulesBar: React.FC = () => {
   return (
-    <div className="flex justify-evenly w-[100%] bg-white shadow-md  rounded-lg p-4   mx-auto  overflow-x-auto text-xs">
+    <div className="mx-auto flex w-full justify-evenly overflow-x-auto  rounded-lg bg-white   p-4  text-xs shadow-md">
       {modules.map((module, index) => (
         <div
           key={index}
-          className="  relative flex flex-col items-center p-3 hover:bg-slate-50 rounded-sm cursor-pointer"
+          className="  relative flex cursor-pointer flex-col items-center rounded-sm p-3 hover:bg-slate-50"
         >
           {/* Icon with Badge */}
           <div className="relative">
@@ -36,25 +36,25 @@ const ModulesBar: React.FC = () => {
               height={23}
             />
             {module.notifications && (
-              <Badge className="absolute -top-1 -right-2 bg-orange-500 text-white text-xs rounded-full w-4 h-4 flex justify-center items-center">
+              <Badge className="absolute -right-2 -top-1 flex size-4 items-center justify-center rounded-full bg-orange-500 text-xs text-white">
                 {module.notifications}
               </Badge>
             )}
           </div>
 
           {/* Label */}
-          <p className="text-xs text-gray-700 mt-1 whitespace-nowrap">
+          <p className="mt-1 whitespace-nowrap text-xs text-gray-700">
             {module.name}
           </p>
         </div>
       ))}
 
       {/* Add Module Button */}
-      <div className="flex flex-col items-center whitespace-nowrap text-green-500 p-3">
+      <div className="flex flex-col items-center whitespace-nowrap p-3 text-green-500">
         <button className="flex items-center ">
           <Plus />
         </button>
-        <p className="text-xs mt-1">Add Module</p>
+        <p className="mt-1 text-xs">Add Module</p>
       </div>
     </div>
   );

@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/context-menu";
 
 import { Ellipsis, HomeIcon, Icon, LogOut, Pin, Plus, X } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -44,6 +44,14 @@ import { toast } from "sonner";
 import { useTokenStore } from "@/store/store";
 interface MenuProps {
   isOpen: boolean | undefined;
+}
+interface PathCheckProps {
+  groupLabel: string;
+  isNodePath: boolean;
+  isClubPath: boolean;
+  _id: string;
+  nodeId?: string;
+  clubId?: string;
 }
 interface Node {
   id: string;
@@ -130,7 +138,6 @@ const nodes: Node[] = [
 
 export function Menu({ isOpen }: MenuProps) {
   const { clearStore } = useTokenStore((state) => state);
-
   const togglePinClub = async (clubId: string) => {
     try {
       const response = await pinClub(clubId);
@@ -139,10 +146,13 @@ export function Menu({ isOpen }: MenuProps) {
       console.log({ error });
     }
   };
+  const { nodeId, clubId } = useParams<{ nodeId?: string; clubId?: string }>();
   const pathname = usePathname();
+  const isNodePath = pathname.includes("node");
+  const isClubPath = pathname.includes("club");
+
   const [menuList, setMenuList] = useState<any[]>();
   const [open, setOpen] = useState<boolean>(false);
-  console.log({ menuList });
 
   async function fetchMenuList() {
     const _menuList = await getMenuList(pathname);
@@ -151,6 +161,22 @@ export function Menu({ isOpen }: MenuProps) {
     return menuList;
   }
   const router = useRouter();
+
+  const isActivePath = ({
+    groupLabel,
+    isNodePath,
+    isClubPath,
+    nodeId,
+    clubId,
+    _id,
+  }: PathCheckProps) => {
+    const paths = {
+      Nodes: () => isNodePath && nodeId === _id,
+      Clubs: () => isClubPath && clubId === _id,
+    };
+
+    return paths[groupLabel as keyof typeof paths]?.() || false;
+  };
 
   useEffect(() => {
     fetchMenuList();
@@ -265,8 +291,14 @@ export function Menu({ isOpen }: MenuProps) {
                                             <div
                                               className={cn(
                                                 "rounded-xl  object-cover relative",
-                                                index === 0 &&
-                                                  groupLabel === "Nodes"
+                                                isActivePath({
+                                                  groupLabel,
+                                                  isNodePath,
+                                                  isClubPath,
+                                                  nodeId,
+                                                  clubId,
+                                                  _id,
+                                                })
                                                   ? "p-[5px] bg-primary/80 -ml-[5px]"
                                                   : ""
                                               )}
@@ -444,8 +476,14 @@ export function Menu({ isOpen }: MenuProps) {
                                         <div
                                           className={cn(
                                             "rounded-xl  object-cover relative",
-                                            index === 0 &&
-                                              groupLabel === "Nodes"
+                                            isActivePath({
+                                              groupLabel,
+                                              isNodePath,
+                                              isClubPath,
+                                              nodeId,
+                                              clubId,
+                                              _id,
+                                            })
                                               ? "p-[5px] bg-primary/80 -ml-[5px]"
                                               : ""
                                           )}
@@ -526,7 +564,14 @@ export function Menu({ isOpen }: MenuProps) {
                             )}
                           </Tooltip>
                         </TooltipProvider>
-                        {index === 0 && groupLabel === "Nodes" && (
+                        {isActivePath({
+                          groupLabel,
+                          isNodePath,
+                          isClubPath,
+                          nodeId,
+                          clubId,
+                          _id,
+                        }) && (
                           <span className="bg-primary/80 absolute -left-2 top-1.5 h-9 w-2 rounded-r-md"></span>
                         )}
                       </div>

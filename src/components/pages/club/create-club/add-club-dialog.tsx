@@ -27,7 +27,7 @@ import { MODULES } from "@/lib/constants/modules";
 import { Card } from "@/components/ui/card";
 import Image from "next/image";
 import { Camera, Search, X } from "lucide-react";
-import { ICONS, IMGS } from "@/lib/constants";
+import { ICONS } from "@/lib/constants";
 import { formatName } from "@/utils/text";
 import { toast } from "sonner";
 
