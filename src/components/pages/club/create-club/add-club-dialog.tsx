@@ -78,11 +78,11 @@ const formSchema = z.object({
       message: "About cannot be empty ",
     }),
 
-  location: z
+  visiblity: z
     .string()
-    .min(1, { message: "Location is required" })
+    .min(1, { message: "visiblity is required" })
     .refine((value) => value.trim().length > 0, {
-      message: "Location cannot be empty ",
+      message: "visiblity cannot be empty ",
     }),
 
   description: z
@@ -107,7 +107,7 @@ const DetailsForm = ({
     coverPhoto?: File | null;
     name: string;
     about: string;
-    location: string;
+    visiblity: string;
     description: string;
   }) => void;
   form: UseFormReturn<
@@ -116,7 +116,7 @@ const DetailsForm = ({
       coverPhoto?: File | null;
       name: string;
       about: string;
-      location: string;
+      visiblity: string;
       description: string;
     },
     any,
@@ -292,18 +292,18 @@ const DetailsForm = ({
         {/* Select Location */}
         <FormField
           control={form.control}
-          name="location"
+          name="visiblity"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Select location</FormLabel>
+              <FormLabel>visiblity</FormLabel>
               <FormControl>
                 <Select onValueChange={field.onChange}>
                   <SelectTrigger>
                     <SelectValue placeholder="select an option" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Private">Private</SelectItem>
-                    <SelectItem value="Public">Public</SelectItem>
+                    <SelectItem value="false">Private</SelectItem>
+                    <SelectItem value="true">Public</SelectItem>
                   </SelectContent>
                 </Select>
               </FormControl>
@@ -351,7 +351,7 @@ const AddClubDialog = ({ open, setOpen }: IProps) => {
       coverPhoto: null,
       name: "",
       about: "",
-      location: "",
+      visiblity: "",
       description: "",
     },
   });
@@ -367,7 +367,7 @@ const AddClubDialog = ({ open, setOpen }: IProps) => {
     if (values.coverPhoto) formData.append("coverImage", values.coverPhoto);
     formData.append("name", formatName(values.name));
     formData.append("about", values.about);
-    formData.append("location", values.location);
+    formData.append("isPublic", values.visiblity);
     formData.append("description", values.description);
     console.log("values", values);
     try {
