@@ -27,8 +27,6 @@ export async function getMenuList(pathname: string): Promise<Group[]> {
   const response = await Endpoints.fetchAllNodes();
   const clubsResponse = await Endpoints.fetchSpecificClubs();
 
-  console.log({ response, clubsResponse });
-
   const clubMenus: Menu[] = clubsResponse.map((club: any) => ({
     _id: club?.club?._id, // Store the _id directly
     label: club?.club?.name, // Assuming clubs have a `name`
