@@ -25,8 +25,6 @@ const Layout = ({
     if (params.clubId) {
       fetchSpecificClub(params.clubId as string).then((res) => {
         if (res) {
-          console.log(res, "resss");
-
           setCLub(res);
         }
       });

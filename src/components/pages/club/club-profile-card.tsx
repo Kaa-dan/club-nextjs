@@ -22,8 +22,6 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
   setCurrentPage,
   clubId,
 }) => {
-  console.log(club?._id, "ceee");
-
   const [joinStatus, setJoinStatus] = useState<String>("");
   const router = useRouter();
   const SECTIONS = [
