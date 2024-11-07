@@ -45,6 +45,7 @@ import { useTokenStore } from "@/store/store";
 import { Endpoints } from "@/utils/endpoint";
 import { useClubStore } from "@/store/clubs-store";
 import Link from "next/link";
+import { useNodeStore } from "@/store/nodes-store";
 interface MenuProps {
   isOpen: boolean | undefined;
 }
@@ -144,6 +145,9 @@ export function Menu({ isOpen }: MenuProps) {
   const { setUserJoinedClubs, userJoinedClubs } = useClubStore(
     (state) => state
   );
+  const { setUserJoinedNodes, userJoinedNodes } = useNodeStore(
+    (state) => state
+  );
   const togglePinClub = async (clubId: string) => {
     try {
       const response = await pinClub(clubId);
@@ -160,12 +164,18 @@ export function Menu({ isOpen }: MenuProps) {
   const [menuList, setMenuList] = useState<any[]>();
   const [open, setOpen] = useState<boolean>(false);
 
-  async function fetchJoinedClubs() {
+  async function fetchJoinedClubsAndNodes() {
     const joinedClubs = await Endpoints.fetchUserJoinedClubs();
+    const joinedNodes = await Endpoints.fetchAllNodes();
     setUserJoinedClubs(joinedClubs);
+    setUserJoinedNodes(joinedNodes);
   }
   async function fetchMenuList() {
-    const _menuList = await getMenuList(pathname, userJoinedClubs);
+    const _menuList = await getMenuList(
+      pathname,
+      userJoinedClubs,
+      userJoinedNodes
+    );
     setMenuList(_menuList);
     return menuList;
   }
@@ -188,12 +198,12 @@ export function Menu({ isOpen }: MenuProps) {
   };
 
   useEffect(() => {
-    fetchJoinedClubs();
+    fetchJoinedClubsAndNodes();
   }, []);
 
   useEffect(() => {
     if (userJoinedClubs) fetchMenuList();
-  }, [userJoinedClubs]);
+  }, [userJoinedClubs, userJoinedNodes]);
   if (!menuList) return;
   return (
     <ScrollArea className=" [&>div>div[style]]:!block">
@@ -303,7 +313,7 @@ export function Menu({ isOpen }: MenuProps) {
                                           ) : (
                                             <div
                                               className={cn(
-                                                "rounded-xl  object-cover relative",
+                                                "rounded-xl  object-cover relative ",
                                                 isActivePath({
                                                   groupLabel,
                                                   isNodePath,
@@ -408,9 +418,9 @@ export function Menu({ isOpen }: MenuProps) {
                                         </Button>
                                       </div>
                                     </div>
-                                    {menuItems.length > 0 ? (
+                                    {menuItems?.length > 0 ? (
                                       <div className="grid grid-cols-5 gap-3 p-4">
-                                        {menuItems.map((node: any) => (
+                                        {menuItems?.map((node: any) => (
                                           <Link
                                             href={`/${
                                               groupLabel === "Nodes"
@@ -502,7 +512,7 @@ export function Menu({ isOpen }: MenuProps) {
                                       ) : (
                                         <div
                                           className={cn(
-                                            "rounded-xl  object-cover relative",
+                                            "rounded-xl  object-cover relative ",
                                             isActivePath({
                                               groupLabel,
                                               isNodePath,
@@ -516,7 +526,7 @@ export function Menu({ isOpen }: MenuProps) {
                                           )}
                                         >
                                           <Image
-                                            src={image && image}
+                                            src={image}
                                             height={50}
                                             width={50}
                                             className={cn(

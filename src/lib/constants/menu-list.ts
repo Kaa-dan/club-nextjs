@@ -1,6 +1,6 @@
 "use client";
 import { useClubStore } from "@/store/clubs-store";
-import { TClub } from "@/types";
+import { TClub, TNodeData } from "@/types";
 import { Endpoints } from "@/utils/endpoint";
 
 type Submenu = {
@@ -27,9 +27,10 @@ type Group = {
 
 export async function getMenuList(
   pathname: string,
-  joinedClubs: TClub[]
+  joinedClubs: TClub[],
+  joinedNodes: TNodeData[]
 ): Promise<Group[]> {
-  const response = await Endpoints.fetchAllNodes();
+  // const response = await Endpoints.fetchAllNodes();
 
   const clubMenus: Menu[] = joinedClubs?.map((club: any) => ({
     _id: club.club._id, // Store the _id directly
@@ -39,11 +40,11 @@ export async function getMenuList(
     submenus: [],
     href: `/club/${club.club._id}`,
   }));
-  const nodeMenus: Menu[] = response.map((node: any) => ({
+  const nodeMenus: Menu[] = joinedNodes.map((node: any) => ({
     _id: node._id, // Store the _id directly
     label: node.name, // Assuming clubs have a `name`
     active: pathname.includes(`/node/${node._d}`),
-    image: node.profileImage || "https://picsum.photos/200", // Use the node's image if available
+    image: node.profileImage?.url || "https://picsum.photos/200", // Use the node's image if available
     submenus: [],
     href: `/node/${node._id}`,
   }));
