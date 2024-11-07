@@ -79,7 +79,7 @@ export const useTokenStore = create<MainStore>()(
 
       // Utility function to clear all data
       clearStore: () => {
-        set({ verifyToken: null, globalUser: null });
+        set({ verifyToken: null, globalUser: null, accessToken: null });
         localStorage.removeItem("access-token");
         localStorage.removeItem("isOnboarded");
       },
