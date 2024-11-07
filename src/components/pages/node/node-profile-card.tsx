@@ -2,7 +2,8 @@ import React from "react";
 import Image from "next/image";
 import { ICONS } from "@/lib/constants";
 import { ChevronRight } from "lucide-react";
-import { NodeData } from "@/types";
+import { TNodeData } from "@/types";
+import { useRouter } from "next/navigation";
 
 const SECTIONS = [
   { name: "News Feed", icon: ICONS.NodeNewsFeedIcon },
@@ -17,7 +18,7 @@ const SECTIONS = [
 ];
 
 interface ProfileCardProps {
-  node: NodeData;
+  node: TNodeData;
   currentPage: string;
   setCurrentPage: (page: string) => void;
 }
@@ -27,18 +28,60 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
   currentPage,
   setCurrentPage,
 }) => {
+  const SECTIONS = [
+    { name: "News Feed", icon: ICONS.NodeNewsFeedIcon, path: "/news-feed" },
+    { name: "Modules", icon: ICONS.NodeModulesIcon, path: "/modules" },
+    {
+      name: "Profile",
+      icon: ICONS.NodeProfileIcon,
+      path: `/node/${node._id}/profile`,
+    },
+    {
+      name: "Chapters",
+      icon: ICONS.NodeChaptersIcon,
+      notifications: 8,
+      path: "/chapters",
+    },
+    {
+      name: "Members",
+      icon: ICONS.NodeMembersIcon,
+      path: `/node/${node._id}/members`,
+    },
+    {
+      name: "Approvals",
+      icon: ICONS.NodeApprovalsIcon,
+      notifications: 3,
+      path: `/node/${node._id}/approvals`,
+    },
+    {
+      name: "Insights/Analytics",
+      icon: ICONS.NodeInsightsIcon,
+      path: "/insights",
+    },
+    {
+      name: "Activities",
+      icon: ICONS.NodeActivitiesIcon,
+      path: `/node/${node._id}/approvals`,
+    },
+    {
+      name: "Preferences",
+      icon: ICONS.NodePreferencesIcon,
+      path: "/preferences",
+    },
+  ];
+  const router = useRouter();
   return (
-    <div className="bg-white rounded-lg shadow-md md:min-w-60 md:max-w-60 sticky text-sm top-16 h-fit max-h-[80vh] overflow-hidden pb-2">
+    <div className="sticky top-16 h-fit max-h-[80vh] overflow-hidden rounded-lg bg-white pb-2 text-sm shadow-md md:min-w-60 md:max-w-60">
       <div className="relative">
         <Image
           src={node.coverImage}
           alt="Cover"
           width={300}
           height={150}
-          className="w-full h-24 object-cover rounded-t-lg"
+          className="h-24 w-full rounded-t-lg object-cover"
           layout="responsive"
         />
-        <div className="absolute top-14 left-4">
+        <div className="absolute left-4 top-14">
           <Image
             src={node.profileImage}
             alt="Avatar"
@@ -56,16 +99,19 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
             {node.location} • {node.members.length}
           </p>
         </div>
-        <div className="mt-4 space-y-2 overflow-y-auto max-h-[50vh] thin-scrollbar pb-4">
+        <div className="thin-scrollbar mt-4 max-h-[50vh] space-y-2 overflow-y-auto pb-4">
           {SECTIONS.map((section) => (
             <button
               key={section.name}
-              className={`flex items-center justify-between w-full p-2 rounded-md ${
+              className={`flex w-full items-center justify-between rounded-md p-2 ${
                 currentPage === section.name
-                  ? "bg-green-50 border-primary border"
-                  : "hover:bg-gray-100 border border-white"
+                  ? "border border-primary bg-green-50"
+                  : "border border-white hover:bg-gray-100"
               }`}
-              onClick={() => setCurrentPage(section.name)}
+              onClick={() => {
+                setCurrentPage(section.name);
+                router.push(section.path);
+              }}
             >
               <span className="flex items-center space-x-2">
                 <Image
@@ -80,8 +126,8 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
               <div className="flex gap-2">
                 {section.notifications ? (
                   <span
-                    className="bg-orange-500 text-white text-xs font-medium rounded-full flex items-center
-                   justify-center size-5"
+                    className="flex size-5 items-center justify-center rounded-full bg-orange-500 text-xs
+                   font-medium text-white"
                   >
                     {section.notifications}
                   </span>

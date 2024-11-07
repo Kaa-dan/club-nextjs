@@ -188,7 +188,7 @@ export default function Page() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Member's Name</TableHead>
+                <TableHead>Member&#39;s Name</TableHead>
                 <TableHead>Level</TableHead>
                 <TableHead>Contribution</TableHead>
                 <TableHead>Join Date</TableHead>

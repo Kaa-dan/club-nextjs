@@ -25,14 +25,13 @@ const stepTwoSchema = z.object({
   profilePhoto: z
     .instanceof(File)
     .nullable()
-    .refine((file) => file, { message: "Profile photo is required." }),
+    .refine((file) => file, { message: "Profile photo is required." })
+    .optional(),
   coverPhoto: z
     .instanceof(File)
     .nullable()
-    .refine((file) => file, { message: "Cover photo is required." }),
-  terms: z.boolean().refine((val) => val, {
-    message: "You must accept the terms and conditions",
-  }),
+    .refine((file) => file, { message: "Cover photo is required." })
+    .optional(),
 });
 
 type StepTwoType = z.infer<typeof stepTwoSchema>;
@@ -45,16 +44,12 @@ interface PictureFormProps {
 const PictureForm: React.FC<PictureFormProps> = ({ setStep, userId }) => {
   //global store
   const { verifyToken, setVerifyToken, globalUser, setGlobalUser } =
-    useTokenStore((state) => ({
-      verifyToken: state.verifyToken,
-      setVerifyToken: state.setVerifyToken,
-      clearVerifyToken: state.clearVerifyToken,
-      globalUser: state.globalUser,
-      setGlobalUser: state.setGlobalUser,
-    }));
+    useTokenStore((state) => state);
 
   const [formData, setFormData] = useState<Partial<StepTwoType>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [initialValues, setInitialValues] = useState<StepTwoType | null>(null);
+  const [isChanged, setIsChanged] = useState(false);
 
   const form = useForm<StepTwoType>({
     resolver: zodResolver(stepTwoSchema),
@@ -64,6 +59,26 @@ const PictureForm: React.FC<PictureFormProps> = ({ setStep, userId }) => {
   useEffect(() => {
     form.reset(formData);
   }, [formData, form]);
+
+  // Set initial values for comparison
+  useEffect(() => {
+    setInitialValues(form.getValues());
+  }, [form]);
+
+  // Watch all form values and detect changes
+  const watchedValues = form.watch();
+
+  useEffect(() => {
+    // Check if current values are different from initial values
+    if (
+      initialValues &&
+      JSON.stringify(initialValues) !== JSON.stringify(watchedValues)
+    ) {
+      setIsChanged(true);
+    } else {
+      setIsChanged(false);
+    }
+  }, [watchedValues, initialValues]);
 
   const onSubmit: SubmitHandler<StepTwoType> = async (data) => {
     try {
@@ -127,6 +142,10 @@ const PictureForm: React.FC<PictureFormProps> = ({ setStep, userId }) => {
                   <PhotoInput
                     field="Profile"
                     onUpload={(file) => field.onChange(file)}
+                    initialUrl={globalUser?.profileImage}
+                    initialImageName={
+                      globalUser?.profileImage && "currentProfileImage.jpg"
+                    }
                   />
                 </FormControl>
                 <FormMessage />
@@ -143,6 +162,10 @@ const PictureForm: React.FC<PictureFormProps> = ({ setStep, userId }) => {
                   <PhotoInput
                     field="Cover"
                     onUpload={(file) => field.onChange(file)}
+                    initialUrl={globalUser?.coverImage}
+                    initialImageName={
+                      globalUser?.coverImage && "currentCoverImage.jpg"
+                    }
                   />
                 </FormControl>
                 <FormMessage />
@@ -150,7 +173,7 @@ const PictureForm: React.FC<PictureFormProps> = ({ setStep, userId }) => {
             )}
           />
         </div>
-        <div>
+        {/* <div>
           <FormField
             control={form.control}
             name="terms"
@@ -178,14 +201,35 @@ const PictureForm: React.FC<PictureFormProps> = ({ setStep, userId }) => {
               </FormItem>
             )}
           />
-        </div>
+        </div> */}
         <div className="flex justify-end gap-4">
-          <Button variant="outline" type="button">
+          <Button
+            variant="outline"
+            type="button"
+            onClick={() => setStep("details")}
+            disabled={isSubmitting}
+          >
             Back
           </Button>
-          <Button type="submit" className="text-white" disabled={isSubmitting}>
-            {isSubmitting ? "Uploading..." : "Next"}
-          </Button>
+          {isChanged ? (
+            <Button
+              type="submit"
+              className="text-white"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Uploading..." : "Next"}
+            </Button>
+          ) : (
+            <Button
+              className="text-white"
+              onClick={(e) => {
+                e.preventDefault();
+                setStep("interest");
+              }}
+            >
+              Next
+            </Button>
+          )}
         </div>
       </form>
     </Form>

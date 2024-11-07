@@ -4,16 +4,17 @@ import NodeProfileCard from "@/components/pages/node/node-profile-card";
 import NodeTeams from "@/components/pages/node/node-teams";
 import { Endpoints } from "@/utils/endpoint";
 import React, { useEffect, useState } from "react";
-import { NodeData } from "@/types";
+import { TNodeData } from "@/types";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const [currentPage, setCurrentPage] = useState("modules");
-  const [node, setNode] = useState<NodeData | null>(null);
+  const [node, setNode] = useState<TNodeData | null>(null);
   const nodeID = "kasjdkljasdfklasdf";
 
   const fetchNodeDetails = async () => {
     try {
       const response = await Endpoints.fetchNodeDetails(nodeID);
+
       setNode(response.data);
     } catch (error) {
       console.log(error);

@@ -54,7 +54,7 @@ const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
               )}
             </div>
             <p
-              className={`px-1 pl-2 text-base font-medium 
+              className={`px-1 pl-2 text-base font-medium capitalize
               ${isCurrent ? " text-primary" : stepIndex < currentStepIndex ? "text-primary" : ""}`}
             >
               {step}

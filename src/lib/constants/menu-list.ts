@@ -1,5 +1,4 @@
 "use client";
-
 import { Endpoints } from "@/utils/endpoint";
 
 type Submenu = {
@@ -9,22 +8,43 @@ type Submenu = {
 };
 
 type Menu = {
-  href: string;
+  _id?: string;
   label: string;
   active: boolean;
   image: string;
   submenus: Submenu[];
   key?: string;
+  href: string;
 };
 
 type Group = {
   groupLabel: string;
   menus: Menu[];
+  menuItems?: Menu[];
 };
 
 export async function getMenuList(pathname: string): Promise<Group[]> {
   const response = await Endpoints.fetchAllNodes();
-  console.log({ response });
+  const clubsResponse = await Endpoints.fetchSpecificClubs();
+
+  const clubMenus: Menu[] = clubsResponse.map((club: any) => ({
+    _id: club?.club?._id, // Store the _id directly
+    label: club?.club?.name, // Assuming clubs have a `name`
+    active: pathname.includes(`/club/${club?.club?._d}`),
+    image: club?.club?.profileImage.url || "https://picsum.photos/200", // Use the club's image if available
+    submenus: [],
+    href: `/club/${club?.club?._id}`,
+  }));
+  const nodeMenus: Menu[] = response.map((node: any) => ({
+    _id: node?._id, // Store the _id directly
+    label: node.name, // Assuming clubs have a `name`
+    active: pathname.includes(`/node/${node?._d}`),
+    image: node.profileImage || "https://picsum.photos/200", // Use the node's image if available
+    submenus: [],
+    href: `/node/${node._id}`,
+  }));
+  const top3Clubs = clubMenus.slice(0, 3);
+  const top3Nodes = nodeMenus.slice(0, 3);
   return [
     {
       groupLabel: "",
@@ -40,35 +60,9 @@ export async function getMenuList(pathname: string): Promise<Group[]> {
     },
     {
       groupLabel: "Nodes",
+      menuItems: nodeMenus,
       menus: [
-        {
-          href: "/nodes/gretchen-lencher",
-          label: "Gretchen Lencher",
-          active: pathname.includes("/my-account"),
-          image: "https://picsum.photos/200",
-          submenus: [],
-        },
-        {
-          href: "/Aarlene-McCoy",
-          label: "Arlene McCoy",
-          active: pathname.includes("/my-account"),
-          image: "https://picsum.photos/200",
-          submenus: [],
-        },
-        {
-          href: "/Brooklyn-Simmons",
-          label: "Brooklyn Simmons",
-          active: pathname.includes("/my-account"),
-          image: "https://picsum.photos/200",
-          submenus: [],
-        },
-        {
-          href: "/Brooklyn-Simmons",
-          label: "Brooklyn Simmons",
-          active: pathname.includes("/my-account"),
-          image: "https://picsum.photos/200",
-          submenus: [],
-        },
+        ...top3Nodes,
         {
           href: "",
           key: "createNode",
@@ -81,34 +75,16 @@ export async function getMenuList(pathname: string): Promise<Group[]> {
     },
     {
       groupLabel: "Clubs",
+      menuItems: clubMenus,
       menus: [
+        ...top3Clubs, // Insert fetched club data here without `href`
         {
-          href: "/Annette-Black",
-          label: "Annette Black",
-          active: pathname.includes("/my-account"),
-          image: "https://picsum.photos/200",
-          submenus: [],
-        },
-        {
-          href: "/Cameron-Williamson",
-          label: "Cameron Williamson",
-          active: pathname.includes("/my-account"),
-          image: "https://picsum.photos/200",
-          submenus: [],
-        },
-        {
-          href: "/Devon-Lane",
-          label: "Devon Lane",
-          active: pathname.includes("/my-account"),
-          image: "https://picsum.photos/200",
-          submenus: [],
-        },
-        {
-          href: "",
           key: "createClub",
           label: "Create Club",
           active: pathname.includes("/my-account"),
           image: "https://picsum.photos/200",
+          href: "",
+          _id: "",
           submenus: [],
         },
       ],

@@ -362,6 +362,8 @@ const AddNodeDialog = ({ open, setOpen }: IProps) => {
   const onFinalSubmit = async () => {
     const formData = new FormData();
     const values = form.getValues();
+    console.log(values, "vall");
+
     if (values.profilePhoto)
       formData.append("profileImage", values.profilePhoto);
 
@@ -376,7 +378,6 @@ const AddNodeDialog = ({ open, setOpen }: IProps) => {
       toast.success(response.message);
       setCurrentStep("Success");
     } catch (error: any) {
-      console.log(error);
       toast.error(
         error.message || error.response.data.message || "something went wrong"
       );
