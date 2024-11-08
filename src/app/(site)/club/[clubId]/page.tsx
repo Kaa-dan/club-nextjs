@@ -9,13 +9,9 @@ import { TClub } from "@/types";
 
 import { fetchSpecificClub } from "@/components/pages/club/endpoint";
 import Posts from "@/components/pages/club/club-modules/posts";
+import Rules from "@/components/pages/club/club-modules/rules";
 // Module Components
-const RulesModule = () => (
-  <div className="space-y-4">
-    <h2 className="text-xl font-bold">Club Rules</h2>
-    {/* Add your Rules content here */}
-  </div>
-);
+const RulesModule = () => <Rules />;
 
 const MarketPlaceModule = () => (
   <div className="space-y-4">
