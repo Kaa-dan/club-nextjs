@@ -383,6 +383,7 @@ const AddNodeDialog = ({ open, setOpen }: IProps) => {
       const joinedNodes = await Endpoints.fetchUserJoinedNodes();
       setUserJoinedNodes(joinedNodes);
     } catch (error: any) {
+      console.log(error);
       toast.error(
         error.message || error.response.data.message || "something went wrong"
       );

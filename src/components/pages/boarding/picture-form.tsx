@@ -118,7 +118,7 @@ const PictureForm: React.FC<PictureFormProps> = ({ setStep, userId }) => {
         // console.log("Upload successful:", result);
 
         // Move to next step if successful
-        setStep("node");
+        setStep("interest");
       }
     } catch (error) {
       console.error("Upload error:", error);
@@ -135,6 +135,7 @@ const PictureForm: React.FC<PictureFormProps> = ({ setStep, userId }) => {
           <FormField
             control={form.control}
             name="profilePhoto"
+            disabled={isSubmitting}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Profile Photo</FormLabel>
@@ -155,6 +156,7 @@ const PictureForm: React.FC<PictureFormProps> = ({ setStep, userId }) => {
           <FormField
             control={form.control}
             name="coverPhoto"
+            disabled={isSubmitting}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Cover Photo</FormLabel>
