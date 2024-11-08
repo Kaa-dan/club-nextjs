@@ -85,7 +85,7 @@ const Page = () => {
           console.log(`${status} Error:`, error);
         }
       }
-    }, 5000);
+    }, 3000);
 
     setTimeoutId(id); // Save the timeout ID
   };
@@ -103,9 +103,7 @@ const Page = () => {
 
   return (
     <>
-<<<<<<< HEAD
       <div className="mt-2 ">{/* Breadcrumbs and other UI elements */}</div>
-=======
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -122,14 +120,13 @@ const Page = () => {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
->>>>>>> 3a5921ac6d08d95be74d4ca3aba42c6d49edb470
       <div className="mt-2 rounded-lg bg-white p-6 shadow-lg">
         <h2 className="mb-4 text-lg font-semibold">All Members request</h2>
         <div className="space-y-4">
           {alertVisible && (
             <div className="py-4">
               <Alert className="animate-bounce ">
-                <div className="flex justify-between items-center">
+                <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div>
                       <Image
@@ -146,7 +143,7 @@ const Page = () => {
                     </div>
                   </div>
                   <Button
-                    className="bg-transparent border w-16 h-6 border-gray-500 text-gray-700"
+                    className="h-6 w-16 border border-gray-500 bg-transparent text-gray-700"
                     onClick={undoAction}
                   >
                     Undo

@@ -43,9 +43,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               {children}
             </div>
           </div>
-          <div className="hidden lg:flex">
+          {/* <div className="hidden ">
             <NodeTeams />
-          </div>
+          </div> */}
         </>
       ) : (
         "Loading..."
