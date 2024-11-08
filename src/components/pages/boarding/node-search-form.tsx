@@ -14,14 +14,17 @@ import NodeJoinCard from "./node/node-join-card";
 import { Endpoints } from "@/utils/endpoint";
 import { useTokenStore } from "@/store/store";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 interface ISearchResultsProps {
   setShowAddNodeDialog: (bool: boolean) => void;
+  showAddNodeDialog: boolean;
   searchTerm: string;
   setSearchTerm: (term: string) => void;
 }
 const SearchResults = ({
   setShowAddNodeDialog,
+  showAddNodeDialog,
   searchTerm,
   setSearchTerm,
 }: ISearchResultsProps) => {
@@ -29,11 +32,13 @@ const SearchResults = ({
   const [requestedNodes, setRequestedNodes] = useState<string[]>([]);
   const [filteredNodes, setFilteredNodes] = useState([]);
   const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     getNodes().then((res) => {
       setNodes(res);
+      console.log(res);
     });
-  }, []);
+  }, [showAddNodeDialog]);
   useEffect(() => {
     setFilteredNodes(
       searchTerm
@@ -47,9 +52,16 @@ const SearchResults = ({
     try {
       setLoading(true);
       const response = await Endpoints.requestToJoinNode(nodeId);
+      console.log(response, "node request response");
+      if (response?.status === "REQUESTED")
+        toast.success("Your request to join has been sent successfully!");
       setRequestedNodes((prev) => [...prev, nodeId]);
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      toast.error(
+        error?.response?.data?.message ||
+          "something went while request join node"
+      );
+      console.log(error?.response?.data?.message);
     } finally {
       setLoading(false);
     }
@@ -83,7 +95,7 @@ const SearchResults = ({
               onJoin={requestToJoinNode}
               isLoading={loading}
               requested={false}
-              key={node.name}
+              key={index}
               node={node}
             />
           );
@@ -129,6 +141,7 @@ export const NodeSearchForm: React.FC<InterestFormProps> = ({ setStep }) => {
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
           setShowAddNodeDialog={setShowAddNodeDialog}
+          showAddNodeDialog={showAddNodeDialog}
         />
       ) : (
         <>

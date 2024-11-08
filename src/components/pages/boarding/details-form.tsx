@@ -1,4 +1,5 @@
 "use client";
+import { format } from "date-fns";
 
 import React, { useState, useEffect, use } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -37,14 +38,21 @@ const stepOneSchema = z.object({
   firstName: z
     .string()
     .min(2, { message: "First name must be at least 2 characters." })
-    .regex(/^[^\s]+$/, { message: "First name should not contain spaces" }),
+    .regex(/^[^\s].*[^\s]$/, {
+      message: "First name cannot start or end with a space.",
+    }),
+
   lastName: z
     .string()
     .min(2, { message: "Last name must be at least 2 characters." })
-    .regex(/^[^\s]+$/, { message: "Last name should not contain spaces" }),
-  phoneNumber: z
-    .string()
-    .min(10, { message: "Phone number must be at least 10 characters." }),
+    .regex(/^[^\s].*[^\s]$/, {
+      message: "Last name cannot start or end with a space.",
+    }),
+
+  phoneNumber: z.string().regex(/^(\+91)?[6-9]\d{9}$/, {
+    message: "Phone number must be a valid number",
+  }),
+
   dateOfBirth: z.string().nonempty({ message: "Birthdate is required." }),
   gender: z.string().nonempty({ message: "Gender is required." }),
   terms: z.boolean().refine((val) => val, {
@@ -165,7 +173,23 @@ const DetailsForm: React.FC<DetailsFormProps> = ({ setStep }) => {
               <FormItem>
                 <FormLabel>Birthdate</FormLabel>
                 <FormControl>
-                  <Input type="date" {...field} />
+                  {/* <Input type="date" {...field} /> */}
+                  <Input
+                    type="date"
+                    min={format(
+                      new Date(
+                        new Date().setFullYear(new Date().getFullYear() - 100)
+                      ),
+                      "yyyy-MM-dd"
+                    )} // Allow dates as far back as 100 years
+                    max={format(
+                      new Date(
+                        new Date().setFullYear(new Date().getFullYear() - 12)
+                      ).setMonth(11, 31),
+                      "yyyy-MM-dd"
+                    )} // Set max to Dec 31, 2018
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
