@@ -39,7 +39,7 @@ export default SingleClubPage;
 
 function PostComponent() {
   return (
-    <Card className="max-w-2xl">
+    <Card className="max-w-2xl  ">
       <CardHeader className="space-y-0 pb-4">
         <div className="flex items-start justify-between">
           <div className="flex gap-3">
