@@ -7,7 +7,7 @@ import MemberApprovalTab from "@/components/pages/club/member-approval-tab";
 import { Button } from "@/components/ui/button";
 import { useParams } from "next/navigation";
 
-const page = () => {
+const ApprovalsPage = () => {
   const params = useParams<{ clubId: string }>();
 
   return (
@@ -46,4 +46,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default ApprovalsPage;

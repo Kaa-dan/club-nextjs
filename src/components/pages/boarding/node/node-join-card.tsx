@@ -28,7 +28,7 @@ const NodeJoinCard: React.FC<{
       <Image
         height={200}
         width={200}
-        src={profileImage}
+        src={profileImage.url}
         alt={name}
         className="size-10 rounded-md object-cover"
       />
@@ -53,14 +53,14 @@ const NodeJoinCard: React.FC<{
             <Image
               height={100}
               width={200}
-              src={coverImage}
+              src={coverImage.url}
               alt={name}
               className="mx-auto h-32 w-96"
             />
             <Image
               height={200}
               width={200}
-              src={profileImage}
+              src={profileImage.url}
               alt={name}
               className="absolute -bottom-10 left-1/2 size-20 -translate-x-1/2 rounded-full border-4 border-white object-cover"
             />
