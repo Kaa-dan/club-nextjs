@@ -378,7 +378,7 @@ const AddNodeDialog = ({ open, setOpen }: IProps) => {
     console.log("values", values);
     try {
       const response = await addNode(formData);
-      toast.success(response.message);
+      toast.success(response.message || "Node Created Successfully");
       setCurrentStep("Success");
       const joinedNodes = await Endpoints.fetchUserJoinedNodes();
       setUserJoinedNodes(joinedNodes);
@@ -408,9 +408,9 @@ const AddNodeDialog = ({ open, setOpen }: IProps) => {
                 "Creating a code of conduct for a social media group is essential to maintain a positive and respectful online "
               }
             </span>
-            <Button variant={"outline"} className="border-black text-black">
+            {/* <Button variant={"outline"} className="border-black text-black">
               View node
-            </Button>
+            </Button> */}
           </div>
         ) : (
           <>
