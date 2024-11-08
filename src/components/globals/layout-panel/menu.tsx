@@ -42,6 +42,7 @@ import { boolean } from "zod";
 import { pinClub } from "@/components/pages/club/endpoint";
 import { toast } from "sonner";
 import { useTokenStore } from "@/store/store";
+import image from "next/image";
 import { Endpoints } from "@/utils/endpoint";
 import { useClubStore } from "@/store/clubs-store";
 import Link from "next/link";
@@ -179,6 +180,8 @@ export function Menu({ isOpen }: MenuProps) {
     setMenuList(_menuList);
     return menuList;
   }
+  console.log({ menuList });
+
   const router = useRouter();
 
   const isActivePath = ({

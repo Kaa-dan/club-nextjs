@@ -67,9 +67,9 @@ const formSchema = z.object({
     .optional(),
   name: z
     .string()
-    .min(1, { message: "Node name is required" })
+    .min(1, { message: "Club name is required" })
     .refine((value) => value.trim().length > 0, {
-      message: "Node name cannot be empty ",
+      message: "Club name cannot be empty ",
     }),
 
   about: z
@@ -260,13 +260,13 @@ const DetailsForm = ({
           )}
         />
 
-        {/* Node Name */}
+        {/* Club Name */}
         <FormField
           control={form.control}
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Enter node name</FormLabel>
+              <FormLabel>Enter club name</FormLabel>
               <FormControl>
                 <Input placeholder="Enter name" {...field} />
               </FormControl>
