@@ -42,6 +42,7 @@ import { boolean } from "zod";
 import { pinClub } from "@/components/pages/club/endpoint";
 import { toast } from "sonner";
 import { useTokenStore } from "@/store/store";
+import image from "next/image";
 interface MenuProps {
   isOpen: boolean | undefined;
 }
@@ -156,10 +157,12 @@ export function Menu({ isOpen }: MenuProps) {
 
   async function fetchMenuList() {
     const _menuList = await getMenuList(pathname);
+
     setMenuList(_menuList);
-    console.log("menuList", menuList);
     return menuList;
   }
+  console.log({ menuList });
+
   const router = useRouter();
 
   const isActivePath = ({

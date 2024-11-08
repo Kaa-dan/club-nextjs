@@ -28,6 +28,8 @@ const GoogleSignIn = () => {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
 
+      console.log(user, "sladfla");
+
       const response = await signinWithSocial({
         email: user.email,
         userName: user.displayName,
@@ -36,6 +38,7 @@ const GoogleSignIn = () => {
         signupThrough: "google",
       });
 
+      console.log(response?.data?.isOnBoarded, "sdafasfd");
       toast.success(response.message);
 
       // setting global state
@@ -46,10 +49,8 @@ const GoogleSignIn = () => {
         ? router.replace("/")
         : router.replace("/onboarding");
     } catch (error: any) {
+      toast.error(error.message);
       console.error("Google Sign-in Error:", error);
-      if (error.response) {
-        toast.error(error.response.data.message);
-      }
     }
   };
 

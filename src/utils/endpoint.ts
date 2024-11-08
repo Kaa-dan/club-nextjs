@@ -120,4 +120,21 @@ export class Endpoints {
       throw error;
     }
   }
+  static async pinClub(clubId: string) {
+    try {
+      const response = await mainAxios.put(`/clubs/pin-club/${clubId}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async unpinClub(clubId: string) {
+    try {
+      const response = await mainAxios.put(`/clubs/unpin-club/${clubId}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
