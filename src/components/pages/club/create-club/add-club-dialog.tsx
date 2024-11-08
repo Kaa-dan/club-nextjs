@@ -31,6 +31,8 @@ import { Camera, LoaderCircle, Search, X } from "lucide-react";
 import { ICONS } from "@/lib/constants";
 import { formatName } from "@/utils/text";
 import { toast } from "sonner";
+import { useClubStore } from "@/store/clubs-store";
+import { Endpoints } from "@/utils/endpoint";
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 5MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
@@ -341,6 +343,7 @@ const DetailsForm = ({
 };
 
 const AddClubDialog = ({ open, setOpen }: IProps) => {
+  const { setUserJoinedClubs } = useClubStore((state) => state);
   const [load, setLoad] = useState<Boolean>(false);
   const router = useRouter();
   const [clubId, setClubId] = useState<string>();
@@ -380,6 +383,8 @@ const AddClubDialog = ({ open, setOpen }: IProps) => {
       setClubId(response._id);
 
       setCurrentStep("Success");
+      const joinedClubs = await Endpoints.fetchUserJoinedClubs();
+      setUserJoinedClubs(joinedClubs);
     } catch (error: any) {
       console.log(error);
       toast.error(
