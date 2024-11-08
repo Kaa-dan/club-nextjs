@@ -85,7 +85,7 @@ const Page = () => {
           console.log(`${status} Error:`, error);
         }
       }
-    }, 5000);
+    }, 3000);
 
     setTimeoutId(id); // Save the timeout ID
   };
@@ -126,7 +126,7 @@ const Page = () => {
           {alertVisible && (
             <div className="py-4">
               <Alert className="animate-bounce ">
-                <div className="flex justify-between items-center">
+                <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div>
                       <Image
@@ -143,7 +143,7 @@ const Page = () => {
                     </div>
                   </div>
                   <Button
-                    className="bg-transparent border w-16 h-6 border-gray-500 text-gray-700"
+                    className="h-6 w-16 border border-gray-500 bg-transparent text-gray-700"
                     onClick={undoAction}
                   >
                     Undo

@@ -67,3 +67,12 @@ export interface Request {
   role: "member" | "admin" | "otherRole";
   status: "REQUESTED" | "APPROVED" | "REJECTED";
 }
+
+export interface TMembers {
+  _id: string;
+  club: TClub;
+  user: TUser;
+  role: "member" | "admin" | "moderator";
+  status: "REQUESTED" | "APPROVED" | "REJECTED";
+  createdAt: Date;
+}
