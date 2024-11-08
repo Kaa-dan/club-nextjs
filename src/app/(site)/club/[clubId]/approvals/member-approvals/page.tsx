@@ -93,7 +93,7 @@ const Page = () => {
 
   return (
     <>
-      <div className="mt-2">{/* Breadcrumbs and other UI elements */}</div>
+      <div className="mt-2 ">{/* Breadcrumbs and other UI elements */}</div>
       <div className="mt-2 rounded-lg bg-white p-6 shadow-lg">
         <h2 className="mb-4 text-lg font-semibold">All Members request</h2>
         <div className="space-y-4">
