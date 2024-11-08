@@ -80,7 +80,7 @@ export default function Page() {
             <div className="space-y-2">
               <h2 className="flex items-center gap-2 text-lg font-semibold">
                 Members
-                <span className="text-sm font-normal text-muted-foreground">
+                <span className="flex text-sm font-normal  text-muted-foreground">
                   • {members?.length} Members
                 </span>
               </h2>
@@ -143,7 +143,7 @@ export default function Page() {
                 </DialogTrigger>
               </Dialog>
 
-              <Dialog>
+              {/* <Dialog>
                 <DialogTrigger>
                   <Button variant="outline" className="gap-2">
                     <Copy className="size-4" />
@@ -152,7 +152,7 @@ export default function Page() {
                   </Button>
                 </DialogTrigger>
                 <CopyLink />
-              </Dialog>
+              </Dialog> */}
 
               <AlertDialog>
                 <AlertDialogTrigger asChild>
