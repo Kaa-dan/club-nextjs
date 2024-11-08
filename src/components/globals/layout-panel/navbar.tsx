@@ -241,6 +241,8 @@ export const Navbar: React.FC = () => {
                           <Image
                             src={node?.profileImage?.url}
                             className="size-8 rounded-sm"
+                            width={32}
+                            height={32}
                             alt="search-icon"
                           />
                           <div className="text-sm font-semibold text-gray-800">
