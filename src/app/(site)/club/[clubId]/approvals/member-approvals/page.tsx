@@ -119,8 +119,8 @@ const Page = () => {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <div className="p-6 bg-white shadow-lg rounded-lg mt-2">
-        <h2 className="text-lg font-semibold mb-4">All Members request</h2>
+      <div className="mt-2 rounded-lg bg-white p-6 shadow-lg">
+        <h2 className="mb-4 text-lg font-semibold">All Members request</h2>
         <div className="space-y-4">
           {alertVisible && (
             <div className="py-4">
@@ -152,7 +152,9 @@ const Page = () => {
             </div>
           )}
           {requests.length === 0 ? (
-            <h1>No request</h1>
+            <h1 className="my-3 text-center text-muted-foreground">
+              No request
+            </h1>
           ) : (
             requests.map((request) => (
               <ClubRequest

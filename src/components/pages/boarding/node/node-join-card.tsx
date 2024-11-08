@@ -28,14 +28,14 @@ const NodeJoinCard: React.FC<{
       <Image
         height={200}
         width={200}
-        src={profileImage.url}
+        src={profileImage?.url}
         alt={name}
         className="size-10 rounded-md object-cover"
       />
       <span className="w-full truncate text-sm font-semibold">{name}</span>
       <div className="flex items-center gap-1">
         <Users size={"1rem"} />
-        {members.length}
+        {members?.length}
       </div>
       <div className="flex w-4/5 items-center rounded-md bg-slate-50 p-1">
         <MapPin size={"1rem"} className="text-red-500" />
@@ -53,14 +53,14 @@ const NodeJoinCard: React.FC<{
             <Image
               height={100}
               width={200}
-              src={coverImage.url}
+              src={coverImage?.url}
               alt={name}
               className="mx-auto h-32 w-96"
             />
             <Image
               height={200}
               width={200}
-              src={profileImage.url}
+              src={profileImage?.url}
               alt={name}
               className="absolute -bottom-10 left-1/2 size-20 -translate-x-1/2 rounded-full border-4 border-white object-cover"
             />

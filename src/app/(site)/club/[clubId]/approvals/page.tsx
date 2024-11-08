@@ -7,7 +7,7 @@ import MemberApprovalTab from "@/components/pages/club/member-approval-tab";
 import { Button } from "@/components/ui/button";
 import { useParams } from "next/navigation";
 
-const ApprovalsPage = () => {
+const ApprovalPage = () => {
   const params = useParams<{ clubId: string }>();
 
   return (
@@ -18,8 +18,10 @@ const ApprovalsPage = () => {
         <div className="w-16 border-t border-gray-300"></div>
       </div>
 
-      <MemberApprovalTab clubId={params.clubId} />
-      <div className="bg-white   shadow-sm flex justify-between items-center p-4 rounded-md">
+      <div className="mb-3">
+        <MemberApprovalTab clubId={params.clubId} />
+      </div>
+      {/* <div className="flex   items-center justify-between rounded-md bg-white p-4 shadow-sm">
         <div className="flex items-center gap-2">
           <Image
             className="flex items-center"
@@ -34,11 +36,11 @@ const ApprovalsPage = () => {
           </div>
         </div>
         <div>
-          <Button className="w-24 h-6 bg-gray-300 text-gray-700 text-xs border-gray-500 border">
+          <Button className="h-6 w-24 border border-gray-500 bg-gray-300 text-xs text-gray-700">
             Undo
           </Button>
         </div>
-      </div>
+      </div> */}
       <div>
         <ClubPostApproval />
       </div>
@@ -46,4 +48,4 @@ const ApprovalsPage = () => {
   );
 };
 
-export default ApprovalsPage;
+export default ApprovalPage;
