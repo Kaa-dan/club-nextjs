@@ -15,6 +15,15 @@ export class Endpoints {
     }
   }
 
+  static async fetchUserJoinedNodes() {
+    try {
+      const { data } = await mainAxios.get("/node/user-nodes");
+      return data;
+    } catch (error) {
+      console.log({ error });
+    }
+  }
+
   static async requestToJoinNode(nodeId: string) {
     try {
       const { data } = await mainAxios.post("/node/request-to-join/" + nodeId);
@@ -27,19 +36,17 @@ export class Endpoints {
   static async toggleMembersRequest(
     nodeId: string,
     userId: string,
-    action: string
+    status: "ACCEPTED" | "REJECTED"
   ) {
-    const response = await mainAxios.put(
-      `/node/join-requests/status/${action}`,
-      {
-        nodeId,
-        userId,
-      }
-    );
+    const response = await mainAxios.post(`/node/handle-request`, {
+      nodeId,
+      requestId: userId,
+      status,
+    });
     return response.data;
   }
 
-  static async getJoinRequests(nodeId: string) {
+  static async getNodeJoinRequests(nodeId: string) {
     try {
       const response = await mainAxios.get("/node/join-requests/" + nodeId);
       return response.data;
@@ -57,7 +64,7 @@ export class Endpoints {
     }
   }
 
-  static async fetchSpecificClubs() {
+  static async fetchUserJoinedClubs() {
     try {
       const response = await mainAxios.get(`/clubs/user-clubs`);
       console.log({ response });
@@ -78,6 +85,14 @@ export class Endpoints {
   static async fetchClubUserStatus(clubdId: string) {
     try {
       const response = await mainAxios.get(`clubs/check-status/${clubdId}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+  static async fetchNodeUserStatus(nodeId: string) {
+    try {
+      const response = await mainAxios.get(`node/check-status/${nodeId}`);
       return response.data;
     } catch (error) {
       throw error;
