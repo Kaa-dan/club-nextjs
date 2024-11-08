@@ -20,7 +20,7 @@ const SiteLayout = ({ children }: { children: React.ReactNode }) => {
   }, [router]);
 
   return (
-    <section className="bg-green-400">
+    <section className="">
       <LayoutPanel>{children}</LayoutPanel>
     </section>
   );
