@@ -28,11 +28,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       {node ? (
         <>
           <div className="w-[75%] flex gap-6">
-            <NodeProfileCard
+            {/* <NodeProfileCard
               currentPage={currentPage}
               setCurrentPage={setCurrentPage}
               nodeData={node}
-            />
+            /> */}
             <div className="flex flex-col w-full">
               <ModulesBar />
               {children}
