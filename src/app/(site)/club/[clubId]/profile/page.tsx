@@ -38,6 +38,7 @@ import { useClubStore } from "@/store/clubs-store";
 
 export default function Page() {
   const { setUserJoinedClubs } = useClubStore((state) => state);
+  const [invite, setInvite] = useState<boolean>();
   const [members, setMembers] = useState([]);
   const params = useParams<{ clubId: string }>();
   const visibleUsers = 5;

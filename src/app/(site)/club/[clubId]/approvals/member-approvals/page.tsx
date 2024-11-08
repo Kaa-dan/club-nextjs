@@ -103,9 +103,7 @@ const Page = () => {
 
   return (
     <>
-<<<<<<< HEAD
       <div className="mt-2 ">{/* Breadcrumbs and other UI elements */}</div>
-=======
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -122,7 +120,6 @@ const Page = () => {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
->>>>>>> 3a5921ac6d08d95be74d4ca3aba42c6d49edb470
       <div className="mt-2 rounded-lg bg-white p-6 shadow-lg">
         <h2 className="mb-4 text-lg font-semibold">All Members request</h2>
         <div className="space-y-4">
