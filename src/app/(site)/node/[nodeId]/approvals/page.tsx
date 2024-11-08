@@ -1,8 +1,26 @@
-import React from "react";
+"use client";
+import React, { useEffect, useState } from "react";
 import { ICONS } from "@/lib/constants";
 import Image from "next/image";
+import Link from "next/link";
+import { request } from "http";
+import { ChevronRight } from "lucide-react";
+import { Endpoints } from "@/utils/endpoint";
+import { useParams } from "next/navigation";
 
-const page = () => {
+const ApprovalPage = () => {
+  const { nodeId } = useParams<{ nodeId: string }>();
+  const [request, setRequest] = useState<number>(0);
+  const requestToShow = request > 10 ? "10" : request;
+
+  const fetchRequests = async (nodeId: string) => {
+    const response = await Endpoints.getNodeJoinRequests(nodeId);
+    setRequest(response.length);
+  };
+
+  useEffect(() => {
+    fetchRequests(nodeId);
+  }, [nodeId]);
   return (
     <div className="flex flex-col items-center space-y-4 bg-gray-50 p-4">
       {/* Header with horizontal lines */}
@@ -15,34 +33,41 @@ const page = () => {
       </div>
 
       {/* Approval card */}
-      <div className="flex w-full max-w-full items-center justify-between rounded-lg border border-gray-200 bg-white p-4 shadow-md">
-        <div className="flex items-center">
-          {/* <FaUserFriends className="text-gray-600 text-2xl mr-4" /> */}
+      <Link
+        href={"approvals/member-approvals"}
+        className="flex items-center justify-between rounded-lg bg-white p-3 shadow-sm"
+      >
+        <div className="flex items-center ">
           <div className="p-4">
             <Image
               src={ICONS.ApprovalIcon}
               alt="approval-icon"
-              height={50}
-              width={50}
+              height={25}
+              width={25}
             />
           </div>
-
-          <div>
-            <h2 className="text-lg font-semibold text-gray-800">
-              Member Approval
-            </h2>
-            <p className="text-sm text-gray-500">
+          <div className="flex-col ">
+            <h1 className="text-xs font-medium">Members Approval</h1>
+            <p className="text-xs text-gray-600">
               Evaluate and decide on requests by either approving or rejecting
               them.
             </p>
           </div>
         </div>
-        <button className="rounded-full bg-orange-500 px-4 py-2 font-semibold text-white hover:bg-orange-600">
-          561+
-        </button>
-      </div>
+        <div className="flex justify-between gap-5">
+          {request > 0 && (
+            <div className="rounded-xl   bg-orange-500   p-2">
+              <p className="text-center text-xs text-white ">{requestToShow}</p>
+            </div>
+          )}
+
+          <div>
+            <ChevronRight />
+          </div>
+        </div>
+      </Link>
     </div>
   );
 };
 
-export default page;
+export default ApprovalPage;

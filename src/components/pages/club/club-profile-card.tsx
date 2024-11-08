@@ -1,3 +1,4 @@
+"use client";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { ICONS } from "@/lib/constants";
@@ -5,12 +6,16 @@ import { ChevronRight, Globe2, Lock } from "lucide-react";
 import { TClub } from "@/types";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 import { joinClub } from "./endpoint";
 import { Endpoints } from "@/utils/endpoint";
+import { useClubStore } from "@/store/clubs-store";
+import { useTokenStore } from "@/store/store";
 
 interface ProfileCardProps {
-  club: TClub;
+  club: {
+    club: TClub;
+    members: Array<any>;
+  };
   currentPage: string;
   setCurrentPage: (page: string) => void;
   clubId: string;
@@ -23,10 +28,24 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
   clubId,
 }) => {
   const [joinStatus, setJoinStatus] = useState<String>("");
+  const { setUserJoinedClubs } = useClubStore((state) => state);
+  const { globalUser } = useTokenStore((state) => state);
+
   const router = useRouter();
+
+  console.log({ club }, globalUser?._id);
+
+  const currentUserRole =
+    club?.members?.find((member) => member?.user?._id === globalUser?._id)
+      ?.role || "";
+
+  const isAdmin = () => currentUserRole === "admin";
+  const isModeratorOrAdmin = () =>
+    ["moderator", "admin"].includes(currentUserRole.toLowerCase());
+
   const SECTIONS = [
-    { name: "News Feed", icon: ICONS.NodeNewsFeedIcon, path: "/news-feed" },
-    { name: "Modules", icon: ICONS.NodeModulesIcon, path: "/modules" },
+    { name: "News Feed", icon: ICONS.NodeNewsFeedIcon, path: "#" },
+    { name: "Modules", icon: ICONS.NodeModulesIcon, path: "#" },
     {
       name: "Profile",
       icon: ICONS.NodeProfileIcon,
@@ -35,8 +54,8 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
     {
       name: "Chapters",
       icon: ICONS.NodeChaptersIcon,
-      notifications: 8,
-      path: "/chapters",
+      notifications: 0,
+      path: "#",
     },
     {
       name: "Members",
@@ -46,13 +65,15 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
     {
       name: "Approvals",
       icon: ICONS.NodeApprovalsIcon,
-      notifications: 3,
+      notifications: 0,
       path: `/club/${clubId}/approvals`,
+      show: isModeratorOrAdmin, // Only show for moderator and admin
     },
     {
       name: "Insights/Analytics",
       icon: ICONS.NodeInsightsIcon,
-      path: "/insights",
+      path: "#",
+      show: isAdmin, // Only show for admin
     },
     {
       name: "Activities",
@@ -65,10 +86,13 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
       path: "/preferences",
     },
   ];
-  const [load, setLoad] = useState(false);
+  // console.log({ url: club.club.profileImage.url);
+
   const joinToClub = async (clubId: string) => {
     try {
       const response = await joinClub(clubId);
+      const joinedClubs = await Endpoints.fetchUserJoinedClubs();
+      setUserJoinedClubs(joinedClubs);
       setJoinStatus(response.status);
     } catch (error) {
       console.log({ error });
@@ -84,13 +108,13 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
       .catch((err) => {
         console.log({ err });
       });
-  }, [club?._id]);
+  }, [clubId]);
   return (
-    <div className="sticky top-16 h-fit max-h-[80vh]  w-full overflow-hidden rounded-lg bg-white pb-2 shadow-md">
+    <div className="sticky top-16 h-fit   w-full overflow-hidden rounded-lg bg-white pb-2 shadow-md">
       <div className="relative">
-        {club?.coverImage && (
+        {club?.club?.coverImage && (
           <Image
-            src={club?.coverImage?.url}
+            src={club?.club?.coverImage?.url}
             alt="Cover"
             width={300}
             height={150}
@@ -100,9 +124,9 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
         )}
 
         <div className="absolute left-4 top-14">
-          {club?.profileImage?.url && (
+          {club?.club?.profileImage?.url && (
             <Image
-              src={club?.profileImage?.url}
+              src={club?.club.profileImage?.url}
               alt="Avatar"
               width={64}
               height={64}
@@ -113,11 +137,11 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
       </div>
       <div className="mt-6 px-4">
         <div className="flex flex-col justify-center gap-2">
-          <h2 className="text-lg font-bold">{club?.name}</h2>
-          <p className="text-xs text-gray-500">{club?.description}</p>
+          <h2 className="text-lg font-bold">{club?.club?.name}</h2>
+          <p className="text-xs text-gray-500">{club?.club?.about}</p>
           <p className="mt-2 flex text-xs font-medium text-gray-700">
             <span className="flex items-center gap-1">
-              {club?.isPublic ? (
+              {club?.club?.isPublic ? (
                 <>
                   <Globe2 size={"0.8rem"} />
                   Public{" "}
@@ -134,53 +158,57 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
           <div>
             <Button
               onClick={() => joinToClub(clubId)}
-              className="h-8 w-full border border-gray-500 bg-transparent text-gray-500 hover:bg-transparent"
+              className="h-8 w-full border border-gray-500 bg-transparent text-gray-800 hover:bg-transparent"
               disabled={joinStatus === "REQUESTED" || joinStatus === "MEMBER"} // Disable when requested or joined
             >
-              {club?.isPublic && joinStatus === "VISITOR" && "Join"}
-              {!club?.isPublic && joinStatus === "VISITOR" && "Request to Join"}
+              {club?.club?.isPublic && joinStatus === "VISITOR" && "Join"}
+              {!club?.club?.isPublic &&
+                joinStatus === "VISITOR" &&
+                "Request to Join"}
               {joinStatus === "MEMBER" && "Joined"}
               {joinStatus === "REQUESTED" && "Request Pending"}
             </Button>
           </div>
         </div>
-        <div className="thin-scrollbar mt-4 max-h-[50vh] space-y-2 overflow-y-auto pb-4">
-          {SECTIONS.map((section) => (
-            <button
-              key={section.name}
-              className={`flex w-full items-center justify-between rounded-md p-2 ${
-                currentPage === section.name
-                  ? "border-primary border bg-green-50"
-                  : "border border-white hover:bg-gray-100"
-              }`}
-              onClick={() => {
-                setCurrentPage(section.name);
-                router.push(section.path);
-              }}
-            >
-              <span className="flex items-center space-x-2">
-                <Image
-                  src={section?.icon}
-                  alt={section.name}
-                  height={30}
-                  width={30}
-                  className="size-4"
-                />
-                <span>{section.name}</span>
-              </span>
-              <div className="flex gap-2">
-                {section.notifications ? (
-                  <span
-                    className="flex size-5 items-center justify-center rounded-full bg-orange-500 text-xs
+        <div className=" my-3 max-h-[50vh] space-y-2  pb-4">
+          {SECTIONS?.filter((section) => !section.show || section.show())?.map(
+            (section) => (
+              <button
+                key={section?.name}
+                className={`flex w-full items-center justify-between rounded-md p-2 ${
+                  currentPage === section?.name
+                    ? "border border-primary bg-green-50"
+                    : "border border-white hover:bg-gray-100"
+                }`}
+                onClick={() => {
+                  setCurrentPage(section?.name);
+                  router.push(section?.path);
+                }}
+              >
+                <span className="flex items-center space-x-2">
+                  <Image
+                    src={section?.icon}
+                    alt={section?.name}
+                    height={30}
+                    width={30}
+                    className="size-4"
+                  />
+                  <span>{section?.name}</span>
+                </span>
+                <div className="flex gap-2">
+                  {section?.notifications ? (
+                    <span
+                      className="flex size-5 items-center justify-center rounded-full bg-orange-500 text-xs
                    font-medium text-white"
-                  >
-                    {section.notifications}
-                  </span>
-                ) : null}
-                <ChevronRight size={"1rem"} />
-              </div>
-            </button>
-          ))}
+                    >
+                      {section?.notifications}
+                    </span>
+                  ) : null}
+                  <ChevronRight size={"1rem"} />
+                </div>
+              </button>
+            )
+          )}
         </div>
       </div>
     </div>

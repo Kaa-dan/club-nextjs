@@ -18,7 +18,7 @@ const Layout = ({
   params: Promise<LayoutParams> | LayoutParams;
 }) => {
   const [currentPage, setCurrentPage] = useState("modules");
-  const [club, setCLub] = useState<TClub>();
+  const [club, setCLub] = useState<{ club: TClub; members: Array<any> }>();
   const params = useParams<{ clubId: string }>();
 
   useEffect(() => {
@@ -33,12 +33,13 @@ const Layout = ({
 
   return (
     <div className="flex h-screen ">
-      <div className="hidden w-56 shrink-0 flex-col  py-4 lg:flex">
+      {/* <div className="hidden w-56 shrink-0 flex-col  py-4 lg:flex"> */}
+      <div className=" w-56 shrink-0 flex-col  py-4">
         <ClubProfileCard
           clubId={params?.clubId as string}
           currentPage={currentPage}
           setCurrentPage={setCurrentPage}
-          club={club as TClub}
+          club={club as { club: TClub; members: Array<any> }}
         />
       </div>
 
