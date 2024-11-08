@@ -83,7 +83,7 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
     {
       name: "Preferences",
       icon: ICONS.NodePreferencesIcon,
-      path: "/preferences",
+      path: "#",
     },
   ];
   // console.log({ url: club.club.profileImage.url);

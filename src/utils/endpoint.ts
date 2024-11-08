@@ -114,6 +114,14 @@ export class Endpoints {
       throw error;
     }
   }
+  static async leaveNode(nodeId: string) {
+    try {
+      const response = await mainAxios.delete(`node/leave-node/${nodeId}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
 
   static async handleRequest(
     clubId: string,

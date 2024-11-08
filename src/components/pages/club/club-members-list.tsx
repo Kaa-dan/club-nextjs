@@ -63,29 +63,29 @@ const columns: ColumnDef<Member>[] = [
       const user = row.original.user;
       return (
         <div className="flex items-center">
-          <Avatar className="h-8 w-8 mr-2">
+          <Avatar className="mr-2 size-8">
             <AvatarImage
-              src={user.profileImage}
-              alt={`${user.firstName} ${user.lastName}`}
+              src={user?.profileImage}
+              alt={`${user?.firstName} ${user?.lastName}`}
             />
             <AvatarFallback>
-              {user.firstName[0]}
-              {user.lastName[0]}
+              {user?.firstName[0]}
+              {user?.lastName[0]}
             </AvatarFallback>
           </Avatar>
           <div>
             <div className="font-medium">
-              {user.firstName} {user.lastName}
+              {user?.firstName} {user?.lastName}
             </div>
           </div>
         </div>
       );
     },
     filterFn: (row, id, value) => {
-      const user = row.getValue(id) as Member["user"];
+      const user = row?.getValue(id) as Member["user"];
       return (
-        user.firstName.toLowerCase().includes(value.toLowerCase()) ||
-        user.lastName.toLowerCase().includes(value.toLowerCase())
+        user?.firstName?.toLowerCase()?.includes(value?.toLowerCase()) ||
+        user?.lastName?.toLowerCase()?.includes(value?.toLowerCase())
       );
     },
   },
@@ -93,7 +93,7 @@ const columns: ColumnDef<Member>[] = [
     accessorKey: "role",
     header: "Level",
     cell: ({ row }) => {
-      const role = row.getValue("role") as string;
+      const role = row?.getValue("role") as string;
       return (
         <Badge
           variant="secondary"
@@ -119,7 +119,7 @@ const columns: ColumnDef<Member>[] = [
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Contributions
-          <ArrowUpDown className="ml-2 h-4 w-4" />
+          <ArrowUpDown className="ml-2 size-4" />
         </Button>
       );
     },
@@ -150,9 +150,9 @@ const columns: ColumnDef<Member>[] = [
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
+            <Button variant="ghost" className="size-8 p-0">
               <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
+              <MoreHorizontal className="size-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
@@ -213,7 +213,7 @@ export default function ClubMembersList({
 
   return (
     <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-      <DialogContent className="max-w-4xl p-0 gap-0">
+      <DialogContent className="max-w-4xl gap-0 p-0">
         <DialogHeader className="p-6 pb-0">
           <DialogTitle className="text-xl">All Members</DialogTitle>
         </DialogHeader>
@@ -249,7 +249,7 @@ export default function ClubMembersList({
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" className="ml-auto">
-                    Columns <ChevronDown className="ml-2 h-4 w-4" />
+                    Columns <ChevronDown className="ml-2 size-4" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
