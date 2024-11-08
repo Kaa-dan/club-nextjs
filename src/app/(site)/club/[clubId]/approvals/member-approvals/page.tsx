@@ -7,6 +7,16 @@ import { Endpoints } from "@/utils/endpoint";
 import { Request } from "@/types";
 import { Terminal } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ICONS } from "@/lib/constants";
+import Image from "next/image";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 const Page = () => {
   const params = useParams<{ clubId: string }>();
@@ -93,28 +103,58 @@ const Page = () => {
 
   return (
     <>
+<<<<<<< HEAD
       <div className="mt-2 ">{/* Breadcrumbs and other UI elements */}</div>
+=======
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href={`/club/${params.clubId}/approvals`}>
+              Approvals
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>
+              {" "}
+              <BreadcrumbLink>Member approvals</BreadcrumbLink>
+            </BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+>>>>>>> 3a5921ac6d08d95be74d4ca3aba42c6d49edb470
       <div className="mt-2 rounded-lg bg-white p-6 shadow-lg">
         <h2 className="mb-4 text-lg font-semibold">All Members request</h2>
         <div className="space-y-4">
           {alertVisible && (
-            <Alert>
-              <Terminal className="size-4" />
-              <AlertTitle>Action in Progress</AlertTitle>
-              <div className="flex items-center justify-between">
-                <AlertDescription>
-                  Processing your request. You can undo within 5 seconds.
-                </AlertDescription>
-                <Button
-                  className="h-6 w-16 border border-gray-500 bg-transparent text-gray-700"
-                  onClick={undoAction}
-                >
-                  Undo
-                </Button>
-              </div>
-            </Alert>
+            <div className="py-4">
+              <Alert className="animate-bounce ">
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    <div>
+                      <Image
+                        src={ICONS.GreenCheckMark}
+                        alt="green-tick"
+                        width={25}
+                        height={25}
+                      />
+                    </div>
+                    <div>
+                      <AlertDescription>
+                        Processing your request. You can undo within 5 seconds.
+                      </AlertDescription>
+                    </div>
+                  </div>
+                  <Button
+                    className="bg-transparent border w-16 h-6 border-gray-500 text-gray-700"
+                    onClick={undoAction}
+                  >
+                    Undo
+                  </Button>
+                </div>
+              </Alert>
+            </div>
           )}
-
           {requests.length === 0 ? (
             <h1 className="my-3 text-center text-muted-foreground">
               No request

@@ -17,7 +17,7 @@ const ApprovalPage = () => {
     const response = await Endpoints.getNodeJoinRequests(nodeId);
     setRequest(response.length);
   };
-
+  //
   useEffect(() => {
     fetchRequests(nodeId);
   }, [nodeId]);

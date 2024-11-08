@@ -9,6 +9,7 @@ import { NodeSearchForm } from "./node-search-form";
 import InterestForm from "./interest-form";
 import { useTokenStore } from "@/store/store";
 import { getOnboarding } from "./endpoint";
+import { toast } from "sonner";
 
 type Step = "details" | "image" | "interest" | "node";
 
@@ -21,10 +22,11 @@ export function BoardingForm() {
     try {
       const response = await getOnboarding();
       console.log(`response at step ${step}:`, response.data);
-      if (response.data) {
+      if (response?.data) {
         setGlobalUser(response.data);
       }
-    } catch (error) {
+    } catch (error: any) {
+      toast.error(error.message);
       console.log(error);
     }
   };
