@@ -31,7 +31,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             <NodeProfileCard
               currentPage={currentPage}
               setCurrentPage={setCurrentPage}
-              node={node}
+              nodeData={node}
             />
             <div className="flex flex-col w-full">
               <ModulesBar />

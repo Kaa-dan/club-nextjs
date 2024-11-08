@@ -125,7 +125,7 @@ const Page = () => {
                   <Button
                     disabled
                     className={`border-slate-300 bg-slate-100 px-2 py-1 ${
-                      memberStatus[request.user._id].status === "Accepted"
+                      memberStatus[request?.user?._id].status === "Accepted"
                         ? "text-green-500"
                         : "text-red-500"
                     } rounded border`}
@@ -141,12 +141,12 @@ const Page = () => {
                     <Button
                       onClick={() =>
                         handleRequest(
-                          request.user._id,
+                          request?.user?._id,
                           request?._id,
                           "REJECTED"
                         )
                       }
-                      disabled={memberStatus[request.user._id]?.loading}
+                      disabled={memberStatus[request?.user?._id]?.loading}
                       className={`px-2 py-1 ${
                         memberStatus[request?.user?._id]?.loading
                           ? "bg-gray-300"
@@ -170,14 +170,14 @@ const Page = () => {
                           "ACCEPTED"
                         )
                       }
-                      disabled={memberStatus[request.user._id]?.loading}
+                      disabled={memberStatus[request?.user?._id]?.loading}
                       className={`px-2 py-1 ${
-                        memberStatus[request.user._id]?.loading
+                        memberStatus[request?.user?._id]?.loading
                           ? "bg-gray-300"
                           : "border border-green-500 bg-white text-green-500 hover:bg-green-500 hover:text-white"
                       } rounded`}
                     >
-                      {memberStatus[request.user._id]?.loading ? (
+                      {memberStatus[request?.user?._id]?.loading ? (
                         <Loader2 className="animate-spin" size={"1rem"} />
                       ) : (
                         <>

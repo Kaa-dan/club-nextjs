@@ -2,40 +2,36 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { ICONS } from "@/lib/constants";
 import { ChevronRight } from "lucide-react";
-import { TNodeData } from "@/types";
+import { TMembers, TNodeData } from "@/types";
 import { useRouter } from "next/navigation";
 import { Endpoints } from "@/utils/endpoint";
 import { useNodeStore } from "@/store/nodes-store";
 import { useTokenStore } from "@/store/store";
 import { Button } from "@/components/ui/button";
 
-const SECTIONS = [
-  { name: "News Feed", icon: ICONS.NodeNewsFeedIcon },
-  { name: "Modules", icon: ICONS.NodeModulesIcon },
-  { name: "Profile", icon: ICONS.NodeProfileIcon },
-  { name: "Chapters", icon: ICONS.NodeChaptersIcon, notifications: 8 },
-  { name: "Members", icon: ICONS.NodeMembersIcon },
-  { name: "Approvals", icon: ICONS.NodeApprovalsIcon, notifications: 3 },
-  { name: "Insights/Analytics", icon: ICONS.NodeInsightsIcon },
-  { name: "Activities", icon: ICONS.NodeActivitiesIcon },
-  { name: "Preferences", icon: ICONS.NodePreferencesIcon },
-];
-
 interface ProfileCardProps {
-  node: TNodeData;
+  nodeData: { node: TNodeData; members: TMembers[] };
   currentPage: string;
   setCurrentPage: (page: string) => void;
 }
 
 const NodeProfileCard: React.FC<ProfileCardProps> = ({
-  node,
+  nodeData,
   currentPage,
   setCurrentPage,
 }) => {
-  console.log({ node });
+  console.log({ nodeData });
   const [joinStatus, setJoinStatus] = useState<String>("");
   const { setUserJoinedNodes } = useNodeStore((state) => state);
   const { globalUser } = useTokenStore((state) => state);
+
+  const currentUserRole =
+    nodeData?.members?.find((member) => member?.user?._id === globalUser?._id)
+      ?.role || "";
+
+  const isAdmin = () => currentUserRole === "admin";
+  const isModeratorOrAdmin = () =>
+    ["moderator", "admin"].includes(currentUserRole.toLowerCase());
 
   const SECTIONS = [
     { name: "News Feed", icon: ICONS.NodeNewsFeedIcon, path: "#" },
@@ -43,7 +39,7 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
     {
       name: "Profile",
       icon: ICONS.NodeProfileIcon,
-      path: `/node/${node._id}/profile`,
+      path: `/node/${nodeData?.node?._id}/profile`,
     },
     {
       name: "Chapters",
@@ -54,23 +50,25 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
     {
       name: "Members",
       icon: ICONS.NodeMembersIcon,
-      path: `/node/${node._id}/members`,
+      path: `/node/${nodeData?.node?._id}/members`,
     },
     {
       name: "Approvals",
       icon: ICONS.NodeApprovalsIcon,
       notifications: 0,
-      path: `/node/${node._id}/approvals`,
+      path: `/node/${nodeData?.node?._id}/approvals`,
+      show: isModeratorOrAdmin, // Only show for moderator and admin
     },
     {
       name: "Insights/Analytics",
       icon: ICONS.NodeInsightsIcon,
       path: "#",
+      show: isAdmin, // Only show for admin
     },
     {
       name: "Activities",
       icon: ICONS.NodeActivitiesIcon,
-      path: `/node/${node._id}/approvals`,
+      path: `/node/${nodeData?.node?._id}/activity`, // Fixed the path from approvals to activity
     },
     {
       name: "Preferences",
@@ -79,7 +77,7 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
     },
   ];
   const router = useRouter();
-  console.log({ nodeImg: node });
+  console.log({ nodeImg: nodeData });
   const joinToNode = async (nodeId: string) => {
     try {
       const response = await Endpoints.requestToJoinNode(nodeId);
@@ -91,22 +89,22 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
     }
   };
   useEffect(() => {
-    console.log({ node });
+    console.log({ nodeData });
 
-    Endpoints.fetchNodeUserStatus(node._id as string)
+    Endpoints.fetchNodeUserStatus(nodeData?.node?._id as string)
       .then((res) => {
         setJoinStatus(res.status);
       })
       .catch((err) => {
         console.log({ err });
       });
-  }, [node._id]);
+  }, [nodeData?.node?._id]);
 
   return (
     <div className="sticky top-16 h-fit  overflow-hidden rounded-lg bg-white pb-2 text-sm shadow-md md:min-w-60 md:max-w-60">
       <div className="relative">
         <Image
-          src={node?.coverImage?.url}
+          src={nodeData?.node?.coverImage?.url}
           alt="Cover"
           width={300}
           height={150}
@@ -115,7 +113,7 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
         />
         <div className="absolute left-4 top-14">
           <Image
-            src={node?.profileImage?.url as string}
+            src={nodeData?.node?.profileImage?.url as string}
             alt="Avatar"
             width={64}
             height={64}
@@ -125,15 +123,20 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
       </div>
       <div className="px-4">
         <div className="pt-8">
-          <h2 className="text-lg font-bold">{node?.name}</h2>
-          <p className="text-xs text-gray-600">{node?.about}</p>
-          <p className="text-xs text-gray-500">
-            {node?.location} • {node?.members?.length}
+          <h2 className="text-lg font-bold">{nodeData?.node?.name}</h2>
+          <p className="text-xs text-gray-600">{nodeData?.node?.about}</p>
+          <p className="mb-1 flex gap-2 text-xs text-gray-500">
+            {nodeData?.node?.location}
+            <span>•</span>
+            <span>
+              {nodeData?.members?.length}
+              {"  Members"}
+            </span>
           </p>
         </div>
         <div>
           <Button
-            onClick={() => joinToNode(node._id)}
+            onClick={() => joinToNode(nodeData?.node._id)}
             className="h-8 w-full border border-gray-500 bg-transparent text-gray-800 hover:bg-transparent"
             disabled={joinStatus === "REQUESTED" || joinStatus === "MEMBER"} // Disable when requested or joined
           >
@@ -143,42 +146,44 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
           </Button>
         </div>
         <div className=" my-3 max-h-[50vh]  space-y-2 pb-4">
-          {SECTIONS.map((section) => (
-            <button
-              key={section.name}
-              className={`flex w-full items-center justify-between rounded-md p-2 ${
-                currentPage === section.name
-                  ? "border border-primary bg-green-50"
-                  : "border border-white hover:bg-gray-100"
-              }`}
-              onClick={() => {
-                setCurrentPage(section.name);
-                router.push(section.path);
-              }}
-            >
-              <span className="flex items-center space-x-2">
-                <Image
-                  src={section?.icon as string}
-                  alt={section?.name}
-                  height={30}
-                  width={30}
-                  className="size-4"
-                />
-                <span>{section?.name}</span>
-              </span>
-              <div className="flex gap-2">
-                {section?.notifications ? (
-                  <span
-                    className="flex size-5 items-center justify-center rounded-full bg-orange-500 text-xs
+          {SECTIONS?.filter((section) => !section.show || section.show())?.map(
+            (section) => (
+              <button
+                key={section.name}
+                className={`flex w-full items-center justify-between rounded-md p-2 ${
+                  currentPage === section.name
+                    ? "border border-primary bg-green-50"
+                    : "border border-white hover:bg-gray-100"
+                }`}
+                onClick={() => {
+                  setCurrentPage(section.name);
+                  router.push(section.path);
+                }}
+              >
+                <span className="flex items-center space-x-2">
+                  <Image
+                    src={section?.icon as string}
+                    alt={section?.name}
+                    height={30}
+                    width={30}
+                    className="size-4"
+                  />
+                  <span>{section?.name}</span>
+                </span>
+                <div className="flex gap-2">
+                  {section?.notifications ? (
+                    <span
+                      className="flex size-5 items-center justify-center rounded-full bg-orange-500 text-xs
                    font-medium text-white"
-                  >
-                    {section?.notifications}
-                  </span>
-                ) : null}
-                <ChevronRight size={"1rem"} />
-              </div>
-            </button>
-          ))}
+                    >
+                      {section?.notifications}
+                    </span>
+                  ) : null}
+                  <ChevronRight size={"1rem"} />
+                </div>
+              </button>
+            )
+          )}
         </div>
       </div>
     </div>
