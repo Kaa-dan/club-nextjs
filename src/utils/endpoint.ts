@@ -114,6 +114,14 @@ export class Endpoints {
       throw error;
     }
   }
+  static async leaveNode(nodeId: string) {
+    try {
+      const response = await mainAxios.delete(`node/leave-node/${nodeId}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
 
   static async handleRequest(
     clubId: string,
@@ -130,6 +138,23 @@ export class Endpoints {
       });
       console.log({ response });
 
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+  static async pinClub(clubId: string) {
+    try {
+      const response = await mainAxios.put(`/clubs/pin-club/${clubId}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async unpinClub(clubId: string) {
+    try {
+      const response = await mainAxios.put(`/clubs/unpin-club/${clubId}`);
       return response.data;
     } catch (error) {
       throw error;

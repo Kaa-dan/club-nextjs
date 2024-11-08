@@ -1,8 +1,20 @@
 "use client";
 
 import * as React from "react";
-import { Input } from "@/components/ui/input";
-import { Search, Filter, MoreVertical } from "lucide-react";
+import {
+  ColumnDef,
+  ColumnFiltersState,
+  SortingState,
+  VisibilityState,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,201 +22,334 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
+  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
+type Member = {
+  _id: string;
+  user: {
+    firstName: string;
+    lastName: string;
+    profileImage: string;
+  };
+  role: string;
+  contributions: number;
+  createdAt: string;
+};
+
+const columns: ColumnDef<Member>[] = [
+  {
+    accessorKey: "user",
+    header: "Member's Name",
+    cell: ({ row }) => {
+      const user = row.original.user;
+      return (
+        <div className="flex items-center">
+          <Avatar className="mr-2 size-8">
+            <AvatarImage
+              src={user?.profileImage}
+              alt={`${user?.firstName} ${user?.lastName}`}
+            />
+            <AvatarFallback>
+              {user?.firstName[0]}
+              {user?.lastName[0]}
+            </AvatarFallback>
+          </Avatar>
+          <div>
+            <div className="font-medium">
+              {user?.firstName} {user?.lastName}
+            </div>
+          </div>
+        </div>
+      );
+    },
+    filterFn: (row, id, value) => {
+      const user = row?.getValue(id) as Member["user"];
+      return (
+        user?.firstName?.toLowerCase()?.includes(value?.toLowerCase()) ||
+        user?.lastName?.toLowerCase()?.includes(value?.toLowerCase())
+      );
+    },
+  },
+  {
+    accessorKey: "role",
+    header: "Level",
+    cell: ({ row }) => {
+      const role = row?.getValue("role") as string;
+      return (
+        <Badge
+          variant="secondary"
+          className={
+            role === "admin"
+              ? "bg-green-100 text-green-800"
+              : role === "moderator"
+                ? "bg-orange-100 text-orange-800"
+                : "bg-gray-100 text-gray-800"
+          }
+        >
+          {role}
+        </Badge>
+      );
+    },
+  },
+  {
+    accessorKey: "contributions",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Contributions
+          <ArrowUpDown className="ml-2 size-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => (
+      <div className="text-right">{row.getValue("contributions")}</div>
+    ),
+  },
+  {
+    accessorKey: "createdAt",
+    header: "Join Date",
+    cell: ({ row }) => {
+      return (
+        <div className="text-right font-medium">
+          {new Date(row.getValue("createdAt")).toLocaleDateString("en-US", {
+            month: "long",
+            day: "numeric",
+            year: "numeric",
+          })}
+        </div>
+      );
+    },
+  },
+  {
+    id: "actions",
+    cell: ({ row }) => {
+      const member = row.original;
+
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="size-8 p-0">
+              <span className="sr-only">Open menu</span>
+              <MoreHorizontal className="size-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuItem
+              onClick={() => navigator.clipboard.writeText(member._id)}
+            >
+              Copy member ID
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>View Details</DropdownMenuItem>
+            <DropdownMenuItem>Edit Member</DropdownMenuItem>
+            <DropdownMenuItem className="text-red-600">Remove</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    },
+  },
+];
+
 type ClubMemberListProps = {
   isModalOpen: boolean;
   setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  members: Array<any>;
+  members: Member[];
 };
 
-const ClubMembersList: React.FC<ClubMemberListProps> = ({
+export default function ClubMembersList({
   isModalOpen,
   members,
   setIsModalOpen,
-}) => {
+}: ClubMemberListProps) {
+  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  );
+  const [columnVisibility, setColumnVisibility] =
+    React.useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = React.useState({});
+
+  const table = useReactTable({
+    data: members,
+    columns,
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    onColumnVisibilityChange: setColumnVisibility,
+    onRowSelectionChange: setRowSelection,
+    state: {
+      sorting,
+      columnFilters,
+      columnVisibility,
+      rowSelection,
+    },
+  });
+
   return (
     <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-      <DialogContent className="max-w-4xl p-0 gap-0">
-        <div className="p-6 border-b">
-          <DialogHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-            <DialogTitle className="text-xl">All Members</DialogTitle>
-            <Button
-              size="sm"
-              className="bg-violet-600 text-white hover:bg-violet-700"
-            >
-              + Invite
-            </Button>
-          </DialogHeader>
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Search for members..." className="pl-8" />
-            </div>
-            <Button variant="outline" size="icon" className="shrink-0">
-              <Filter className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-
-        <div className="overflow-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b">
-                <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider py-3 px-6">
-                  {`Member's Name`}
-                </th>
-                <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider py-3 px-6">
-                  Level
-                </th>
-                <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider py-3 px-6">
-                  Contributions
-                </th>
-                <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider py-3 px-6">
-                  Join Date
-                </th>
-                <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider py-3 px-6">
-                  Action
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {members.map((member) => (
-                <tr key={member._id} className="hover:bg-muted/50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <Avatar className="h-10 w-10">
-                        <AvatarImage
-                          src={member.user.profileImage}
-                          alt={`${member.firstName} ${member.lastName}`}
-                        />
-                        <AvatarFallback>
-                          {member.firstName}
-                          {member.lastName}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="ml-4">
-                        <div className="text-sm font-medium">
-                          {member.user.firstName} {member.user.lastName}
-                        </div>
-                        {/* <div className="text-sm text-muted-foreground">
-                          {member.}
-                        </div> */}
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <Badge
-                      variant="secondary"
-                      className={
-                        member.role === "admin"
-                          ? "bg-green-100 text-green-800 hover:bg-green-100"
-                          : member.level === "moderator"
-                            ? "bg-orange-100 text-orange-800 hover:bg-orange-100"
-                            : "bg-gray-100 text-gray-800 hover:bg-gray-100"
-                      }
-                    >
-                      {member.role}
-                    </Badge>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    {member.contributions}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
-                    {new Date(member.createdAt).toLocaleDateString("en-US", {
-                      month: "long",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>View Details</DropdownMenuItem>
-                        <DropdownMenuItem>Edit Member</DropdownMenuItem>
-                        <DropdownMenuItem className="text-red-600">
-                          Remove
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="flex items-center justify-between p-6 border-t">
-          <div className="text-sm text-muted-foreground">
-            Total {members.length} Members
-          </div>
-          <div className="flex items-center gap-2">
+      <DialogContent className="max-w-4xl gap-0 p-0">
+        <DialogHeader className="p-6 pb-0">
+          <DialogTitle className="text-xl">All Members</DialogTitle>
+        </DialogHeader>
+        <div className="p-6">
+          <div className="flex items-center justify-between gap-4 py-4">
+            <Input
+              placeholder="Search for members..."
+              value={
+                (table.getColumn("user")?.getFilterValue() as string) ?? ""
+              }
+              onChange={(event) =>
+                table.getColumn("user")?.setFilterValue(event.target.value)
+              }
+              className="max-w-sm"
+            />
             <div className="flex items-center space-x-2">
-              <Button variant="outline" size="sm" disabled>
+              {/* <Button
+                variant="outline"
+                size="sm"
+                onClick={() => table.previousPage()}
+                disabled={!table.getCanPreviousPage()}
+              >
+                Previous
+              </Button> */}
+              {/* <Button
+                variant="outline"
+                size="sm"
+                onClick={() => table.nextPage()}
+                disabled={!table.getCanNextPage()}
+              >
+                Next
+              </Button> */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="ml-auto">
+                    Columns <ChevronDown className="ml-2 size-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {table
+                    .getAllColumns()
+                    .filter((column) => column.getCanHide())
+                    .map((column) => {
+                      return (
+                        <DropdownMenuCheckboxItem
+                          key={column.id}
+                          className="capitalize"
+                          checked={column.getIsVisible()}
+                          onCheckedChange={(value) =>
+                            column.toggleVisibility(!!value)
+                          }
+                        >
+                          {column.id}
+                        </DropdownMenuCheckboxItem>
+                      );
+                    })}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => {
+                      return (
+                        <TableHead key={header.id}>
+                          {header.isPlaceholder
+                            ? null
+                            : flexRender(
+                                header.column.columnDef.header,
+                                header.getContext()
+                              )}
+                        </TableHead>
+                      );
+                    })}
+                  </TableRow>
+                ))}
+              </TableHeader>
+              <TableBody>
+                {table.getFilteredRowModel().rows?.length ? (
+                  table.getFilteredRowModel().rows.map((row) => (
+                    <TableRow
+                      key={row.id}
+                      data-state={row.getIsSelected() && "selected"}
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id}>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={columns.length}
+                      className="h-24 text-center"
+                    >
+                      No results.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+          <div className="flex items-center justify-end space-x-2 py-4">
+            <div className="flex-1 text-sm text-muted-foreground">
+              {table.getFilteredSelectedRowModel().rows.length} of{" "}
+              {table.getFilteredRowModel().rows.length} row(s) selected.
+            </div>
+            <div className="space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => table.previousPage()}
+                disabled={!table.getCanPreviousPage()}
+              >
                 Previous
               </Button>
-              <nav
-                className="flex items-center space-x-1"
-                aria-label="Pagination"
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => table.nextPage()}
+                disabled={!table.getCanNextPage()}
               >
-                <Button variant="outline" size="sm" className="h-8 w-8 p-0">
-                  1
-                </Button>
-                <span className="text-muted-foreground">...</span>
-                <Button variant="outline" size="sm" className="h-8 w-8 p-0">
-                  4
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-8 w-8 p-0 bg-violet-600 text-white hover:bg-violet-700"
-                >
-                  5
-                </Button>
-                <Button variant="outline" size="sm" className="h-8 w-8 p-0">
-                  6
-                </Button>
-                <span className="text-muted-foreground">...</span>
-                <Button variant="outline" size="sm" className="h-8 w-8 p-0">
-                  20
-                </Button>
-              </nav>
-              <Button variant="outline" size="sm">
                 Next
               </Button>
             </div>
-            <Select defaultValue="10">
-              <SelectTrigger className="w-[110px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="10">10 / page</SelectItem>
-                <SelectItem value="20">20 / page</SelectItem>
-                <SelectItem value="50">50 / page</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
         </div>
       </DialogContent>
     </Dialog>
   );
-};
-export default ClubMembersList;
+}

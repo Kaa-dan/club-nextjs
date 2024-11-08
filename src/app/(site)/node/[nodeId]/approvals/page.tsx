@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 import { ICONS } from "@/lib/constants";
 import Image from "next/image";
 import Link from "next/link";
-import { request } from "http";
 import { ChevronRight } from "lucide-react";
 import { Endpoints } from "@/utils/endpoint";
 import { useParams } from "next/navigation";
@@ -15,7 +14,11 @@ const ApprovalPage = () => {
 
   const fetchRequests = async (nodeId: string) => {
     const response = await Endpoints.getNodeJoinRequests(nodeId);
-    setRequest(response.length);
+    setRequest(
+      response?.filter(
+        ({ status }: { status: string }) => status === "REQUESTED"
+      )?.length
+    );
   };
 
   useEffect(() => {

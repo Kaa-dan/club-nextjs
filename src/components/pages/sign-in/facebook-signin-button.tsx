@@ -39,6 +39,7 @@ const FacebookSignIn = () => {
       });
 
       toast.success(response.message);
+      console.log(response, "ress");
 
       // setting global state
       setGlobalUser(response?.data || null);

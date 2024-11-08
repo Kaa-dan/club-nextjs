@@ -12,7 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
+import { Badge, BadgeProps } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -21,8 +21,24 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useState } from "react";
-
+import { useEffect, useState } from "react";
+import { Endpoints } from "@/utils/endpoint";
+import { useParams } from "next/navigation";
+import { TMembers, TNodeData } from "@/types";
+import { cn } from "@/lib/utils";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useNodeStore } from "@/store/nodes-store";
+import { toast } from "sonner";
 const members = [
   {
     id: 1,
@@ -59,21 +75,52 @@ const members = [
 
 export default function Page() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { setUserJoinedNodes } = useNodeStore((state) => state);
+  const { nodeId } = useParams<{ nodeId: string }>();
+  const [members, setMembers] = useState([]);
+  const [nodeDetails, setNodeDetails] = useState<{
+    node: TNodeData;
+    members: TMembers[];
+  }>();
+
+  const fetchNodeDetails = async () => {
+    if (!nodeId) return;
+    try {
+      const response = await Endpoints.fetchNodeDetails(nodeId);
+      console.log({ response });
+      setNodeDetails(response?.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const leaveMyNode = async (nodeId: string) => {
+    try {
+      const response = await Endpoints.leaveNode(nodeId);
+      const joinedNodes = await Endpoints.fetchUserJoinedNodes();
+      setUserJoinedNodes(joinedNodes);
+      toast.warning(response.message);
+    } catch (error) {}
+  };
+
+  useEffect(() => {
+    fetchNodeDetails();
+  }, [nodeId]);
   return (
     <>
-      <Card className="w-full max-w-3xl mx-auto">
+      <Card className="mx-auto w-full max-w-3xl">
         <CardHeader className="space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-2">
-              <h2 className="text-lg font-semibold flex items-center gap-2">
+              <h2 className="flex items-center gap-2 text-lg font-semibold">
                 Members
                 <span className="text-sm font-normal text-muted-foreground">
-                  • 2.4k Members
+                  • {nodeDetails?.members?.length}
                 </span>
               </h2>
               <div className="flex items-center gap-2">
                 <div className="flex -space-x-2">
-                  {[1, 2, 3, 4, 5].map((i) => (
+                  {[1, 2, 3, 4].map((i) => (
                     <Avatar key={i} className="border-2 border-background">
                       <AvatarImage
                         src={`/placeholder.svg?height=32&width=32`}
@@ -81,8 +128,8 @@ export default function Page() {
                       <AvatarFallback>U{i}</AvatarFallback>
                     </Avatar>
                   ))}
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-muted text-xs">
-                    2k+
+                  <div className="flex size-8 items-center justify-center rounded-full bg-muted text-xs">
+                    2+
                   </div>
                 </div>
                 <Button
@@ -99,16 +146,41 @@ export default function Page() {
                 <span>+ Invite</span>
               </Button>
               <Button variant="outline" className="gap-2">
-                <Copy className="h-4 w-4" />
+                <Copy className="size-4" />
                 <span>Copy Link</span>
               </Button>
-              <Button
-                variant="outline"
-                className="text-red-500 hover:text-red-600 gap-2"
-              >
-                <LogOut className="h-4 w-4" />
-                <span>Leave</span>
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="gap-2 text-red-500 hover:text-red-600"
+                  >
+                    <LogOut className="size-4" />
+                    <span>Leave Node</span>
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      Are you sure you want to leave the Node?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. Leaving the club will remove
+                      you from the members list and you will lose access to all
+                      club activities and resources.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => leaveMyNode(nodeId)}
+                      className="bg-red-500 text-white hover:bg-red-600"
+                    >
+                      Leave Node
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           </div>
 
@@ -121,7 +193,7 @@ export default function Page() {
             </p>
           </div>
 
-          <div className="grid grid-cols-4 gap-4 pt-4 border-t">
+          <div className="grid grid-cols-4 gap-4 border-t pt-4">
             <div>
               <h4 className="font-semibold">Modules</h4>
               <p className="text-sm">
@@ -157,7 +229,7 @@ export default function Page() {
               positive impact on our environment and leave a legacy for
               generations to come.
             </p>
-            <Button variant="link" className="text-sm p-0">
+            <Button variant="link" className="p-0 text-sm">
               see all
             </Button>
           </div>
@@ -171,17 +243,17 @@ export default function Page() {
           <DialogHeader>
             <DialogTitle>All Members</DialogTitle>
           </DialogHeader>
-          <div className="flex items-center justify-between gap-4 my-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+          <div className="my-4 flex items-center justify-between gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-2 top-2.5 size-4 text-muted-foreground" />
               <Input placeholder="Search for Members..." className="pl-8" />
             </div>
             <div className="flex gap-2">
               <Button variant="outline" size="icon">
-                <Filter className="h-4 w-4" />
+                <Filter className="size-4" />
               </Button>
               <Button variant="outline" size="icon">
-                <Copy className="h-4 w-4" />
+                <Copy className="size-4" />
               </Button>
             </div>
           </div>
@@ -195,41 +267,37 @@ export default function Page() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {members.map((member) => (
-                <TableRow key={member.id}>
+              {nodeDetails?.members?.map((member: TMembers) => (
+                <TableRow key={member?.user?._id}>
                   <TableCell className="flex items-center gap-2">
                     <Avatar>
-                      <AvatarImage src={member.avatar} />
-                      <AvatarFallback>{member.name[0]}</AvatarFallback>
+                      <AvatarImage src={member?.user?.profileImage} />
+                      <AvatarFallback>
+                        {member?.user?.firstName?.[0]}
+                      </AvatarFallback>
                     </Avatar>
                     <div>
-                      <div className="font-medium">{member.name}</div>
+                      <div className="font-medium">
+                        {member?.user?.firstName || ""}{" "}
+                        {member?.user?.lastName || ""}
+                      </div>
                       <div className="text-sm text-muted-foreground">
-                        {member.role}
+                        {member?.role}
                       </div>
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge
-                      variant="secondary"
-                      className={
-                        member.level === "Admin"
-                          ? "bg-green-100 text-green-800"
-                          : member.level === "Moderator"
-                            ? "bg-orange-100 text-orange-800"
-                            : undefined
-                      }
-                    >
-                      {member.level}
-                    </Badge>
+                    <RoleBadge role={member?.role} />
                   </TableCell>
-                  <TableCell>{member.contribution}</TableCell>
-                  <TableCell>{member.joinDate}</TableCell>
+                  <TableCell>{0}</TableCell>
+                  <TableCell>
+                    {new Date(member?.createdAt).toLocaleDateString()}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
-          <div className="flex items-center justify-between mt-4">
+          <div className="mt-4 flex items-center justify-between">
             <div className="text-sm text-muted-foreground">
               Total 85 Members
             </div>
@@ -240,7 +308,7 @@ export default function Page() {
               <Button variant="outline" size="sm">
                 Next
               </Button>
-              <select className="px-2 py-1 border rounded-md">
+              <select className="rounded-md border px-2 py-1">
                 <option>10 / page</option>
                 <option>20 / page</option>
                 <option>50 / page</option>
@@ -250,5 +318,27 @@ export default function Page() {
         </DialogContent>
       </Dialog>
     </>
+  );
+}
+
+type RoleBadgeProps = BadgeProps & {
+  role: "admin" | "moderator" | "member";
+};
+
+function RoleBadge({ role, className, ...props }: RoleBadgeProps) {
+  const roleStyles = {
+    admin: "bg-green-100 text-green-800 hover:bg-green-200",
+    moderator: "bg-orange-100 text-orange-800 hover:bg-orange-200",
+    member: "bg-blue-100 text-blue-800 hover:bg-blue-200",
+  };
+
+  return (
+    <Badge
+      variant="secondary"
+      className={cn(roleStyles[role], className)}
+      {...props}
+    >
+      {role}
+    </Badge>
   );
 }

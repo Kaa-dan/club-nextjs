@@ -32,9 +32,9 @@ const Layout = ({
   }, [params.clubId]);
 
   return (
-    <div className="flex h-screen ">
+    <div className="flex h-screen max-w-[80%]  fixed ">
       {/* <div className="hidden w-56 shrink-0 flex-col  py-4 lg:flex"> */}
-      <div className=" w-56 shrink-0 flex-col  py-4">
+      <div className="  w-[20%] shrink-0 flex-col  py-4">
         <ClubProfileCard
           clubId={params?.clubId as string}
           currentPage={currentPage}
@@ -43,7 +43,7 @@ const Layout = ({
         />
       </div>
 
-      <div className="flex w-full flex-col lg:w-3/5">
+      <div className="flex w-[50%]  flex-col lg:w-3/5">
         <div className="sticky top-0 z-10  p-4">
           <ModulesBar />
         </div>
@@ -53,7 +53,7 @@ const Layout = ({
         </div>
       </div>
 
-      <div className="hidden w-56 shrink-0 flex-col  py-4 lg:flex">
+      <div className="hidden  w-[28%] shrink-0 flex-col  py-4 lg:flex">
         <NodeTeams />
       </div>
     </div>
