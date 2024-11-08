@@ -1,9 +1,13 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { ICONS } from "@/lib/constants";
 import { ChevronRight } from "lucide-react";
 import { TNodeData } from "@/types";
 import { useRouter } from "next/navigation";
+import { Endpoints } from "@/utils/endpoint";
+import { useNodeStore } from "@/store/nodes-store";
+import { useTokenStore } from "@/store/store";
+import { Button } from "@/components/ui/button";
 
 const SECTIONS = [
   { name: "News Feed", icon: ICONS.NodeNewsFeedIcon },
@@ -28,9 +32,14 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
   currentPage,
   setCurrentPage,
 }) => {
+  console.log({ node });
+  const [joinStatus, setJoinStatus] = useState<String>("");
+  const { setUserJoinedNodes } = useNodeStore((state) => state);
+  const { globalUser } = useTokenStore((state) => state);
+
   const SECTIONS = [
-    { name: "News Feed", icon: ICONS.NodeNewsFeedIcon, path: "/news-feed" },
-    { name: "Modules", icon: ICONS.NodeModulesIcon, path: "/modules" },
+    { name: "News Feed", icon: ICONS.NodeNewsFeedIcon, path: "#" },
+    { name: "Modules", icon: ICONS.NodeModulesIcon, path: "#" },
     {
       name: "Profile",
       icon: ICONS.NodeProfileIcon,
@@ -39,8 +48,8 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
     {
       name: "Chapters",
       icon: ICONS.NodeChaptersIcon,
-      notifications: 8,
-      path: "/chapters",
+      notifications: 0,
+      path: "#",
     },
     {
       name: "Members",
@@ -50,13 +59,13 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
     {
       name: "Approvals",
       icon: ICONS.NodeApprovalsIcon,
-      notifications: 3,
+      notifications: 0,
       path: `/node/${node._id}/approvals`,
     },
     {
       name: "Insights/Analytics",
       icon: ICONS.NodeInsightsIcon,
-      path: "/insights",
+      path: "#",
     },
     {
       name: "Activities",
@@ -66,15 +75,38 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
     {
       name: "Preferences",
       icon: ICONS.NodePreferencesIcon,
-      path: "/preferences",
+      path: "#",
     },
   ];
   const router = useRouter();
+  console.log({ nodeImg: node });
+  const joinToNode = async (nodeId: string) => {
+    try {
+      const response = await Endpoints.requestToJoinNode(nodeId);
+      const joinedNodes = await Endpoints.fetchUserJoinedNodes();
+      setUserJoinedNodes(joinedNodes);
+      setJoinStatus(response.status);
+    } catch (error) {
+      console.log({ error });
+    }
+  };
+  useEffect(() => {
+    console.log({ node });
+
+    Endpoints.fetchNodeUserStatus(node._id as string)
+      .then((res) => {
+        setJoinStatus(res.status);
+      })
+      .catch((err) => {
+        console.log({ err });
+      });
+  }, [node._id]);
+
   return (
-    <div className="sticky top-16 h-fit max-h-[80vh] overflow-hidden rounded-lg bg-white pb-2 text-sm shadow-md md:min-w-60 md:max-w-60">
+    <div className="sticky top-16 h-fit  overflow-hidden rounded-lg bg-white pb-2 text-sm shadow-md md:min-w-60 md:max-w-60">
       <div className="relative">
         <Image
-          src={node.coverImage}
+          src={node?.coverImage?.url}
           alt="Cover"
           width={300}
           height={150}
@@ -83,7 +115,7 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
         />
         <div className="absolute left-4 top-14">
           <Image
-            src={node.profileImage}
+            src={node?.profileImage?.url as string}
             alt="Avatar"
             width={64}
             height={64}
@@ -93,13 +125,24 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
       </div>
       <div className="px-4">
         <div className="pt-8">
-          <h2 className="text-lg font-bold">{node.name}</h2>
-          <p className="text-xs text-gray-600">{node.about}</p>
+          <h2 className="text-lg font-bold">{node?.name}</h2>
+          <p className="text-xs text-gray-600">{node?.about}</p>
           <p className="text-xs text-gray-500">
-            {node.location} • {node.members.length}
+            {node?.location} • {node?.members?.length}
           </p>
         </div>
-        <div className="thin-scrollbar mt-4 max-h-[50vh] space-y-2 overflow-y-auto pb-4">
+        <div>
+          <Button
+            onClick={() => joinToNode(node._id)}
+            className="h-8 w-full border border-gray-500 bg-transparent text-gray-800 hover:bg-transparent"
+            disabled={joinStatus === "REQUESTED" || joinStatus === "MEMBER"} // Disable when requested or joined
+          >
+            {joinStatus === "VISITOR" && "Request to Join"}
+            {joinStatus === "MEMBER" && "Joined"}
+            {joinStatus === "REQUESTED" && "Request Pending"}
+          </Button>
+        </div>
+        <div className=" my-3 max-h-[50vh]  space-y-2 pb-4">
           {SECTIONS.map((section) => (
             <button
               key={section.name}
@@ -115,21 +158,21 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
             >
               <span className="flex items-center space-x-2">
                 <Image
-                  src={section.icon}
-                  alt={section.name}
+                  src={section?.icon as string}
+                  alt={section?.name}
                   height={30}
                   width={30}
                   className="size-4"
                 />
-                <span>{section.name}</span>
+                <span>{section?.name}</span>
               </span>
               <div className="flex gap-2">
-                {section.notifications ? (
+                {section?.notifications ? (
                   <span
                     className="flex size-5 items-center justify-center rounded-full bg-orange-500 text-xs
                    font-medium text-white"
                   >
-                    {section.notifications}
+                    {section?.notifications}
                   </span>
                 ) : null}
                 <ChevronRight size={"1rem"} />
