@@ -4,6 +4,7 @@ export type TNodeData = {
   about: string;
   location: string;
   descripion: string;
+  createdBy: string;
   members: { user: any; role: "admin" | "moderator" | "member" }[];
   coverImage: {
     fileName: string;

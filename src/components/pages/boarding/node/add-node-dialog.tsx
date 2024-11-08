@@ -139,7 +139,7 @@ const DetailsForm = ({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-6 md:max-h-[60vh] px-4 overflow-y-auto"
+        className="space-y-6 overflow-y-auto px-4 md:max-h-[60vh]"
       >
         {/* Profile Photo */}
         <FormField
@@ -150,25 +150,25 @@ const DetailsForm = ({
               <FormLabel>Profile Photo</FormLabel>
               <FormControl>
                 <div className="flex flex-col items-center gap-4">
-                  <div className="relative group">
-                    <div className="relative w-24 h-24">
+                  <div className="group relative">
+                    <div className="relative size-24">
                       {profilePreviewUrl ? (
                         <img
                           src={profilePreviewUrl}
                           alt="Profile preview"
-                          className="w-24 h-24 rounded-md object-cover border-2 border-gray-200"
+                          className="size-24 rounded-md border-2 border-gray-200 object-cover"
                         />
                       ) : (
-                        <div className="w-24 h-24 rounded-md bg-gray-100 flex items-center justify-center border-2 border-gray-200">
-                          <Camera className="w-8 h-8 text-gray-400" />
+                        <div className="flex size-24 items-center justify-center rounded-md border-2 border-gray-200 bg-gray-100">
+                          <Camera className="size-8 text-gray-400" />
                         </div>
                       )}
                       <label
                         htmlFor="profilePhotoInput"
-                        className="absolute inset-0 flex items-center justify-center rounded-md cursor-pointer bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200"
+                        className="absolute inset-0 flex cursor-pointer items-center justify-center rounded-md bg-black bg-opacity-0 transition-all duration-200 group-hover:bg-opacity-30"
                       >
-                        <div className="text-white opacity-0 group-hover:opacity-100 flex flex-col items-center">
-                          <Camera className="w-6 h-6" />
+                        <div className="flex flex-col items-center text-white opacity-0 group-hover:opacity-100">
+                          <Camera className="size-6" />
                           <span className="text-xs">Upload</span>
                         </div>
                       </label>
@@ -192,7 +192,7 @@ const DetailsForm = ({
                     <Button
                       type="button"
                       variant="outline"
-                      className="text-red-500 hover:text-red-600 text-sm"
+                      className="text-sm text-red-500 hover:text-red-600"
                       onClick={() => {
                         setProfilePreviewUrl(null);
                         field.onChange("");
@@ -221,17 +221,17 @@ const DetailsForm = ({
                 <div className="relative">
                   <label
                     htmlFor="coverPhotoInput"
-                    className="block w-full h-48 rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors duration-200 cursor-pointer overflow-hidden group"
+                    className="group block h-48 w-full cursor-pointer overflow-hidden rounded-lg border-2 border-dashed border-gray-300 transition-colors duration-200 hover:border-gray-400"
                   >
                     {coverPreviewUrl ? (
                       <img
                         src={coverPreviewUrl}
                         alt="Cover preview"
-                        className="w-full h-full object-cover"
+                        className="size-full object-cover"
                       />
                     ) : (
-                      <div className="flex flex-col items-center justify-center h-full space-y-2">
-                        <Camera className="w-8 h-8 text-gray-400 group-hover:text-gray-500" />
+                      <div className="flex h-full flex-col items-center justify-center space-y-2">
+                        <Camera className="size-8 text-gray-400 group-hover:text-gray-500" />
                         <span className="text-sm text-gray-500 group-hover:text-gray-600">
                           Click to upload cover photo
                         </span>
@@ -328,10 +328,10 @@ const DetailsForm = ({
           )}
         />
       </form>
-      <div className="flex gap-2 w-1/4 ml-auto">
+      <div className="ml-auto flex w-1/4 gap-2">
         <Button
           onClick={form.handleSubmit(onSubmit)}
-          className="w-full text-white py-2 rounded-lg"
+          className="w-full rounded-lg py-2 text-white"
         >
           Next
         </Button>
@@ -378,6 +378,7 @@ const AddNodeDialog = ({ open, setOpen }: IProps) => {
       toast.success(response.message);
       setCurrentStep("Success");
     } catch (error: any) {
+      console.log(error);
       toast.error(
         error.message || error.response.data.message || "something went wrong"
       );
@@ -394,15 +395,15 @@ const AddNodeDialog = ({ open, setOpen }: IProps) => {
               src={ICONS.GreenTickIcon}
               height={60}
               width={60}
-              className="object-cover object-top h-[10rem] w-[25rem]"
+              className="h-40 w-[25rem] object-cover object-top"
             />
             <span className=" font-semibold">Created Successfully🥳</span>
-            <span className="text-slate-400 text-center">
+            <span className="text-center text-slate-400">
               {
                 "Creating a code of conduct for a social media group is essential to maintain a positive and respectful online "
               }
             </span>
-            <Button variant={"outline"} className="text-black border-black">
+            <Button variant={"outline"} className="border-black text-black">
               View node
             </Button>
           </div>
@@ -411,7 +412,7 @@ const AddNodeDialog = ({ open, setOpen }: IProps) => {
             <DialogTitle>Create a node</DialogTitle>
             <div className="w-full border"></div>
 
-            <div className="w-fit mx-auto">
+            <div className="mx-auto w-fit">
               <ProgressIndicator
                 smallText={true}
                 steps={["Details", "Modules"]}
@@ -422,14 +423,14 @@ const AddNodeDialog = ({ open, setOpen }: IProps) => {
               <DetailsForm form={form} onSubmit={onSubmitDetails} />
             ) : (
               <>
-                <div className="flex items-center gap-2 bg-slate-100 rounded-sm px-2">
+                <div className="flex items-center gap-2 rounded-sm bg-slate-100 px-2">
                   <Search className="text-slate-600" />
                   <Input
                     placeholder="Enter name"
-                    className="w-full h-8 bg-slate-100 border-none"
+                    className="h-8 w-full border-none bg-slate-100"
                   />
                 </div>
-                <div className="flex flex-col gap-2  md:max-h-[60vh] px-4 overflow-y-auto">
+                <div className="flex flex-col gap-2  overflow-y-auto px-4 md:max-h-[60vh]">
                   {MODULES.map((module) => {
                     const moduleSelected = selectedModules.includes(
                       module.name
@@ -438,7 +439,7 @@ const AddNodeDialog = ({ open, setOpen }: IProps) => {
                       <div className="w-full" key={module.name}>
                         <div className="w-full border "></div>
                         <div className="flex items-center gap-4 py-2">
-                          <Card className="p-2 rounded-md">
+                          <Card className="rounded-md p-2">
                             <Image
                               src={module.icon}
                               alt={module.name}
@@ -461,7 +462,7 @@ const AddNodeDialog = ({ open, setOpen }: IProps) => {
                               }
                             }}
                             variant={"outline"}
-                            className="text-black border-slate-500 ml-auto"
+                            className="ml-auto border-slate-500 text-black"
                           >
                             {moduleSelected ? (
                               <span className="text-slate-500">Added</span>
@@ -473,20 +474,20 @@ const AddNodeDialog = ({ open, setOpen }: IProps) => {
                       </div>
                     );
                   })}
-                  <div className="w-full border mb-4"></div>
+                  <div className="mb-4 w-full border"></div>
 
-                  <div className="flex gap-2 w-1/2 ml-auto">
+                  <div className="ml-auto flex w-1/2 gap-2">
                     <Button
                       onClick={() => setCurrentStep("Details")}
                       variant={"outline"}
-                      className="w-full text-black border-black py-2 rounded-lg"
+                      className="w-full rounded-lg border-black py-2 text-black"
                     >
                       Previous
                     </Button>
                     <Button
                       disabled={selectedModules.length === 0}
                       onClick={onFinalSubmit}
-                      className="w-full text-white py-2 rounded-lg"
+                      className="w-full rounded-lg py-2 text-white"
                     >
                       Next
                     </Button>

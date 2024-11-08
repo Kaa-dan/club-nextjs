@@ -25,12 +25,8 @@ export class Endpoints {
   }
 
   static async requestToJoinNode(nodeId: string) {
-    try {
-      const { data } = await mainAxios.post("/node/request-to-join/" + nodeId);
-      return data;
-    } catch (error) {
-      console.log({ error });
-    }
+    const { data } = await mainAxios.post("/node/request-to-join/" + nodeId);
+    return data;
   }
 
   static async toggleMembersRequest(
@@ -47,12 +43,13 @@ export class Endpoints {
   }
 
   static async getNodeJoinRequests(nodeId: string) {
-    try {
-      const response = await mainAxios.get("/node/join-requests/" + nodeId);
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
+    const response = await mainAxios.get("/node/join-requests/" + nodeId);
+    return response.data;
+  }
+
+  static async getNodeJoinRequestOfUser(nodeId: string) {
+    const response = await mainAxios.get("/node/check-status/" + nodeId);
+    return response.data;
   }
 
   static async getAllClubs() {
