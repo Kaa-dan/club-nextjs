@@ -18,8 +18,10 @@ const ApprovalPage = () => {
         <div className="w-16 border-t border-gray-300"></div>
       </div>
 
-      <MemberApprovalTab clubId={params.clubId} />
-      <div className="flex   items-center justify-between rounded-md bg-white p-4 shadow-sm">
+      <div className="mb-3">
+        <MemberApprovalTab clubId={params.clubId} />
+      </div>
+      {/* <div className="flex   items-center justify-between rounded-md bg-white p-4 shadow-sm">
         <div className="flex items-center gap-2">
           <Image
             className="flex items-center"
@@ -38,7 +40,7 @@ const ApprovalPage = () => {
             Undo
           </Button>
         </div>
-      </div>
+      </div> */}
       <div>
         <ClubPostApproval />
       </div>

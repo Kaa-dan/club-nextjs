@@ -39,6 +39,7 @@ export type TUser = {
 export type TNodeJoinRequest = {
   node: string | TNodeData;
   user: TUser;
+  _id: string;
 };
 
 export type TClub = {

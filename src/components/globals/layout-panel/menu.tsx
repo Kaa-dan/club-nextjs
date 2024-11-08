@@ -166,7 +166,7 @@ export function Menu({ isOpen }: MenuProps) {
 
   async function fetchJoinedClubsAndNodes() {
     const joinedClubs = await Endpoints.fetchUserJoinedClubs();
-    const joinedNodes = await Endpoints.fetchAllNodes();
+    const joinedNodes = await Endpoints.fetchUserJoinedNodes();
     setUserJoinedClubs(joinedClubs);
     setUserJoinedNodes(joinedNodes);
   }

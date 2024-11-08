@@ -54,7 +54,7 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
     {
       name: "Chapters",
       icon: ICONS.NodeChaptersIcon,
-      notifications: 8,
+      notifications: 0,
       path: "#",
     },
     {
@@ -65,7 +65,7 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
     {
       name: "Approvals",
       icon: ICONS.NodeApprovalsIcon,
-      notifications: 3,
+      notifications: 0,
       path: `/club/${clubId}/approvals`,
       show: isModeratorOrAdmin, // Only show for moderator and admin
     },
@@ -110,7 +110,7 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
       });
   }, [clubId]);
   return (
-    <div className="sticky top-16 h-fit max-h-[80vh]  w-full overflow-hidden rounded-lg bg-white pb-2 shadow-md">
+    <div className="sticky top-16 h-fit   w-full overflow-hidden rounded-lg bg-white pb-2 shadow-md">
       <div className="relative">
         {club?.club?.coverImage && (
           <Image
@@ -170,7 +170,7 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
             </Button>
           </div>
         </div>
-        <div className="thin-scrollbar mt-4 max-h-[50vh] space-y-2 overflow-y-auto pb-4">
+        <div className=" my-3 max-h-[50vh] space-y-2  pb-4">
           {SECTIONS?.filter((section) => !section.show || section.show())?.map(
             (section) => (
               <button

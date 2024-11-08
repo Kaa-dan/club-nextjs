@@ -30,6 +30,7 @@ export async function getMenuList(
   joinedClubs: TClub[],
   joinedNodes: TNodeData[]
 ): Promise<Group[]> {
+  console.log({ joinedNodes });
   // const response = await Endpoints.fetchAllNodes();
 
   const clubMenus: Menu[] = joinedClubs?.map((club: any) => ({
@@ -40,13 +41,13 @@ export async function getMenuList(
     submenus: [],
     href: `/club/${club.club._id}`,
   }));
-  const nodeMenus: Menu[] = joinedNodes.map((node: any) => ({
-    _id: node._id, // Store the _id directly
-    label: node.name, // Assuming clubs have a `name`
-    active: pathname.includes(`/node/${node._d}`),
-    image: node.profileImage?.url || "https://picsum.photos/200", // Use the node's image if available
+  const nodeMenus: Menu[] = joinedNodes.map(({ node }: any) => ({
+    _id: node?._id, // Store the _id directly
+    label: node?.name, // Assuming clubs have a `name`
+    active: pathname?.includes(`/node/${node._d}`),
+    image: node?.profileImage?.url || "https://picsum.photos/200", // Use the node's image if available
     submenus: [],
-    href: `/node/${node._id}`,
+    href: `/node/${node?._id}`,
   }));
   const top3Clubs = clubMenus.slice(0, 3);
   const top3Nodes = nodeMenus.slice(0, 3);
