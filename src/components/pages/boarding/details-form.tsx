@@ -26,6 +26,8 @@ import {
 import Link from "next/link";
 import { postDetails } from "./endpoint";
 import { useTokenStore } from "@/store/store";
+import { formatName } from "@/lib/utils";
+import { toast } from "sonner";
 
 type Step = "details" | "image" | "interest" | "node";
 
@@ -49,7 +51,7 @@ const stepOneSchema = z.object({
       message: "Last name cannot start or end with a space.",
     }),
 
-  phoneNumber: z.string().regex(/^(\+91)?[6-9]\d{9}$/, {
+  phoneNumber: z.string().regex(/^\d{10}$/, {
     message: "Phone number must be a valid number",
   }),
 
@@ -86,7 +88,7 @@ const DetailsForm: React.FC<DetailsFormProps> = ({ setStep }) => {
         ? new Date(globalUser?.dateOfBirth).toISOString().split("T")[0]
         : "",
       gender: globalUser?.gender || "",
-      terms: globalUser ? true : false,
+      terms: globalUser?.gender ? true : false,
     },
   });
 
@@ -100,6 +102,17 @@ const DetailsForm: React.FC<DetailsFormProps> = ({ setStep }) => {
 
   useEffect(() => {
     // Check if current values are different from initial values
+    // and also check if the values are not empty
+    if (
+      initialValues &&
+      Object.entries(initialValues).some(
+        ([key, val]) => key !== "terms" && val === ""
+      )
+    ) {
+      setIsChanged(true);
+      return;
+    }
+
     if (
       initialValues &&
       JSON.stringify(initialValues) !== JSON.stringify(watchedValues)
@@ -116,10 +129,24 @@ const DetailsForm: React.FC<DetailsFormProps> = ({ setStep }) => {
     setFormData(newFormData);
     console.log({ newFormData });
     if (globalUser) {
-      const response = await postDetails(globalUser._id, newFormData);
-      console.log({ response });
-      setGlobalUser(response?.data);
-      setStep("image");
+      try {
+        const response = await postDetails(globalUser._id, newFormData);
+        console.log({ response });
+        setGlobalUser(response?.data);
+        setStep("image");
+      } catch (error: any) {
+        console.log(error?.response?.data);
+        toast.error(error?.response?.data?.message || "something went wrong");
+        if (
+          error?.response?.data?.message &&
+          error?.response?.data?.message.includes("userName")
+        ) {
+          form.setError("userName", {
+            type: "manual",
+            message: "Username is already taken", // Custom error message
+          });
+        }
+      }
     }
   };
 
@@ -134,7 +161,19 @@ const DetailsForm: React.FC<DetailsFormProps> = ({ setStep }) => {
               <FormItem>
                 <FormLabel>Username</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter username" {...field} />
+                  <Input
+                    placeholder="Enter username"
+                    {...field}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      const formattedName = formatName(value, {
+                        allowUppercaseInBetween: true,
+                        allowNumbers: true,
+                      });
+                      field.onChange(formattedName);
+                      form.setValue("userName", formattedName);
+                    }}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -147,7 +186,18 @@ const DetailsForm: React.FC<DetailsFormProps> = ({ setStep }) => {
               <FormItem>
                 <FormLabel>First name</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter first name" {...field} />
+                  <Input
+                    placeholder="Enter first name"
+                    {...field}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      const formattedName = formatName(value, {
+                        allowNonConsecutiveSpaces: true,
+                      });
+                      field.onChange(formattedName);
+                      form.setValue("firstName", formattedName);
+                    }}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -160,7 +210,18 @@ const DetailsForm: React.FC<DetailsFormProps> = ({ setStep }) => {
               <FormItem>
                 <FormLabel>Last name</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter last name" {...field} />
+                  <Input
+                    placeholder="Enter last name"
+                    {...field}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      const formattedName = formatName(value, {
+                        allowNonConsecutiveSpaces: true,
+                      });
+                      field.onChange(formattedName);
+                      form.setValue("lastName", formattedName);
+                    }}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -202,7 +263,24 @@ const DetailsForm: React.FC<DetailsFormProps> = ({ setStep }) => {
               <FormItem>
                 <FormLabel>Phone number</FormLabel>
                 <FormControl>
-                  <Input placeholder="+91" {...field} />
+                  <Input
+                    placeholder="Enter phone number"
+                    type="number"
+                    {...field}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      const formattedName = formatName(value, {
+                        allowNumbers: true,
+                      });
+
+                      if (formattedName.length > 10) {
+                        return;
+                      }
+                      console.log(formattedName.length);
+                      field.onChange(formattedName);
+                      form.setValue("phoneNumber", formattedName);
+                    }}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

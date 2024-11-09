@@ -47,6 +47,7 @@ import { Endpoints } from "@/utils/endpoint";
 import { useClubStore } from "@/store/clubs-store";
 import Link from "next/link";
 import { useNodeStore } from "@/store/nodes-store";
+import { PopoverClose } from "@radix-ui/react-popover";
 interface MenuProps {
   isOpen: boolean | undefined;
 }
@@ -290,7 +291,7 @@ export function Menu({ isOpen }: MenuProps) {
                                 key || ""
                               ) ? (
                                 <Popover>
-                                  <PopoverTrigger className="w-full">
+                                  <PopoverTrigger asChild className="w-full">
                                     <Button
                                       variant={active ? "default" : "ghost"}
                                       className="relative mx-1 mb-1 w-full cursor-pointer justify-start   !py-6"
@@ -411,14 +412,11 @@ export function Menu({ isOpen }: MenuProps) {
                                         >
                                           Create Node {groupLabel}
                                         </span> */}
-                                        <Button
-                                          variant="ghost"
-                                          size="icon"
-                                          className="size-6"
-                                        >
-                                          <X className="size-4" />
-                                          <span className="sr-only">Close</span>
-                                        </Button>
+                                        <PopoverClose>
+                                          <div className="p-2">
+                                            <X className="size-4" />
+                                          </div>
+                                        </PopoverClose>
                                       </div>
                                     </div>
                                     {menuItems?.length > 0 ? (

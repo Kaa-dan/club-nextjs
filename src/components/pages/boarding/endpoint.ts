@@ -2,16 +2,13 @@ import { axiosInstance } from "@/lib/axios";
 import { mainAxios } from "@/lib/mainAxios";
 
 export const postDetails = async (id: string, userData: any) => {
-  try {
-    console.log({ id, userData });
-    //api calling and storing response
-    const response = await mainAxios.put(`/onboarding/details`, userData);
-    console.log({ response });
-    // returning the response
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+  console.log({ id, userData });
+  //api calling and storing response
+  const response = await mainAxios.put(`/onboarding/details`, userData);
+  console.log({ response });
+  // returning the response
+  return response.data;
+
 };
 
 export const postPicture = async (id: string, userData: any) => {
