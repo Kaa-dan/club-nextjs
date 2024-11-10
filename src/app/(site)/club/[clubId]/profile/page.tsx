@@ -72,6 +72,10 @@ export default function Page() {
       toast.warning(response.message);
     } catch (error) {}
   };
+  const handleInviteClick = () => {
+    setInvite(true); // Open the modal
+  };
+
   return (
     <>
       <Card className="mx-auto w-full max-w-3xl ">
@@ -81,24 +85,24 @@ export default function Page() {
               <h2 className="flex items-center gap-2 text-lg font-semibold">
                 Members
                 <span className="text-sm font-normal text-muted-foreground">
-                  • {members?.length} Members
+                  • {members.length} Members
                 </span>
               </h2>
               <div className="flex items-center gap-2">
                 <div className="flex -space-x-2">
-                  {members?.slice(0, visibleUsers).map((member: any) => (
+                  {members.slice(0, visibleUsers).map((member: any) => (
                     <Avatar
                       key={member._id}
                       className="border-2 border-background"
                     >
                       <AvatarImage
                         src={
-                          member?.user?.profileImage ||
+                          member.user.profileImage ||
                           `/placeholder.svg?height=32&width=32`
                         } // Replace with dynamic src
                       />
                       <AvatarFallback>
-                        {member?.user?.firstName?.charAt(0)}
+                        {member.user.firstName.charAt(0)}
                       </AvatarFallback>
                     </Avatar>
                   ))}
@@ -134,7 +138,7 @@ export default function Page() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Dialog>
+              <Dialog open={invite} onOpenChange={handleInviteClick}>
                 <DialogTrigger>
                   <Button className="gap-2">
                     <span>+ Invite</span>
@@ -178,7 +182,7 @@ export default function Page() {
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
                     <AlertDialogAction
-                      onClick={() => leaveMyClub(params?.clubId)}
+                      onClick={() => leaveMyClub(params.clubId)}
                       className="bg-red-500 text-white hover:bg-red-600"
                     >
                       Leave Club

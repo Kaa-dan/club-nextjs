@@ -32,6 +32,7 @@ import { formatName } from "@/utils/text";
 import { toast } from "sonner";
 import { useNodeStore } from "@/store/nodes-store";
 import { Endpoints } from "@/utils/endpoint";
+import CropDialog from "@/components/globals/cropper/image-cropper";
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 5MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
@@ -125,16 +126,9 @@ const DetailsForm = ({
     undefined
   >;
 }) => {
-  const [coverPreviewUrl, setCoverPreviewUrl] = useState<string | null>(
-    form.getValues().coverPhoto
-      ? URL.createObjectURL(form.getValues().coverPhoto as File)
-      : null
-  );
-  const [profilePreviewUrl, setProfilePreviewUrl] = useState<string | null>(
-    form.getValues().profilePhoto
-      ? URL.createObjectURL(form.getValues().profilePhoto as File)
-      : null
-  );
+  const [tempProfileUrl, setTempProfileUrl] = useState<string>("");
+  const [tempCoverUrl, setTempCoverUrl] = useState<string>("");
+  const [cropDialoge, setCropDialogOpen] = useState<boolean>(false);
 
   console.log("errors", form.formState.errors);
   return (
@@ -154,9 +148,9 @@ const DetailsForm = ({
                 <div className="flex flex-col items-center gap-4">
                   <div className="group relative">
                     <div className="relative size-24">
-                      {profilePreviewUrl ? (
+                      {field.value ? (
                         <img
-                          src={profilePreviewUrl}
+                          src={URL.createObjectURL(field.value as File)}
                           alt="Profile preview"
                           className="size-24 rounded-md border-2 border-gray-200 object-cover"
                         />
@@ -183,21 +177,19 @@ const DetailsForm = ({
                       onChange={(e) => {
                         const file = e.target.files?.[0];
                         if (file) {
-                          const url = URL.createObjectURL(file);
-                          setProfilePreviewUrl(url);
-                          field.onChange(file);
+                          setCropDialogOpen(true);
+                          setTempProfileUrl(URL.createObjectURL(file));
                         }
                       }}
                     />
                   </div>
-                  {profilePreviewUrl && (
+                  {field.value && (
                     <Button
                       type="button"
                       variant="outline"
                       className="text-sm text-red-500 hover:text-red-600"
                       onClick={() => {
-                        setProfilePreviewUrl(null);
-                        field.onChange("");
+                        field.onChange(null);
                       }}
                     >
                       Remove photo
@@ -209,7 +201,17 @@ const DetailsForm = ({
             </FormItem>
           )}
         />
-
+        {tempProfileUrl && (
+          <CropDialog
+            imageUrl={tempProfileUrl}
+            open={cropDialoge}
+            onOpenChange={setCropDialogOpen}
+            onCrop={(croppedFile) => {
+              form.setValue("profilePhoto", croppedFile);
+              setTempProfileUrl("");
+            }}
+          />
+        )}
         {/* Cover Photo */}
         <FormField
           control={form.control}
@@ -225,11 +227,13 @@ const DetailsForm = ({
                     htmlFor="coverPhotoInput"
                     className="group block h-48 w-full cursor-pointer overflow-hidden rounded-lg border-2 border-dashed border-gray-300 transition-colors duration-200 hover:border-gray-400"
                   >
-                    {coverPreviewUrl ? (
-                      <img
-                        src={coverPreviewUrl}
+                    {field.value ? (
+                      <Image
+                        src={URL.createObjectURL(field.value as File)}
                         alt="Cover preview"
                         className="size-full object-cover"
+                        width={50}
+                        height={50}
                       />
                     ) : (
                       <div className="flex h-full flex-col items-center justify-center space-y-2">
@@ -248,9 +252,14 @@ const DetailsForm = ({
                     onChange={(e) => {
                       const file = e.target.files?.[0];
                       if (file) {
-                        const url = URL.createObjectURL(file);
-                        form.setValue("coverPhoto", file);
-                        setCoverPreviewUrl(url);
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const file = e.target?.files?.[0];
+                          if (file) {
+                            setCropDialogOpen(true);
+                            setTempCoverUrl(URL.createObjectURL(file));
+                          }
+                        }
                       }
                     }}
                   />
@@ -260,7 +269,18 @@ const DetailsForm = ({
             </FormItem>
           )}
         />
-
+        {tempCoverUrl && (
+          <CropDialog
+            aspectRatio={16 / 9}
+            open={cropDialoge}
+            onOpenChange={setCropDialogOpen}
+            imageUrl={tempCoverUrl}
+            onCrop={(croppedFile) => {
+              form.setValue("coverPhoto", croppedFile);
+              setTempCoverUrl("");
+            }}
+          />
+        )}
         {/* Node Name */}
         <FormField
           control={form.control}
