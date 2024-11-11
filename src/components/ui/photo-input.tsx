@@ -1,6 +1,18 @@
 import Image from "next/image";
 import React, { useState } from "react";
 import { Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "./alert-dialog";
+import { Button } from "./button";
 
 interface PhotoInputProps {
   onUpload: (file: File | null) => void;
@@ -74,9 +86,33 @@ const PhotoInput: React.FC<PhotoInputProps> = ({
               )}
             </div>
           </div>
-          <button onClick={handleDelete} className="ml-2 rounded  p-1">
+          {/* <button onClick={handleDelete} className="ml-2 rounded  p-1">
             <Trash2 size={16} />
-          </button>
+          </button> */}
+
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant={"ghost"}>
+                <Trash2 size={16} />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle className="text-center">
+                  Are you absolutely sure?
+                </AlertDialogTitle>
+                {/* <AlertDialogDescription>
+                  Are you sure you want to delete this image?
+                </AlertDialogDescription> */}
+              </AlertDialogHeader>
+              <div className="flex w-full justify-center gap-4">
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDelete}>
+                  Continue
+                </AlertDialogAction>
+              </div>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       )}
     </div>

@@ -37,6 +37,7 @@ import { signUp } from "./endpoint";
 import { toast } from "sonner";
 import { app } from "@/lib/config/firebase";
 import { useTokenStore } from "@/store/store";
+import { Tooltip } from "@/components/ui/tooltip";
 
 // Type definitions
 type FormSchema = z.infer<typeof formSchema>;
@@ -243,11 +244,17 @@ export function SignUpForm(): React.JSX.Element {
                 <FormField
                   control={form.control}
                   name="password"
+                  disabled={!verified}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <FormControl>
                         <PasswordInput
+                          title={
+                            !verified
+                              ? "After verification of email, you can enter the Password"
+                              : "Enter your password"
+                          }
                           placeholder="Enter your password"
                           {...field}
                         />
@@ -260,11 +267,17 @@ export function SignUpForm(): React.JSX.Element {
                 <FormField
                   control={form.control}
                   name="confirmPassword"
+                  disabled={!verified}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Confirm Password</FormLabel>
                       <FormControl>
                         <PasswordInput
+                          title={
+                            !verified
+                              ? "After verification of email, you can enter the Password"
+                              : "Enter your password"
+                          }
                           placeholder="Confirm your password"
                           {...field}
                         />
