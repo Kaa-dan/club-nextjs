@@ -36,7 +36,7 @@ const FunnyModule = () => (
   </div>
 );
 
-const page = () => {
+const Page = () => {
   const [currentModule, setCurrentModule] = useState("Rules");
   const [club, setClub] = useState<{ club: TClub; members: Array<any> }>();
   const params = useParams<{ clubId: string }>();
@@ -69,7 +69,7 @@ const page = () => {
   }, [params.clubId]);
   return (
     <>
-      <div className="w-[20%] shrink-0 flex-col py-4">
+      <div className="w-1/5 shrink-0 flex-col py-4">
         <ClubProfileCard
           clubId={params?.clubId as string}
           currentPage={currentModule}
@@ -97,4 +97,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;
