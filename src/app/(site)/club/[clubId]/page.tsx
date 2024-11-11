@@ -1,139 +1,100 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "@/components/ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import {
-  Bookmark,
-  Eye,
-  File,
-  MoreVertical,
-  Smile,
-  ThumbsDown,
-  ThumbsUp,
-} from "lucide-react";
-import React from "react";
+"use client";
+import ClubProfileCard from "@/components/pages/club/club-profile-card";
+import ModulesBar from "@/components/pages/club/module-bar";
+import NodeTeams from "@/components/pages/node/node-teams";
 
-const SingleClubPage = () => {
+import React, { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { TClub } from "@/types";
+
+import { fetchSpecificClub } from "@/components/pages/club/endpoint";
+import Posts from "@/components/pages/club/club-modules/posts";
+import Rules from "@/components/pages/club/club-modules/rules";
+// Module Components
+const RulesModule = () => <Rules />;
+
+const MarketPlaceModule = () => (
+  <div className="space-y-4">
+    <h2 className="text-xl font-bold">Marketplace</h2>
+    {/* Add your Marketplace content here */}
+  </div>
+);
+
+const DebateModule = () => (
+  <div className="space-y-4">
+    <h2 className="text-xl font-bold">Debates</h2>
+    {/* Add your Debate content here */}
+  </div>
+);
+
+const EventsNewsModule = () => <Posts />;
+
+const FunnyModule = () => (
+  <div className="space-y-4">
+    <h2 className="text-xl font-bold">Fun Zone</h2>
+    {/* Add your Funny content here */}
+  </div>
+);
+
+const Page = () => {
+  const [currentModule, setCurrentModule] = useState("Rules");
+  const [club, setClub] = useState<{ club: TClub; members: Array<any> }>();
+  const params = useParams<{ clubId: string }>();
+
+  const renderModuleContent = () => {
+    switch (currentModule) {
+      case "Rules":
+        return <RulesModule />;
+      case "Market Place":
+        return <MarketPlaceModule />;
+      case "Debate":
+        return <DebateModule />;
+      case "Events News":
+        return <EventsNewsModule />;
+      case "Funny":
+        return <FunnyModule />;
+      default:
+        return <></>;
+    }
+  };
+
+  useEffect(() => {
+    if (params.clubId) {
+      fetchSpecificClub(params.clubId as string).then((res) => {
+        if (res) {
+          setClub(res);
+        }
+      });
+    }
+  }, [params.clubId]);
   return (
-    <div className="flex flex-col gap-3">
-      <PostComponent />
-      <PostComponent />
-      <PostComponent />
-    </div>
+    <>
+      <div className="w-1/5 shrink-0 flex-col py-4">
+        <ClubProfileCard
+          clubId={params?.clubId as string}
+          currentPage={currentModule}
+          setCurrentPage={setCurrentModule}
+          club={club as { club: TClub; members: Array<any> }}
+        />
+      </div>
+      <div className="flex w-[50%] flex-col lg:w-3/5">
+        <div className="sticky top-0 z-10 p-4">
+          <ModulesBar
+            currentModule={currentModule}
+            onModuleChange={setCurrentModule}
+          />
+        </div>
+
+        <div className="thin-scrollbar grow overflow-y-auto bg-white p-4">
+          {renderModuleContent()}
+        </div>
+      </div>
+
+      <div className="hidden w-[28%] shrink-0 flex-col py-4 lg:flex">
+        <NodeTeams />
+      </div>
+    </>
   );
 };
 
-export default SingleClubPage;
-
-function PostComponent() {
-  return (
-    <Card className="max-w-2xl">
-      <CardHeader className="space-y-0 pb-4">
-        <div className="flex items-start justify-between">
-          <div className="flex gap-3">
-            <Avatar>
-              <AvatarImage alt="Cameron Williamson" src="/placeholder.svg" />
-              <AvatarFallback>CW</AvatarFallback>
-            </Avatar>
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <h2 className="font-semibold leading-none">
-                  Cameron Williamson
-                </h2>
-                <Badge variant="default" className="font-normal">
-                  News & events
-                </Badge>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <span>UI UX Designer</span>
-                <span>•</span>
-                <span>2 min ago</span>
-              </div>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="size-8">
-              <Eye className="size-4" />
-              <span className="sr-only">View count</span>
-            </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="size-8">
-                  <MoreVertical className="size-4" />
-                  <span className="sr-only">More options</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem>Edit</DropdownMenuItem>
-                <DropdownMenuItem>Delete</DropdownMenuItem>
-                <DropdownMenuItem>Report</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <p>
-            Creating a code of conduct for a social media group is essential to
-            maintain a positive and respectful online community. Here are some
-            general rules and guidelines you might consider.
-          </p>
-          <p className="text-muted-foreground">
-            Creating a code of conduct for a social media group is essential to
-            maintain a positive and respectful online community. Here are some
-            general rules and guidelines you might consider.
-            <Button variant="link" className="h-auto p-0">
-              see more
-            </Button>
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" className="gap-2">
-            <ThumbsUp className="size-4" />
-            <span className="hidden lg:inline">5k+ Relevant</span>
-          </Button>
-          <Button variant="outline" size="sm" className="gap-2">
-            <ThumbsDown className="size-4 text-red-500" />
-            <span className="hidden text-red-500 lg:inline">
-              5k+ Not Relevant
-            </span>
-          </Button>
-          <Button variant="outline" size="sm" className="gap-2">
-            <Bookmark className="size-4" />
-            <span className="hidden lg:inline">Save</span>
-          </Button>
-        </div>
-      </CardContent>
-      <CardFooter>
-        <div className="flex w-full items-center gap-2">
-          <Input
-            className="flex-1"
-            placeholder="Write your comment..."
-            type="text"
-          />
-          <Button variant="ghost" size="icon">
-            <File className="size-4" />
-            <span className="sr-only">Attach file</span>
-          </Button>
-          <Button variant="ghost" size="icon">
-            <Smile className="size-4" />
-            <span className="sr-only">Add emoji</span>
-          </Button>
-        </div>
-      </CardFooter>
-    </Card>
-  );
-}
+export default Page;
