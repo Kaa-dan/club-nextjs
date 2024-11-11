@@ -94,7 +94,12 @@ export const Navbar: React.FC = () => {
   };
 
   useEffect(() => {
-    tag ? handleSearch(searchTerm, tag) : handleSearch(searchTerm);
+    if (searchTerm !== "") {
+      tag ? handleSearch(searchTerm, tag) : handleSearch(searchTerm);
+    } else {
+      setClubs([]);
+      setNodes([]);
+    }
   }, [tag]);
 
   const handleButtonClick = (button: searchBtn) => {
