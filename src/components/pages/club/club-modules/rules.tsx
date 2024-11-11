@@ -13,9 +13,26 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Filter, MoreVertical, ThumbsUp, MessageCircle } from "lucide-react";
+import { useState } from "react";
+
+type Rule = {
+  id: number;
+  title: string;
+  description: string;
+  postedDate: string;
+  postedBy: {
+    name: string;
+    avatar: string;
+  };
+  relevanceScore: number;
+  comments: number;
+};
+
+type TableList = "proposed" | "active" | "global" | "suggested" | "my";
 
 export default function Rules() {
-  const rules = [
+  const [tableList, setTableList] = useState<TableList>("proposed");
+  const rules: Rule[] = [
     {
       id: 1,
       title: "Code of Conduct",
@@ -57,7 +74,7 @@ export default function Rules() {
       </div>
 
       <Tabs defaultValue="active" className="w-full">
-        <TabsList className="   bg-transparent p-0">
+        <TabsList className="bg-transparent p-0">
           <TabsTrigger
             value="active"
             className="data-[state=active]:text-green-500 data-[state=active]:border-b-8 data-[state=active]:border-green-500"
@@ -107,7 +124,7 @@ export default function Rules() {
           </div>
         </div>
 
-        <TabsContent value="proposed" className="mt-0">
+        <TabsContent value={tableList} className="mt-0">
           <Table>
             <TableHeader>
               <TableRow>
@@ -136,13 +153,15 @@ export default function Rules() {
                     <div className="flex items-center gap-2">
                       <Avatar className="h-8 w-8">
                         <AvatarImage src={rule.postedBy.avatar} />
-                        <AvatarFallback className="text-sm">{rule.postedBy.name[0]}</AvatarFallback>
+                        <AvatarFallback className="text-sm">
+                          {rule.postedBy.name[0]}
+                        </AvatarFallback>
                       </Avatar>
                       <span className="text-xs">{rule.postedBy.name}</span>
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-4 text-xs" >
+                    <div className="flex items-center gap-4 text-xs">
                       <div className="flex items-center gap-1">
                         <ThumbsUp className="h-4 w-4" />
                         <span>{rule.relevanceScore}</span>
