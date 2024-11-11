@@ -20,10 +20,8 @@ const modules: Module[] = [
 ];
 
 const ModulesBar: React.FC = () => {
-
-  
   return (
-    <div className="mx-auto flex w-full justify-evenly overflow-x-auto  rounded-lg bg-white   p-4  text-xs shadow-md">
+    <div className="mx-auto flex w-fit max-w-screen-lg overflow-x-auto  rounded-lg bg-white p-4  text-xs shadow-md">
       {modules.map((module, index) => (
         <div
           key={index}

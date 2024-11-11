@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { ICONS } from "@/lib/constants";
-import { ChevronRight, Globe2, Lock } from "lucide-react";
+import { ChevronRight, Globe2, Lock, Trash2 } from "lucide-react";
 import { TClub } from "@/types";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,17 @@ import { joinClub } from "./endpoint";
 import { Endpoints } from "@/utils/endpoint";
 import { useClubStore } from "@/store/clubs-store";
 import { useTokenStore } from "@/store/store";
+import {
+  AlertDialogHeader,
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogTitle,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
+import { ClubEndpoints } from "@/utils/endpoints/club";
+import { toast } from "sonner";
 
 interface ProfileCardProps {
   club: {
@@ -28,7 +39,10 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
   clubId,
 }) => {
   const [joinStatus, setJoinStatus] = useState<String>("");
-  const { setUserJoinedClubs } = useClubStore((state) => state);
+  const [cancelRequestTriggered, setCancelRequestTriggered] = useState(false);
+  const { setUserJoinedClubs, setUserRequestedClubs } = useClubStore(
+    (state) => state
+  );
   const { globalUser } = useTokenStore((state) => state);
 
   const router = useRouter();
@@ -92,12 +106,29 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
     try {
       const response = await joinClub(clubId);
       const joinedClubs = await Endpoints.fetchUserJoinedClubs();
+      const requestedClubs = await ClubEndpoints.fetchUserRequestedClubs();
       setUserJoinedClubs(joinedClubs);
+      setUserRequestedClubs(requestedClubs);
       setJoinStatus(response.status);
     } catch (error) {
       console.log({ error });
     }
   };
+
+  const cancelJoinRequest = async (clubId: string) => {
+    try {
+      const response = await ClubEndpoints.cancelJoinRequest(clubId);
+      const requestedClubs = await ClubEndpoints.fetchUserRequestedClubs();
+      setUserRequestedClubs(requestedClubs);
+      console.log(response);
+      toast.success("Request Cancelled");
+      setCancelRequestTriggered(!cancelRequestTriggered);
+    } catch (error) {
+      console.log(error);
+      toast.error("Error while cancelling request");
+    }
+  };
+
   useEffect(() => {
     console.log({ clubId });
 
@@ -108,7 +139,8 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
       .catch((err) => {
         console.log({ err });
       });
-  }, [clubId]);
+  }, [clubId, cancelRequestTriggered]);
+
   return (
     <div className="sticky top-16 h-fit   w-full overflow-hidden rounded-lg bg-white pb-2 shadow-md">
       <div className="relative">
@@ -117,20 +149,20 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
             src={club?.club?.coverImage?.url}
             alt="Cover"
             width={300}
-            height={150}
-            className="h-24 w-full rounded-t-lg object-cover"
+            height={120}
+            className="max-h-[120px] w-full max-w-[300px] rounded-t-lg object-cover"
             layout="responsive"
           />
         )}
 
-        <div className="absolute left-4 top-14">
+        <div className="absolute -bottom-6 left-4">
           {club?.club?.profileImage?.url && (
             <Image
               src={club?.club.profileImage?.url}
               alt="Avatar"
-              width={64}
-              height={64}
-              className="rounded-md border-4 border-white"
+              width={60}
+              height={60}
+              className="max-h-[60px] max-w-[60px] rounded-md border-4 border-white"
             />
           )}
         </div>
@@ -139,7 +171,7 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
         <div className="flex flex-col justify-center gap-2">
           <h2 className="text-lg font-bold">{club?.club?.name}</h2>
           <p className="text-xs text-gray-500">{club?.club?.about}</p>
-          <p className="mt-2 flex text-xs font-medium text-gray-700">
+          <div className="mt-2 flex text-xs font-medium text-gray-700">
             <span className="flex items-center gap-1">
               {club?.club?.isPublic ? (
                 <>
@@ -154,8 +186,8 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
               )}{" "}
             </span>{" "}
             • {club?.members?.length} Members
-          </p>
-          <div>
+          </div>
+          <div className="flex flex-col gap-2">
             <Button
               onClick={() => joinToClub(clubId)}
               className="h-8 w-full border border-gray-500 bg-transparent text-gray-800 hover:bg-transparent"
@@ -168,9 +200,33 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
               {joinStatus === "MEMBER" && "Joined"}
               {joinStatus === "REQUESTED" && "Request Pending"}
             </Button>
+            {joinStatus === "REQUESTED" && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button className="h-8 w-full border border-white bg-red-500 text-white hover:bg-red-500">
+                    Cancel Request
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle className="text-center">
+                      Are you absolutely sure?
+                    </AlertDialogTitle>
+                  </AlertDialogHeader>
+                  <div className="flex w-full justify-center gap-4">
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => cancelJoinRequest(clubId)}
+                    >
+                      Continue
+                    </AlertDialogAction>
+                  </div>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
           </div>
         </div>
-        <div className=" my-3 max-h-[50vh] space-y-2  pb-4">
+        <div className=" my-3 h-auto space-y-2  pb-4">
           {SECTIONS?.filter((section) => !section.show || section.show())?.map(
             (section) => (
               <button

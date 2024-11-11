@@ -32,7 +32,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     <div className="flex w-full gap-6">
       {node ? (
         <>
-          <div className="flex w-[75%] gap-6">
+          <div className="w-ful flex gap-6">
             <NodeProfileCard
               currentPage={currentPage}
               setCurrentPage={setCurrentPage}

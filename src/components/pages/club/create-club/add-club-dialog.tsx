@@ -391,6 +391,7 @@ const AddClubDialog = ({ open, setOpen }: IProps) => {
     "Details" | "Modules" | "Success"
   >("Details");
   const [selectedModules, setSelectedModules] = useState<string[]>([]);
+  const [isPaid, setIsPaid] = useState<boolean>(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -503,28 +504,35 @@ const AddClubDialog = ({ open, setOpen }: IProps) => {
                             />
                           </Card>
                           <span className="font-medium">{module.name}</span>
-                          <Button
-                            onClick={() => {
-                              if (moduleSelected) {
-                                setSelectedModules((prev) =>
-                                  prev.filter((m) => m !== module.name)
-                                );
-                              } else {
-                                setSelectedModules((prev) => [
-                                  ...prev,
-                                  module.name,
-                                ]);
-                              }
-                            }}
-                            variant={"outline"}
-                            className="ml-auto border-slate-500 text-black"
-                          >
-                            {moduleSelected ? (
-                              <span className="text-slate-500">Added</span>
+                          <div className="ml-auto flex items-center gap-6">
+                            {isPaid ? (
+                              <div className="text-lg italic">&#8377;</div>
                             ) : (
-                              <span className="text-black">Add</span>
+                              <div className="text-base italic">free</div>
                             )}
-                          </Button>
+                            <Button
+                              onClick={() => {
+                                if (moduleSelected) {
+                                  setSelectedModules((prev) =>
+                                    prev.filter((m) => m !== module.name)
+                                  );
+                                } else {
+                                  setSelectedModules((prev) => [
+                                    ...prev,
+                                    module.name,
+                                  ]);
+                                }
+                              }}
+                              variant={"outline"}
+                              className=" border-slate-500 text-black"
+                            >
+                              {moduleSelected ? (
+                                <span className="text-slate-500">Undo</span>
+                              ) : (
+                                <span className="text-black">Add</span>
+                              )}
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     );

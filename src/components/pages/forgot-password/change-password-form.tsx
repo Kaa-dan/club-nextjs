@@ -20,6 +20,8 @@ import Link from "next/link";
 import { changePassword } from "./endpoint";
 import { log } from "console";
 import { toast } from "sonner";
+import { useState } from "react";
+import { PasswordInput } from "@/components/ui/password-input";
 
 // Extend the schema to include password and confirm password fields
 const formSchema = z
@@ -35,6 +37,7 @@ const formSchema = z
   });
 
 export function ChangePasswordForm() {
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -91,9 +94,8 @@ export function ChangePasswordForm() {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="Enter a new password"
+                    <PasswordInput
+                      placeholder="Enter Your Password"
                       {...field}
                     />
                   </FormControl>
@@ -110,8 +112,7 @@ export function ChangePasswordForm() {
                 <FormItem>
                   <FormLabel>Confirm Password</FormLabel>
                   <FormControl>
-                    <Input
-                      type="password"
+                    <PasswordInput
                       placeholder="Confirm your password"
                       {...field}
                     />

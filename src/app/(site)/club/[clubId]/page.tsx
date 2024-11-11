@@ -39,7 +39,7 @@ export default SingleClubPage;
 
 function PostComponent() {
   return (
-    <Card className="max-w-2xl  ">
+    <Card className="max-w-2xl">
       <CardHeader className="space-y-0 pb-4">
         <div className="flex items-start justify-between">
           <div className="flex gap-3">
@@ -56,7 +56,7 @@ function PostComponent() {
                   News & events
                 </Badge>
               </div>
-              <div className="text-muted-foreground flex items-center gap-2 text-sm">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <span>UI UX Designer</span>
                 <span>•</span>
                 <span>2 min ago</span>
