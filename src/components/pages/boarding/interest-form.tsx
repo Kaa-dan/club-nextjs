@@ -184,7 +184,7 @@ const InterestForm: React.FC<InterestFormProps> = ({ setStep }) => {
               >
                 <span>{interest}</span>
                 <X
-                  className="size-4"
+                  className="size-4 cursor-pointer"
                   onClick={() => handleRemoveInterest(interest)}
                 />
               </div>

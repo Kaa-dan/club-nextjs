@@ -24,16 +24,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     fetchNodeDetails();
   }, []);
   return (
-    <div className="flex gap-6 w-full">
+    <div className="flex w-full gap-6">
       {node ? (
         <>
-          <div className="w-[75%] flex gap-6">
-            {/* <NodeProfileCard
-              currentPage={currentPage}
-              setCurrentPage={setCurrentPage}
-              nodeData={node}
-            /> */}
-            <div className="flex flex-col w-full">
+          <div className="flex w-[75%] gap-6">
+            <div className="flex w-full flex-col">
               <ModulesBar />
               {children}
             </div>
