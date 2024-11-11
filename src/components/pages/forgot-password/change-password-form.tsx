@@ -53,7 +53,7 @@ export function ChangePasswordForm() {
       console.log(values);
 
       const response = await changePassword(password);
-      toast.success(response.message);
+      toast.success(response.message || "Change password successfully");
       router.push("/sign-in");
       //   const { email, passwo rd } = values;
       //   const response = await forgotPassword({ email, password });

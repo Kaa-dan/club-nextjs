@@ -26,12 +26,8 @@ export const completeOnboarding = async () => {
 };
 
 export const postInterest = async (id: string, userData: any) => {
-  try {
-    const response = await mainAxios.put(`/onboarding/interest`, userData);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+  const response = await mainAxios.put(`/onboarding/interest`, userData);
+  return response.data;
 };
 
 export const addNode = async (data: any) => {

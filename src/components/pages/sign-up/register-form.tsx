@@ -37,7 +37,12 @@ import { signUp } from "./endpoint";
 import { toast } from "sonner";
 import { app } from "@/lib/config/firebase";
 import { useTokenStore } from "@/store/store";
-import { Tooltip } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 // Type definitions
 type FormSchema = z.infer<typeof formSchema>;
@@ -136,11 +141,12 @@ export function SignUpForm(): React.JSX.Element {
     try {
       // storing response and api calling
       const response = await signUp(data);
-      toast.success(response.message);
 
       // setting global state
       setGlobalUser(response?.data || null);
       setAccessToken(response?.token);
+
+      toast.success(response.message || "Successfully signed up!");
 
       router.replace("/onboarding");
     } catch (error) {
@@ -249,15 +255,22 @@ export function SignUpForm(): React.JSX.Element {
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <FormControl>
-                        <PasswordInput
-                          title={
-                            !verified
-                              ? "After verification of email, you can enter the Password"
-                              : "Enter your password"
-                          }
-                          placeholder="Enter your password"
-                          {...field}
-                        />
+                        <TooltipProvider disableHoverableContent>
+                          <Tooltip delayDuration={100}>
+                            <TooltipTrigger asChild>
+                              <PasswordInput
+                                placeholder="Enter your password"
+                                {...field}
+                              />
+                            </TooltipTrigger>
+                            {!verified && (
+                              <TooltipContent side="top">
+                                After verification of email, you can enter the
+                                Password
+                              </TooltipContent>
+                            )}
+                          </Tooltip>
+                        </TooltipProvider>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -272,15 +285,22 @@ export function SignUpForm(): React.JSX.Element {
                     <FormItem>
                       <FormLabel>Confirm Password</FormLabel>
                       <FormControl>
-                        <PasswordInput
-                          title={
-                            !verified
-                              ? "After verification of email, you can enter the Password"
-                              : "Enter your password"
-                          }
-                          placeholder="Confirm your password"
-                          {...field}
-                        />
+                        <TooltipProvider disableHoverableContent>
+                          <Tooltip delayDuration={100}>
+                            <TooltipTrigger asChild>
+                              <PasswordInput
+                                placeholder="Confirm your password"
+                                {...field}
+                              />
+                            </TooltipTrigger>
+                            {!verified && (
+                              <TooltipContent side="top">
+                                After verification of email, you can enter the
+                                Password
+                              </TooltipContent>
+                            )}
+                          </Tooltip>
+                        </TooltipProvider>
                       </FormControl>
                       <FormMessage />
                     </FormItem>

@@ -6,7 +6,16 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 
-import { Ellipsis, HomeIcon, Icon, LogOut, Pin, Plus, X } from "lucide-react";
+import {
+  Ellipsis,
+  HomeIcon,
+  Icon,
+  LogOut,
+  Pin,
+  Plus,
+  Trash2,
+  X,
+} from "lucide-react";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -52,6 +61,16 @@ import { group } from "console";
 import { ClubEndpoints } from "@/utils/endpoints/club";
 import { NodeEndpoints } from "@/utils/endpoints/node";
 import { set } from "date-fns";
+import {
+  AlertDialogHeader,
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogTitle,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
+
 interface MenuProps {
   isOpen: boolean | undefined;
 }
@@ -753,7 +772,7 @@ export function Menu({ isOpen }: MenuProps) {
             <TooltipProvider disableHoverableContent>
               <Tooltip delayDuration={100}>
                 <TooltipTrigger asChild>
-                  <Button
+                  {/* <Button
                     onClick={() => {
                       clearStore();
                       router.replace("/sign-in");
@@ -772,7 +791,47 @@ export function Menu({ isOpen }: MenuProps) {
                     >
                       Sign out
                     </p>
-                  </Button>
+                  </Button> */}
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="mt-5 h-10 w-full justify-center"
+                      >
+                        <span className={cn(isOpen === false ? "" : "mr-4")}>
+                          <LogOut size={18} />
+                        </span>
+                        <p
+                          className={cn(
+                            "whitespace-nowrap",
+                            isOpen === false
+                              ? "opacity-0 hidden"
+                              : "opacity-100"
+                          )}
+                        >
+                          Sign out
+                        </p>
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle className="text-center">
+                          Are you absolutely sure?
+                        </AlertDialogTitle>
+                      </AlertDialogHeader>
+                      <div className="flex w-full justify-center gap-4">
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => {
+                            clearStore();
+                            router.replace("/sign-in");
+                          }}
+                        >
+                          Continue
+                        </AlertDialogAction>
+                      </div>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </TooltipTrigger>
                 {isOpen === false && (
                   <TooltipContent side="right">Sign out</TooltipContent>
