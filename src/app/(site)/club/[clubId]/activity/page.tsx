@@ -10,7 +10,7 @@ function ActivityFeed() {
   ];
 
   return (
-    <div className=" rounded-lg border border-gray-200 bg-white p-4 shadow-md">
+    <div className=" rounded-lg border border-gray-200 p-4 shadow-md">
       <div className="flex items-center justify-between border-b border-gray-200 pb-4">
         <h2 className="text-lg font-semibold">Activity feed</h2>
         <button className="rounded-full bg-gray-100 p-2 hover:bg-gray-200">
