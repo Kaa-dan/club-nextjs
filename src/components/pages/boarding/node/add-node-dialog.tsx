@@ -155,8 +155,10 @@ const DetailsForm = ({
                   <div className="group relative">
                     <div className="relative size-24">
                       {profilePreviewUrl ? (
-                        <img
+                        <Image
                           src={profilePreviewUrl}
+                          width={96}
+                          height={96}
                           alt="Profile preview"
                           className="size-24 rounded-md border-2 border-gray-200 object-cover"
                         />
@@ -226,7 +228,9 @@ const DetailsForm = ({
                     className="group block h-48 w-full cursor-pointer overflow-hidden rounded-lg border-2 border-dashed border-gray-300 transition-colors duration-200 hover:border-gray-400"
                   >
                     {coverPreviewUrl ? (
-                      <img
+                      <Image
+                        width={100}
+                        height={100}
                         src={coverPreviewUrl}
                         alt="Cover preview"
                         className="size-full object-cover"
@@ -269,7 +273,20 @@ const DetailsForm = ({
             <FormItem>
               <FormLabel>Enter node name</FormLabel>
               <FormControl>
-                <Input placeholder="Enter name" {...field} />
+                <Input
+                  placeholder="Enter name"
+                  {...field}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    const formattedName = formatName(value, {
+                      makeFirstLetterUppercase: true,
+                      allowNonConsecutiveSpaces: true,
+                      allowUppercaseInBetween: true,
+                    });
+                    field.onChange(formattedName);
+                    form.setValue("name", formattedName);
+                  }}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -284,7 +301,20 @@ const DetailsForm = ({
             <FormItem>
               <FormLabel>About</FormLabel>
               <FormControl>
-                <Textarea placeholder="Write text..." {...field} />
+                <Textarea
+                  placeholder="Write text..."
+                  {...field}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    const formattedName = formatName(value, {
+                      makeFirstLetterUppercase: true,
+                      allowNonConsecutiveSpaces: true,
+                      makeLettersAfterSpaceCapital: false,
+                    });
+                    field.onChange(formattedName);
+                    form.setValue("about", formattedName);
+                  }}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -323,7 +353,20 @@ const DetailsForm = ({
             <FormItem>
               <FormLabel>Description</FormLabel>
               <FormControl>
-                <Textarea placeholder="Write text..." {...field} />
+                <Textarea
+                  placeholder="Write text..."
+                  {...field}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    const formattedName = formatName(value, {
+                      makeFirstLetterUppercase: true,
+                      allowNonConsecutiveSpaces: true,
+                      makeLettersAfterSpaceCapital: false,
+                    });
+                    field.onChange(formattedName);
+                    form.setValue("description", formattedName);
+                  }}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -371,14 +414,14 @@ const AddNodeDialog = ({ open, setOpen }: IProps) => {
       formData.append("profileImage", values.profilePhoto);
 
     if (values.coverPhoto) formData.append("coverImage", values.coverPhoto);
-    formData.append("name", formatName(values.name));
+    formData.append("name", values.name);
     formData.append("about", values.about);
     formData.append("location", values.location);
     formData.append("description", values.description);
     console.log("values", values);
     try {
       const response = await addNode(formData);
-      toast.success(response.message || "Node Created Successfully");
+      // toast.success(response.message || "Node Created Successfully");
       setCurrentStep("Success");
       const joinedNodes = await Endpoints.fetchUserJoinedNodes();
       setUserJoinedNodes(joinedNodes);
