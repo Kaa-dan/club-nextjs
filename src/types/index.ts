@@ -1,3 +1,5 @@
+import { title } from "process";
+
 export type TNodeData = {
   _id: string;
   name: string;
@@ -77,3 +79,33 @@ export interface TMembers {
   status: "REQUESTED" | "APPROVED" | "REJECTED";
   createdAt: Date;
 }
+
+type IssueType =
+  | "Bug"
+  | "Seeking Strategies"
+  | "Feature Request"
+  | "Documentation"
+  | "Task"
+  | "Other";
+
+export type TIssue = {
+  _id: string;
+  title: string;
+  issueType: IssueType;
+  whereWho: string;
+  deadline?: string; // Optional, in "DD-MM-YYYY" format
+  deadlineReason?: string;
+  significance: string;
+  whoShouldAddress: string;
+  description: string;
+  files: File[]; // Array of File objects for uploaded files
+  isPublic: boolean;
+  showName: boolean;
+  status: "ACTIVE" | "RESOLVED" | "INACTIVE";
+  createdAt: string;
+  postedBy: {
+    name: string;
+    avatar: string;
+  };
+  relevanceScore: number;
+};
