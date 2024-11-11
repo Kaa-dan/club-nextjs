@@ -93,6 +93,10 @@ export const Navbar: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    tag ? handleSearch(searchTerm, tag) : handleSearch(searchTerm);
+  }, [tag]);
+
   const handleButtonClick = (button: searchBtn) => {
     setTag(button.Btn);
     setSelectedButton(button);
