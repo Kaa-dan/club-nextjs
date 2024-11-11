@@ -270,7 +270,7 @@ export function Menu({ isOpen }: MenuProps) {
                   key={index}
                 >
                   {(isOpen && groupLabel) || isOpen === undefined ? (
-                    <p className="max-w-[248px] truncate  px-4 pb-2 text-sm font-medium text-muted-foreground">
+                    <div className="max-w-[248px] truncate  px-4 pb-2 text-sm font-medium text-muted-foreground">
                       {/* {groupLabel} */}
                       {groupLabel === "Nodes" ? (
                         <div className="flex items-center gap-4">
@@ -297,7 +297,7 @@ export function Menu({ isOpen }: MenuProps) {
                       ) : (
                         <Ellipsis size={30} />
                       )}
-                    </p>
+                    </div>
                   ) : !isOpen && isOpen !== undefined && groupLabel ? (
                     <TooltipProvider>
                       <Tooltip delayDuration={100}>
