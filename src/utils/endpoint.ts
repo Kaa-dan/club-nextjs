@@ -177,4 +177,15 @@ export class Endpoints {
       throw error;
     }
   }
+
+  static async recaptcha(token: string) {
+    try {
+      const response = await mainAxios.post("/recaptcha", {
+        token,
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
 }

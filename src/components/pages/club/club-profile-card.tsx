@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { ICONS } from "@/lib/constants";
 import { ChevronRight, Globe2, Lock, Trash2 } from "lucide-react";
@@ -10,6 +10,8 @@ import { joinClub } from "./endpoint";
 import { Endpoints } from "@/utils/endpoint";
 import { useClubStore } from "@/store/clubs-store";
 import { useTokenStore } from "@/store/store";
+import ReCAPTCHA from "react-google-recaptcha";
+
 import {
   AlertDialogHeader,
   AlertDialog,
@@ -21,6 +23,14 @@ import {
 } from "@/components/ui/alert-dialog";
 import { ClubEndpoints } from "@/utils/endpoints/club";
 import { toast } from "sonner";
+import { DialogHeader } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 interface ProfileCardProps {
   club: {
@@ -38,6 +48,9 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
   setCurrentPage,
   clubId,
 }) => {
+  const [recaptchaToken, setRecaptchaToken] = useState("");
+  const [recaptcha, setRecaptcha] = useState(false);
+  const recaptchaRef = useRef(null);
   const [joinStatus, setJoinStatus] = useState<String>("");
   const [cancelRequestTriggered, setCancelRequestTriggered] = useState(false);
   const { setUserJoinedClubs, setUserRequestedClubs } = useClubStore(
@@ -140,7 +153,23 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
         console.log({ err });
       });
   }, [clubId, cancelRequestTriggered]);
+  const onRecaptchaChange = (token: any) => {
+    if (!token) {
+      toast.error("Please complete the reCAPTCHA to proceed.");
+      return;
+    }
+    Endpoints.recaptcha(token)
+      .then((res) => {
+        if (res.status) {
+          joinClub(clubId);
+        }
+      })
+      .catch((err) => {
+        console.log({ err });
 
+        toast.error("something went wrong!!");
+      });
+  };
   return (
     <div className="sticky top-16 h-fit   w-full overflow-hidden rounded-lg bg-white pb-2 shadow-md">
       <div className="relative">
@@ -187,9 +216,28 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
             </span>{" "}
             • {club?.members?.length} Members
           </div>
+
+          {recaptcha && (
+            <Dialog open={recaptcha} onOpenChange={setRecaptcha}>
+              <DialogContent>
+                <DialogHeader>
+                  <ReCAPTCHA
+                    className="flex justify-center"
+                    ref={recaptchaRef}
+                    sitekey="6Lc7pHwqAAAAABABAhjdboa2T3zDcDsnTlFZqHsi" // Replace with your site key
+                    onChange={onRecaptchaChange}
+                  />
+                </DialogHeader>
+              </DialogContent>
+            </Dialog>
+          )}
+
           <div className="flex flex-col gap-2">
             <Button
-              onClick={() => joinToClub(clubId)}
+              onClick={() => {
+                // joinToClub(clubId);
+                setRecaptcha(true);
+              }}
               className="h-8 w-full border border-gray-500 bg-transparent text-gray-800 hover:bg-transparent"
               disabled={joinStatus === "REQUESTED" || joinStatus === "MEMBER"} // Disable when requested or joined
             >
