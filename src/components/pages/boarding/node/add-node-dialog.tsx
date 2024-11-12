@@ -148,13 +148,10 @@ const DetailsForm = ({
                 <div className="flex flex-col items-center gap-4">
                   <div className="group relative">
                     <div className="relative size-24">
-                      {profilePreviewUrl ? (
-                        <Image
-                          src={profilePreviewUrl}
-                          width={96}
-                          height={96}
                       {field.value ? (
-                        <img
+                        <Image
+                          width={50}
+                          height={50}
                           src={URL.createObjectURL(field.value as File)}
                           alt="Profile preview"
                           className="size-24 rounded-md border-2 border-gray-200 object-cover"
@@ -184,6 +181,7 @@ const DetailsForm = ({
                         if (file) {
                           setCropDialogOpen(true);
                           setTempProfileUrl(URL.createObjectURL(file));
+                          field.onChange(file);
                         }
                       }}
                     />
@@ -206,6 +204,7 @@ const DetailsForm = ({
             </FormItem>
           )}
         />
+
         {tempProfileUrl && (
           <CropDialog
             imageUrl={tempProfileUrl}
@@ -232,15 +231,13 @@ const DetailsForm = ({
                     htmlFor="coverPhotoInput"
                     className="group block h-48 w-full cursor-pointer overflow-hidden rounded-lg border-2 border-dashed border-gray-300 transition-colors duration-200 hover:border-gray-400"
                   >
-                    {coverPreviewUrl ? (
+                    {field?.value ? (
                       <Image
                         width={100}
                         height={100}
-                        src={coverPreviewUrl}
+                        src={URL.createObjectURL(field.value as File) as string}
                         alt="Cover preview"
                         className="size-full object-cover"
-                        width={50}
-                        height={50}
                       />
                     ) : (
                       <div className="flex h-full flex-col items-center justify-center space-y-2">
@@ -514,8 +511,8 @@ const AddNodeDialog = ({ open, setOpen }: IProps) => {
                             <Image
                               src={module.icon}
                               alt={module.name}
-                              width={15}
-                              height={15}
+                              width={96}
+                              height={96}
                             />
                           </Card>
                           <span className="font-medium">{module.name}</span>

@@ -169,4 +169,15 @@ export class Endpoints {
       throw error;
     }
   }
+
+  static async getRulesAndRegulations(type: string, Id: string) {
+    try {
+      const response = await mainAxios.get(
+        `rules-regulations/get-all-active-rules-regulations?type=${type}&from=${Id}`
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
 }

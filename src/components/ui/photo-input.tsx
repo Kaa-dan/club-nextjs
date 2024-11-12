@@ -7,8 +7,6 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
@@ -40,10 +38,7 @@ const PhotoInput: React.FC<PhotoInputProps> = ({
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const getCropAspectRatio = () => {
-    if (field.toLowerCase() === "cover") {
-      return 16 / 9;
-    }
-    return 1;
+    return field.toLowerCase() === "cover" ? 16 / 9 : 1;
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -70,7 +65,6 @@ const PhotoInput: React.FC<PhotoInputProps> = ({
     setOriginalFileName(croppedFile.name);
     onUpload(croppedFile);
     setCropDialogOpen(false);
-    // Clear the selected image after successful crop
     setSelectedImage(null);
   };
 
@@ -84,7 +78,6 @@ const PhotoInput: React.FC<PhotoInputProps> = ({
 
   const handleDialogChange = (open: boolean) => {
     setCropDialogOpen(open);
-    // Clear selected image when dialog is closed
     if (!open) {
       setSelectedImage(null);
     }
@@ -121,14 +114,9 @@ const PhotoInput: React.FC<PhotoInputProps> = ({
               )}
             </div>
           </div>
-          <button onClick={handleDelete} className="ml-2 rounded p-1">
-          {/* <button onClick={handleDelete} className="ml-2 rounded  p-1">
-            <Trash2 size={16} />
-          </button> */}
-
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant={"ghost"}>
+              <Button variant="ghost" className="ml-2 rounded p-1">
                 <Trash2 size={16} />
               </Button>
             </AlertDialogTrigger>
@@ -137,9 +125,6 @@ const PhotoInput: React.FC<PhotoInputProps> = ({
                 <AlertDialogTitle className="text-center">
                   Are you absolutely sure?
                 </AlertDialogTitle>
-                {/* <AlertDialogDescription>
-                  Are you sure you want to delete this image?
-                </AlertDialogDescription> */}
               </AlertDialogHeader>
               <div className="flex w-full justify-center gap-4">
                 <AlertDialogCancel>Cancel</AlertDialogCancel>

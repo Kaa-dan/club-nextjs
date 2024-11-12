@@ -157,9 +157,9 @@ const DetailsForm = ({
                 <div className="flex flex-col items-center gap-4">
                   <div className="group relative">
                     <div className="relative size-24">
-                      {profilePreviewUrl ? (
+                      {field.value ? (
                         <Image
-                          src={profilePreviewUrl}
+                          src={URL.createObjectURL(field?.value as File)}
                           alt="Profile preview"
                           className="size-24 rounded-md border-2 border-gray-200 object-cover"
                           width={96}
@@ -240,9 +240,9 @@ const DetailsForm = ({
                     htmlFor="coverPhotoInput"
                     className="group block h-48 w-full cursor-pointer overflow-hidden rounded-lg border-2 border-dashed border-gray-300 transition-colors duration-200 hover:border-gray-400"
                   >
-                    {coverPreviewUrl ? (
+                    {field.value ? (
                       <Image
-                        src={coverPreviewUrl}
+                        src={URL.createObjectURL(field.value as File)}
                         alt="Cover preview"
                         className="size-full object-cover"
                         width={100}
