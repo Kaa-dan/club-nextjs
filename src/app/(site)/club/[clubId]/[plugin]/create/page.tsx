@@ -42,7 +42,7 @@ const Page = async ({ params }: { params: Promise<{ clubId: string }> }) => {
 
         <div className="w-[100%]">
           {}
-          <CreateRules clubId={clubId} />
+          <CreateRules nodeOrClubId={clubId} section={"club"} />
         </div>
       </div>
     </div>

@@ -85,7 +85,13 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-export default function RuleForm({ clubId }: { clubId: string }) {
+export default function RuleForm({
+  nodeOrClubId,
+  section,
+}: {
+  nodeOrClubId: string;
+  section: TSections;
+}) {
   const {
     control,
     handleSubmit,
@@ -178,10 +184,11 @@ export default function RuleForm({ clubId }: { clubId: string }) {
         }
       });
 
-      data.files?.forEach((fileObj) => {
+      data.files?.forEach((fileObj: any) => {
         formDataToSend.append("file", fileObj.file);
       });
-      formDataToSend.append("club", clubId);
+
+      formDataToSend.append(section, nodeOrClubId);
 
       const response = await Endpoints.addRulesAndRegulations(formDataToSend);
       toast.success(response.message || "Rules successfully created");
