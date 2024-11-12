@@ -48,7 +48,7 @@ function PostCard() {
                 <span>UI UX Designer</span>
                 <span>•</span>
                 <span>2 min ago</span>
-              </div>
+              </div>  
             </div>
           </div>
           <div className="flex items-center gap-2">

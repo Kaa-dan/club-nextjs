@@ -1,3 +1,5 @@
+import RulesTable from "@/components/pages/club/club-modules/rules";
+import RulesLayout from "@/components/plugins/rules-regulations/rules-layout";
 import IssuesLayout from "@/components/plugins/issues/issues-layout";
 import IssueTable from "@/components/plugins/issues/issues-table";
 import React from "react";
@@ -5,9 +7,9 @@ import React from "react";
 const PluginPage = async ({
   params,
 }: {
-  params: Promise<{ plugin: string }>;
+  params: Promise<{ plugin: string; clubId: string }>;
 }) => {
-  const plugin = (await params).plugin;
+  const { plugin, clubId } = await params;
 
   const renderPluginContent = () => {
     switch (plugin) {
@@ -17,11 +19,17 @@ const PluginPage = async ({
             <IssueTable />
           </IssuesLayout>
         );
+      case "rules":
+        return (
+          <RulesLayout>
+            <RulesTable clubId={clubId} />
+          </RulesLayout>
+        );
 
       default:
         return (
           <div className="flex h-full items-center justify-center">
-            <span className="text-muted-foreground">Module not found</span>
+            <span className="text-muted-foreground">Plugin not found</span>
           </div>
         );
     }

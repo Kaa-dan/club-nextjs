@@ -157,4 +157,24 @@ export class Endpoints {
       throw error;
     }
   }
+
+  static async addRulesAndRegulations(data: any) {
+    try {
+      const response = await mainAxios.post("/rules-regulations", data);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async getRulesAndRegulations(type: string, Id: string) {
+    try {
+      const response = await mainAxios.get(
+        `rules-regulations/get-all-active-rules?type=${type}&from=${Id}`
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
