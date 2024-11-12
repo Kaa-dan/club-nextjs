@@ -36,11 +36,13 @@ const FacebookSignup = () => {
         signupThrough: "facebook",
       });
 
-      toast.success(response.message);
-
       // setting global state
       setGlobalUser(response?.data || null);
       setAccessToken(response?.token);
+
+      toast.success(
+        response.message || "Successfully signed in with Facebook!"
+      );
 
       response?.data?.isOnBoarded
         ? router.replace("/")

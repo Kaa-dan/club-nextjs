@@ -39,7 +39,7 @@ const GoogleSignIn = () => {
       });
 
       console.log(response?.data?.isOnBoarded, "sdafasfd");
-      toast.success(response.message);
+      toast.success(response.message || "Successfully signed in with Google!");
 
       // setting global state
       setGlobalUser(response?.data || null);
@@ -49,8 +49,8 @@ const GoogleSignIn = () => {
         ? router.replace("/")
         : router.replace("/onboarding");
     } catch (error: any) {
-      toast.error(error.message);
-      console.error("Google Sign-in Error:", error);
+      console.log(error?.response?.data);
+      toast.error(error?.response?.data?.message || "something went wrong");
     }
   };
 

@@ -101,9 +101,6 @@ const PhotoInput: React.FC<PhotoInputProps> = ({
                 <AlertDialogTitle className="text-center">
                   Are you absolutely sure?
                 </AlertDialogTitle>
-                {/* <AlertDialogDescription>
-                  Are you sure you want to delete this image?
-                </AlertDialogDescription> */}
               </AlertDialogHeader>
               <div className="flex w-full justify-center gap-4">
                 <AlertDialogCancel>Cancel</AlertDialogCancel>

@@ -93,6 +93,15 @@ export const Navbar: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    if (searchTerm !== "") {
+      tag ? handleSearch(searchTerm, tag) : handleSearch(searchTerm);
+    } else {
+      setClubs([]);
+      setNodes([]);
+    }
+  }, [tag]);
+
   const handleButtonClick = (button: searchBtn) => {
     setTag(button.Btn);
     setSelectedButton(button);
@@ -238,6 +247,7 @@ export const Navbar: React.FC = () => {
                           href={`/node/${node?._id}`}
                           key={index}
                           className="flex cursor-pointer items-center gap-6"
+                          onClick={() => setIsSearchModal(false)}
                         >
                           {node?.profileImage?.url && (
                             <Image
@@ -267,6 +277,7 @@ export const Navbar: React.FC = () => {
                           href={`/club/${club._id}`}
                           key={index}
                           className="flex cursor-pointer items-center gap-6 "
+                          onClick={() => setIsSearchModal(false)}
                         >
                           {club?.profileImage?.url && (
                             <Image

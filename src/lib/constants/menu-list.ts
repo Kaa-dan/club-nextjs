@@ -23,12 +23,15 @@ type Group = {
   groupLabel: string;
   menus: Menu[];
   menuItems?: Menu[];
+  requestedMenuItems?: Menu[];
 };
 
 export async function getMenuList(
   pathname: string,
   joinedClubs: TClub[],
-  joinedNodes: TNodeData[]
+  joinedNodes: TNodeData[],
+  requestedClubs: any[],
+  requestedNodes: any[]
 ): Promise<Group[]> {
   console.log({ joinedNodes });
   // const response = await Endpoints.fetchAllNodes();
@@ -49,6 +52,22 @@ export async function getMenuList(
     submenus: [],
     href: `/node/${node?._id}`,
   }));
+  const requestedClubsMenus: Menu[] = requestedClubs.map((club: any) => ({
+    _id: club.club._id, // Store the _id directly
+    label: club.club.name, // Assuming clubs have a `name`
+    active: pathname.includes(`/club/${club.club._d}`),
+    image: club.club.profileImage.url || "https://picsum.photos/200", // Use the club's image if available
+    submenus: [],
+    href: `/club/${club.club._id}`,
+  }))
+  const requestedNodesMenus: Menu[] = requestedNodes.map(({ node }: any) => ({
+    _id: node?._id, // Store the _id directly
+    label: node?.name, // Assuming clubs have a `name`
+    active: pathname?.includes(`/node/${node._d}`),
+    image: node?.profileImage?.url || "https://picsum.photos/200", // Use the node's image if available
+    submenus: [],
+    href: `/node/${node?._id}`,
+  }))
   const top3Clubs = clubMenus.slice(0, 3);
   const top3Nodes = nodeMenus.slice(0, 3);
   return [
@@ -67,6 +86,7 @@ export async function getMenuList(
     {
       groupLabel: "Nodes",
       menuItems: nodeMenus,
+      requestedMenuItems: requestedNodesMenus,
       menus: [
         ...top3Nodes,
         {
@@ -82,6 +102,7 @@ export async function getMenuList(
     {
       groupLabel: "Clubs",
       menuItems: clubMenus,
+      requestedMenuItems: requestedClubsMenus,
       menus: [
         ...top3Clubs, // Insert fetched club data here without `href`
         {
