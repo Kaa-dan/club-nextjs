@@ -34,6 +34,7 @@ export async function getMenuList(
   requestedNodes: any[]
 ): Promise<Group[]> {
   console.log({ joinedNodes });
+  console.log({ joinedClubs });
   // const response = await Endpoints.fetchAllNodes();
 
   const clubMenus: Menu[] = joinedClubs?.map((club: any) => ({
@@ -44,6 +45,7 @@ export async function getMenuList(
     submenus: [],
     href: `/club/${club.club._id}`,
   }));
+
   const nodeMenus: Menu[] = joinedNodes.map(({ node }: any) => ({
     _id: node?._id, // Store the _id directly
     label: node?.name, // Assuming clubs have a `name`
@@ -59,7 +61,7 @@ export async function getMenuList(
     image: club.club.profileImage.url || "https://picsum.photos/200", // Use the club's image if available
     submenus: [],
     href: `/club/${club.club._id}`,
-  }))
+  }));
   const requestedNodesMenus: Menu[] = requestedNodes.map(({ node }: any) => ({
     _id: node?._id, // Store the _id directly
     label: node?.name, // Assuming clubs have a `name`
@@ -67,7 +69,7 @@ export async function getMenuList(
     image: node?.profileImage?.url || "https://picsum.photos/200", // Use the node's image if available
     submenus: [],
     href: `/node/${node?._id}`,
-  }))
+  }));
   const top3Clubs = clubMenus.slice(0, 3);
   const top3Nodes = nodeMenus.slice(0, 3);
   return [

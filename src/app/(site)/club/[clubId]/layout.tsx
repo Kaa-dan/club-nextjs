@@ -14,7 +14,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     club: TClub;
     members: TMembers[];
   } | null>(null);
-  const params = useParams<{ clubId: string }>();
+  const params = useParams<{ clubId: string; plugin?: TPlugins }>();
 
   const fetchClubDetails = async () => {
     if (!params.clubId) return;
@@ -43,7 +43,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               />
             </div>
             <div className="flex w-3/4 flex-col ">
-              <ModulesBar clubId={params.clubId} />
+              <ModulesBar plugin={params?.plugin} clubId={params.clubId} />
               {children}
             </div>
           </div>

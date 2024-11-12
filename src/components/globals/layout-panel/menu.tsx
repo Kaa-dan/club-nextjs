@@ -51,16 +51,13 @@ import { boolean } from "zod";
 import { pinClub } from "@/components/pages/club/endpoint";
 import { toast } from "sonner";
 import { useTokenStore } from "@/store/store";
-import image from "next/image";
 import { Endpoints } from "@/utils/endpoint";
 import { useClubStore } from "@/store/clubs-store";
 import Link from "next/link";
 import { useNodeStore } from "@/store/nodes-store";
 import { PopoverClose } from "@radix-ui/react-popover";
-import { group } from "console";
 import { ClubEndpoints } from "@/utils/endpoints/club";
 import { NodeEndpoints } from "@/utils/endpoints/node";
-import { set } from "date-fns";
 import {
   AlertDialogHeader,
   AlertDialog,
@@ -197,13 +194,17 @@ export function Menu({ isOpen }: MenuProps) {
 
   async function fetchJoinedClubsAndNodes() {
     const joinedClubs = await Endpoints.fetchUserJoinedClubs();
-    const joinedNodes = await Endpoints.fetchUserJoinedNodes();
-    const requestedClubs = await ClubEndpoints.fetchUserRequestedClubs();
-    const requestedNodes = await NodeEndpoints.fetchUserRequestedNodes();
     setUserJoinedClubs(joinedClubs);
+    console.log("==> JOINED Clubs => ", joinedClubs);
+    const joinedNodes = await Endpoints.fetchUserJoinedNodes();
     setUserJoinedNodes(joinedNodes);
+    console.log("==> JOINED Nodes => ", joinedNodes);
+    const requestedClubs = await ClubEndpoints.fetchUserRequestedClubs();
     setUserRequestedClubs(requestedClubs);
+    console.log("==> Requested Club => ", requestedClubs);
+    const requestedNodes = await NodeEndpoints.fetchUserRequestedNodes();
     setUserRequestedNodes(requestedNodes);
+    console.log("==> Requested Node => ", requestedNodes);
   }
 
   async function fetchMenuList() {
@@ -242,13 +243,13 @@ export function Menu({ isOpen }: MenuProps) {
   }, []);
 
   useEffect(() => {
-    if (
-      userJoinedClubs ||
-      userJoinedNodes ||
-      userRequestedClubs ||
-      userRequestedNodes
-    )
-      fetchMenuList();
+    console.log({
+      userJoinedClubs,
+      userJoinedNodes,
+      userRequestedClubs,
+      userRequestedNodes,
+    });
+    if (userJoinedClubs && userJoinedNodes) fetchMenuList();
   }, [
     userJoinedClubs,
     userJoinedNodes,
@@ -475,7 +476,7 @@ export function Menu({ isOpen }: MenuProps) {
                                         </div>
                                       </div>
                                       <div>
-                                        <div className="text-sm px-4 pt-2 font-semibold">
+                                        <div className="px-4 pt-2 text-sm font-semibold">
                                           {groupLabel === "Nodes"
                                             ? "Nodes"
                                             : "Clubs"}
@@ -547,7 +548,7 @@ export function Menu({ isOpen }: MenuProps) {
                                             see it here!
                                           </p>
                                         )}
-                                        <div className="text-sm px-4 pt-2 font-semibold">
+                                        <div className="px-4 pt-2 text-sm font-semibold">
                                           {"Requested "}
                                           {groupLabel === "Nodes"
                                             ? "Nodes"

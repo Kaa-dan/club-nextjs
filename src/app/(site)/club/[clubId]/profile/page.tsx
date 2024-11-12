@@ -97,12 +97,12 @@ export default function Page() {
                     >
                       <AvatarImage
                         src={
-                          member.user.profileImage ||
+                          member?.user?.profileImage ||
                           `/placeholder.svg?height=32&width=32`
                         } // Replace with dynamic src
                       />
                       <AvatarFallback>
-                        {member.user.firstName.charAt(0)}
+                        {member?.user?.firstName?.charAt(0)}
                       </AvatarFallback>
                     </Avatar>
                   ))}
