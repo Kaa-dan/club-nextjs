@@ -8,7 +8,8 @@ import {
   BreadcrumbSeparator,
   BreadcrumbPage,
 } from "@/components/ui/breadcrumb";
-const Page = () => {
+const Page = async ({ params }: { params: Promise<{ clubId: string }> }) => {
+  const { clubId } = await params;
   return (
     <div className=" min-w-[100%]">
       <div className="flex flex-col gap-4">
@@ -23,7 +24,10 @@ const Page = () => {
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink className="text-xs" href="/">
+              <BreadcrumbLink
+                className="text-xs"
+                href={`/club/${clubId}/rules`}
+              >
                 Rules & Regulations
               </BreadcrumbLink>
             </BreadcrumbItem>
@@ -37,7 +41,8 @@ const Page = () => {
         </Breadcrumb>
 
         <div className="w-[100%]">
-          <CreateRules />
+          {}
+          <CreateRules clubId={clubId} />
         </div>
       </div>
     </div>

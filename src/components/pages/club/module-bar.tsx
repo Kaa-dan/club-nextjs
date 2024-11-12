@@ -1,130 +1,74 @@
-// // components/ModulesBar.tsx
-// import React from "react";
-// import { Badge } from "@/components/ui/badge";
-// import Image from "next/image";
-// import { ICONS } from "@/lib/constants";
-// import { Plus } from "lucide-react";
-
-// interface Module {
-//   name: string;
-//   icon: string;
-//   notifications?: number;
-// }
-
-// const modules: Module[] = [
-//   { name: "Rules", icon: ICONS.BarRulesIcon, notifications: 8 },
-//   { name: "Market Place", icon: ICONS.BarMarketPlaceIcon },
-//   { name: "Debate", icon: ICONS.BarDebateIcon },
-//   { name: "Events News", icon: ICONS.BarEventsIcon, notifications: 8 },
-//   { name: "Funny", icon: ICONS.BarFunnyIcon },
-// ];
-
-// const ModulesBar: React.FC = () => {
-//   return (
-//     <div className="mx-auto flex w-full justify-evenly overflow-x-auto  rounded-lg bg-white   p-4  text-xs shadow-md">
-//       {modules.map((module, index) => (
-//         <div
-//           key={index}
-//           className="  relative flex cursor-pointer flex-col items-center rounded-sm p-3 hover:bg-slate-50"
-//         >
-//           {/* Icon with Badge */}
-//           <div className="relative">
-//             <Image
-//               src={module.icon}
-//               alt={`${module.name} icon`}
-//               width={23} // Increased size for better visual appearance
-//               height={23}
-//             />
-//             {module.notifications && (
-//               <Badge className="absolute -right-2 -top-1 flex size-4 items-center justify-center rounded-full bg-orange-500 text-xs text-white">
-//                 {module.notifications}
-//               </Badge>
-//             )}
-//           </div>
-
-//           {/* Label */}
-//           <p className="mt-1 whitespace-nowrap text-xs text-gray-700">
-//             {module.name}
-//           </p>
-//         </div>
-//       ))}
-
-//       {/* Add Module Button */}
-//       <div className="flex flex-col items-center whitespace-nowrap p-3 text-green-500">
-//         <button className="flex items-center ">
-//           <Plus />
-//         </button>
-//         <p className="mt-1 text-xs">Add Module</p>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default ModulesBar;
-"use client";
 import React from "react";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import { ICONS } from "@/lib/constants";
 import { Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface Module {
+  link: string;
   name: string;
   icon: string;
   notifications?: number;
 }
 
-interface ModulesBarProps {
-  currentModule: string;
-  onModuleChange: (moduleName: string) => void;
-}
-
 const modules: Module[] = [
-  { name: "Rules", icon: ICONS.BarRulesIcon, notifications: 8 },
-  { name: "Market Place", icon: ICONS.BarMarketPlaceIcon },
-  { name: "Debate", icon: ICONS.BarDebateIcon },
-  { name: "Events News", icon: ICONS.BarEventsIcon, notifications: 8 },
-  { name: "Funny", icon: ICONS.BarFunnyIcon },
+  {
+    link: "rules",
+    name: "Rules",
+    icon: ICONS.BarRulesIcon,
+    notifications: 8,
+  },
+  { link: "issues", name: "issues", icon: ICONS.NodeActivitiesIcon },
+  { link: "market", name: "Market Place", icon: ICONS.BarMarketPlaceIcon },
+  { link: "debate", name: "Debate", icon: ICONS.BarDebateIcon },
+  {
+    link: "events",
+    name: "Events News",
+    icon: ICONS.BarEventsIcon,
+    notifications: 8,
+  },
+  // { link: "funny", name: "Funny", icon: ICONS.BarFunnyIcon },
 ];
 
-const ModulesBar: React.FC<ModulesBarProps> = ({
-  currentModule,
-  onModuleChange,
-}) => {
+const ModulesBar: React.FC<{ clubId: string }> = ({ clubId }) => {
+  const router = useRouter();
   return (
-    <div className="mx-auto flex w-full justify-evenly overflow-x-auto rounded-lg bg-white p-4 text-xs shadow-md">
+    <div className="mx-auto mb-2 flex w-fit max-w-screen-lg items-center overflow-x-auto rounded-lg  bg-white p-4  text-xs shadow-md">
       {modules.map((module, index) => (
         <div
+          onClick={() => {
+            router.push(`/club/${clubId}/${module.link}`);
+          }}
           key={index}
-          className={`relative flex cursor-pointer flex-col items-center rounded-sm p-3 hover:bg-slate-50 
-            ${currentModule === module.name ? "bg-slate-100" : ""}`}
-          onClick={() => onModuleChange(module.name)}
+          className="relative flex cursor-pointer flex-col items-center gap-1 rounded-sm  p-1 px-4 hover:bg-slate-50"
         >
-          <div className="relative">
+          {/* Icon with Badge */}
+          <div className="relative size-fit ">
             <Image
               src={module.icon}
               alt={`${module.name} icon`}
-              width={23}
-              height={23}
+              width={16}
+              height={16}
             />
             {module.notifications && (
-              <Badge className="absolute -right-2 -top-1 flex size-4 items-center justify-center rounded-full bg-orange-500 text-xs text-white">
+              <Badge className="absolute -right-4 -top-4 flex size-5 items-center justify-center rounded-full bg-orange-500 text-xs text-white">
                 {module.notifications}
               </Badge>
             )}
           </div>
 
-          <p className="mt-1 whitespace-nowrap text-xs text-gray-700">
-            {module.name}
-          </p>
+          {/* Label */}
+          <p className=" mt-1 text-gray-700">{module.name}</p>
         </div>
       ))}
 
-      <div className="flex flex-col items-center whitespace-nowrap p-3 text-green-500">
+      {/* Add Module Button */}
+      <div className="flex flex-col items-center text-green-500">
         <button className="flex items-center">
           <Plus />
         </button>
-        <p className="mt-1 text-xs">Add Module</p>
+        <p className="mt-1 text-sm">Add Module</p>
       </div>
     </div>
   );

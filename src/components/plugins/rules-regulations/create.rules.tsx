@@ -34,7 +34,6 @@ import {
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
 import { Endpoints } from "@/utils/endpoint";
-import { title } from "process";
 
 // Types
 // interface FileWithPreview {
@@ -86,7 +85,7 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-export default function RuleForm() {
+export default function RuleForm({ clubId }: { clubId: string }) {
   const {
     control,
     handleSubmit,
@@ -170,8 +169,6 @@ export default function RuleForm() {
 
   // Form submission
   const onSubmit = async (data: FormData) => {
-    console.log({ data });
-
     try {
       const formDataToSend = new FormData();
 
@@ -184,6 +181,8 @@ export default function RuleForm() {
       data.files?.forEach((fileObj) => {
         formDataToSend.append("file", fileObj.file);
       });
+      formDataToSend.append("club", clubId);
+
       const response = await Endpoints.addRulesAndRegulations(formDataToSend);
       toast.success(response.message || "Rules successfully created");
       // Clean up previews before reset
