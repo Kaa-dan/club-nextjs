@@ -12,26 +12,32 @@ interface Module {
   notifications?: number;
 }
 
-const modules: Module[] = [
-  {
-    link: "rules",
-    name: "Rules",
-    icon: ICONS.BarRulesIcon,
-    notifications: 8,
-  },
-  { link: "issues", name: "issues", icon: ICONS.NodeActivitiesIcon },
-  { link: "market", name: "Market Place", icon: ICONS.BarMarketPlaceIcon },
-  { link: "debate", name: "Debate", icon: ICONS.BarDebateIcon },
-  {
-    link: "events",
-    name: "Events News",
-    icon: ICONS.BarEventsIcon,
-    notifications: 8,
-  },
-  // { link: "funny", name: "Funny", icon: ICONS.BarFunnyIcon },
-];
-
-const ModulesBar: React.FC<{ clubId: string }> = ({ clubId }) => {
+const ModulesBar: React.FC<{ clubId: string; plugin?: TPlugins }> = ({
+  clubId,
+  plugin,
+}) => {
+  const modules: Module[] = [
+    {
+      link: "rules",
+      name: "Rules",
+      icon: plugin === "rules" ? ICONS.BarRulesIconGreen : ICONS.BarRulesIcon,
+      notifications: 8,
+    },
+    {
+      link: "issues",
+      name: "issues",
+      icon:
+        plugin === "issues" ? ICONS.BarIssuesIconGreen : ICONS.BarIssuesIcon,
+    },
+    { link: "market", name: "Market Place", icon: ICONS.BarMarketPlaceIcon },
+    { link: "debate", name: "Debate", icon: ICONS.BarDebateIcon },
+    {
+      link: "events",
+      name: "Events News",
+      icon: ICONS.BarEventsIcon,
+      notifications: 8,
+    },
+  ];
   const router = useRouter();
   return (
     <div className="mx-auto mb-2 flex w-fit max-w-screen-lg items-center overflow-x-auto rounded-lg  bg-white p-4  text-xs shadow-md">
