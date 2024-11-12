@@ -101,7 +101,7 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
   }, [nodeData?.node?._id]);
 
   return (
-    <div className="sticky top-16 h-fit  overflow-hidden rounded-lg bg-white pb-2 text-sm shadow-md md:min-w-60 md:max-w-60">
+    <div className="sticky top-16 h-fit  w-full overflow-hidden rounded-lg bg-white pb-2 text-sm shadow-md">
       <div className="relative">
         <Image
           src={nodeData?.node?.coverImage?.url}
