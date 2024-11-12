@@ -44,9 +44,9 @@ export default function Rules() {
   ];
 
   return (
-    <div className="w-full max-w-6xl mx-auto ">
-      <div className="pb-3 flex flex-col gap-2">
-        <h1 className="text-xl font-semibold flex items-center gap-2">
+    <div className="mx-auto w-full max-w-6xl ">
+      <div className="flex flex-col gap-2 pb-3">
+        <h1 className="flex items-center gap-2 text-xl font-semibold">
           Rules & Regulation
           <span className="text-muted-foreground">ⓘ</span>
         </h1>
@@ -60,49 +60,49 @@ export default function Rules() {
         <TabsList className="   bg-transparent p-0">
           <TabsTrigger
             value="active"
-            className="data-[state=active]:text-green-500 data-[state=active]:border-b-8 data-[state=active]:border-green-500"
+            className="data-[state=active]:border-b-8 data-[state=active]:border-green-500 data-[state=active]:text-green-500"
           >
             Active Rules (12)
           </TabsTrigger>
           <TabsTrigger
             value="proposed"
-            className="data-[state=active]:text-green-500 data-[state=active]:border-b-8 data-[state=active]:border-green-500"
+            className="data-[state=active]:border-b-8 data-[state=active]:border-green-500 data-[state=active]:text-green-500"
           >
             Proposed Rules (182)
           </TabsTrigger>
           <TabsTrigger
             value="global"
-            className="data-[state=active]:text-green-500 data-[state=active]:border-b-8 data-[state=active]:border-green-500"
+            className="data-[state=active]:border-b-8 data-[state=active]:border-green-500 data-[state=active]:text-green-500"
           >
             Global Library (2M)
           </TabsTrigger>
           <TabsTrigger
             value="suggested"
-            className="data-[state=active]:text-green-500 data-[state=active]:border-b-8 data-[state=active]:border-green-500"
+            className="data-[state=active]:border-b-8 data-[state=active]:border-green-500 data-[state=active]:text-green-500"
           >
             Suggested Rules (45)
           </TabsTrigger>
           <TabsTrigger
             value="my"
-            className="data-[state=active]:text-green-500 data-[state=active]:border-b-8 data-[state=active]:border-green-500"
+            className="data-[state=active]:border-b-8 data-[state=active]:border-green-500 data-[state=active]:text-green-500"
           >
             My Rules (30)
           </TabsTrigger>
         </TabsList>
 
-        <div className="flex items-center gap-4 my-3">
+        <div className="my-3 flex items-center gap-4">
           <Button className="bg-green-500 hover:bg-green-600">
             + Create rules
           </Button>
-          <div className="flex-1 flex items-center gap-2">
+          <div className="flex flex-1 items-center gap-2">
             <div className="relative flex-1">
               <Input placeholder="Search for rules..." className="w-full" />
             </div>
             <Button variant="outline" size="icon">
-              <Filter className="h-4 w-4" />
+              <Filter className="size-4" />
             </Button>
             <Button variant="outline" size="icon">
-              <MoreVertical className="h-4 w-4" />
+              <MoreVertical className="size-4" />
             </Button>
           </div>
         </div>
@@ -125,7 +125,7 @@ export default function Rules() {
                   <TableCell className="font-medium">{index + 1}</TableCell>
                   <TableCell>
                     <div>
-                      <div className="font-medium text-sm">{rule.title}</div>
+                      <div className="text-sm font-medium">{rule.title}</div>
                       <div className="text-xs text-muted-foreground">
                         {rule.description}
                       </div>
@@ -134,28 +134,30 @@ export default function Rules() {
                   <TableCell className="text-xs">{rule.postedDate}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <Avatar className="h-8 w-8">
+                      <Avatar className="size-8">
                         <AvatarImage src={rule.postedBy.avatar} />
-                        <AvatarFallback className="text-sm">{rule.postedBy.name[0]}</AvatarFallback>
+                        <AvatarFallback className="text-sm">
+                          {rule.postedBy.name[0]}
+                        </AvatarFallback>
                       </Avatar>
                       <span className="text-xs">{rule.postedBy.name}</span>
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-4 text-xs" >
+                    <div className="flex items-center gap-4 text-xs">
                       <div className="flex items-center gap-1">
-                        <ThumbsUp className="h-4 w-4" />
+                        <ThumbsUp className="size-4" />
                         <span>{rule.relevanceScore}</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <MessageCircle className="h-4 w-4" />
+                        <MessageCircle className="size-4" />
                         <span>{rule.comments}</span>
                       </div>
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
                     <Button variant="ghost" size="icon">
-                      <MoreVertical className="h-4 w-4" />
+                      <MoreVertical className="size-4" />
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -163,7 +165,7 @@ export default function Rules() {
             </TableBody>
           </Table>
 
-          <div className="flex items-center justify-between mt-4">
+          <div className="mt-4 flex items-center justify-between">
             <div className="text-sm text-muted-foreground">Total 85 items</div>
             <div className="flex items-center gap-2">
               <Button variant="outline" size="sm">
@@ -175,7 +177,7 @@ export default function Rules() {
                     key={i}
                     variant={page === 5 ? "default" : "outline"}
                     size="sm"
-                    className="w-8 h-8 p-0"
+                    className="size-8 p-0"
                   >
                     {page}
                   </Button>
@@ -184,14 +186,14 @@ export default function Rules() {
               <Button variant="outline" size="sm">
                 Next
               </Button>
-              <select className="px-2 py-1 border rounded-md text-sm">
+              <select className="rounded-md border px-2 py-1 text-sm">
                 <option>10 / page</option>
                 <option>20 / page</option>
                 <option>50 / page</option>
               </select>
-              <div className="flex items-center gap-2 ml-4">
+              <div className="ml-4 flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">Go to</span>
-                <Input className="w-16 h-8" />
+                <Input className="h-8 w-16" />
               </div>
             </div>
           </div>
