@@ -13,7 +13,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     node: TNodeData;
     members: TMembers[];
   } | null>(null);
-  const params = useParams<{ nodeId: string }>();
+  const params = useParams<{ nodeId: string; plugin?: TPlugins }>();
 
   const fetchNodeDetails = async () => {
     if (!params.nodeId) return;
@@ -24,7 +24,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       console.log(error);
     }
   };
-  useEffect(() => {
+  -+useEffect(() => {
     fetchNodeDetails();
   }, [params.nodeId]);
 
@@ -41,7 +41,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               />
             </div>
             <div className="flex w-3/4 flex-col ">
-              <ModulesBar nodeId={params.nodeId} />
+              <ModulesBar plugin={params?.plugin} nodeId={params.nodeId} />
               {children}
             </div>
           </div>

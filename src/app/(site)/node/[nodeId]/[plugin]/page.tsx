@@ -16,7 +16,7 @@ const PluginPage = async ({
         </IssuesLayout>
       ) : (
         <div className="flex h-full items-center justify-center">
-          <span className="text-muted-foreground">Plugin not found</span>
+          <span className="text-muted-foreground">Module not found</span>
         </div>
       )}
     </main>
