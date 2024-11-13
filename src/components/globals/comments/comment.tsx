@@ -9,56 +9,47 @@ import {
   ChevronRight,
   MoreHorizontal,
   ThumbsUp,
+  Image as ImageIcon,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-
-interface CommentReply {
-  id: string;
-  name: string;
-  username?: string;
-  comment: string;
-  time: string;
-  likes?: number;
-  dislikes?: number;
-  timestamp: number;
-  userProfile?: UserProfile;
-}
-
-interface UserProfile {
-  name: string;
-  username: string;
-  avatarUrl?: string;
-  bio?: string;
-  contributions?: number;
-}
-
-interface CommentType extends CommentReply {
-  mention?: string;
-  replies?: CommentReply[];
-}
+import Image from "next/image";
+import { formatDistanceToNow } from "date-fns";
+import { useParams } from "next/navigation";
+import { Endpoints } from "./endpoints";
+import { toast } from "sonner";
+import { useCommentsStore } from "@/store/comments-store";
 
 const UserHoverCard: React.FC<{
-  username: string;
-  userProfile?: UserProfile;
-}> = ({ username, userProfile }) => (
+  user: TCommentUser;
+}> = ({ user }) => (
   <HoverCard>
     <HoverCardTrigger asChild>
       <span className="cursor-pointer text-blue-500 hover:underline">
-        @{username}
+        @{user.firstName}_{user.lastName}
       </span>
     </HoverCardTrigger>
     <HoverCardContent className="w-80">
       <div className="flex gap-4">
-        <div className="size-12 shrink-0 rounded-full bg-gray-200" />
+        <Image
+          src={user?.profileImage}
+          alt={`${user?.firstName} ${user?.lastName}`}
+          width={48}
+          height={48}
+          className="size-12 rounded-full object-cover"
+        />
         <div className="flex-1">
-          <h4 className="font-bold">{userProfile?.name}</h4>
-          <p className="text-sm text-gray-500">@{username}</p>
-          {userProfile?.bio && (
-            <p className="mt-2 text-sm">{userProfile.bio}</p>
-          )}
-          <div className="mt-2 flex gap-4 text-sm text-gray-600">
-            <span>{userProfile?.contributions ?? 0} Contribution</span>
+          <h4 className="font-bold">{`${user?.firstName} ${user?.lastName}`}</h4>
+          <p className="text-sm text-gray-500">{user?.email}</p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {user.interests.map((interest, index) => (
+              <span
+                key={index}
+                className="rounded-full bg-blue-100 px-2 py-1 text-xs text-blue-600"
+              >
+                {interest}
+              </span>
+            ))}
           </div>
         </div>
       </div>
@@ -66,22 +57,13 @@ const UserHoverCard: React.FC<{
   </HoverCard>
 );
 
-const processCommentText = (text: string) => {
+const processCommentText = (text: string, user: TCommentUser) => {
   const words = text.split(" ");
   return words.map((word, index) => {
     if (word.startsWith("@")) {
-      const username = word.slice(1);
       return (
         <React.Fragment key={index}>
-          <UserHoverCard
-            username={username}
-            userProfile={{
-              name: username,
-              username: username,
-              bio: "User bio goes here",
-              contributions: 256,
-            }}
-          />{" "}
+          <UserHoverCard user={user} />{" "}
         </React.Fragment>
       );
     }
@@ -89,37 +71,40 @@ const processCommentText = (text: string) => {
   });
 };
 
-const Comment: React.FC<{ comment: CommentType }> = ({ comment }) => {
+const Comment: React.FC<{ comment: TCommentType }> = ({ comment }) => {
+  const { setComments } = useCommentsStore((state) => state);
   const [showReplies, setShowReplies] = useState(false);
   const [showReplyInput, setShowReplyInput] = useState(false);
   const [replyText, setReplyText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { postId } = useParams<{ postId: string }>();
+
+  const formatDate = (dateString: string) => {
+    return formatDistanceToNow(new Date(dateString), { addSuffix: true });
+  };
 
   const handleReplySubmit = async () => {
     if (!replyText.trim()) return;
 
     setIsSubmitting(true);
     try {
-      // Here you would call your API endpoint to post the reply
-      // const response = await Endpoints.postRulesComment({
-      //   content: replyText,
-      //   parentId: comment.id,
-      //   // Add other necessary fields
-      // });
+      const formData = new FormData();
+      formData.append("content", replyText);
+      formData.append("entityId", postId);
+      formData.append("parent", comment?._id);
 
-      // For now, we'll just simulate the reply
-      const newReply: CommentReply = {
-        id: Math.random().toString(),
-        name: "Current User", // Replace with actual user data
-        username: "currentuser", // Replace with actual user data
-        comment: replyText,
-        time: "Just now",
-        likes: 0,
-        dislikes: 0,
-        timestamp: Date.now(),
-      };
+      // if (selectedFile) {
+      //   formData.append("file", selectedFile);
+      // }
 
-      comment.replies = [...(comment.replies || []), newReply];
+      const res = await Endpoints.postRulesComment(formData);
+      if (res.data) {
+        setComments(res.data);
+        toast.success("Success", {
+          description: "Reply posted successfully!",
+        });
+      }
+
       setReplyText("");
       setShowReplyInput(false);
       setShowReplies(true);
@@ -130,38 +115,71 @@ const Comment: React.FC<{ comment: CommentType }> = ({ comment }) => {
     }
   };
 
-  const handleReplyToReply = (replyUsername: string) => {
-    setReplyText(`@${replyUsername} `);
+  const handleReplyToReply = (reply: TCommentReply) => {
+    setReplyText(`@${reply.firstName}_${reply.lastName} `);
     setShowReplyInput(true);
+    document
+      .getElementById("likeReplySection")
+      ?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !isSubmitting && replyText.trim()) {
+      e.preventDefault();
+      handleReplySubmit();
+    }
   };
 
   return (
     <div className="flex gap-3">
-      <div className="size-8 shrink-0 rounded-full bg-gray-200" />
+      <Image
+        src={comment.profileImage}
+        alt={`${comment.firstName} ${comment.lastName}`}
+        width={32}
+        height={32}
+        className="size-8 rounded-full object-cover"
+      />
       <div className="flex-1">
         <div className="flex items-center justify-between">
           <div>
-            <span className="font-medium">{comment.name}</span>
-            {comment.username && (
-              <span className="ml-1 text-sm text-gray-500">
-                @{comment.username}
-              </span>
-            )}
-            <span className="ml-2 text-sm text-gray-500">• {comment.time}</span>
+            <span className="font-medium">
+              {comment.firstName} {comment.lastName}
+            </span>
+            <span className="ml-2 text-sm text-gray-500">
+              • {formatDate(comment.createdAt)}
+            </span>
           </div>
           <button>
             <MoreHorizontal className="size-4 text-gray-500" />
           </button>
         </div>
-        <p className="mt-1 text-sm">{processCommentText(comment.comment)}</p>
-        <div className="mt-2 flex items-center gap-4">
+        <p className="mt-1 text-sm">
+          {processCommentText(comment.content, comment)}
+        </p>
+
+        {comment.attachment && (
+          <div className="mt-2">
+            <Image
+              src={comment.attachment.url}
+              alt="Comment attachment"
+              width={300}
+              height={200}
+              className="rounded-lg object-cover"
+            />
+          </div>
+        )}
+
+        <div
+          className="mt-2 flex scroll-mt-24 items-center gap-4"
+          id="likeReplySection"
+        >
           <div className="flex items-center gap-1">
             <ThumbsUp className="size-4 text-green-500" />
-            <span className="text-sm">{comment.likes ?? 0}</span>
+            <span className="text-sm">{comment.likes}</span>
           </div>
           <div className="flex items-center gap-1">
             <ThumbsUp className="size-4 rotate-180 text-red-500" />
-            <span className="text-sm">{comment.dislikes ?? 0}</span>
+            <span className="text-sm">{comment.dislikes}</span>
           </div>
           <button
             className="text-sm text-blue-500"
@@ -178,6 +196,7 @@ const Comment: React.FC<{ comment: CommentType }> = ({ comment }) => {
                 type="text"
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
+                onKeyDown={handleKeyDown}
                 placeholder="Write a reply..."
                 className="flex-1"
                 disabled={isSubmitting}
@@ -202,7 +221,7 @@ const Comment: React.FC<{ comment: CommentType }> = ({ comment }) => {
           </div>
         )}
 
-        {comment?.replies?.length! > 0 && (
+        {comment.replies.length > 0 && (
           <div className="mt-2">
             <button
               className="flex items-center gap-1 text-sm text-blue-500"
@@ -213,25 +232,28 @@ const Comment: React.FC<{ comment: CommentType }> = ({ comment }) => {
               ) : (
                 <ChevronRight className="size-4" />
               )}
-              {comment?.replies?.length} replies
+              {comment.replies.length} replies
             </button>
 
             {showReplies && (
               <div className="ml-8 mt-4 space-y-4">
-                {comment?.replies?.map((reply) => (
-                  <div key={reply.id} className="flex gap-3">
-                    <div className="size-8 shrink-0 rounded-full bg-gray-200" />
+                {comment.replies.map((reply) => (
+                  <div key={reply._id} className="flex gap-3">
+                    <Image
+                      src={reply.profileImage}
+                      alt={`${reply.firstName} ${reply.lastName}`}
+                      width={32}
+                      height={32}
+                      className="size-8 rounded-full object-cover"
+                    />
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
                         <div>
-                          <span className="font-medium">{reply.name}</span>
-                          {reply.username && (
-                            <span className="ml-1 text-sm text-gray-500">
-                              @{reply.username}
-                            </span>
-                          )}
+                          <span className="font-medium">
+                            {reply.firstName} {reply.lastName}
+                          </span>
                           <span className="ml-2 text-sm text-gray-500">
-                            • {reply.time}
+                            • {formatDate(reply.createdAt)}
                           </span>
                         </div>
                         <button>
@@ -239,24 +261,20 @@ const Comment: React.FC<{ comment: CommentType }> = ({ comment }) => {
                         </button>
                       </div>
                       <p className="mt-1 text-sm">
-                        {processCommentText(reply.comment)}
+                        {processCommentText(reply.content, reply)}
                       </p>
                       <div className="mt-2 flex items-center gap-4">
                         <div className="flex items-center gap-1">
                           <ThumbsUp className="size-4 text-green-500" />
-                          <span className="text-sm">{reply.likes ?? 0}</span>
+                          <span className="text-sm">{reply.likes}</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <ThumbsUp className="size-4 rotate-180 text-red-500" />
-                          <span className="text-sm">{reply.dislikes ?? 0}</span>
+                          <span className="text-sm">{reply.dislikes}</span>
                         </div>
                         <button
                           className="text-sm text-blue-500"
-                          onClick={() => {
-                            if (reply.username) {
-                              handleReplyToReply(reply.username);
-                            }
-                          }}
+                          onClick={() => handleReplyToReply(reply)}
                         >
                           Reply
                         </button>

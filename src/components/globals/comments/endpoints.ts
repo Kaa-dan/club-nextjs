@@ -4,7 +4,7 @@ export class Endpoints {
   static async getRulesComments(ruleId: string) {
     try {
       const { data } = await mainAxios.get(
-        `/rules-regulations/${ruleId}/comment`
+        `/rules-regulations/${ruleId}/comments`
       );
       return data;
     } catch (error) {
@@ -19,7 +19,7 @@ export class Endpoints {
           "Content-Type": "multipart/form-data",
         },
       });
-      res;
+      return res;
     } catch (error) {
       console.log({ error });
       throw error;
