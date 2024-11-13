@@ -33,6 +33,29 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Endpoints } from "@/utils/endpoint";
 import Link from "next/link";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { z } from "zod";
+import plugin from "tailwindcss";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import PhotoInput from "@/components/ui/photo-input";
 
 type Rule = {
   id: number;
@@ -169,8 +192,8 @@ export function RulesTable({
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-32">
-        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
+      <div className="flex h-32 items-center justify-center">
+        <div className="size-8 animate-spin rounded-full border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -191,7 +214,7 @@ export function RulesTable({
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Details
-          <ArrowUpDown className="ml-2 h-4 w-4" />
+          <ArrowUpDown className="ml-2 size-4" />
         </Button>
       ),
       cell: ({ row }) => (
@@ -199,7 +222,7 @@ export function RulesTable({
           <p className="font-medium leading-none text-foreground">
             {row.getValue("title")}
           </p>
-          <p className="text-sm text-muted-foreground line-clamp-2">
+          <p className="line-clamp-2 text-sm text-muted-foreground">
             {row.original.description}
           </p>
         </div>
@@ -213,7 +236,7 @@ export function RulesTable({
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Posted
-          <ArrowUpDown className="ml-2 h-4 w-4" />
+          <ArrowUpDown className="ml-2 size-4" />
         </Button>
       ),
       cell: ({ row }) => {
@@ -236,7 +259,7 @@ export function RulesTable({
         const postedBy = row.getValue("createdBy") as Rule["createdBy"];
         return (
           <div className="flex items-center gap-2">
-            <Avatar className="h-8 w-8">
+            <Avatar className="size-8">
               <AvatarImage
                 src={
                   postedBy?.avatar ||
@@ -261,7 +284,7 @@ export function RulesTable({
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Engagement
-          <ArrowUpDown className="ml-2 h-4 w-4" />
+          <ArrowUpDown className="ml-2 size-4" />
         </Button>
       ),
       cell: ({ row }) => {
@@ -270,11 +293,11 @@ export function RulesTable({
         return (
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
             <div className="flex items-center gap-1">
-              <ThumbsUp className="h-4 w-4" />
+              <ThumbsUp className="size-4" />
               <span>{relevanceScore}</span>
             </div>
             <div className="flex items-center gap-1">
-              <MessageCircle className="h-4 w-4" />
+              <MessageCircle className="size-4" />
               <span>{comments}</span>
             </div>
           </div>
@@ -290,10 +313,10 @@ export function RulesTable({
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
-                className="h-8 w-8 p-0"
+                className="size-8 p-0"
                 aria-label="Open actions"
               >
-                <MoreVertical className="h-4 w-4" />
+                <MoreVertical className="size-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -304,6 +327,40 @@ export function RulesTable({
                 >
                   View Details
                 </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                <Dialog>
+                  <DialogTrigger>
+                    <div>Report</div>
+                  </DialogTrigger>
+                  {/* <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Report Offence</DialogTitle>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      <FormField
+                        control={form.control}
+                        name="firstName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>First name</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Enter first name"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <DialogFooter>
+                      <Button>Save changes</Button>
+                    </DialogFooter>
+                  </DialogContent> */}
+                  <ContentDailog typeId={nodeorclubId} type={plugin} />
+                </Dialog>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -321,3 +378,99 @@ export function RulesTable({
     />
   );
 }
+
+const reportSchema = z.object({
+  offenderName: z
+    .string()
+    .min(3, { message: "Offender name must be at least 3 characters long." }),
+  description: z.string().min(2, { message: "Description is required." }),
+  proofPhoto: z
+    .instanceof(File)
+    .nullable()
+    .refine((file) => file, { message: "Proof photo is required." }),
+});
+
+type ReportType = z.infer<typeof reportSchema>;
+
+const ContentDailog = ({
+  type,
+  typeId,
+}: {
+  type: TPlugins;
+  typeId: string;
+}) => {
+  const [formData, setFormData] = useState<Partial<ReportType>>({});
+
+  const form = useForm<ReportType>({
+    resolver: zodResolver(reportSchema),
+    defaultValues: formData,
+  });
+
+  useEffect(() => {
+    form.reset(formData);
+  }, [formData, form]);
+
+  const onSubmit: SubmitHandler<ReportType> = (data: ReportType) => {
+    // Handle form submission
+    console.log(data);
+  };
+  return (
+    <DialogContent className="sm:max-w-[425px]">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <DialogHeader>
+            <DialogTitle>Report Offence</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <FormField
+              control={form.control}
+              name="offenderName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Offender name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter name" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Write here..." {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="proofPhoto"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>+ Upload document</FormLabel>
+                  <FormControl>
+                    <PhotoInput
+                      field="Proof"
+                      onUpload={(file) => field.onChange(file)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <DialogFooter>
+            {/* <Button variant="outline">Cancel</Button> */}
+            <Button type="submit">Submit</Button>
+          </DialogFooter>
+        </form>
+      </Form>
+    </DialogContent>
+  );
+};
