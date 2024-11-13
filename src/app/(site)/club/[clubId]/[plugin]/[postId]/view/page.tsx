@@ -15,9 +15,10 @@ import {
 } from "lucide-react";
 import CommentsSection from "@/components/globals/comments/comments-section";
 
-const Page = () => {
+const Page = async ({ params }: { params: Promise<{ plugin: string }> }) => {
+  const { plugin } = await params;
   return (
-    <div className="max-w-[80%] bg-white p-4">
+    <div className="max-w-[100%] bg-white p-4">
       {/* Header with ID and Privacy */}
       <div className="mb-2 flex items-center justify-between">
         <h1 className="text-xl font-medium">
