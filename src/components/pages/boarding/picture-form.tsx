@@ -18,6 +18,7 @@ import PhotoInput from "@/components/ui/photo-input";
 import Link from "next/link";
 import { postPicture } from "./endpoint";
 import { useTokenStore } from "@/store/store";
+import { toast } from "sonner";
 
 type Step = "details" | "image" | "interest" | "node";
 
@@ -120,8 +121,9 @@ const PictureForm: React.FC<PictureFormProps> = ({ setStep, userId }) => {
         // Move to next step if successful
         setStep("interest");
       }
-    } catch (error) {
-      console.error("Upload error:", error);
+    } catch (error: any) {
+      console.log(error?.response?.data);
+      toast.error(error?.response?.data?.message || "something went wrong");
       // Handle error (you might want to show an error message to the user)
     } finally {
       setIsSubmitting(false);

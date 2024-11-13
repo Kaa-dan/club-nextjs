@@ -60,9 +60,9 @@ export function SignInForm() {
     try {
       const response = await login(data);
       console.log(response);
-      toast.success(response?.message);
       setGlobalUser(response?.data || null);
       setAccessToken(response?.token);
+      toast.success(response?.message || "Successfully signed in!");
       response?.data?.isOnBoarded
         ? router.replace("/")
         : router.replace("/onboarding");

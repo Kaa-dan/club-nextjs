@@ -1,9 +1,15 @@
 "use client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
+import { useState, useEffect } from "react";
+import {
+  ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+  getSortedRowModel,
+  SortingState,
+} from "@tanstack/react-table";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Table,
   TableBody,
@@ -12,191 +18,276 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Filter, MoreVertical, ThumbsUp, MessageCircle } from "lucide-react";
+import {
+  ThumbsUp,
+  MessageCircle,
+  MoreVertical,
+  ArrowUpDown,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Endpoints } from "@/utils/endpoint";
 
-export default function Rules() {
-  const rules = [
-    {
-      id: 1,
-      title: "Code of Conduct",
-      description: "Creating a code of conduct for a social media g...",
-      postedDate: "Jan 13, 2022",
-      postedBy: {
-        name: "Marvin McKinney",
-        avatar: "/placeholder.svg",
-      },
-      relevanceScore: 21,
-      comments: 12,
-    },
-    {
-      id: 2,
-      title: "Hand Hygiene",
-      description: "All staff, visitors, and patients must practice pr...",
-      postedDate: "November 7, 2017",
-      postedBy: {
-        name: "Arlene McCoy",
-        avatar: "/placeholder.svg",
-      },
-      relevanceScore: 12,
-      comments: 13300,
-    },
-    // Add more rules as needed
-  ];
+type Rule = {
+  id: number;
+  title: string;
+  description: string;
+  postedDate: string;
+  postedBy: {
+    name: string;
+    avatar: string;
+  };
+  relevanceScore: number;
+  comments: number;
+};
 
-  return (
-    <div className="w-full max-w-6xl mx-auto ">
-      <div className="pb-3 flex flex-col gap-2">
-        <h1 className="text-xl font-semibold flex items-center gap-2">
-          Rules & Regulation
-          <span className="text-muted-foreground">ⓘ</span>
-        </h1>
-        <p className="text-xs text-muted-foreground">
-          Lorem ipsum dolor sit amet consectetur. Congue varius lorem at
-          egestas. Iaculis semper risus sit egestas.
+const columns: ColumnDef<Rule>[] = [
+  {
+    accessorKey: "id",
+    header: "ID",
+    cell: ({ row }) => <div className="font-medium">#{row.getValue("id")}</div>,
+  },
+  {
+    accessorKey: "title",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Details
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => (
+      <div className="max-w-[500px] space-y-1">
+        <p className="font-medium leading-none text-foreground">
+          {row.getValue("title")}
+        </p>
+        <p className="text-sm text-muted-foreground line-clamp-2">
+          {row.original.description}
         </p>
       </div>
-
-      <Tabs defaultValue="active" className="w-full">
-        <TabsList className="   bg-transparent p-0">
-          <TabsTrigger
-            value="active"
-            className="data-[state=active]:text-green-500 data-[state=active]:border-b-8 data-[state=active]:border-green-500"
-          >
-            Active Rules (12)
-          </TabsTrigger>
-          <TabsTrigger
-            value="proposed"
-            className="data-[state=active]:text-green-500 data-[state=active]:border-b-8 data-[state=active]:border-green-500"
-          >
-            Proposed Rules (182)
-          </TabsTrigger>
-          <TabsTrigger
-            value="global"
-            className="data-[state=active]:text-green-500 data-[state=active]:border-b-8 data-[state=active]:border-green-500"
-          >
-            Global Library (2M)
-          </TabsTrigger>
-          <TabsTrigger
-            value="suggested"
-            className="data-[state=active]:text-green-500 data-[state=active]:border-b-8 data-[state=active]:border-green-500"
-          >
-            Suggested Rules (45)
-          </TabsTrigger>
-          <TabsTrigger
-            value="my"
-            className="data-[state=active]:text-green-500 data-[state=active]:border-b-8 data-[state=active]:border-green-500"
-          >
-            My Rules (30)
-          </TabsTrigger>
-        </TabsList>
-
-        <div className="flex items-center gap-4 my-3">
-          <Button className="bg-green-500 hover:bg-green-600">
-            + Create rules
-          </Button>
-          <div className="flex-1 flex items-center gap-2">
-            <div className="relative flex-1">
-              <Input placeholder="Search for rules..." className="w-full" />
-            </div>
-            <Button variant="outline" size="icon">
-              <Filter className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="icon">
-              <MoreVertical className="h-4 w-4" />
-            </Button>
+    ),
+  },
+  {
+    accessorKey: "postedDate",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Posted
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const date = new Date(row.getValue("postedDate"));
+      return (
+        <div className="text-sm text-muted-foreground">
+          {date.toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          })}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "postedBy",
+    header: "Author",
+    cell: ({ row }) => {
+      const postedBy = row.getValue("postedBy") as Rule["postedBy"];
+      return (
+        <div className="flex items-center gap-2">
+          <Avatar className="h-8 w-8">
+            <AvatarImage src={postedBy.avatar} alt={postedBy.name} />
+            <AvatarFallback>{postedBy.name[0]}</AvatarFallback>
+          </Avatar>
+          <span className="text-sm text-muted-foreground">{postedBy.name}</span>
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "relevanceScore",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Engagement
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const relevanceScore = parseFloat(row.getValue("relevanceScore"));
+      const comments = row.original.comments;
+      return (
+        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+          <div className="flex items-center gap-1">
+            <ThumbsUp className="h-4 w-4" />
+            <span>{relevanceScore}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <MessageCircle className="h-4 w-4" />
+            <span>{comments}</span>
           </div>
         </div>
+      );
+    },
+  },
+  {
+    id: "actions",
+    cell: ({ row }) => {
+      const rule = row.original;
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              className="h-8 w-8 p-0 data-[state=open]:bg-muted"
+            >
+              <MoreVertical className="h-4 w-4" />
+              <span className="sr-only">Open menu</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-[160px]">
+            <DropdownMenuItem>View details</DropdownMenuItem>
+            <DropdownMenuItem>Edit rule</DropdownMenuItem>
+            <DropdownMenuItem className="text-red-600">
+              Delete rule
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    },
+  },
+];
 
-        <TabsContent value="proposed" className="mt-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[50px] text-sm">No.</TableHead>
-                <TableHead className="text-sm">Rules & Regulations</TableHead>
-                <TableHead className="text-sm">Posted Date</TableHead>
-                <TableHead className="text-sm">Posted by</TableHead>
-                <TableHead className="text-sm">Relevance Score</TableHead>
-                <TableHead className="text-right text-sm">Action</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {rules.map((rule, index) => (
-                <TableRow key={rule.id}>
-                  <TableCell className="font-medium">{index + 1}</TableCell>
-                  <TableCell>
-                    <div>
-                      <div className="font-medium text-sm">{rule.title}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {rule.description}
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-xs">{rule.postedDate}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={rule.postedBy.avatar} />
-                        <AvatarFallback className="text-sm">{rule.postedBy.name[0]}</AvatarFallback>
-                      </Avatar>
-                      <span className="text-xs">{rule.postedBy.name}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-4 text-xs" >
-                      <div className="flex items-center gap-1">
-                        <ThumbsUp className="h-4 w-4" />
-                        <span>{rule.relevanceScore}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <MessageCircle className="h-4 w-4" />
-                        <span>{rule.comments}</span>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button variant="ghost" size="icon">
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+interface DataTableProps<TData, TValue> {
+  columns: ColumnDef<TData, TValue>[];
+  data: TData[];
+}
 
-          <div className="flex items-center justify-between mt-4">
-            <div className="text-sm text-muted-foreground">Total 85 items</div>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm">
-                Previous
-              </Button>
-              <div className="flex items-center gap-1">
-                {[1, "...", 4, 5, 6, 7, 8, "...", 20].map((page, i) => (
-                  <Button
-                    key={i}
-                    variant={page === 5 ? "default" : "outline"}
-                    size="sm"
-                    className="w-8 h-8 p-0"
-                  >
-                    {page}
-                  </Button>
+function DataTable<TData, TValue>({
+  columns,
+  data,
+}: DataTableProps<TData, TValue>) {
+  const [sorting, setSorting] = useState<SortingState>([]);
+
+  const table = useReactTable({
+    data,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    onSortingChange: setSorting,
+    getSortedRowModel: getSortedRowModel(),
+    state: {
+      sorting,
+    },
+  });
+
+  return (
+    <div className="rounded-md border">
+      <Table>
+        <TableHeader>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <TableRow key={headerGroup.id} className="hover:bg-transparent">
+              {headerGroup.headers.map((header) => {
+                return (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </TableHead>
+                );
+              })}
+            </TableRow>
+          ))}
+        </TableHeader>
+        <TableBody>
+          {table.getRowModel().rows?.length ? (
+            table.getRowModel().rows.map((row) => (
+              <TableRow
+                key={row.id}
+                data-state={row.getIsSelected() && "selected"}
+                className="group hover:bg-muted/50"
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
                 ))}
-              </div>
-              <Button variant="outline" size="sm">
-                Next
-              </Button>
-              <select className="px-2 py-1 border rounded-md text-sm">
-                <option>10 / page</option>
-                <option>20 / page</option>
-                <option>50 / page</option>
-              </select>
-              <div className="flex items-center gap-2 ml-4">
-                <span className="text-sm text-muted-foreground">Go to</span>
-                <Input className="w-16 h-8" />
-              </div>
-            </div>
-          </div>
-        </TabsContent>
-      </Tabs>
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={columns.length} className="h-32 text-center">
+                <div className="flex flex-col items-center justify-center space-y-1">
+                  <div className="text-lg font-medium">No rules found</div>
+                  <div className="text-sm text-muted-foreground">
+                    There are no rules available at the moment
+                  </div>
+                </div>
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
     </div>
   );
 }
+
+export function RulesTable({ clubId }: { clubId: string }) {
+  const [rules, setRules] = useState<Rule[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchRules = async () => {
+    setLoading(true);
+    try {
+      const response = await Endpoints.getRulesAndRegulations("club", clubId);
+      console.log({ vaaa: response });
+
+      if (response?.data) {
+        setRules(response.data);
+      } else {
+        setRules([]);
+      }
+    } catch (err) {
+      console.log({ err });
+      setRules([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRules();
+  }, [clubId]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-32">
+        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  return <DataTable columns={columns} data={rules} />;
+}
+
+export default RulesTable;

@@ -35,13 +35,14 @@ const GoogleSignUp = () => {
         phoneNumber: user.phoneNumber,
         signupThrough: "google",
       });
-      toast.success(response.message);
 
       console.log(response);
 
       // setting global state
       setGlobalUser(response?.data || null);
       setAccessToken(response?.token);
+
+      toast.success(response.message || "Successfully signed in with Google!");
 
       response?.data?.isOnBoarded
         ? router.replace("/")

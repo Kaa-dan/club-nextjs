@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { addClub } from "../endpoint";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import {
   Select,
   SelectContent,
@@ -26,13 +27,13 @@ import ProgressIndicator from "./progress-bar";
 import { Button } from "@/components/ui/button";
 import { MODULES } from "@/lib/constants/modules";
 import { Card } from "@/components/ui/card";
-import Image from "next/image";
 import { Camera, LoaderCircle, Search, X } from "lucide-react";
 import { ICONS } from "@/lib/constants";
 import { formatName } from "@/utils/text";
 import { toast } from "sonner";
 import { useClubStore } from "@/store/clubs-store";
 import { Endpoints } from "@/utils/endpoint";
+import CropDialog from "@/components/globals/cropper/image-cropper";
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 5MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
@@ -126,18 +127,19 @@ const DetailsForm = ({
     undefined
   >;
 }) => {
-  const [coverPreviewUrl, setCoverPreviewUrl] = useState<string | null>(
-    form.getValues().coverPhoto
-      ? URL.createObjectURL(form.getValues().coverPhoto as File)
-      : null
-  );
-  const [profilePreviewUrl, setProfilePreviewUrl] = useState<string | null>(
-    form.getValues().profilePhoto
-      ? URL.createObjectURL(form.getValues().profilePhoto as File)
-      : null
-  );
-
-  console.log("errors", form.formState.errors);
+  // const [coverPreviewUrl, setCoverPreviewUrl] = useState<string | null>(
+  //   form.getValues().coverPhoto
+  //     ? URL.createObjectURL(form.getValues().coverPhoto as File)
+  //     : null
+  // );
+  // const [profilePreviewUrl, setProfilePreviewUrl] = useState<string | null>(
+  //   form.getValues().profilePhoto
+  //     ? URL.createObjectURL(form.getValues().profilePhoto as File)
+  //     : null
+  // );
+  const [cropDialoge, setCropDialogOpen] = useState<boolean>(false);
+  const [tempImageUrl, setTempImageUrl] = useState<string>("");
+  const [tempCoverImageUrl, setTempCoverUrl] = useState<string>("");
   return (
     <Form {...form}>
       <form
@@ -155,9 +157,9 @@ const DetailsForm = ({
                 <div className="flex flex-col items-center gap-4">
                   <div className="group relative">
                     <div className="relative size-24">
-                      {profilePreviewUrl ? (
+                      {field.value ? (
                         <Image
-                          src={profilePreviewUrl}
+                          src={URL.createObjectURL(field?.value as File)}
                           alt="Profile preview"
                           className="size-24 rounded-md border-2 border-gray-200 object-cover"
                           width={96}
@@ -184,23 +186,21 @@ const DetailsForm = ({
                       className="hidden"
                       accept="image/*"
                       onChange={(e) => {
-                        const file = e.target.files?.[0];
+                        const file = e.target?.files?.[0];
                         if (file) {
-                          const url = URL.createObjectURL(file);
-                          setProfilePreviewUrl(url);
-                          field.onChange(file);
+                          setCropDialogOpen(true);
+                          setTempImageUrl(URL.createObjectURL(file));
                         }
                       }}
                     />
                   </div>
-                  {profilePreviewUrl && (
+                  {field.value && (
                     <Button
                       type="button"
                       variant="outline"
                       className="text-sm text-red-500 hover:text-red-600"
                       onClick={() => {
-                        setProfilePreviewUrl(null);
-                        field.onChange("");
+                        field.onChange(null);
                       }}
                     >
                       Remove photo
@@ -212,6 +212,18 @@ const DetailsForm = ({
             </FormItem>
           )}
         />
+
+        {tempImageUrl && (
+          <CropDialog
+            open={cropDialoge}
+            onOpenChange={setCropDialogOpen}
+            imageUrl={tempImageUrl}
+            onCrop={(croppedFile) => {
+              form.setValue("profilePhoto", croppedFile);
+              setTempImageUrl("");
+            }}
+          />
+        )}
 
         {/* Cover Photo */}
         <FormField
@@ -228,9 +240,9 @@ const DetailsForm = ({
                     htmlFor="coverPhotoInput"
                     className="group block h-48 w-full cursor-pointer overflow-hidden rounded-lg border-2 border-dashed border-gray-300 transition-colors duration-200 hover:border-gray-400"
                   >
-                    {coverPreviewUrl ? (
+                    {field.value ? (
                       <Image
-                        src={coverPreviewUrl}
+                        src={URL.createObjectURL(field.value as File)}
                         alt="Cover preview"
                         className="size-full object-cover"
                         width={100}
@@ -253,9 +265,11 @@ const DetailsForm = ({
                     onChange={(e) => {
                       const file = e.target.files?.[0];
                       if (file) {
-                        const url = URL.createObjectURL(file);
-                        form.setValue("coverPhoto", file);
-                        setCoverPreviewUrl(url);
+                        const file = e.target?.files?.[0];
+                        if (file) {
+                          setCropDialogOpen(true);
+                          setTempCoverUrl(URL.createObjectURL(file));
+                        }
                       }
                     }}
                   />
@@ -265,6 +279,18 @@ const DetailsForm = ({
             </FormItem>
           )}
         />
+        {tempCoverImageUrl && (
+          <CropDialog
+            aspectRatio={16 / 9}
+            open={cropDialoge}
+            onOpenChange={setCropDialogOpen}
+            imageUrl={tempCoverImageUrl}
+            onCrop={(croppedFile) => {
+              form.setValue("coverPhoto", croppedFile);
+              setTempCoverUrl("");
+            }}
+          />
+        )}
 
         {/* Club Name */}
         <FormField
@@ -394,6 +420,7 @@ const AddClubDialog = ({ open, setOpen }: IProps) => {
     "Details" | "Modules" | "Success"
   >("Details");
   const [selectedModules, setSelectedModules] = useState<string[]>([]);
+  const [isPaid, setIsPaid] = useState<boolean>(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -508,28 +535,35 @@ const AddClubDialog = ({ open, setOpen }: IProps) => {
                             />
                           </Card>
                           <span className="font-medium">{module.name}</span>
-                          <Button
-                            onClick={() => {
-                              if (moduleSelected) {
-                                setSelectedModules((prev) =>
-                                  prev.filter((m) => m !== module.name)
-                                );
-                              } else {
-                                setSelectedModules((prev) => [
-                                  ...prev,
-                                  module.name,
-                                ]);
-                              }
-                            }}
-                            variant={"outline"}
-                            className="ml-auto border-slate-500 text-black"
-                          >
-                            {moduleSelected ? (
-                              <span className="text-slate-500">Added</span>
+                          <div className="ml-auto flex items-center gap-6">
+                            {isPaid ? (
+                              <div className="text-lg italic">&#8377;</div>
                             ) : (
-                              <span className="text-black">Add</span>
+                              <div className="text-base italic">free</div>
                             )}
-                          </Button>
+                            <Button
+                              onClick={() => {
+                                if (moduleSelected) {
+                                  setSelectedModules((prev) =>
+                                    prev.filter((m) => m !== module.name)
+                                  );
+                                } else {
+                                  setSelectedModules((prev) => [
+                                    ...prev,
+                                    module.name,
+                                  ]);
+                                }
+                              }}
+                              variant={"outline"}
+                              className=" border-slate-500 text-black"
+                            >
+                              {moduleSelected ? (
+                                <span className="text-slate-500">Undo</span>
+                              ) : (
+                                <span className="text-black">Add</span>
+                              )}
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     );

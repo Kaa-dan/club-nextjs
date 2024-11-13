@@ -127,8 +127,9 @@ export const NodeSearchForm: React.FC<InterestFormProps> = ({ setStep }) => {
       setGlobalUser(response.data);
       router.replace("/");
       console.log(response);
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      console.log(error?.response?.data);
+      toast.error(error?.response?.data?.message || "something went wrong");
     } finally {
       setIsLoading(false);
     }

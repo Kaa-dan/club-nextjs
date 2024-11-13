@@ -88,3 +88,8 @@
 .thin-scrollbar::-webkit-scrollbar-track {
   background: transparent; /* Background color of the scrollbar track */
 }
+
+.icon-primary {
+  /* Adjust filter to approximate a green color */
+  filter: invert(50%) sepia(100%) saturate(300%) hue-rotate(90deg);
+}

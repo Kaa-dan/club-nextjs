@@ -13,7 +13,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     node: TNodeData;
     members: TMembers[];
   } | null>(null);
-  const params = useParams<{ nodeId: string }>();
+  const params = useParams<{ nodeId: string; plugin?: TPlugins }>();
 
   const fetchNodeDetails = async () => {
     if (!params.nodeId) return;
@@ -24,7 +24,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       console.log(error);
     }
   };
-  useEffect(() => {
+  -+useEffect(() => {
     fetchNodeDetails();
   }, [params.nodeId]);
 
@@ -32,20 +32,22 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     <div className="flex w-full gap-6">
       {node ? (
         <>
-          <div className="flex w-[75%] gap-6">
-            <NodeProfileCard
-              currentPage={currentPage}
-              setCurrentPage={setCurrentPage}
-              nodeData={node}
-            />
-            <div className="flex w-full flex-col">
-              <ModulesBar />
+          <div className=" flex w-full gap-3  lg:w-3/4">
+            <div className="w-1/4 shrink-0 flex-col">
+              <NodeProfileCard
+                currentPage={currentPage}
+                setCurrentPage={setCurrentPage}
+                nodeData={node}
+              />
+            </div>
+            <div className="flex w-3/4 flex-col ">
+              <ModulesBar plugin={params?.plugin} nodeId={params.nodeId} />
               {children}
             </div>
           </div>
-          {/* <div className="hidden ">
+          <div className="hidden lg:flex">
             <NodeTeams />
-          </div> */}
+          </div>
         </>
       ) : (
         "Loading..."
