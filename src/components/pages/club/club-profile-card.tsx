@@ -48,7 +48,6 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
   setCurrentPage,
   clubId,
 }) => {
-  const [recaptchaToken, setRecaptchaToken] = useState("");
   const [recaptcha, setRecaptcha] = useState(false);
   const recaptchaRef = useRef(null);
   const [joinStatus, setJoinStatus] = useState<String>("");
@@ -160,8 +159,9 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
     }
     Endpoints.recaptcha(token)
       .then((res) => {
-        if (res.status) {
-          joinClub(clubId);
+        if (res) {
+          joinToClub(clubId);
+          setRecaptcha(false);
         }
       })
       .catch((err) => {
@@ -171,7 +171,7 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
       });
   };
   return (
-    <div className="sticky top-16 h-fit   w-full overflow-hidden rounded-lg bg-white pb-2 shadow-md">
+    <div className="sticky top-16 h-fit  w-full overflow-hidden rounded-lg bg-white pb-2 shadow-md">
       <div className="relative">
         {club?.club?.coverImage && (
           <Image
@@ -219,14 +219,24 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
 
           {recaptcha && (
             <Dialog open={recaptcha} onOpenChange={setRecaptcha}>
-              <DialogContent>
+              <DialogTitle>Recaptcha</DialogTitle>
+              <DialogContent
+                className="pointer-events-auto"
+                onInteractOutside={(e) => {
+                  e.preventDefault();
+                }}
+              >
                 <DialogHeader>
-                  <ReCAPTCHA
-                    className="flex justify-center"
-                    ref={recaptchaRef}
-                    sitekey="6Lc7pHwqAAAAABABAhjdboa2T3zDcDsnTlFZqHsi" // Replace with your site key
-                    onChange={onRecaptchaChange}
-                  />
+                  {(
+                    <ReCAPTCHA
+                      className="flex justify-center z-50"
+                      ref={recaptchaRef}
+                      sitekey={
+                        process.env.NEXT_PUBLIC_RECAPTCHA_CLIENT as string
+                      } // Replace with your site key
+                      onChange={onRecaptchaChange}
+                    />
+                  ) || "Loading..."}
                 </DialogHeader>
               </DialogContent>
             </Dialog>

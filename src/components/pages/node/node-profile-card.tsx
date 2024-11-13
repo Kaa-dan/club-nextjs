@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { ICONS } from "@/lib/constants";
 import { ChevronRight } from "lucide-react";
@@ -8,6 +8,8 @@ import { Endpoints } from "@/utils/endpoint";
 import { useNodeStore } from "@/store/nodes-store";
 import { useTokenStore } from "@/store/store";
 import { Button } from "@/components/ui/button";
+import ReCAPTCHA from "react-google-recaptcha";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,6 +21,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { NodeEndpoints } from "@/utils/endpoints/node";
 import { toast } from "sonner";
+import { DialogHeader } from "@/components/ui/dialog";
+import { Dialog, DialogTitle, DialogContent } from "@/components/ui/dialog";
 
 interface ProfileCardProps {
   nodeData: { node: TNodeData; members: TMembers[] };
@@ -34,6 +38,8 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
   console.log({ nodeData });
   const [joinStatus, setJoinStatus] = useState<String>("");
   const [cancelRequestTriggered, setCancelRequestTriggered] = useState(false);
+  const recaptchaRef = useRef(null);
+
   const { setUserJoinedNodes, setUserRequestedNodes } = useNodeStore(
     (state) => state
   );
@@ -102,6 +108,7 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
       console.log({ error });
     }
   };
+  const [recaptcha, setRecaptcha] = useState(false);
 
   const cancelJoinRequest = async (nodeId: string) => {
     try {
@@ -129,6 +136,26 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
       });
   }, [nodeData?.node?._id, cancelRequestTriggered]);
 
+  const onRecaptchaChange = (token: any) => {
+    if (!token) {
+      toast.error("Please complete the reCAPTCHA to proceed.");
+      return;
+    }
+    Endpoints.recaptcha(token)
+      .then((res) => {
+        if (res) {
+          joinToNode(nodeData.node._id as string);
+        }
+      })
+      .catch((err) => {
+        console.log({ err });
+
+        toast.error("something went wrong!!");
+      })
+      .finally(() => {
+        setRecaptcha(false);
+      });
+  };
   return (
     <div className="sticky top-16 h-fit  w-full overflow-hidden rounded-lg bg-white pb-2 text-sm shadow-md">
       <div className="relative">
@@ -163,9 +190,31 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
             </span>
           </p>
         </div>
+        {recaptcha && (
+          <Dialog open={recaptcha} onOpenChange={setRecaptcha}>
+            <DialogContent
+              className="pointer-events-auto "
+              onInteractOutside={(e) => {
+                e.preventDefault();
+              }}
+            >
+              <DialogHeader>
+                {(
+                  <ReCAPTCHA
+                    className="flex justify-center z- "
+                    ref={recaptchaRef}
+                    sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_CLIENT as string} // Replace with your site key
+                    onChange={onRecaptchaChange}
+                  />
+                ) || "Loading..."}
+              </DialogHeader>
+            </DialogContent>
+          </Dialog>
+        )}
+
         <div className="flex flex-col gap-2">
           <Button
-            onClick={() => joinToNode(nodeData?.node._id)}
+            onClick={() => setRecaptcha(true)}
             className="h-8 w-full border border-gray-500 bg-transparent text-gray-800 hover:bg-transparent"
             disabled={joinStatus === "REQUESTED" || joinStatus === "MEMBER"} // Disable when requested or joined
           >
