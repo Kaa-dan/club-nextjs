@@ -227,16 +227,18 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
                 }}
               >
                 <DialogHeader>
-                  {(
+                  {recaptcha ? (
                     <ReCAPTCHA
-                      className="flex justify-center z-50"
+                      className="z-50 flex justify-center"
                       ref={recaptchaRef}
                       sitekey={
                         process.env.NEXT_PUBLIC_RECAPTCHA_CLIENT as string
-                      } // Replace with your site key
+                      }
                       onChange={onRecaptchaChange}
                     />
-                  ) || "Loading..."}
+                  ) : (
+                    "Loading..."
+                  )}
                 </DialogHeader>
               </DialogContent>
             </Dialog>
