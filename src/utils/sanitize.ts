@@ -5,14 +5,16 @@ import DOMPurify from "dompurify";
  * @param {string} rawHtml - The raw HTML content to sanitize.
  * @returns {string} - The sanitized HTML content.
  */
-const sanitizeHtmlContent = (rawHtml) => {
-  // Ensure the rawHtml is a string and not undefined or null
+const sanitizeHtmlContent = (rawHtml: string): string => {
+  console.log({ rawHtml });
+
+  // Ensure the rawHtml is a string
   if (typeof rawHtml !== "string") {
     throw new Error("Invalid input: HTML content must be a string");
   }
 
   // Use DOMPurify to sanitize the input HTML
-  const sanitizedHtml = DOMPurify.sanitize(rawHtml);
+  const sanitizedHtml: string = DOMPurify.sanitize(rawHtml);
 
   // Return the sanitized HTML
   return sanitizedHtml;
