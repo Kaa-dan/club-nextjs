@@ -33,6 +33,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { useTokenStore } from "@/store/store";
+import plugin from "tailwindcss";
 interface Item {
   _id: string;
   name: string;
@@ -105,7 +106,7 @@ const Page = () => {
 
   return (
     <>
-      <div className="max-w-[100%] bg-white p-4">
+      <div className="max-w-full bg-white p-4">
         {/* Header with ID and Privacy */}
         <div className="mb-2 flex items-center justify-between">
           <h1 className="text-xl font-medium">{rule?.title}</h1>
@@ -361,17 +362,9 @@ const Page = () => {
           </div>
         </div>
 
-        {/* Comment Input */}
-        <div className="border-b p-4">
-          <input
-            type="text"
-            placeholder="Write your comment..."
-            className="w-full rounded-lg border bg-gray-50 p-2"
-          />
-        </div>
-        <CommentsSection />
-      </div>
-    </>
+      {/* Comment Input */}
+      <CommentsSection plugin={plugin} postId={postId} />
+    </div>
   );
 };
 
