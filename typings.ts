@@ -1,6 +1,6 @@
 type TPlugins = "rules" | "issues";
 type TSections = "node" | "club";
-
+type TFileType = "image" | "video" | "document" | "pdf" | "unknown";
 interface TCommentUser {
   firstName: string;
   lastName: string;
