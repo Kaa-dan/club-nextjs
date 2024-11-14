@@ -1,14 +1,15 @@
 import IssuesLayout from "@/components/plugins/issues/issues-layout";
 import IssueTable from "@/components/plugins/issues/issues-table";
+import { RulesTable } from "@/components/plugins/rules-regulations/rules";
+import RulesLayout from "@/components/plugins/rules-regulations/rules-layout";
 import React from "react";
 
 const PluginPage = async ({
   params,
 }: {
-  params: Promise<{ plugin: string }>;
+  params: Promise<{ plugin: TPlugins; nodeId: string }>;
 }) => {
-  const plugin = (await params).plugin;
-
+  const { plugin, nodeId } = await params;
   const renderPluginContent = () => {
     switch (plugin) {
       case "issues":
@@ -16,6 +17,11 @@ const PluginPage = async ({
           <IssuesLayout>
             <IssueTable />
           </IssuesLayout>
+        );
+
+      case "rules":
+        return (
+          <RulesLayout section="node" plugin={plugin} nodeorclubId={nodeId} />
         );
 
       default:
