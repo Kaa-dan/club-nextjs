@@ -77,6 +77,11 @@ const Comment: React.FC<{ comment: TCommentType }> = ({ comment }) => {
   const [showReplies, setShowReplies] = useState(false);
   // handle like count and liked or not liked, disliked or not disliked
   const [isLiked, setIsLiked] = useState<boolean>(false);
+  const [isDisLiked, setIsDisLiked] = useState<boolean>(false);
+  const [likeCount, setLikeCount] = useState<number>(comment?.likes?.length);
+  const [dislikeCount, setDislikeCount] = useState<number>(
+    comment?.dislikes?.length
+  );
   const [showReplyInput, setShowReplyInput] = useState(false);
   const [replyText, setReplyText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);

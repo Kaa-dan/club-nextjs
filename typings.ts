@@ -28,6 +28,6 @@ interface TCommentType extends TCommentUser {
   };
   createdAt: string;
   replies: TCommentReply[];
-  likes: number;
-  dislikes: number;
+  likes: any[];
+  dislikes: any[];
 }
