@@ -10,4 +10,9 @@ export class NodeEndpoints {
         const response = await mainAxios.get("/node/user-join-requests");
         return response.data;
     }
+
+    static async fetchUsersOfNode(nodeId: string) {
+        const response = await mainAxios.get(`/node/node-users/${nodeId}`);
+        return response.data;
+    }
 }
