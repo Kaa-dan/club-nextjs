@@ -123,7 +123,7 @@ export default function Page() {
                   <Button className="gap-2">
                     <span>+ Invite</span>
                   </Button>
-                  <Invite />
+                  <Invite clubId={club?._id!} />
                 </DialogTrigger>
               </Dialog>
 
