@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { SharedEndpoints } from "@/utils/endpoints/shared";
 import club from "/public/icons/club-grey.icon.svg";
 import node from "/public/icons/node-grey.icon.svg";
+import Notification from "@/components/pages/notifications/Notification";
 
 interface searchBtn {
   id: number;
@@ -155,20 +156,7 @@ export const Navbar: React.FC = () => {
               />
               Message
             </Link>
-
-            {/* Notification Icon with Badge */}
-            <button className="relative z-20 rounded-md p-2 shadow-md hover:bg-gray-100">
-              <Image
-                src={ICONS?.HeaderNotificationIcon}
-                alt="Notification Icon"
-                width={16}
-                height={16}
-              />
-              <span className="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-md bg-orange-500 text-xs text-white">
-                2
-              </span>
-            </button>
-
+            <Notification ICON={ICONS?.HeaderNotificationIcon} />
             {/* Profile Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger className="flex items-center gap-2 rounded-md p-2 shadow-md">
