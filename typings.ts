@@ -1,4 +1,4 @@
-type TPlugins = "rules" | "issues";
+type TPlugins = "rules" | "issues" | "debate";
 type TSections = "node" | "club";
 type TFileType = "image" | "video" | "document" | "pdf" | "unknown";
 interface TCommentUser {
@@ -86,4 +86,5 @@ type TRule = {
   updatedAt: string;
   __v: number;
   irrelevant: Array<any>;
+  adobtedClubs: [];
 };

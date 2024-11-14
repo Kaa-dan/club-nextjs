@@ -146,7 +146,7 @@ const RulesLayout = ({
     <div className="w-full space-y-4  p-4">
       <div className="space-y-2">
         <h2 className="text-2xl font-bold tracking-tight">
-          Rules and regooo Issuessss
+          Rules and Regulations
         </h2>
         <p className="text-muted-foreground">
           {`Lorem ipsum dolor sit amet consectetur. Congue varius lorem et
