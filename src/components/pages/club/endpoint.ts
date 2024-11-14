@@ -38,3 +38,33 @@ export const joinClub = async (clubId: string) => {
     throw error;
   }
 };
+
+export const searchUser = async (search: string) => {
+  try {
+    const response = await mainAxios.get(`/users/search?keyword=${search}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const sentInvitation = async (clubId: string, userId: string) => {
+  try {
+    const response = await mainAxios.post(`/invitation`, {
+      clubId,
+      userId,
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getAllInvitations = async () => {
+  try {
+    const response = await mainAxios.get(`/invitation`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

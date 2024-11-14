@@ -20,13 +20,13 @@ const PluginPage = async ({
         );
       case "rules":
         return (
-          <RulesLayout>
-            <RulesTable
-              nodeorclubId={clubId}
-              plugin={plugin}
-              section={"club"}
-            />
-          </RulesLayout>
+          <RulesLayout section={"club"} nodeorclubId={clubId} plugin={plugin} />
+          //   <RulesTable
+          //   nodeorclubId={clubId}
+          //   plugin={plugin}
+          //   section={"club"}
+          // />
+          // </RulesLayout>
         );
 
       default:
