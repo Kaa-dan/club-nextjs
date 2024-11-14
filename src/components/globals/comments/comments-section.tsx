@@ -26,7 +26,10 @@ const CommentsSection: React.FC<{
     switch (type) {
       case "relevance":
         sortedComments.sort(
-          (a, b) => b.likes - b.dislikes - (a.likes - a.dislikes)
+          (a, b) =>
+            b?.likes?.length -
+            b?.dislikes?.length -
+            (a.likes?.length - a.dislikes?.length)
         );
         break;
       case "newest":
@@ -42,7 +45,7 @@ const CommentsSection: React.FC<{
         );
         break;
       case "most-liked":
-        sortedComments.sort((a, b) => b.likes - a.likes);
+        sortedComments.sort((a, b) => b.likes?.length - a.likes?.length);
         break;
     }
 
