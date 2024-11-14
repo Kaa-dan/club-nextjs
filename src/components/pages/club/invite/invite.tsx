@@ -108,6 +108,7 @@ export default function Invite({ clubId }: InviteProps): JSX.Element {
           </DialogTitle>
         </DialogHeader>
         <hr />
+
         <div className="grid gap-4 py-4">
           <div className="relative flex gap-5">
             <Search className="absolute left-2 top-2.5 size-4 text-muted-foreground" />
