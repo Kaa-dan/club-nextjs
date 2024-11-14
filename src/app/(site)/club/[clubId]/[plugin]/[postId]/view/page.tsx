@@ -111,6 +111,15 @@ const Page = () => {
         console.log({ err });
       });
   };
+  const images =
+    rule?.files?.filter((file) => file.mimetype.includes("image")) || [];
+  const pdfs =
+    rule?.files?.filter((file) => file.mimetype === "application/pdf") || [];
+  const otherFiles =
+    rule?.files?.filter(
+      (file) =>
+        !file.mimetype.includes("image") && file.mimetype !== "application/pdf"
+    ) || [];
 
   return (
     <div className="max-w-full bg-white p-4">
