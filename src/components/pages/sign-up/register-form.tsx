@@ -181,7 +181,7 @@ export function SignUpForm(): React.JSX.Element {
     }
   };
   return (
-    <div className="flex h-screen max-h-dvh items-center justify-center overflow-hidden">
+    <div className="flex h-screen max-h-dvh  items-center justify-center overflow-hidden">
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="mb-6 flex flex-col items-center text-center">

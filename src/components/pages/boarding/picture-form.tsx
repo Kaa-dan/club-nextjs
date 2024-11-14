@@ -140,14 +140,16 @@ const PictureForm: React.FC<PictureFormProps> = ({ setStep, userId }) => {
               <FormItem>
                 <FormLabel>Profile Photo</FormLabel>
                 <FormControl>
-                  <PhotoInput
-                    field="Profile"
-                    onUpload={(file) => field.onChange(file)}
-                    initialUrl={globalUser?.profileImage}
-                    initialImageName={
-                      globalUser?.profileImage && "currentProfileImage.jpg"
-                    }
-                  />
+                  <div className="overflow-hidden">
+                    <PhotoInput
+                      field="Profile"
+                      onUpload={(file) => field.onChange(file)}
+                      initialUrl={globalUser?.profileImage}
+                      initialImageName={
+                        globalUser?.profileImage && "currentProfileImage.jpg"
+                      }
+                    />
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -161,14 +163,16 @@ const PictureForm: React.FC<PictureFormProps> = ({ setStep, userId }) => {
               <FormItem>
                 <FormLabel>Cover Photo</FormLabel>
                 <FormControl>
-                  <PhotoInput
-                    field="Cover"
-                    onUpload={(file) => field.onChange(file)}
-                    initialUrl={globalUser?.coverImage}
-                    initialImageName={
-                      globalUser?.coverImage && "currentCoverImage.jpg"
-                    }
-                  />
+                  <div className="overflow-hidden">
+                    <PhotoInput
+                      field="Cover"
+                      onUpload={(file) => field.onChange(file)}
+                      initialUrl={globalUser?.coverImage}
+                      initialImageName={
+                        globalUser?.coverImage && "currentCoverImage.jpg"
+                      }
+                    />
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>
