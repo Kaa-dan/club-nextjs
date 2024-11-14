@@ -1,9 +1,8 @@
-import RulesTable from "@/components/pages/club/club-modules/rules";
 import RulesLayout from "@/components/plugins/rules-regulations/rules-layout";
 import IssuesLayout from "@/components/plugins/issues/issues-layout";
 import IssueTable from "@/components/plugins/issues/issues-table";
 import React from "react";
-
+import { RulesTable } from "@/components/plugins/rules-regulations/rules";
 const PluginPage = async ({
   params,
 }: {
@@ -22,7 +21,11 @@ const PluginPage = async ({
       case "rules":
         return (
           <RulesLayout>
-            <RulesTable clubId={clubId} />
+            <RulesTable
+              nodeorclubId={clubId}
+              plugin={plugin}
+              section={"club"}
+            />
           </RulesLayout>
         );
 
