@@ -81,6 +81,9 @@ const Page = () => {
   };
   useEffect(() => {
     fetchSpecificRule();
+    Endpoints.createView(postId).then((err) => {
+      console.log("views created");
+    });
   }, []);
 
   function fetchNodesAndClubs() {
@@ -103,7 +106,10 @@ const Page = () => {
         toast.success("rule adopted succesfully");
         fetchNodesAndClubs();
       })
-      .catch((err) => {});
+      .catch((err) => {
+        toast.error(err.message || "something went error");
+        console.log({ err });
+      });
   };
 
   return (
@@ -256,7 +262,9 @@ const Page = () => {
       <div className="mb-8 space-y-4">
         <div
           dangerouslySetInnerHTML={{
-            __html: sanitizeHtmlContent(rule?.description as string),
+            __html: rule?.description
+              ? sanitizeHtmlContent(rule.description)
+              : "",
           }}
         />
       </div>

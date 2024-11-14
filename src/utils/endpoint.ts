@@ -249,4 +249,17 @@ export class Endpoints {
       throw error;
     }
   }
+
+  static async createView(rulesId: string) {
+    try {
+      const response = await mainAxios.put("/rules-regulations/create-views", {
+        rulesId,
+      });
+      return response.data;
+    } catch (error) {
+      console.log({ error });
+
+      throw error;
+    }
+  }
 }
