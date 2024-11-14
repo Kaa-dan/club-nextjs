@@ -188,4 +188,65 @@ export class Endpoints {
       throw error;
     }
   }
+  static async specificRule(id: string) {
+    try {
+      const response = await mainAxios.get(
+        `/rules-regulations/get-rules/${id}`
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+  static async adoptRule(
+    rulesId: string,
+    type: "club" | "node",
+    clubId?: string,
+    nodeId?: string
+  ) {
+    try {
+      const response = await mainAxios.post("/rules-regulations/adopt-rules", {
+        rulesId,
+        type,
+        clubId,
+        nodeId,
+      });
+      return response.data;
+    } catch (error: any) {
+      throw error;
+    }
+  }
+
+  static async getClubsNodesNotAdopted(ruleId: string) {
+    try {
+      console.log({ ruleId });
+
+      const response = await mainAxios.get(
+        `/rules-regulations/get-clubs-nodes-notadopted/${ruleId}`
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+  static async likeRules(rulesId: string) {
+    try {
+      const response = await mainAxios.put("/rules-regulations/like-rules", {
+        rulesId,
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+  static async disLikeRules(rulesId: string) {
+    try {
+      const response = await mainAxios.put("/rules-regulations/unlike-rules", {
+        rulesId,
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
