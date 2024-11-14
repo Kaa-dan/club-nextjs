@@ -51,6 +51,7 @@ const View = () => {
     plugin: TPlugins;
     postId: string;
   }>();
+
   const [clubAndNodes, setClubAndNodes] = useState<ClubAndNodesData>();
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -220,7 +221,7 @@ const View = () => {
               </DialogHeader>
               <div className="grid gap-4 py-4">
                 <div className="relative">
-                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Search className="absolute left-2 top-2.5 size-4 text-muted-foreground" />
                   <Input
                     placeholder="Search clubs and nodes..."
                     className="pl-8"
@@ -345,7 +346,7 @@ const View = () => {
               className="size-4 text-red-500"
             />
             <span className="text-sm text-red-500">
-              {rule?.irrelevant.length} Not Relevant
+              {rule?.irrelevant?.length} Not Relevant
             </span>
           </button>
           <button className="flex items-center gap-1">
