@@ -1,3 +1,5 @@
+"use client";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,7 +14,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TIssue } from "@/types";
 import { Search } from "lucide-react";
 import Link from "next/link";
-import React, { ReactNode } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
+import plugin from "tailwindcss";
+import { RulesTable } from "./rules";
+import { Endpoints } from "@/utils/endpoint";
+import { RulesAndRegulationsEndpoints } from "@/utils/endpoints/plugins/rules-and-regulations";
+import { OffenceTable } from "./offence-table";
 
 interface TabData {
   label: string;
@@ -36,14 +43,104 @@ const tabs: TabData[] = [
     label: "My Rules",
     count: 2360,
   },
+  {
+    label: "Report Offences",
+    count: 60,
+  },
 ];
 
-const RulesLayout = ({ children }: { children: ReactNode }) => {
+type Rule = {
+  id: number;
+  title: string;
+  _id: string;
+  description: string;
+  publishedDate: string;
+  club: string;
+  createdBy: {
+    name: string;
+    avatar: string;
+  };
+  relevanceScore: number;
+  comments: number;
+};
+
+// const RulesLayout = ({ children }: { children: ReactNode }) => {
+const RulesLayout = ({
+  plugin,
+  section,
+  nodeorclubId,
+}: {
+  plugin: TPlugins;
+  section: TSections;
+  nodeorclubId: string;
+}) => {
+  const [rules, setRules] = useState<Rule[]>([]);
+  const [offences, setOffences] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [clickTrigger, setClickTrigger] = useState(false);
+
   const formatCount = (count: number) => {
     if (count >= 1000000) return `${(count / 1000000).toFixed(0)}M`;
     if (count >= 1000) return `${(count / 1000).toFixed(2)}k`;
     return count.toString();
   };
+
+  const fetchRules = async () => {
+    setLoading(true);
+    try {
+      const response = await Endpoints.getRulesAndRegulations(
+        section,
+        nodeorclubId
+      );
+      console.log({ vaaa: response });
+
+      if (response) {
+        setRules(response);
+      } else {
+        setRules([]);
+      }
+    } catch (err) {
+      console.log({ err });
+      setRules([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchReportOffences = async () => {
+    setLoading(true);
+    try {
+      const response = await RulesAndRegulationsEndpoints.fetchOffences(
+        section,
+        nodeorclubId
+      );
+      console.log("offences", response);
+
+      if (response) {
+        setOffences(response);
+      } else {
+        setOffences([]);
+      }
+    } catch (err) {
+      console.log({ err });
+      setOffences([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRules();
+    fetchReportOffences();
+  }, [nodeorclubId, clickTrigger]);
+
+  if (loading) {
+    return (
+      <div className="flex h-32 items-center justify-center">
+        <div className="size-8 animate-spin rounded-full border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full space-y-4  p-4">
@@ -121,7 +218,25 @@ const RulesLayout = ({ children }: { children: ReactNode }) => {
               </Button>
             </div>
             {/* <IssueTable issues={tab.issues} /> */}
-            {children}
+            {/* {children}
+             */}
+            {tab.label === "Report Offences" ? (
+              <OffenceTable
+                nodeorclubId={nodeorclubId}
+                plugin={plugin}
+                section={section}
+                data={offences}
+              />
+            ) : (
+              <RulesTable
+                nodeorclubId={nodeorclubId}
+                plugin={plugin}
+                section={section}
+                data={rules}
+                clickTrigger={clickTrigger}
+                setClickTrigger={setClickTrigger}
+              />
+            )}
           </TabsContent>
         ))}
       </Tabs>
