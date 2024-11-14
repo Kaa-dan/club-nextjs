@@ -66,6 +66,7 @@ type TRule = {
   _id: string;
   title: string;
   description: string;
+  domain: string;
   category: string;
   significance: string;
   tags: string[];

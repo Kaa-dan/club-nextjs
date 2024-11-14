@@ -1,5 +1,5 @@
 "use client";
-
+import sanitizeHtmlContent from "@/utils/sanitize";
 import React, { useEffect, useMemo, useState } from "react";
 import moment from "moment";
 import {
@@ -142,11 +142,11 @@ const Page = () => {
       <div className="mb-6 grid grid-cols-3 gap-4 text-sm">
         <div>
           <div className="text-gray-500">Domain</div>
-          <div>Hospital, Doctor</div>
+          <div>{rule?.domain}</div>
         </div>
         <div>
           <div className="text-gray-500">Category</div>
-          <div>Nurse</div>
+          <div>{rule?.category}</div>
         </div>
         <div>
           <div className="text-gray-500">Applicable for?</div>
@@ -255,7 +255,9 @@ const Page = () => {
       {/* Main Content */}
       <div className="mb-8 space-y-4">
         <div
-          dangerouslySetInnerHTML={{ __html: rule?.description as string }}
+          dangerouslySetInnerHTML={{
+            __html: sanitizeHtmlContent(rule?.description as string),
+          }}
         />
       </div>
 
@@ -296,8 +298,9 @@ const Page = () => {
           <button className="flex items-center gap-1">
             <ThumbsUp
               onClick={() => {
-                Endpoints.likeRules(postId);
-                fetchSpecificRule();
+                Endpoints.likeRules(postId).then(() => {
+                  fetchSpecificRule();
+                });
               }}
               className="size-4  text-green-500"
               fill={
@@ -313,8 +316,9 @@ const Page = () => {
           <button className="flex items-center gap-1">
             <ThumbsDown
               onClick={() => {
-                Endpoints.disLikeRules(postId);
-                fetchSpecificRule();
+                Endpoints.disLikeRules(postId).then(() => {
+                  fetchSpecificRule();
+                });
               }}
               fill={
                 rule?.irrelevant?.includes(globalUser?._id)
