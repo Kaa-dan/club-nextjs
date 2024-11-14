@@ -38,19 +38,22 @@ const FacebookSignIn = () => {
         signupThrough: "facebook",
       });
 
-      toast.success(response.message);
       console.log(response, "ress");
 
       // setting global state
       setGlobalUser(response?.data || null);
       setAccessToken(response?.token);
 
+      toast.success(
+        response.message || "Successfully signed in with Facebook!"
+      );
+
       response?.data?.isOnBoarded
         ? router.replace("/")
         : router.replace("/onboarding");
     } catch (error: any) {
-      console.error("Facebook Sign-in Error:", error);
-      toast.error(error.response.data.message);
+      console.log(error?.response?.data);
+      toast.error(error?.response?.data?.message || "something went wrong");
     }
   };
   return (

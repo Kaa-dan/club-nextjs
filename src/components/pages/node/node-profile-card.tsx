@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { ICONS } from "@/lib/constants";
 import { ChevronRight } from "lucide-react";
@@ -8,6 +8,21 @@ import { Endpoints } from "@/utils/endpoint";
 import { useNodeStore } from "@/store/nodes-store";
 import { useTokenStore } from "@/store/store";
 import { Button } from "@/components/ui/button";
+import ReCAPTCHA from "react-google-recaptcha";
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { NodeEndpoints } from "@/utils/endpoints/node";
+import { toast } from "sonner";
+import { DialogHeader } from "@/components/ui/dialog";
+import { Dialog, DialogTitle, DialogContent } from "@/components/ui/dialog";
 
 interface ProfileCardProps {
   nodeData: { node: TNodeData; members: TMembers[] };
@@ -22,7 +37,12 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
 }) => {
   console.log({ nodeData });
   const [joinStatus, setJoinStatus] = useState<String>("");
-  const { setUserJoinedNodes } = useNodeStore((state) => state);
+  const [cancelRequestTriggered, setCancelRequestTriggered] = useState(false);
+  const recaptchaRef = useRef(null);
+
+  const { setUserJoinedNodes, setUserRequestedNodes } = useNodeStore(
+    (state) => state
+  );
   const { globalUser } = useTokenStore((state) => state);
 
   const currentUserRole =
@@ -81,13 +101,29 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
   const joinToNode = async (nodeId: string) => {
     try {
       const response = await Endpoints.requestToJoinNode(nodeId);
-      const joinedNodes = await Endpoints.fetchUserJoinedNodes();
-      setUserJoinedNodes(joinedNodes);
+      const requestedNodes = await NodeEndpoints.fetchUserRequestedNodes();
+      setUserRequestedNodes(requestedNodes);
       setJoinStatus(response.status);
     } catch (error) {
       console.log({ error });
     }
   };
+  const [recaptcha, setRecaptcha] = useState(false);
+
+  const cancelJoinRequest = async (nodeId: string) => {
+    try {
+      const response = await NodeEndpoints.cancelJoinRequest(nodeId);
+      const requestedNodes = await NodeEndpoints.fetchUserRequestedNodes();
+      setUserRequestedNodes(requestedNodes);
+      console.log(response);
+      toast.success("Request Cancelled");
+      setCancelRequestTriggered(!cancelRequestTriggered);
+    } catch (error) {
+      console.log(error);
+      toast.error("Error while cancelling request");
+    }
+  };
+
   useEffect(() => {
     console.log({ nodeData });
 
@@ -98,26 +134,46 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
       .catch((err) => {
         console.log({ err });
       });
-  }, [nodeData?.node?._id]);
+  }, [nodeData?.node?._id, cancelRequestTriggered]);
 
+  const onRecaptchaChange = (token: any) => {
+    if (!token) {
+      toast.error("Please complete the reCAPTCHA to proceed.");
+      return;
+    }
+    Endpoints.recaptcha(token)
+      .then((res) => {
+        if (res) {
+          joinToNode(nodeData.node._id as string);
+        }
+      })
+      .catch((err) => {
+        console.log({ err });
+
+        toast.error("something went wrong!!");
+      })
+      .finally(() => {
+        setRecaptcha(false);
+      });
+  };
   return (
-    <div className="sticky top-16 h-fit  overflow-hidden rounded-lg bg-white pb-2 text-sm shadow-md md:min-w-60 md:max-w-60">
+    <div className="sticky top-16 h-fit  w-full overflow-hidden rounded-lg bg-white pb-2 text-sm shadow-md">
       <div className="relative">
         <Image
           src={nodeData?.node?.coverImage?.url}
           alt="Cover"
           width={300}
-          height={150}
-          className="h-24 w-full rounded-t-lg object-cover"
+          height={120}
+          className="max-h-[120px] w-full max-w-[300px] rounded-t-lg object-cover"
           layout="responsive"
         />
-        <div className="absolute left-4 top-14">
+        <div className="absolute -bottom-6 left-4">
           <Image
             src={nodeData?.node?.profileImage?.url as string}
             alt="Avatar"
-            width={64}
-            height={64}
-            className="rounded-md border-4 border-white"
+            width={60}
+            height={60}
+            className="max-h-[60px] max-w-[60px] rounded-md border-4 border-white"
           />
         </div>
       </div>
@@ -134,9 +190,33 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
             </span>
           </p>
         </div>
-        <div>
+        {recaptcha && (
+          <Dialog open={recaptcha} onOpenChange={setRecaptcha}>
+            <DialogContent
+              className="pointer-events-auto "
+              onInteractOutside={(e) => {
+                e.preventDefault();
+              }}
+            >
+              <DialogHeader>
+                {recaptcha ? (
+                  <ReCAPTCHA
+                    className="z-50 flex justify-center"
+                    ref={recaptchaRef}
+                    sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_CLIENT as string}
+                    onChange={onRecaptchaChange}
+                  />
+                ) : (
+                  "Loading..."
+                )}
+              </DialogHeader>
+            </DialogContent>
+          </Dialog>
+        )}
+
+        <div className="flex flex-col gap-2">
           <Button
-            onClick={() => joinToNode(nodeData?.node._id)}
+            onClick={() => setRecaptcha(true)}
             className="h-8 w-full border border-gray-500 bg-transparent text-gray-800 hover:bg-transparent"
             disabled={joinStatus === "REQUESTED" || joinStatus === "MEMBER"} // Disable when requested or joined
           >
@@ -144,8 +224,32 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
             {joinStatus === "MEMBER" && "Joined"}
             {joinStatus === "REQUESTED" && "Request Pending"}
           </Button>
+          {joinStatus === "REQUESTED" && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button className="h-8 w-full border border-white bg-red-500 text-white hover:bg-red-500">
+                  Cancel Request
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle className="text-center">
+                    Are you absolutely sure?
+                  </AlertDialogTitle>
+                </AlertDialogHeader>
+                <div className="flex w-full justify-center gap-4">
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => cancelJoinRequest(nodeData?.node._id)}
+                  >
+                    Continue
+                  </AlertDialogAction>
+                </div>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
         </div>
-        <div className=" my-3 max-h-[50vh]  space-y-2 pb-4">
+        <div className=" my-3 h-auto  space-y-2 pb-4">
           {SECTIONS?.filter((section) => !section.show || section.show())?.map(
             (section) => (
               <button

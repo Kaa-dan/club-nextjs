@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { addClub } from "../endpoint";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import {
   Select,
   SelectContent,
@@ -26,13 +27,13 @@ import ProgressIndicator from "./progress-bar";
 import { Button } from "@/components/ui/button";
 import { MODULES } from "@/lib/constants/modules";
 import { Card } from "@/components/ui/card";
-import Image from "next/image";
 import { Camera, LoaderCircle, Search, X } from "lucide-react";
 import { ICONS } from "@/lib/constants";
 import { formatName } from "@/utils/text";
 import { toast } from "sonner";
 import { useClubStore } from "@/store/clubs-store";
 import { Endpoints } from "@/utils/endpoint";
+import CropDialog from "@/components/globals/cropper/image-cropper";
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 5MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
@@ -126,23 +127,24 @@ const DetailsForm = ({
     undefined
   >;
 }) => {
-  const [coverPreviewUrl, setCoverPreviewUrl] = useState<string | null>(
-    form.getValues().coverPhoto
-      ? URL.createObjectURL(form.getValues().coverPhoto as File)
-      : null
-  );
-  const [profilePreviewUrl, setProfilePreviewUrl] = useState<string | null>(
-    form.getValues().profilePhoto
-      ? URL.createObjectURL(form.getValues().profilePhoto as File)
-      : null
-  );
-
-  console.log("errors", form.formState.errors);
+  // const [coverPreviewUrl, setCoverPreviewUrl] = useState<string | null>(
+  //   form.getValues().coverPhoto
+  //     ? URL.createObjectURL(form.getValues().coverPhoto as File)
+  //     : null
+  // );
+  // const [profilePreviewUrl, setProfilePreviewUrl] = useState<string | null>(
+  //   form.getValues().profilePhoto
+  //     ? URL.createObjectURL(form.getValues().profilePhoto as File)
+  //     : null
+  // );
+  const [cropDialoge, setCropDialogOpen] = useState<boolean>(false);
+  const [tempImageUrl, setTempImageUrl] = useState<string>("");
+  const [tempCoverImageUrl, setTempCoverUrl] = useState<string>("");
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-6 md:max-h-[60vh] px-4 overflow-y-auto"
+        className="space-y-6 overflow-y-auto px-4 md:max-h-[60vh]"
       >
         {/* Profile Photo */}
         <FormField
@@ -153,25 +155,27 @@ const DetailsForm = ({
               <FormLabel>Profile Photo</FormLabel>
               <FormControl>
                 <div className="flex flex-col items-center gap-4">
-                  <div className="relative group">
-                    <div className="relative w-24 h-24">
-                      {profilePreviewUrl ? (
-                        <img
-                          src={profilePreviewUrl}
+                  <div className="group relative">
+                    <div className="relative size-24">
+                      {field.value ? (
+                        <Image
+                          src={URL.createObjectURL(field?.value as File)}
                           alt="Profile preview"
-                          className="w-24 h-24 rounded-md object-cover border-2 border-gray-200"
+                          className="size-24 rounded-md border-2 border-gray-200 object-cover"
+                          width={96}
+                          height={96}
                         />
                       ) : (
-                        <div className="w-24 h-24 rounded-md bg-gray-100 flex items-center justify-center border-2 border-gray-200">
-                          <Camera className="w-8 h-8 text-gray-400" />
+                        <div className="flex size-24 items-center justify-center rounded-md border-2 border-gray-200 bg-gray-100">
+                          <Camera className="size-8 text-gray-400" />
                         </div>
                       )}
                       <label
                         htmlFor="profilePhotoInput"
-                        className="absolute inset-0 flex items-center justify-center rounded-md cursor-pointer bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200"
+                        className="absolute inset-0 flex cursor-pointer items-center justify-center rounded-md bg-black bg-opacity-0 transition-all duration-200 group-hover:bg-opacity-30"
                       >
-                        <div className="text-white opacity-0 group-hover:opacity-100 flex flex-col items-center">
-                          <Camera className="w-6 h-6" />
+                        <div className="flex flex-col items-center text-white opacity-0 group-hover:opacity-100">
+                          <Camera className="size-6" />
                           <span className="text-xs">Upload</span>
                         </div>
                       </label>
@@ -182,23 +186,21 @@ const DetailsForm = ({
                       className="hidden"
                       accept="image/*"
                       onChange={(e) => {
-                        const file = e.target.files?.[0];
+                        const file = e.target?.files?.[0];
                         if (file) {
-                          const url = URL.createObjectURL(file);
-                          setProfilePreviewUrl(url);
-                          field.onChange(file);
+                          setCropDialogOpen(true);
+                          setTempImageUrl(URL.createObjectURL(file));
                         }
                       }}
                     />
                   </div>
-                  {profilePreviewUrl && (
+                  {field.value && (
                     <Button
                       type="button"
                       variant="outline"
-                      className="text-red-500 hover:text-red-600 text-sm"
+                      className="text-sm text-red-500 hover:text-red-600"
                       onClick={() => {
-                        setProfilePreviewUrl(null);
-                        field.onChange("");
+                        field.onChange(null);
                       }}
                     >
                       Remove photo
@@ -210,6 +212,18 @@ const DetailsForm = ({
             </FormItem>
           )}
         />
+
+        {tempImageUrl && (
+          <CropDialog
+            open={cropDialoge}
+            onOpenChange={setCropDialogOpen}
+            imageUrl={tempImageUrl}
+            onCrop={(croppedFile) => {
+              form.setValue("profilePhoto", croppedFile);
+              setTempImageUrl("");
+            }}
+          />
+        )}
 
         {/* Cover Photo */}
         <FormField
@@ -224,17 +238,19 @@ const DetailsForm = ({
                 <div className="relative">
                   <label
                     htmlFor="coverPhotoInput"
-                    className="block w-full h-48 rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors duration-200 cursor-pointer overflow-hidden group"
+                    className="group block h-48 w-full cursor-pointer overflow-hidden rounded-lg border-2 border-dashed border-gray-300 transition-colors duration-200 hover:border-gray-400"
                   >
-                    {coverPreviewUrl ? (
-                      <img
-                        src={coverPreviewUrl}
+                    {field.value ? (
+                      <Image
+                        src={URL.createObjectURL(field.value as File)}
                         alt="Cover preview"
-                        className="w-full h-full object-cover"
+                        className="size-full object-cover"
+                        width={100}
+                        height={100}
                       />
                     ) : (
-                      <div className="flex flex-col items-center justify-center h-full space-y-2">
-                        <Camera className="w-8 h-8 text-gray-400 group-hover:text-gray-500" />
+                      <div className="flex h-full flex-col items-center justify-center space-y-2">
+                        <Camera className="size-8 text-gray-400 group-hover:text-gray-500" />
                         <span className="text-sm text-gray-500 group-hover:text-gray-600">
                           Click to upload cover photo
                         </span>
@@ -249,9 +265,11 @@ const DetailsForm = ({
                     onChange={(e) => {
                       const file = e.target.files?.[0];
                       if (file) {
-                        const url = URL.createObjectURL(file);
-                        form.setValue("coverPhoto", file);
-                        setCoverPreviewUrl(url);
+                        const file = e.target?.files?.[0];
+                        if (file) {
+                          setCropDialogOpen(true);
+                          setTempCoverUrl(URL.createObjectURL(file));
+                        }
                       }
                     }}
                   />
@@ -261,6 +279,18 @@ const DetailsForm = ({
             </FormItem>
           )}
         />
+        {tempCoverImageUrl && (
+          <CropDialog
+            aspectRatio={16 / 9}
+            open={cropDialoge}
+            onOpenChange={setCropDialogOpen}
+            imageUrl={tempCoverImageUrl}
+            onCrop={(croppedFile) => {
+              form.setValue("coverPhoto", croppedFile);
+              setTempCoverUrl("");
+            }}
+          />
+        )}
 
         {/* Club Name */}
         <FormField
@@ -270,7 +300,20 @@ const DetailsForm = ({
             <FormItem>
               <FormLabel>Enter club name</FormLabel>
               <FormControl>
-                <Input placeholder="Enter name" {...field} />
+                <Input
+                  placeholder="Enter name"
+                  {...field}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    const formattedName = formatName(value, {
+                      makeFirstLetterUppercase: true,
+                      allowNonConsecutiveSpaces: true,
+                      allowUppercaseInBetween: true,
+                    });
+                    field.onChange(formattedName);
+                    form.setValue("name", formattedName);
+                  }}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -285,7 +328,20 @@ const DetailsForm = ({
             <FormItem>
               <FormLabel>About</FormLabel>
               <FormControl>
-                <Textarea placeholder="Write text..." {...field} />
+                <Textarea
+                  placeholder="Write text..."
+                  {...field}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    const formattedName = formatName(value, {
+                      makeFirstLetterUppercase: true,
+                      allowNonConsecutiveSpaces: true,
+                      makeLettersAfterSpaceCapital: false,
+                    });
+                    field.onChange(formattedName);
+                    form.setValue("about", formattedName);
+                  }}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -323,17 +379,30 @@ const DetailsForm = ({
             <FormItem>
               <FormLabel>Description</FormLabel>
               <FormControl>
-                <Textarea placeholder="Write text..." {...field} />
+                <Textarea
+                  placeholder="Write text..."
+                  {...field}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    const formattedName = formatName(value, {
+                      makeFirstLetterUppercase: true,
+                      allowNonConsecutiveSpaces: true,
+                      makeLettersAfterSpaceCapital: false,
+                    });
+                    field.onChange(formattedName);
+                    form.setValue("description", formattedName);
+                  }}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
       </form>
-      <div className="flex gap-2 w-1/4 ml-auto">
+      <div className="ml-auto flex w-1/4 gap-2">
         <Button
           onClick={form.handleSubmit(onSubmit)}
-          className="w-full text-white py-2 rounded-lg"
+          className="w-full rounded-lg py-2 text-white"
         >
           Next
         </Button>
@@ -351,6 +420,7 @@ const AddClubDialog = ({ open, setOpen }: IProps) => {
     "Details" | "Modules" | "Success"
   >("Details");
   const [selectedModules, setSelectedModules] = useState<string[]>([]);
+  const [isPaid, setIsPaid] = useState<boolean>(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -373,7 +443,7 @@ const AddClubDialog = ({ open, setOpen }: IProps) => {
       formData.append("profileImage", values.profilePhoto);
 
     if (values.coverPhoto) formData.append("coverImage", values.coverPhoto);
-    formData.append("name", formatName(values.name));
+    formData.append("name", values.name);
     formData.append("about", values.about);
     formData.append("isPublic", values.visiblity);
     formData.append("description", values.description);
@@ -408,28 +478,28 @@ const AddClubDialog = ({ open, setOpen }: IProps) => {
               src={ICONS.GreenTickIcon}
               height={60}
               width={60}
-              className="object-cover object-top h-[10rem] w-[25rem]"
+              className="h-40 w-[25rem] object-cover object-top"
             />
             <span className=" font-semibold">Created Successfully🥳</span>
-            <span className="text-slate-400 text-center">
+            <span className="text-center text-slate-400">
               {
                 "Creating a code of conduct for a social media group is essential to maintain a positive and respectful online "
               }
             </span>
-            <Button
+            {/* <Button
               onClick={handleModal}
               variant={"outline"}
-              className="text-black border-black"
+              className="border-black text-black"
             >
               View Club
-            </Button>
+            </Button> */}
           </div>
         ) : (
           <>
             <DialogTitle>Create a Club</DialogTitle>
             <div className="w-full border"></div>
 
-            <div className="w-fit mx-auto">
+            <div className="mx-auto w-fit">
               <ProgressIndicator
                 smallText={true}
                 steps={["Details", "Modules"]}
@@ -440,14 +510,14 @@ const AddClubDialog = ({ open, setOpen }: IProps) => {
               <DetailsForm form={form} onSubmit={onSubmitDetails} />
             ) : (
               <>
-                <div className="flex items-center gap-2 bg-slate-100 rounded-sm px-2">
+                <div className="flex items-center gap-2 rounded-sm bg-slate-100 px-2">
                   <Search className="text-slate-600" />
                   <Input
                     placeholder="Enter name"
-                    className="w-full h-8 bg-slate-100 border-none"
+                    className="h-8 w-full border-none bg-slate-100"
                   />
                 </div>
-                <div className="flex flex-col gap-2  md:max-h-[60vh] px-4 overflow-y-auto">
+                <div className="flex flex-col gap-2  overflow-y-auto px-4 md:max-h-[60vh]">
                   {MODULES.map((module) => {
                     const moduleSelected = selectedModules.includes(
                       module.name
@@ -456,7 +526,7 @@ const AddClubDialog = ({ open, setOpen }: IProps) => {
                       <div className="w-full" key={module.name}>
                         <div className="w-full border "></div>
                         <div className="flex items-center gap-4 py-2">
-                          <Card className="p-2 rounded-md">
+                          <Card className="rounded-md p-2">
                             <Image
                               src={module.icon}
                               alt={module.name}
@@ -465,40 +535,47 @@ const AddClubDialog = ({ open, setOpen }: IProps) => {
                             />
                           </Card>
                           <span className="font-medium">{module.name}</span>
-                          <Button
-                            onClick={() => {
-                              if (moduleSelected) {
-                                setSelectedModules((prev) =>
-                                  prev.filter((m) => m !== module.name)
-                                );
-                              } else {
-                                setSelectedModules((prev) => [
-                                  ...prev,
-                                  module.name,
-                                ]);
-                              }
-                            }}
-                            variant={"outline"}
-                            className="text-black border-slate-500 ml-auto"
-                          >
-                            {moduleSelected ? (
-                              <span className="text-slate-500">Added</span>
+                          <div className="ml-auto flex items-center gap-6">
+                            {isPaid ? (
+                              <div className="text-lg italic">&#8377;</div>
                             ) : (
-                              <span className="text-black">Add</span>
+                              <div className="text-base italic">free</div>
                             )}
-                          </Button>
+                            <Button
+                              onClick={() => {
+                                if (moduleSelected) {
+                                  setSelectedModules((prev) =>
+                                    prev.filter((m) => m !== module.name)
+                                  );
+                                } else {
+                                  setSelectedModules((prev) => [
+                                    ...prev,
+                                    module.name,
+                                  ]);
+                                }
+                              }}
+                              variant={"outline"}
+                              className=" border-slate-500 text-black"
+                            >
+                              {moduleSelected ? (
+                                <span className="text-slate-500">Undo</span>
+                              ) : (
+                                <span className="text-black">Add</span>
+                              )}
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     );
                   })}
-                  <div className="w-full border mb-4"></div>
+                  <div className="mb-4 w-full border"></div>
 
-                  <div className="flex gap-2 w-1/2 ml-auto">
+                  <div className="ml-auto flex w-1/2 gap-2">
                     <Button
                       disabled={load as boolean}
                       onClick={() => setCurrentStep("Details")}
                       variant={"outline"}
-                      className="w-full text-black border-black py-2 rounded-lg"
+                      className="w-full rounded-lg border-black py-2 text-black"
                     >
                       Previous
                     </Button>
@@ -507,7 +584,7 @@ const AddClubDialog = ({ open, setOpen }: IProps) => {
                         selectedModules.length === 0 || (load as boolean)
                       }
                       onClick={onFinalSubmit}
-                      className="w-full text-white py-2 rounded-lg"
+                      className="w-full rounded-lg py-2 text-white"
                     >
                       {load ? (
                         <LoaderCircle className="animate-spin" />

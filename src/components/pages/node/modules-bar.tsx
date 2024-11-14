@@ -1,34 +1,56 @@
-// components/ModulesBar.tsx
 import React from "react";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import { ICONS } from "@/lib/constants";
 import { Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface Module {
+  link: string;
   name: string;
   icon: string;
   notifications?: number;
 }
 
-const modules: Module[] = [
-  { name: "Rules", icon: ICONS.BarRulesIcon, notifications: 8 },
-  { name: "Market Place", icon: ICONS.BarMarketPlaceIcon },
-  { name: "Debate", icon: ICONS.BarDebateIcon },
-  { name: "Events News", icon: ICONS.BarEventsIcon, notifications: 8 },
-  { name: "Funny", icon: ICONS.BarFunnyIcon },
-];
-
-const ModulesBar: React.FC = () => {
+const ModulesBar: React.FC<{ nodeId: string; plugin?: TPlugins }> = ({
+  nodeId,
+  plugin,
+}) => {
+  const modules: Module[] = [
+    {
+      link: "rules",
+      name: "Rules",
+      icon: plugin === "rules" ? ICONS.BarRulesIconGreen : ICONS.BarRulesIcon,
+      notifications: 8,
+    },
+    {
+      link: "issues",
+      name: "issues",
+      icon:
+        plugin === "issues" ? ICONS.BarIssuesIconGreen : ICONS.BarIssuesIcon,
+    },
+    { link: "market", name: "Market Place", icon: ICONS.BarMarketPlaceIcon },
+    { link: "debate", name: "Debate", icon: ICONS.BarDebateIcon },
+    {
+      link: "events",
+      name: "Events News",
+      icon: ICONS.BarEventsIcon,
+      notifications: 8,
+    },
+  ];
+  const router = useRouter();
   return (
     <div className="mx-auto mb-2 flex w-fit max-w-screen-lg items-center overflow-x-auto rounded-lg  bg-white p-4  text-xs shadow-md">
       {modules.map((module, index) => (
         <div
+          onClick={() => {
+            router.push(`/node/${nodeId}/${module.link}`);
+          }}
           key={index}
-          className="relative flex cursor-pointer flex-col items-center gap-1 rounded-sm p-1 px-4 hover:bg-slate-50"
+          className="relative flex cursor-pointer flex-col items-center gap-1 rounded-sm  p-1 px-4 hover:bg-slate-50"
         >
           {/* Icon with Badge */}
-          <div className="relative size-fit">
+          <div className="relative size-fit ">
             <Image
               src={module.icon}
               alt={`${module.name} icon`}

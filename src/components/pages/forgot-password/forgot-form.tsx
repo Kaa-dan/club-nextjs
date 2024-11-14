@@ -40,8 +40,8 @@ export function ForgotForm() {
       console.log(response, "resss");
       toast.success(response.message);
     } catch (error: any) {
-      toast.error(error.response.data.message);
-      // console.log(error, "errr");
+      console.log(error?.response?.data);
+      toast.error(error?.response?.data?.message || "something went wrong");
     }
   };
 

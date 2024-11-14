@@ -108,16 +108,21 @@ const InterestForm: React.FC<InterestFormProps> = ({ setStep }) => {
       return;
     }
 
-    const newFormData = { ...data, interests: selectedInterests };
-    setFormData(newFormData);
-    console.log("Data for Picture step:", data);
-    console.log("Cumulative form data:", newFormData);
-    const postFromData = { interests: selectedInterests };
+    try {
+      const newFormData = { ...data, interests: selectedInterests };
+      setFormData(newFormData);
+      console.log("Data for Picture step:", data);
+      console.log("Cumulative form data:", newFormData);
+      const postFromData = { interests: selectedInterests };
 
-    if (globalUser) {
-      const response = await postInterest(globalUser._id, postFromData);
-      setGlobalUser(response.data);
-      setStep("node");
+      if (globalUser) {
+        const response = await postInterest(globalUser._id, postFromData);
+        setGlobalUser(response.data);
+        setStep("node");
+      }
+    } catch (error: any) {
+      console.log(error?.response?.data);
+      toast.error(error?.response?.data?.message || "something went wrong");
     }
   };
 

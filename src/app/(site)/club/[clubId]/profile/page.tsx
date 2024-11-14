@@ -26,6 +26,7 @@ import ClubMembersList from "@/components/pages/club/club-members-list";
 import { toast } from "sonner";
 import { TClub } from "@/types";
 import { useClubStore } from "@/store/clubs-store";
+import { Dialog, DialogTrigger } from "@radix-ui/react-dialog";
 
 export default function Page() {
   const { setUserJoinedClubs } = useClubStore((state) => state);
@@ -66,6 +67,9 @@ export default function Page() {
       toast.warning(response.message);
     } catch (error) {}
   };
+  const handleInviteClick = () => {
+    setInvite(true); // Open the modal
+  };
 
   return (
     <>
@@ -81,7 +85,7 @@ export default function Page() {
               </h2>
               <div className="flex items-center gap-2">
                 <div className="flex -space-x-2">
-                  {members?.slice(0, visibleUsers).map((member: any) => (
+                  {members.slice(0, visibleUsers).map((member: any) => (
                     <Avatar
                       key={member._id}
                       className="border-2 border-background"
@@ -114,6 +118,26 @@ export default function Page() {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <Dialog open={invite} onOpenChange={handleInviteClick}>
+                <DialogTrigger>
+                  <Button className="gap-2">
+                    <span>+ Invite</span>
+                  </Button>
+                  <Invite />
+                </DialogTrigger>
+              </Dialog>
+
+              {/* <Dialog>
+                <DialogTrigger>
+                  <Button variant="outline" className="gap-2">
+                    <Copy className="size-4" />
+
+                    <span>Copy Link</span>
+                  </Button>
+                </DialogTrigger>
+                <CopyLink />
+              </Dialog> */}
+
               <Invite clubId={sentClub} />
               <AlertDialog>
                 <AlertDialogTrigger asChild>
@@ -139,7 +163,7 @@ export default function Page() {
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
                     <AlertDialogAction
-                      onClick={() => leaveMyClub(params?.clubId)}
+                      onClick={() => leaveMyClub(params.clubId)}
                       className="bg-red-500 text-white hover:bg-red-600"
                     >
                       Leave Club
