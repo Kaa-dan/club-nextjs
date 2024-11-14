@@ -15,10 +15,14 @@ import {
 } from "lucide-react";
 import CommentsSection from "@/components/globals/comments/comments-section";
 
-const Page = async ({ params }: { params: Promise<{ plugin: string }> }) => {
-  const { plugin } = await params;
+const Page = async ({
+  params,
+}: {
+  params: Promise<{ plugin: TPlugins; postId: string }>;
+}) => {
+  const { plugin, postId } = await params;
   return (
-    <div className="max-w-[100%] bg-white p-4">
+    <div className="max-w-full bg-white p-4">
       {/* Header with ID and Privacy */}
       <div className="mb-2 flex items-center justify-between">
         <h1 className="text-xl font-medium">
@@ -171,14 +175,7 @@ const Page = async ({ params }: { params: Promise<{ plugin: string }> }) => {
       </div>
 
       {/* Comment Input */}
-      <div className="border-b p-4">
-        <input
-          type="text"
-          placeholder="Write your comment..."
-          className="w-full rounded-lg border bg-gray-50 p-2"
-        />
-      </div>
-      <CommentsSection />
+      <CommentsSection plugin={plugin} postId={postId} />
     </div>
   );
 };
