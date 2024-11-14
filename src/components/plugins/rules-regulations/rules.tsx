@@ -56,6 +56,18 @@ import plugin from "tailwindcss";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import PhotoInput from "@/components/ui/photo-input";
+import { type } from "os";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { NodeEndpoints } from "@/utils/endpoints/node";
+import { error } from "console";
+import { RulesAndRegulationsEndpoints } from "@/utils/endpoints/plugins/rules-and-regulations";
+import { toast } from "sonner";
 
 type Rule = {
   id: number;
@@ -156,47 +168,27 @@ export function RulesTable({
   plugin,
   section,
   nodeorclubId,
+  data,
+  clickTrigger,
+  setClickTrigger,
 }: {
   plugin: TPlugins;
   section: TSections;
   nodeorclubId: string;
+  data: any;
+  clickTrigger: boolean;
+  setClickTrigger: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
-  const [rules, setRules] = useState<Rule[]>([]);
-  const [loading, setLoading] = useState(true);
+  // const [rules, setRules] = useState<Rule[]>([]);
+  // const [loading, setLoading] = useState(true);
 
-  const fetchRules = async () => {
-    setLoading(true);
-    try {
-      const response = await Endpoints.getRulesAndRegulations(
-        "club",
-        nodeorclubId
-      );
-      console.log({ vaaa: response });
-
-      if (response) {
-        setRules(response);
-      } else {
-        setRules([]);
-      }
-    } catch (err) {
-      console.log({ err });
-      setRules([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchRules();
-  }, [nodeorclubId]);
-
-  if (loading) {
-    return (
-      <div className="flex h-32 items-center justify-center">
-        <div className="size-8 animate-spin rounded-full border-b-2 border-primary"></div>
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="flex h-32 items-center justify-center">
+  //       <div className="size-8 animate-spin rounded-full border-b-2 border-primary"></div>
+  //     </div>
+  //   );
+  // }
 
   const columns: ColumnDef<Rule>[] = [
     {
@@ -230,6 +222,15 @@ export function RulesTable({
     },
     {
       accessorKey: "publishedDate",
+      /*************  ✨ Codeium Command ⭐  *************/
+      /**
+       * @description
+       * The header cell for the `publishedDate` column.
+       * It displays a button that toggles the sorting of the column when clicked.
+       * The button displays the text "Posted" and an arrow up/down icon that
+       * indicates the direction of the sort.
+       */
+      /******  b94d036e-89dc-42f6-b14c-14391b9c0d6c  *******/
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -329,38 +330,25 @@ export function RulesTable({
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                <Dialog>
+                {/* <Dialog>
                   <DialogTrigger>
                     <div>Report</div>
                   </DialogTrigger>
-                  {/* <DialogContent className="sm:max-w-[425px]">
-                    <DialogHeader>
-                      <DialogTitle>Report Offence</DialogTitle>
-                    </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                      <FormField
-                        control={form.control}
-                        name="firstName"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>First name</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="Enter first name"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    <DialogFooter>
-                      <Button>Save changes</Button>
-                    </DialogFooter>
-                  </DialogContent> */}
-                  <ContentDailog typeId={nodeorclubId} type={plugin} />
-                </Dialog>
+                  <ContentDailog
+                    plugin={plugin}
+                    pluginId={row?.original?._id}
+                    section={section}
+                    sectionId={nodeorclubId}
+                  />
+                </Dialog> */}
+                <ContentDailog
+                  plugin={plugin}
+                  pluginId={row?.original?._id}
+                  section={section}
+                  sectionId={nodeorclubId}
+                  setClickTrigger={setClickTrigger}
+                  clickTrigger={clickTrigger}
+                />
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -372,7 +360,7 @@ export function RulesTable({
   return (
     <DataTable
       columns={columns}
-      data={rules}
+      data={data}
       nodeorclubId={nodeorclubId}
       plugin={plugin}
     />
@@ -393,13 +381,23 @@ const reportSchema = z.object({
 type ReportType = z.infer<typeof reportSchema>;
 
 const ContentDailog = ({
-  type,
-  typeId,
+  plugin,
+  pluginId,
+  sectionId,
+  section,
+  clickTrigger,
+  setClickTrigger,
 }: {
-  type: TPlugins;
-  typeId: string;
+  plugin: TPlugins;
+  pluginId: string;
+  section: TSections;
+  sectionId: string;
+  clickTrigger: boolean;
+  setClickTrigger: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
   const [formData, setFormData] = useState<Partial<ReportType>>({});
+  const [users, setUsers] = useState([]);
+  const [isOpen, setIsOpen] = useState(false);
 
   const form = useForm<ReportType>({
     resolver: zodResolver(reportSchema),
@@ -410,67 +408,143 @@ const ContentDailog = ({
     form.reset(formData);
   }, [formData, form]);
 
-  const onSubmit: SubmitHandler<ReportType> = (data: ReportType) => {
+  const fetchUserNodesOrClubs = async () => {
+    try {
+      if (section === "node") {
+        const response = await NodeEndpoints.fetchUsersOfNode(sectionId);
+        console.log("users node", response);
+        setUsers(response);
+      } else if (section === "club") {
+        const response = await Endpoints.fetchClubMembers(sectionId);
+        console.log("users club", response);
+        setUsers(response);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserNodesOrClubs();
+  }, []);
+
+  const onSubmit: SubmitHandler<ReportType> = async (data: ReportType) => {
     // Handle form submission
-    console.log(data);
+
+    const values = form.getValues();
+    console.log(values, "values");
+
+    const formData = new FormData();
+    formData.append("type", section);
+    formData.append("typeId", sectionId);
+    formData.append("reason", values.description);
+    formData.append("rulesID", pluginId);
+    formData.append("offenderID", values.offenderName);
+    if (values.proofPhoto) formData.append("file", values.proofPhoto);
+    try {
+      const response =
+        await RulesAndRegulationsEndpoints.reportOffence(formData);
+      console.log("response", response);
+      toast.success("Reported successfully");
+      setClickTrigger(!clickTrigger);
+      setIsOpen(false);
+    } catch (error) {
+      console.log(error);
+      toast.error("Something went wrong");
+    }
   };
   return (
-    <DialogContent className="sm:max-w-[425px]">
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <DialogHeader>
-            <DialogTitle>Report Offence</DialogTitle>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <FormField
-              control={form.control}
-              name="offenderName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Offender name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Write here..." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="proofPhoto"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>+ Upload document</FormLabel>
-                  <FormControl>
-                    <PhotoInput
-                      field="Proof"
-                      onUpload={(file) => field.onChange(file)}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-          <DialogFooter>
-            {/* <Button variant="outline">Cancel</Button> */}
-            <Button type="submit">Submit</Button>
-          </DialogFooter>
-        </form>
-      </Form>
-    </DialogContent>
+    <Dialog onOpenChange={setIsOpen} open={isOpen}>
+      <DialogTrigger>
+        <div>Report</div>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <DialogHeader>
+              <DialogTitle>Report Offence</DialogTitle>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <FormField
+                control={form.control}
+                name="offenderName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Offender name</FormLabel>
+                    <FormControl>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select offender" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {users &&
+                            users.map((user: any, index) => (
+                              <SelectItem key={index} value={user?.user?._id}>
+                                {user?.user?.userName}
+                              </SelectItem>
+                            ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Write here..." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="proofPhoto"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>+ Upload document</FormLabel>
+                    <FormControl>
+                      {/* <PhotoInput
+                        field="Proof"
+                        onUpload={(file) => field.onChange(file)}
+                      /> */}
+                      <Input
+                        type="file"
+                        accept=".jpeg, .jpg, .png, .gif, .pdf, .doc, .docx"
+                        onChange={(event) =>
+                          field.onChange(event.target.files?.[0])
+                        }
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setIsOpen(false)}
+                disabled={form?.formState?.isSubmitting}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={form?.formState?.isSubmitting}>
+                {form?.formState?.isSubmitting ? "Submitting..." : "onSubmit"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
   );
 };
