@@ -14,8 +14,8 @@ interface TCommentReply extends TCommentUser {
   _id: string;
   content: string;
   createdAt: string;
-  likes: number;
-  dislikes: number;
+  like: string[];
+  dislike: string[];
 }
 
 interface TCommentType extends TCommentUser {
@@ -28,8 +28,8 @@ interface TCommentType extends TCommentUser {
   };
   createdAt: string;
   replies: TCommentReply[];
-  likes: any[];
-  dislikes: any[];
+  like: any[];
+  dislike: any[];
 }
 
 type RuleFile = {

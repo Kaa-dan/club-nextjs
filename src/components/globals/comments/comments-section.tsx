@@ -27,9 +27,9 @@ const CommentsSection: React.FC<{
       case "relevance":
         sortedComments.sort(
           (a, b) =>
-            b?.likes?.length -
-            b?.dislikes?.length -
-            (a.likes?.length - a.dislikes?.length)
+            b?.like?.length -
+            b?.dislike?.length -
+            (a.like?.length - a.dislike?.length)
         );
         break;
       case "newest":
@@ -45,7 +45,7 @@ const CommentsSection: React.FC<{
         );
         break;
       case "most-liked":
-        sortedComments.sort((a, b) => b.likes?.length - a.likes?.length);
+        sortedComments.sort((a, b) => b.like?.length - a.like?.length);
         break;
     }
 
@@ -96,7 +96,7 @@ const CommentsSection: React.FC<{
       </div>
 
       <div className="space-y-4 p-4">
-        {comments.map((comment) => (
+        {comments?.map((comment) => (
           <Comment key={comment?._id} comment={comment} />
         ))}
       </div>
