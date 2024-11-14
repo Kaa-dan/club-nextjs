@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Link, Copy, LogOut, Search, Filter } from "lucide-react";
+import { Link, Copy, LogOut, Search, Filter, Mail } from "lucide-react";
 import { useParams } from "next/navigation";
 import Invite from "@/components/pages/club/invite/invite";
 import {
@@ -22,19 +22,11 @@ import { useEffect, useState } from "react";
 import { fetchSpecificClub } from "@/components/pages/club/endpoint";
 import { Endpoints } from "@/utils/endpoint";
 import ClubMembersList from "@/components/pages/club/club-members-list";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+
 import { toast } from "sonner";
-import CopyLink from "@/components/pages/club/invite/copy-link";
 import { TClub } from "@/types";
 import { useClubStore } from "@/store/clubs-store";
+import { Dialog, DialogTrigger } from "@radix-ui/react-dialog";
 
 export default function Page() {
   const { setUserJoinedClubs } = useClubStore((state) => state);
@@ -46,6 +38,9 @@ export default function Page() {
   const remainingUsers = totalUsers - visibleUsers;
   const displayRemainingCount = remainingUsers > 100 ? "100+" : remainingUsers;
   const [club, setClub] = useState<TClub>();
+  const [sentClub, setSentClub] = useState(params.clubId);
+
+  console.log({ nithins: params.clubId });
   useEffect(() => {
     Endpoints.fetchClubMembers(params.clubId as string)
       .then((res) => {
@@ -72,6 +67,10 @@ export default function Page() {
       toast.warning(response.message);
     } catch (error) {}
   };
+  const handleInviteClick = () => {
+    setInvite(true); // Open the modal
+  };
+
   return (
     <>
       <Card className="mx-auto w-full max-w-3xl ">
@@ -86,7 +85,7 @@ export default function Page() {
               </h2>
               <div className="flex items-center gap-2">
                 <div className="flex -space-x-2">
-                  {members?.slice(0, visibleUsers).map((member: any) => (
+                  {members.slice(0, visibleUsers).map((member: any) => (
                     <Avatar
                       key={member._id}
                       className="border-2 border-background"
@@ -116,30 +115,15 @@ export default function Page() {
                 >
                   See all
                 </Button>
-                {/* <Dialog>
-                  <DialogTrigger asChild>
-                    <Button variant="outline">Edit Profile</Button>
-                  </DialogTrigger>
-                  <ClubMembersList
-                    isModalOpen={isModalOpen}
-                    setIsModalOpen={setIsModalOpen}
-                  />
-                </Dialog> */}
-                {/* <Dialog>
-                  <DialogTrigger asChild>
-                    <Button variant="outline">Edit Profile</Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[425px]"></DialogContent>
-                </Dialog> */}
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Dialog>
+              <Dialog open={invite} onOpenChange={handleInviteClick}>
                 <DialogTrigger>
                   <Button className="gap-2">
                     <span>+ Invite</span>
                   </Button>
-                  <Invite />
+                  <Invite clubId={club?._id!} />
                 </DialogTrigger>
               </Dialog>
 
@@ -154,6 +138,7 @@ export default function Page() {
                 <CopyLink />
               </Dialog> */}
 
+              <Invite clubId={sentClub} />
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button
@@ -178,7 +163,7 @@ export default function Page() {
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
                     <AlertDialogAction
-                      onClick={() => leaveMyClub(params?.clubId)}
+                      onClick={() => leaveMyClub(params.clubId)}
                       className="bg-red-500 text-white hover:bg-red-600"
                     >
                       Leave Club
@@ -234,8 +219,6 @@ export default function Page() {
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
       />
-
-      {/* dialogue  */}
     </>
   );
 }

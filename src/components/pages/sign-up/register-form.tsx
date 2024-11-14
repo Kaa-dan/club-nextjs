@@ -37,6 +37,12 @@ import { signUp } from "./endpoint";
 import { toast } from "sonner";
 import { app } from "@/lib/config/firebase";
 import { useTokenStore } from "@/store/store";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 // Type definitions
 type FormSchema = z.infer<typeof formSchema>;
@@ -135,11 +141,12 @@ export function SignUpForm(): React.JSX.Element {
     try {
       // storing response and api calling
       const response = await signUp(data);
-      toast.success(response.message);
 
       // setting global state
       setGlobalUser(response?.data || null);
       setAccessToken(response?.token);
+
+      toast.success(response.message || "Successfully signed up!");
 
       router.replace("/onboarding");
     } catch (error) {
@@ -181,7 +188,7 @@ export function SignUpForm(): React.JSX.Element {
     }
   };
   return (
-    <div className="flex h-screen max-h-dvh items-center justify-center overflow-hidden">
+    <div className="flex h-screen max-h-dvh  items-center justify-center overflow-hidden">
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="mb-6 flex flex-col items-center text-center">
@@ -243,14 +250,27 @@ export function SignUpForm(): React.JSX.Element {
                 <FormField
                   control={form.control}
                   name="password"
+                  disabled={!verified}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <FormControl>
-                        <PasswordInput
-                          placeholder="Enter your password"
-                          {...field}
-                        />
+                        <TooltipProvider disableHoverableContent>
+                          <Tooltip delayDuration={100}>
+                            <TooltipTrigger asChild>
+                              <PasswordInput
+                                placeholder="Enter your password"
+                                {...field}
+                              />
+                            </TooltipTrigger>
+                            {!verified && (
+                              <TooltipContent side="top">
+                                After verification of email, you can enter the
+                                Password
+                              </TooltipContent>
+                            )}
+                          </Tooltip>
+                        </TooltipProvider>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -260,14 +280,27 @@ export function SignUpForm(): React.JSX.Element {
                 <FormField
                   control={form.control}
                   name="confirmPassword"
+                  disabled={!verified}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Confirm Password</FormLabel>
                       <FormControl>
-                        <PasswordInput
-                          placeholder="Confirm your password"
-                          {...field}
-                        />
+                        <TooltipProvider disableHoverableContent>
+                          <Tooltip delayDuration={100}>
+                            <TooltipTrigger asChild>
+                              <PasswordInput
+                                placeholder="Confirm your password"
+                                {...field}
+                              />
+                            </TooltipTrigger>
+                            {!verified && (
+                              <TooltipContent side="top">
+                                After verification of email, you can enter the
+                                Password
+                              </TooltipContent>
+                            )}
+                          </Tooltip>
+                        </TooltipProvider>
                       </FormControl>
                       <FormMessage />
                     </FormItem>

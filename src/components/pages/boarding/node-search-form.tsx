@@ -81,7 +81,7 @@ const SearchResults = ({
           className="cursor-pointer text-slate-600"
         />
       </div>
-      <div className="thin-scrollbar mt-4 flex h-72 flex-wrap items-center justify-center gap-5 overflow-y-scroll ">
+      <div className="thin-scrollbar mt-4 flex h-80 flex-wrap items-center justify-center gap-5 overflow-y-scroll p-3">
         <div
           className="flex size-36 cursor-pointer flex-col items-center justify-center gap-1 rounded-sm border-2 border-dashed border-primary p-3 text-base text-primary"
           onClick={() => setShowAddNodeDialog(true)}
@@ -127,8 +127,9 @@ export const NodeSearchForm: React.FC<InterestFormProps> = ({ setStep }) => {
       setGlobalUser(response.data);
       router.replace("/");
       console.log(response);
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      console.log(error?.response?.data);
+      toast.error(error?.response?.data?.message || "something went wrong");
     } finally {
       setIsLoading(false);
     }
@@ -190,17 +191,19 @@ export const NodeSearchForm: React.FC<InterestFormProps> = ({ setStep }) => {
         </Label>
       </div> */}
 
-      <div className="flex justify-end gap-4">
-        <Button
-          variant="outline"
-          type="button"
-          onClick={() => setStep("interest")}
-        >
-          Back
-        </Button>
-        <Button onClick={onSubmit} className="text-white">
-          Next
-        </Button>
+      <div className="flex justify-end gap-4 border-t-2">
+        <div className="mt-4 flex gap-4">
+          <Button
+            variant="outline"
+            type="button"
+            onClick={() => setStep("interest")}
+          >
+            Back
+          </Button>
+          <Button onClick={onSubmit} className="text-white">
+            Next
+          </Button>
+        </div>
       </div>
     </div>
   );

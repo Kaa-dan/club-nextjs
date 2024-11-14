@@ -113,10 +113,7 @@ const Page = () => {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>
-              {" "}
-              <BreadcrumbLink>Member approvals</BreadcrumbLink>
-            </BreadcrumbPage>
+            <BreadcrumbPage> Member approvals</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>

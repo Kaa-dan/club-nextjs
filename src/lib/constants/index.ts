@@ -22,6 +22,9 @@ import BarEventsIcon from "@public/icons/modules/bar/events-and-news.icon.svg";
 import BarFunnyIcon from "@public/icons/modules/bar/funny.icon.svg";
 import BarMarketPlaceIcon from "@public/icons/modules/bar/market-place.icon.svg";
 import BarRulesIcon from "@public/icons/modules/bar/rules.icon.svg";
+import BarRulesIconGreen from "@public/icons/modules/bar/rules-green.icon.svg";
+import BarIssuesIconGreen from "@public/icons/modules/bar/issues-green.icon.svg";
+import BarIssuesIcon from "@public/icons/modules/bar/issues.icon.svg";
 import NodeGreyIcon from "@public/icons/node-grey.icon.svg";
 import ClubGreyIcon from "@public/icons/club-grey.icon.svg";
 import HeaderMessageIcon from "@public/icons/header-message.icon.svg";
@@ -81,8 +84,11 @@ const ICONS = {
   BarFunnyIcon,
   BarMarketPlaceIcon,
   BarRulesIcon,
+  BarRulesIconGreen,
   BarDebateIcon,
   GreenCheckMark,
+  BarIssuesIconGreen,
+  BarIssuesIcon,
   // ArrowIcon,
 };
 
