@@ -23,6 +23,7 @@ import {
   MessageCircle,
   MoreVertical,
   ArrowUpDown,
+  LockKeyhole,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -51,7 +52,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { z } from "zod";
+import { date, z } from "zod";
 import plugin from "tailwindcss";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -68,6 +69,14 @@ import { NodeEndpoints } from "@/utils/endpoints/node";
 import { error } from "console";
 import { RulesAndRegulationsEndpoints } from "@/utils/endpoints/plugins/rules-and-regulations";
 import { toast } from "sonner";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { ExpandableTableRow } from "./expandable-row";
+import Image from "next/image";
 
 type Rule = {
   id: number;
@@ -84,19 +93,25 @@ type Rule = {
   comments: number;
 };
 
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
+interface DataTableProps {
+  columns: ColumnDef<any>[];
+  data: any[];
   nodeorclubId: string;
-  plugin: string;
+  plugin: TPlugins;
+  section: TSections;
+  clickTrigger: boolean;
+  setClickTrigger: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-function DataTable<TData, TValue>({
+function DataTable({
   columns,
   data,
   nodeorclubId,
   plugin,
-}: DataTableProps<TData, TValue>) {
+  section,
+  clickTrigger,
+  setClickTrigger,
+}: DataTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
   const table = useReactTable({
@@ -134,17 +149,142 @@ function DataTable<TData, TValue>({
         <TableBody>
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
-              <TableRow
+              // <TableRow
+              //   key={row.id}
+              //   data-state={row.getIsSelected() && "selected"}
+              //   className="group hover:bg-muted/50"
+              // >
+              //   {row.getVisibleCells().map((cell) => (
+              //     <TableCell key={cell.id}>
+              //       {flexRender(cell.column.columnDef.cell, cell.getContext())}
+              //     </TableCell>
+              //   ))}
+              // </TableRow>
+              <ExpandableTableRow
                 key={row.id}
-                data-state={row.getIsSelected() && "selected"}
-                className="group hover:bg-muted/50"
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
+                row={row}
+                expandedContent={
+                  // <div className="flex">
+                  //   <div className="w-1/3 bg-red-500">hai</div>
+                  //   <div className="w-1/3 bg-green-500">hello</div>
+                  //   <div className="w-1/3 bg-blue-500">nice</div>
+                  // </div>
+                  <div className="rounded-lg bg-white p-6 shadow-sm">
+                    <div className="mb-4 flex items-start justify-between">
+                      <div className="">
+                        <div className="mb-2 flex items-center gap-2">
+                          {/* <span className="text-gray-500">number</span> */}
+                          <h2 className="text-lg font-medium text-green-500 underline">
+                            {row?.original?.title}
+                          </h2>
+                        </div>
+
+                        <div className="space-y-2">
+                          <div>
+                            <p className="text-sm text-gray-400">Domain</p>
+                            <p className="font-medium text-gray-800">
+                              {row?.original?.domain}
+                            </p>
+                          </div>
+
+                          <div>
+                            <p className="text-sm text-gray-400">Category</p>
+                            <p className="font-medium text-gray-800">
+                              {row?.original?.category}
+                            </p>
+                          </div>
+
+                          {/* <div>
+                            <p className="text-sm text-gray-400">
+                              Applicable for
+                            </p>
+                            <p className="font-medium text-gray-800">
+                              applicableFor
+                            </p>
+                          </div> */}
+                        </div>
+                      </div>
+
+                      <p
+                        className="px-2 text-center text-gray-600"
+                        dangerouslySetInnerHTML={{
+                          __html: row?.original?.description,
+                        }}
+                      ></p>
+
+                      <div className="text-right">
+                        <p className="text-gray-600">
+                          {new Date(row?.original?.createdAt).toLocaleString(
+                            "default",
+                            {
+                              month: "long",
+                              day: "numeric",
+                              year: "numeric",
+                            }
+                          )}
+                        </p>
+                        <div className="mt-1 flex items-center justify-end gap-1">
+                          {/* <svg
+                            className="size-4 text-gray-500"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                            <path
+                              fillRule="evenodd"
+                              d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+                              clipRule="evenodd"
+                            />
+                          </svg> */}
+                          <LockKeyhole className="size-4 text-gray-500" />
+                          <span className="text-gray-600">Private</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Image
+                          src={row?.original?.createdBy?.profileImage}
+                          alt={row?.original?.createdBy?.userName}
+                          width={32}
+                          height={32}
+                          className="size-8 rounded-full object-cover"
+                        />
+                        <span className="text-gray-700">
+                          {row?.original?.createdBy?.userName}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                        {/* <span className="rounded-full bg-orange-50 px-3 py-1 text-sm text-orange-400">
+                          relevantCount of totalCount find it relevant
+                        </span> */}
+                        <button className="rounded-lg border border-gray-200 px-4 py-2 text-gray-600 hover:text-gray-800">
+                          <Link
+                            href={`/${section}/${nodeorclubId}/${plugin}/${row?.original?._id}/view`}
+                            className="w-full"
+                          >
+                            View Original
+                          </Link>
+                        </button>
+                        {/* <button className="rounded-lg bg-green-500 px-4 py-2 text-white hover:bg-green-600">
+                          Report Offence
+                        </button> */}
+                        <ContentDailog
+                          plugin={plugin}
+                          pluginId={row?.original?._id}
+                          section={section}
+                          sectionId={nodeorclubId}
+                          isBtn={true}
+                          setClickTrigger={setClickTrigger}
+                          clickTrigger={clickTrigger}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                }
+              />
             ))
           ) : (
             <TableRow>
@@ -192,11 +332,9 @@ export function RulesTable({
 
   const columns: ColumnDef<Rule>[] = [
     {
-      accessorKey: "id",
-      header: "ID",
-      cell: ({ row }) => (
-        <div className="font-medium">#{row.getValue("id")}</div>
-      ),
+      accessorKey: "sno",
+      header: "SNO",
+      cell: ({ row }) => <div className="font-medium">{row.index + 1}</div>,
     },
     {
       accessorKey: "title",
@@ -214,9 +352,12 @@ export function RulesTable({
           <p className="font-medium leading-none text-foreground">
             {row.getValue("title")}
           </p>
-          <p className="line-clamp-2 text-sm text-muted-foreground">
-            {row.original.description}
-          </p>
+          {/* <p
+            className="line-clamp-2 truncate text-xs text-muted-foreground after:content-['...']"
+            dangerouslySetInnerHTML={{
+              __html: row?.original?.description,
+            }}
+          ></p> */}
         </div>
       ),
     },
@@ -329,18 +470,7 @@ export function RulesTable({
                   View Details
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                {/* <Dialog>
-                  <DialogTrigger>
-                    <div>Report</div>
-                  </DialogTrigger>
-                  <ContentDailog
-                    plugin={plugin}
-                    pluginId={row?.original?._id}
-                    section={section}
-                    sectionId={nodeorclubId}
-                  />
-                </Dialog> */}
+              {/* <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                 <ContentDailog
                   plugin={plugin}
                   pluginId={row?.original?._id}
@@ -349,7 +479,7 @@ export function RulesTable({
                   setClickTrigger={setClickTrigger}
                   clickTrigger={clickTrigger}
                 />
-              </DropdownMenuItem>
+              </DropdownMenuItem> */}
             </DropdownMenuContent>
           </DropdownMenu>
         );
@@ -363,6 +493,9 @@ export function RulesTable({
       data={data}
       nodeorclubId={nodeorclubId}
       plugin={plugin}
+      section={section}
+      setClickTrigger={setClickTrigger}
+      clickTrigger={clickTrigger}
     />
   );
 }
@@ -370,7 +503,7 @@ export function RulesTable({
 const reportSchema = z.object({
   offenderName: z
     .string()
-    .min(3, { message: "Offender name must be at least 3 characters long." }),
+    .nonempty({ message: "Offender name must be at least 3 characters long." }),
   description: z.string().min(2, { message: "Description is required." }),
   proofPhoto: z
     .instanceof(File)
@@ -387,6 +520,7 @@ const ContentDailog = ({
   section,
   clickTrigger,
   setClickTrigger,
+  isBtn,
 }: {
   plugin: TPlugins;
   pluginId: string;
@@ -394,6 +528,7 @@ const ContentDailog = ({
   sectionId: string;
   clickTrigger: boolean;
   setClickTrigger: React.Dispatch<React.SetStateAction<boolean>>;
+  isBtn?: boolean;
 }) => {
   const [formData, setFormData] = useState<Partial<ReportType>>({});
   const [users, setUsers] = useState([]);
@@ -456,7 +591,13 @@ const ContentDailog = ({
   return (
     <Dialog onOpenChange={setIsOpen} open={isOpen}>
       <DialogTrigger>
-        <div>Report</div>
+        {isBtn ? (
+          <button className="rounded-lg bg-green-500 px-4 py-2 text-white hover:bg-green-600">
+            Report Offence
+          </button>
+        ) : (
+          <div>Report</div>
+        )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <Form {...form}>
