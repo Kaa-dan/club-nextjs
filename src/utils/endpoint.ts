@@ -1,4 +1,5 @@
 import { mainAxios } from "@/lib/mainAxios";
+import { type } from "os";
 
 export class Endpoints {
   static async fetchNodeDetails(nodeId: string) {
@@ -167,11 +168,20 @@ export class Endpoints {
     }
   }
 
-  static async getRulesAndRegulations(type: string, Id: string) {
+  static async getActiveRules(type: string, Id: string) {
     try {
       const response = await mainAxios.get(
         `rules-regulations/get-all-active-rules?type=${type}&from=${Id}`
       );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async getGlobalRules() {
+    try {
+      const response = await mainAxios.get(`rules-regulations`);
       return response.data;
     } catch (error) {
       throw error;

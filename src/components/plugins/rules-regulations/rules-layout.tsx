@@ -20,34 +20,12 @@ import { RulesTable } from "./rules";
 import { Endpoints } from "@/utils/endpoint";
 import { RulesAndRegulationsEndpoints } from "@/utils/endpoints/plugins/rules-and-regulations";
 import { OffenceTable } from "./offence-table";
+import useRules from "./use-rules";
 
 interface TabData {
   label: string;
   count: number;
 }
-
-const tabs: TabData[] = [
-  {
-    label: "Active",
-    count: 182,
-  },
-  {
-    label: "All Rules",
-    count: 652,
-  },
-  {
-    label: "Global Rules",
-    count: 2000000,
-  },
-  {
-    label: "My Rules",
-    count: 2360,
-  },
-  {
-    label: "Report Offences",
-    count: 60,
-  },
-];
 
 type Rule = {
   id: number;
@@ -74,10 +52,38 @@ const RulesLayout = ({
   section: TSections;
   nodeorclubId: string;
 }) => {
-  const [rules, setRules] = useState<Rule[]>([]);
-  const [offences, setOffences] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [clickTrigger, setClickTrigger] = useState(false);
+  const {
+    activeRules,
+    globalRules,
+    myRules,
+    clickTrigger,
+    setClickTrigger,
+    offenses,
+    loading,
+  } = useRules(section, nodeorclubId);
+
+  const tabs: TabData[] = [
+    {
+      label: "Active",
+      count: activeRules.length || 0,
+    },
+    {
+      label: "All Rules",
+      count: activeRules.length || 0,
+    },
+    {
+      label: "Global Rules",
+      count: globalRules.length || 0,
+    },
+    {
+      label: "My Rules",
+      count: myRules.length || 0,
+    },
+    {
+      label: "Report Offenses",
+      count: offenses.length || 0,
+    },
+  ];
 
   const formatCount = (count: number) => {
     if (count >= 1000000) return `${(count / 1000000).toFixed(0)}M`;
@@ -85,61 +91,36 @@ const RulesLayout = ({
     return count.toString();
   };
 
-  const fetchRules = async () => {
-    setLoading(true);
-    try {
-      const response = await Endpoints.getRulesAndRegulations(
-        section,
-        nodeorclubId
-      );
-      console.log({ vaaa: response });
-
-      if (response) {
-        setRules(response);
-      } else {
-        setRules([]);
-      }
-    } catch (err) {
-      console.log({ err });
-      setRules([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchReportOffences = async () => {
-    setLoading(true);
-    try {
-      const response = await RulesAndRegulationsEndpoints.fetchOffences(
-        section,
-        nodeorclubId
-      );
-      console.log("offences", response);
-
-      if (response) {
-        setOffences(response);
-      } else {
-        setOffences([]);
-      }
-    } catch (err) {
-      console.log({ err });
-      setOffences([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchRules();
-    fetchReportOffences();
-  }, [nodeorclubId, clickTrigger]);
-
   if (loading) {
     return (
       <div className="flex h-32 items-center justify-center">
         <div className="size-8 animate-spin rounded-full border-b-2 border-primary"></div>
       </div>
     );
+  }
+
+  function getData(tab: TabData): Rule[] {
+    let data: Rule[] = [];
+    switch (tab.label) {
+      case "Active":
+        data = activeRules;
+        break;
+      case "All Rules":
+        data = activeRules;
+        break;
+      case "Global Rules":
+        data = globalRules;
+        break;
+      case "My Rules":
+        data = myRules;
+        break;
+      case "Report Offenses":
+        data = offenses;
+        break;
+      default:
+        data = [];
+    }
+    return data;
   }
 
   return (
@@ -220,19 +201,19 @@ const RulesLayout = ({
             {/* <IssueTable issues={tab.issues} /> */}
             {/* {children}
              */}
-            {tab.label === "Report Offences" ? (
+            {tab.label === "Report Offenses" ? (
               <OffenceTable
                 nodeorclubId={nodeorclubId}
                 plugin={plugin}
                 section={section}
-                data={offences}
+                data={offenses}
               />
             ) : (
               <RulesTable
                 nodeorclubId={nodeorclubId}
                 plugin={plugin}
                 section={section}
-                data={rules}
+                data={getData(tab)}
                 clickTrigger={clickTrigger}
                 setClickTrigger={setClickTrigger}
               />
