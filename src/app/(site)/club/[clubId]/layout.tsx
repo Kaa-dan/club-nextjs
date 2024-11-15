@@ -5,8 +5,9 @@ import { TClub, TMembers } from "@/types";
 import { useParams } from "next/navigation";
 import ClubProfileCard from "@/components/pages/club/club-profile-card";
 import ModulesBar from "@/components/pages/club/module-bar";
-import NodeTeams from "@/components/pages/club/club-teams";
+// import NodeTeams from "@/components/pages/club/club-teams";
 import { fetchSpecificClub } from "@/components/pages/club/endpoint";
+import TeamsSidePopover from "@/components/pages/club/club-teams";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const [currentPage, setCurrentPage] = useState("modules");
@@ -30,10 +31,10 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   }, [params.clubId]);
 
   return (
-    <div className="flex w-full gap-6">
+    <div className="relative flex w-full gap-6 ">
       {club ? (
         <>
-          <div className=" flex w-full gap-3  lg:w-3/4">
+          <div className=" flex  w-11/12  gap-3">
             <div className="w-1/4 shrink-0 flex-col">
               <ClubProfileCard
                 currentPage={currentPage}
@@ -47,8 +48,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               {children}
             </div>
           </div>
-          <div className="hidden lg:flex">
-            <NodeTeams />
+          <div className="">
+            <TeamsSidePopover />
           </div>
         </>
       ) : (
