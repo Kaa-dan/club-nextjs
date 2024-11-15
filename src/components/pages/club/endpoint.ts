@@ -68,3 +68,16 @@ export const getAllInvitations = async () => {
     throw error;
   }
 };
+
+export const acceptOrRejectInvitation = async (
+  invitationId: string,
+  accept: boolean
+) => {
+  try {
+    return await mainAxios.put(
+      `/invitation/acceptOrReject/${invitationId}/${accept}`
+    );
+  } catch (error) {
+    throw error;
+  }
+};
