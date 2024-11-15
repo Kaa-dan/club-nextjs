@@ -513,8 +513,8 @@ const AddNodeDialog = ({ open, setOpen }: IProps) => {
                             <Image
                               src={module.icon}
                               alt={module.name}
-                              width={96}
-                              height={96}
+                              width={15}
+                              height={15}
                             />
                           </Card>
                           <span className="font-medium">{module.name}</span>

@@ -130,6 +130,7 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
     Endpoints.fetchNodeUserStatus(nodeData?.node?._id as string)
       .then((res) => {
         setJoinStatus(res.status);
+        console.log("user status", res.status);
       })
       .catch((err) => {
         console.log({ err });
