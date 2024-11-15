@@ -145,19 +145,13 @@ export default function CreateIssueForm({
   };
 
   const onSubmit = async (values: FormValues) => {
-    // Handle form submission
-    console.log(values);
-    // Reset form and uploaded files
     form.reset();
     setUploadedFiles([]);
   };
 
   return (
     <div className="mx-auto max-w-2xl p-6">
-      <CustomBreadcrumb
-        items={breadcrumbItems}
-        className="my-4" // optional styling
-      />
+      <CustomBreadcrumb items={breadcrumbItems} className="my-4" />
       <Card className="p-4">
         <Form {...form}>
           <form className="w-full space-y-6">

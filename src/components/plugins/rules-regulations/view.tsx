@@ -33,6 +33,8 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { useTokenStore } from "@/store/store";
+import { ICONS } from "@/lib/constants";
+import Image from "next/image";
 interface Item {
   _id: string;
   name: string;
@@ -239,13 +241,23 @@ const View = () => {
                         <div className="flex flex-col">
                           <div className="flex items-center gap-2">
                             <span className="font-medium">{item.name}</span>
-                            <Badge
-                              variant={
-                                item.type === "Club" ? "default" : "secondary"
-                              }
-                            >
-                              <p className="text-white"> {item.type}</p>
-                            </Badge>
+                            {item.type === "Club" ? (
+                              <Image
+                                src={ICONS.ClubGreyIcon}
+                                alt="node_logo"
+                                height={30}
+                                width={30}
+                                className="ml-2 size-6 object-cover"
+                              />
+                            ) : (
+                              <Image
+                                src={ICONS.NodeGreyIcon}
+                                alt="node_logo"
+                                height={30}
+                                width={30}
+                                className="ml-2 size-6 object-cover"
+                              />
+                            )}
                           </div>
                           <span className="text-sm text-muted-foreground">
                             {item.description}
