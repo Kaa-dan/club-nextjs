@@ -77,6 +77,7 @@ import {
 } from "@/components/ui/accordion";
 import { ExpandableTableRow } from "./expandable-row";
 import Image from "next/image";
+import { cn } from "@/lib/utils";
 
 type Rule = {
   id: number;
@@ -89,7 +90,8 @@ type Rule = {
     name: string;
     avatar: string;
   };
-  relevanceScore: number;
+  relevant: any[];
+  irrelevant: any[];
   comments: number;
 };
 
@@ -430,19 +432,30 @@ export function RulesTable({
         </Button>
       ),
       cell: ({ row }) => {
-        const relevanceScore = parseFloat(row.getValue("relevanceScore"));
+        // const relevanceScore = parseFloat(row.getValue("relevant"));
         const comments = row.original.comments;
         return (
-          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-            <div className="flex items-center gap-1">
-              <ThumbsUp className="size-4" />
-              <span>{relevanceScore}</span>
+          console.log(row, "relevanceScore"),
+          (
+            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+              <div className="flex items-center gap-1">
+                {/* <ThumbsUp className="size-4" /> */}
+                <ThumbsUp
+                  className={cn("size-4  cursor-pointer text-primary")}
+                />
+                <span>{row?.original?.relevant?.length}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <ThumbsUp
+                  className={cn(
+                    "size-4 rotate-180 cursor-pointer text-red-500"
+                  )}
+                />
+                <span>{row?.original?.irrelevant?.length}</span>
+                {/* <MessageCircle className="size-4" /> */}
+              </div>
             </div>
-            <div className="flex items-center gap-1">
-              <MessageCircle className="size-4" />
-              <span>{comments}</span>
-            </div>
-          </div>
+          )
         );
       },
     },
