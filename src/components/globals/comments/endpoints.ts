@@ -25,4 +25,27 @@ export class Endpoints {
       throw error;
     }
   }
+
+  static async putLikeComment(commentId: string) {
+    try {
+      const res = await mainAxios.put(
+        `/rules-regulations/comment/${commentId}/like`
+      );
+      return res;
+    } catch (error) {
+      console.log({ error });
+      throw error;
+    }
+  }
+  static async putDislikeComment(commentId: string) {
+    try {
+      const res = await mainAxios.put(
+        `/rules-regulations/comment/${commentId}/dislike`
+      );
+      return res;
+    } catch (error) {
+      console.log({ error });
+      throw error;
+    }
+  }
 }

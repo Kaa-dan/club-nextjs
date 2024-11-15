@@ -17,7 +17,7 @@ import {
   SelectItem,
 } from "@radix-ui/react-select";
 import { X, Search, Mail } from "lucide-react";
-import { useEffect, useState } from "react";
+import { PointerEvent, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { searchUser, sentInvitation } from "../endpoint";
 
@@ -100,7 +100,7 @@ export default function Invite({ clubId }: InviteProps): JSX.Element {
       </DialogTrigger>
       <DialogContent
         className="sm:max-w-[500px]"
-        onPointerDownOutside={(e: PointerEvent) => e.preventDefault()}
+        onPointerDownOutside={(e) => e.preventDefault()}
       >
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">
@@ -108,9 +108,10 @@ export default function Invite({ clubId }: InviteProps): JSX.Element {
           </DialogTitle>
         </DialogHeader>
         <hr />
+
         <div className="grid gap-4 py-4">
           <div className="relative flex gap-5">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-2 top-2.5 size-4 text-muted-foreground" />
             <Input
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setSearch(e.target.value)
@@ -118,7 +119,7 @@ export default function Invite({ clubId }: InviteProps): JSX.Element {
               placeholder="Search members..."
               className="pl-8"
             />
-            <div className="flex items-center space-x-2 border px-2 rounded-md">
+            <div className="flex items-center space-x-2 rounded-md border px-2">
               <Mail />
               <Label htmlFor="email-invite">Email</Label>
             </div>
@@ -145,7 +146,7 @@ export default function Invite({ clubId }: InviteProps): JSX.Element {
             {allUsers?.map((user: User) => (
               <div key={user._id} className="flex items-center justify-between">
                 <div className="flex gap-4">
-                  <div className="h-16 w-16">
+                  <div className="size-16">
                     <Avatar>
                       <AvatarImage
                         src={user?.profileImage}
@@ -156,23 +157,23 @@ export default function Invite({ clubId }: InviteProps): JSX.Element {
                       </AvatarFallback>
                     </Avatar>
                   </div>
-                  <div className="flex flex-col text-lg text-slate-600 justify-center">
+                  <div className="flex flex-col justify-center text-lg text-slate-600">
                     <div className="flex gap-4">
-                      <p className="font-medium leading-none uppercase">
+                      <p className="font-medium uppercase leading-none">
                         {user?.firstName}
                       </p>
-                      <p className="font-medium leading-none uppercase">
+                      <p className="font-medium uppercase leading-none">
                         {user?.lastName}
                       </p>
                     </div>
-                    <div className="uppercase text-base text-slate-400">
+                    <div className="text-base uppercase text-slate-400">
                       doctor
                     </div>
                   </div>
                 </div>
                 <button
                   onClick={() => sentInvitationHandler(clubId, user._id)}
-                  className="bg-green-300 text-white px-2 py-1 rounded-md"
+                  className="rounded-md bg-green-300 px-2 py-1 text-white"
                 >
                   Invite
                 </button>

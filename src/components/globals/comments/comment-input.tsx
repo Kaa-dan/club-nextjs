@@ -1,20 +1,35 @@
 import React, { useState, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Paperclip, Smile, Send, X, Image as ImageIcon } from "lucide-react";
-import Image from "next/image";
+import {
+  Paperclip,
+  Smile,
+  Send,
+  X,
+  Image as ImageIcon,
+  SmilePlus,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Endpoints } from "./endpoints";
 import { useParams } from "next/navigation";
-
+import EmojiPicker, { Theme } from "emoji-picker-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import FilePreview from "./file-preview";
+import { useCommentsStore } from "@/store/comments-store";
 const CommentInput = () => {
   const { postId } = useParams<{ postId: string }>();
+  const { setComments } = useCommentsStore((state) => state);
 
   const [comment, setComment] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -52,10 +67,13 @@ const CommentInput = () => {
 
       const res = await Endpoints.postRulesComment(formData);
       console.log({ res });
+      if (res.data) {
+        toast.success("Success", {
+          description: "Comment posted successfully!",
+        });
+        setComments(res.data);
+      }
 
-      toast.success("Success", {
-        description: "Comment posted successfully!",
-      });
       setComment("");
       removeFile();
     } catch (error) {
@@ -68,19 +86,51 @@ const CommentInput = () => {
     }
   };
 
+  const adjustTextareaHeight = (element: HTMLTextAreaElement) => {
+    element.style.height = "auto";
+    element.style.height = `${element.scrollHeight}px`;
+  };
+
+  const handleEmojiClick = (emo: { emoji: string }) => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart ?? 0;
+    const end = textarea.selectionEnd ?? 0;
+    const newComment = comment.slice(0, start) + emo.emoji + comment.slice(end);
+
+    setComment(newComment);
+
+    // Use requestAnimationFrame instead of setTimeout for better browser compatibility
+    requestAnimationFrame(() => {
+      if (textarea) {
+        // Check again inside callback
+        const newCursorPosition = start + emo.emoji.length;
+        textarea.selectionStart = newCursorPosition;
+        textarea.selectionEnd = newCursorPosition;
+        textarea.focus();
+      }
+    });
+  };
+
   return (
     <div className="mx-auto w-full max-w-2xl rounded-lg bg-white shadow">
       <div className="border-b p-4">
-        <div className="relative">
-          <Input
-            type="text"
+        <div className="relative bg-white">
+          <textarea
+            ref={textareaRef}
             placeholder="Write your comment..."
-            className="w-full rounded-lg border bg-gray-50 p-2 pr-24"
+            className="max-h-[200px] min-h-[40px] w-full resize-none overflow-hidden rounded-lg border bg-gray-50 p-3 pr-24"
             value={comment}
-            onChange={(e) => setComment(e.target.value)}
+            onChange={(e) => {
+              setComment(e.target.value);
+              adjustTextareaHeight(e.target);
+            }}
             disabled={isSubmitting}
+            rows={1}
           />
-          <div className="absolute right-2 top-1/2 flex -translate-y-1/2 items-center gap-1">
+
+          <div className="absolute right-2 top-3 flex items-center gap-1 bg-gray-50">
             <input
               type="file"
               className="hidden"
@@ -89,6 +139,7 @@ const CommentInput = () => {
               accept="image/*"
               disabled={isSubmitting}
             />
+
             <Button
               variant="ghost"
               size="icon"
@@ -98,14 +149,26 @@ const CommentInput = () => {
             >
               <Paperclip className="size-4" />
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-8"
-              disabled={isSubmitting}
-            >
-              <Smile className="size-4" />
-            </Button>
+
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-8"
+                  disabled={isSubmitting}
+                >
+                  <SmilePlus className="size-4" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="m-0 p-0">
+                <EmojiPicker
+                  theme={Theme.LIGHT}
+                  onEmojiClick={handleEmojiClick}
+                />
+              </PopoverContent>
+            </Popover>
+
             <Button
               variant="ghost"
               size="icon"
@@ -114,6 +177,7 @@ const CommentInput = () => {
             >
               <ImageIcon className="size-4" />
             </Button>
+
             {(comment || selectedFile) && (
               <Button
                 size="icon"
@@ -130,32 +194,12 @@ const CommentInput = () => {
 
       {/* File Preview */}
       {selectedFile && (
-        <div className="border-t p-4">
-          <div className="relative inline-block">
-            {preview ? (
-              <Image
-                src={preview}
-                alt="Preview"
-                className="max-w-xs rounded-lg border"
-                width={100}
-                height={100}
-              />
-            ) : (
-              <div className="rounded-lg bg-gray-100 p-4">
-                <p className="text-sm text-gray-600">{selectedFile.name}</p>
-              </div>
-            )}
-            <Button
-              variant="destructive"
-              size="icon"
-              className="absolute -right-2 -top-2 size-6 rounded-full"
-              onClick={removeFile}
-              disabled={isSubmitting}
-            >
-              <X className="size-4" />
-            </Button>
-          </div>
-        </div>
+        <FilePreview
+          file={selectedFile}
+          preview={preview}
+          onRemove={removeFile}
+          isSubmitting={isSubmitting}
+        />
       )}
     </div>
   );
