@@ -118,15 +118,6 @@ export default function Page() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Dialog open={invite} onOpenChange={handleInviteClick}>
-                <DialogTrigger>
-                  <Button className="gap-2">
-                    <span>+ Invite</span>
-                  </Button>
-                  <Invite />
-                </DialogTrigger>
-              </Dialog>
-
               {/* <Dialog>
                 <DialogTrigger>
                   <Button variant="outline" className="gap-2">
