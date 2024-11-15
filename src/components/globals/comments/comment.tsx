@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   HoverCard,
   HoverCardContent,
@@ -9,7 +9,6 @@ import {
   ChevronRight,
   MoreHorizontal,
   ThumbsUp,
-  Image as ImageIcon,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -19,14 +18,15 @@ import { useParams } from "next/navigation";
 import { Endpoints } from "./endpoints";
 import { toast } from "sonner";
 import { useCommentsStore } from "@/store/comments-store";
+import AttachmentRenderComponent from "./attachment-component";
+import { useTokenStore } from "@/store/store";
+import { cn } from "@/lib/utils";
 
-const UserHoverCard: React.FC<{
-  user: TCommentUser;
-}> = ({ user }) => (
+const UserHoverCard: React.FC<{ user: TCommentUser }> = ({ user }) => (
   <HoverCard>
     <HoverCardTrigger asChild>
       <span className="cursor-pointer text-blue-500 hover:underline">
-        @{user.firstName}_{user.lastName}
+        @{user?.firstName}_{user?.lastName}
       </span>
     </HoverCardTrigger>
     <HoverCardContent className="w-80">
@@ -42,7 +42,7 @@ const UserHoverCard: React.FC<{
           <h4 className="font-bold">{`${user?.firstName} ${user?.lastName}`}</h4>
           <p className="text-sm text-gray-500">{user?.email}</p>
           <div className="mt-2 flex flex-wrap gap-2">
-            {user.interests.map((interest, index) => (
+            {user?.interests?.map((interest, index) => (
               <span
                 key={index}
                 className="rounded-full bg-blue-100 px-2 py-1 text-xs text-blue-600"
@@ -58,56 +58,113 @@ const UserHoverCard: React.FC<{
 );
 
 const processCommentText = (text: string, user: TCommentUser) => {
-  const words = text.split(" ");
-  return words.map((word, index) => {
-    if (word.startsWith("@")) {
-      return (
-        <React.Fragment key={index}>
-          <UserHoverCard user={user} />{" "}
-        </React.Fragment>
-      );
-    }
-    return word + " ";
+  return text?.split(" ")?.map((word, index) => {
+    return word?.startsWith("@") ? (
+      <React.Fragment key={index}>
+        <UserHoverCard user={user} />{" "}
+      </React.Fragment>
+    ) : (
+      word + " "
+    );
   });
 };
 
+interface InteractionState {
+  isLiked: boolean;
+  isDisLiked: boolean;
+}
+
 const Comment: React.FC<{ comment: TCommentType }> = ({ comment }) => {
-  const { setComments } = useCommentsStore((state) => state);
+  const { setComments, comments } = useCommentsStore((state) => state);
+  const { globalUser } = useTokenStore((state) => state);
+  const { postId } = useParams<{ postId: string }>();
+
   const [showReplies, setShowReplies] = useState(false);
   const [showReplyInput, setShowReplyInput] = useState(false);
   const [replyText, setReplyText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { postId } = useParams<{ postId: string }>();
+  const [commentInteraction, setCommentInteraction] =
+    useState<InteractionState>({
+      isLiked: comment.like.includes(globalUser?._id),
+      isDisLiked: comment.dislike.includes(globalUser?._id),
+    });
 
-  const formatDate = (dateString: string) => {
-    return formatDistanceToNow(new Date(dateString), { addSuffix: true });
+  useEffect(() => {
+    setCommentInteraction({
+      isLiked: comment.like.includes(globalUser?._id),
+      isDisLiked: comment.dislike.includes(globalUser?._id),
+    });
+  }, [comment, globalUser?._id]);
+
+  const handleInteraction = async (
+    commentId: string,
+    parentId: string | null = null,
+    type: "like" | "dislike"
+  ) => {
+    try {
+      const endpoint =
+        type === "like"
+          ? Endpoints.putLikeComment
+          : Endpoints.putDislikeComment;
+      const res = await endpoint(commentId);
+
+      if (res?.data) {
+        if (!parentId) {
+          // Main comment interaction
+          setCommentInteraction((prev) => ({
+            isLiked: type === "like" ? !prev.isLiked : false,
+            isDisLiked: type === "dislike" ? !prev.isDisLiked : false,
+          }));
+
+          setComments(
+            comments?.map((c) =>
+              c._id === res.data._id
+                ? { ...c, like: res.data.like, dislike: res.data.dislike }
+                : c
+            )
+          );
+        } else {
+          // Reply interaction
+          setComments(
+            comments?.map((c) => {
+              if (c._id === parentId) {
+                return {
+                  ...c,
+                  replies: c.replies.map((r) =>
+                    r._id === commentId
+                      ? { ...r, like: res.data.like, dislike: res.data.dislike }
+                      : r
+                  ),
+                };
+              }
+              return c;
+            })
+          );
+        }
+      }
+    } catch (error) {
+      console.error(`Error ${type}ing comment:`, error);
+    }
   };
 
   const handleReplySubmit = async () => {
-    if (!replyText.trim()) return;
+    if (!replyText?.trim()) return;
 
     setIsSubmitting(true);
     try {
       const formData = new FormData();
       formData.append("content", replyText);
       formData.append("entityId", postId);
-      formData.append("parent", comment?._id);
-
-      // if (selectedFile) {
-      //   formData.append("file", selectedFile);
-      // }
+      formData.append("parent", comment._id);
 
       const res = await Endpoints.postRulesComment(formData);
-      if (res.data) {
+      if (res?.data) {
         setComments(res.data);
-        toast.success("Success", {
-          description: "Reply posted successfully!",
-        });
+        toast.success("Success", { description: "Reply posted successfully!" });
+        setReplyText("");
+        setShowReplyInput(false);
+        setShowReplies(true);
       }
-
-      setReplyText("");
-      setShowReplyInput(false);
-      setShowReplies(true);
     } catch (error) {
       console.error("Error posting reply:", error);
     } finally {
@@ -123,12 +180,38 @@ const Comment: React.FC<{ comment: TCommentType }> = ({ comment }) => {
       ?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !isSubmitting && replyText.trim()) {
-      e.preventDefault();
-      handleReplySubmit();
-    }
-  };
+  const InteractionButtons = ({
+    item,
+    parentId = null,
+  }: {
+    item: TCommentType | TCommentReply;
+    parentId?: string | null;
+  }) => (
+    <div className="flex items-center gap-4">
+      <div className="flex items-center gap-1">
+        <ThumbsUp
+          onClick={() => handleInteraction(item._id, parentId, "like")}
+          className={cn("size-4 cursor-pointer text-primary", {
+            "fill-current": parentId
+              ? item.like.includes(globalUser?._id!)
+              : commentInteraction.isLiked,
+          })}
+        />
+        <span className="text-sm">{item.like?.length}</span>
+      </div>
+      <div className="flex items-center gap-1">
+        <ThumbsUp
+          onClick={() => handleInteraction(item._id, parentId, "dislike")}
+          className={cn("size-4 rotate-180 cursor-pointer text-red-500", {
+            "fill-current": parentId
+              ? item.dislike.includes(globalUser?._id!)
+              : commentInteraction.isDisLiked,
+          })}
+        />
+        <span className="text-sm">{item.dislike?.length}</span>
+      </div>
+    </div>
+  );
 
   return (
     <div className="flex gap-3">
@@ -146,41 +229,30 @@ const Comment: React.FC<{ comment: TCommentType }> = ({ comment }) => {
               {comment.firstName} {comment.lastName}
             </span>
             <span className="ml-2 text-sm text-gray-500">
-              • {formatDate(comment.createdAt)}
+              •{" "}
+              {formatDistanceToNow(new Date(comment.createdAt), {
+                addSuffix: true,
+              })}
             </span>
           </div>
           <button>
             <MoreHorizontal className="size-4 text-gray-500" />
           </button>
         </div>
-        <p className="mt-1 text-sm">
+
+        <p className="mt-1 whitespace-pre-wrap text-sm">
           {processCommentText(comment.content, comment)}
         </p>
 
         {comment.attachment && (
-          <div className="mt-2">
-            <Image
-              src={comment.attachment.url}
-              alt="Comment attachment"
-              width={300}
-              height={200}
-              className="rounded-lg object-cover"
-            />
-          </div>
+          <AttachmentRenderComponent attachment={comment.attachment} />
         )}
 
         <div
           className="mt-2 flex scroll-mt-24 items-center gap-4"
           id="likeReplySection"
         >
-          <div className="flex items-center gap-1">
-            <ThumbsUp className="size-4 text-green-500" />
-            <span className="text-sm">{comment.likes}</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <ThumbsUp className="size-4 rotate-180 text-red-500" />
-            <span className="text-sm">{comment.dislikes}</span>
-          </div>
+          <InteractionButtons item={comment} />
           <button
             className="text-sm text-blue-500"
             onClick={() => setShowReplyInput(!showReplyInput)}
@@ -193,10 +265,14 @@ const Comment: React.FC<{ comment: TCommentType }> = ({ comment }) => {
           <div className="mt-3">
             <div className="flex gap-2">
               <Input
-                type="text"
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
-                onKeyDown={handleKeyDown}
+                onKeyDown={(e) =>
+                  e.key === "Enter" &&
+                  !isSubmitting &&
+                  replyText?.trim() &&
+                  handleReplySubmit()
+                }
                 placeholder="Write a reply..."
                 className="flex-1"
                 disabled={isSubmitting}
@@ -221,7 +297,7 @@ const Comment: React.FC<{ comment: TCommentType }> = ({ comment }) => {
           </div>
         )}
 
-        {comment.replies.length > 0 && (
+        {comment.replies?.length > 0 && (
           <div className="mt-2">
             <button
               className="flex items-center gap-1 text-sm text-blue-500"
@@ -253,7 +329,10 @@ const Comment: React.FC<{ comment: TCommentType }> = ({ comment }) => {
                             {reply.firstName} {reply.lastName}
                           </span>
                           <span className="ml-2 text-sm text-gray-500">
-                            • {formatDate(reply.createdAt)}
+                            •{" "}
+                            {formatDistanceToNow(new Date(reply.createdAt), {
+                              addSuffix: true,
+                            })}
                           </span>
                         </div>
                         <button>
@@ -264,14 +343,10 @@ const Comment: React.FC<{ comment: TCommentType }> = ({ comment }) => {
                         {processCommentText(reply.content, reply)}
                       </p>
                       <div className="mt-2 flex items-center gap-4">
-                        <div className="flex items-center gap-1">
-                          <ThumbsUp className="size-4 text-green-500" />
-                          <span className="text-sm">{reply.likes}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <ThumbsUp className="size-4 rotate-180 text-red-500" />
-                          <span className="text-sm">{reply.dislikes}</span>
-                        </div>
+                        <InteractionButtons
+                          item={reply}
+                          parentId={comment._id}
+                        />
                         <button
                           className="text-sm text-blue-500"
                           onClick={() => handleReplyToReply(reply)}
