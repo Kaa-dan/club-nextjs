@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useCallback, useState } from "react";
+import ReactQuill from "react-quill-new";
+import "react-quill-new/dist/quill.snow.css";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -59,8 +61,20 @@ const formSchema = z.object({
   category: z.string().min(1, "Category is required"),
   applicableFor: z.string().min(1, "Applicable for is required"),
   significance: z.string().min(1, "Significance is required"),
-  tags: z.string(),
-  description: z.string().min(1, "Rule description is required"),
+  tags: z.array(z.string()).min(1, "Tags cannot be empty"),
+
+  description: z
+    .string()
+    .min(1, "Rule description is required")
+    .refine(
+      (val) => {
+        return val !== "<p><br></p>" && val.trim() !== "";
+      },
+      {
+        message: "Description cannot be empty.",
+      }
+    ),
+
   isPublic: z.boolean(),
   files: z
     .array(
@@ -107,12 +121,13 @@ export default function RuleForm({
       category: "",
       applicableFor: "",
       significance: "",
-      tags: "",
+      tags: [],
       description: "",
       isPublic: false,
       files: [],
     },
   });
+  console.log({ errors });
 
   const files = watch("files") || [];
   const [isAlertOpen, setIsAlertOpen] = useState<boolean>(false);
@@ -173,8 +188,25 @@ export default function RuleForm({
     [files, setValue]
   );
 
+  const [inputValue, setInputValue] = useState("");
+  const tags = watch("tags");
+
+  const handleAddTag = () => {
+    if (inputValue.trim() !== "" && !tags.includes(inputValue.trim())) {
+      setValue("tags", [...tags, inputValue.trim()]);
+      setInputValue("");
+    }
+  };
+
+  const handleRemoveTag = (tagToRemove: string) => {
+    setValue(
+      "tags",
+      tags.filter((tag) => tag !== tagToRemove)
+    );
+  };
   // Form submission
   const onSubmit = async (data: FormData) => {
+    console.log({ data });
     try {
       const formDataToSend = new FormData();
 
@@ -205,7 +237,6 @@ export default function RuleForm({
       toast.error("Failed to submit rule. Please try again.");
     }
   };
-
   return (
     <Card className="min-w-[100%] max-w-3xl p-6">
       <form
@@ -320,56 +351,79 @@ export default function RuleForm({
               </p>
             )}
           </div>
-
           <div className="space-y-2">
-            <Label htmlFor="tags" className="flex items-center gap-2">
-              Tags <Info className="h-4 w-4 text-muted-foreground" />
-            </Label>
-            <Controller
-              name="tags"
-              control={control}
-              render={({ field }) => (
-                <Input {...field} id="tags" placeholder="Enter Tags" />
-              )}
-            />
+            <div className="space-y-2">
+              <Label htmlFor="tags" className="flex items-center gap-2">
+                Tags <Info className="h-4 w-4 text-muted-foreground" />
+              </Label>
+              <div className="flex flex-wrap items-center gap-1 p-1 bg-background border border-input rounded-md  min-h-[40px]">
+                {tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="bg-gray-300 text-secondary-foreground px-1.5 py-0.5 rounded text-xs flex items-center"
+                  >
+                    {tag}
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="ml-1 h-auto p-0"
+                      onClick={() => handleRemoveTag(tag)}
+                    >
+                      <X className="h-3 w-3" />
+                      <span className="sr-only">Remove {tag}</span>
+                    </Button>
+                  </span>
+                ))}
+                <Controller
+                  name="tags"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      value={inputValue}
+                      onChange={(e) => setInputValue(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          handleAddTag();
+                        }
+                      }}
+                      id="tags"
+                      placeholder="Enter Tags"
+                      className="flex-1 border-0 h-6 text-sm px-1"
+                    />
+                  )}
+                />
+              </div>
+            </div>
             {errors.tags && (
-              <p className="text-sm text-red-500">{errors.tags.message}</p>
+              <p className="text-sm text-destructive">{errors.tags.message}</p>
             )}
           </div>
         </div>
 
         {/* Rule Description */}
-        <div className="space-y-2">
-          <Label htmlFor="ruleDescription">Rule Description</Label>
-          <Card className="p-1">
-            <div className="border-b p-2 flex gap-2">
-              <Button type="button" variant="ghost" size="sm">
-                B
-              </Button>
-              <Button type="button" variant="ghost" size="sm">
-                I
-              </Button>
-              <Button type="button" variant="ghost" size="sm">
-                •
-              </Button>
-            </div>
-            <Controller
-              name="description"
-              control={control}
-              render={({ field }) => (
-                <Textarea
-                  {...field}
-                  id="description"
-                  placeholder="Write here..."
-                  className="border-0 focus-visible:ring-0 min-h-[100px]"
-                />
+
+        <Controller
+          name="description"
+          control={control}
+          render={({ field }) => (
+            <div>
+              <ReactQuill
+                id="description"
+                {...field}
+                theme="snow"
+                placeholder="Write something amazing..."
+              />
+              {errors.description && (
+                <p className="text-sm text-red-500">
+                  {errors.description.message}
+                </p>
               )}
-            />
-          </Card>
-          {errors.description && (
-            <p className="text-sm text-red-500">{errors.description.message}</p>
+            </div>
           )}
-        </div>
+        />
 
         {/* File Upload */}
         <div className="space-y-2">

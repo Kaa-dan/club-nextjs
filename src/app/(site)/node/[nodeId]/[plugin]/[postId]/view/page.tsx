@@ -1,12 +1,12 @@
+import View from "@/components/plugins/rules-regulations/view";
 import React from "react";
 
-const PostViewPage = async ({
-  params,
-}: {
-  params: Promise<{ postId: string; plugin: string; nodeId: string }>;
-}) => {
-  const { nodeId, plugin, postId } = await params;
-  return <div>PostViewPage{postId}</div>;
+const PostViewPage = () => {
+  return (
+    <div>
+      <View />
+    </div>
+  );
 };
 
 export default PostViewPage;
