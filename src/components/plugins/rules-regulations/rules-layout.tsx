@@ -27,29 +27,6 @@ interface TabData {
   count: number;
 }
 
-const tabs: TabData[] = [
-  {
-    label: "Active",
-    count: 182,
-  },
-  {
-    label: "All Rules",
-    count: 652,
-  },
-  {
-    label: "Global Rules",
-    count: 2000000,
-  },
-  {
-    label: "My Rules",
-    count: 2360,
-  },
-  {
-    label: "Report Offences",
-    count: 60,
-  },
-];
-
 type Rule = {
   id: number;
   title: string;
@@ -78,11 +55,36 @@ const RulesLayout = ({
   const {
     activeRules,
     globalRules,
+    myRules,
     clickTrigger,
     setClickTrigger,
     offenses,
     loading,
   } = useRules(section, nodeorclubId);
+
+  const tabs: TabData[] = [
+    {
+      label: "Active",
+      count: activeRules.length || 0,
+    },
+    {
+      label: "All Rules",
+      count: activeRules.length || 0,
+    },
+    {
+      label: "Global Rules",
+      count: globalRules.length || 0,
+    },
+    {
+      label: "My Rules",
+      count: myRules.length || 0,
+    },
+    {
+      label: "Report Offenses",
+      count: offenses.length || 0,
+    },
+  ];
+
   const formatCount = (count: number) => {
     if (count >= 1000000) return `${(count / 1000000).toFixed(0)}M`;
     if (count >= 1000) return `${(count / 1000).toFixed(2)}k`;
@@ -110,9 +112,9 @@ const RulesLayout = ({
         data = globalRules;
         break;
       case "My Rules":
-        data = activeRules;
+        data = myRules;
         break;
-      case "Report Offences":
+      case "Report Offenses":
         data = offenses;
         break;
       default:
@@ -199,7 +201,7 @@ const RulesLayout = ({
             {/* <IssueTable issues={tab.issues} /> */}
             {/* {children}
              */}
-            {tab.label === "Report Offences" ? (
+            {tab.label === "Report Offenses" ? (
               <OffenceTable
                 nodeorclubId={nodeorclubId}
                 plugin={plugin}

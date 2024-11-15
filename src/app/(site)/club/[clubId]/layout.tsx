@@ -7,7 +7,6 @@ import ClubProfileCard from "@/components/pages/club/club-profile-card";
 import ModulesBar from "@/components/pages/club/module-bar";
 // import NodeTeams from "@/components/pages/club/club-teams";
 import { fetchSpecificClub } from "@/components/pages/club/endpoint";
-import TeamsPopup from "@/components/pages/club/club-teams";
 import TeamsSidePopover from "@/components/pages/club/club-teams";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {

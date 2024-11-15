@@ -6,6 +6,7 @@ const useRules = (section: TSections, nodeOrClubId: string) => {
   const [activeRules, setActiveRules] = useState([]);
   const [globalRules, setGlobalRules] = useState([]);
   const [offenses, setOffenses] = useState([]);
+  const [myRules, setMyRules] = useState([]);
   const [loading, setLoading] = useState(false);
   const [clickTrigger, setClickTrigger] = useState(false);
 
@@ -31,9 +32,20 @@ const useRules = (section: TSections, nodeOrClubId: string) => {
         }),
 
       // Offences
-      RulesAndRegulationsEndpoints.fetchOffences(section, nodeOrClubId)
+      RulesAndRegulationsEndpoints.fetchOffeses(section, nodeOrClubId)
         .then((response) => {
           if (response) setOffenses(response);
+        })
+        .catch((err) => {
+          console.error("Error fetching offences:", err);
+        }),
+
+      RulesAndRegulationsEndpoints.fetchMyRulesOnNodeOrClub(
+        section,
+        nodeOrClubId
+      )
+        .then((response) => {
+          if (response) setMyRules(response);
         })
         .catch((err) => {
           console.error("Error fetching offences:", err);
@@ -51,6 +63,7 @@ const useRules = (section: TSections, nodeOrClubId: string) => {
     activeRules,
     globalRules,
     offenses,
+    myRules,
     loading,
     refetch: fetchAllData,
     setClickTrigger,
