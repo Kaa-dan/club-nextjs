@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { flexRender, Row } from "@tanstack/react-table";
 
-interface ExpandableTableRowProps<TData> {
+interface ExpandableTableRowProps {
   row: Row<any>;
   expandedContent: React.ReactNode;
 }
@@ -14,7 +14,7 @@ interface ExpandableTableRowProps<TData> {
 export function ExpandableTableRow<TData>({
   row,
   expandedContent,
-}: ExpandableTableRowProps<any>) {
+}: ExpandableTableRowProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   console.log(row.original, "row");
 

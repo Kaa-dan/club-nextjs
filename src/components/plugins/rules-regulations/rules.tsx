@@ -93,9 +93,9 @@ type Rule = {
   comments: number;
 };
 
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
+interface DataTableProps {
+  columns: ColumnDef<any>[];
+  data: any[];
   nodeorclubId: string;
   plugin: TPlugins;
   section: TSections;
@@ -103,7 +103,7 @@ interface DataTableProps<TData, TValue> {
   setClickTrigger: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-function DataTable<TData, TValue>({
+function DataTable({
   columns,
   data,
   nodeorclubId,
@@ -111,7 +111,7 @@ function DataTable<TData, TValue>({
   section,
   clickTrigger,
   setClickTrigger,
-}: DataTableProps<TData, TValue>) {
+}: DataTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
   const table = useReactTable({
@@ -171,7 +171,7 @@ function DataTable<TData, TValue>({
                   // </div>
                   <div className="rounded-lg bg-white p-6 shadow-sm">
                     <div className="mb-4 flex items-start justify-between">
-                      <div className="flex-1 max-w-20">
+                      <div className="">
                         <div className="mb-2 flex items-center gap-2">
                           {/* <span className="text-gray-500">number</span> */}
                           <h2 className="text-lg font-medium text-green-500 underline">
@@ -205,9 +205,12 @@ function DataTable<TData, TValue>({
                         </div>
                       </div>
 
-                      <p className="px-2 text-center text-gray-600">
-                        {row?.original?.description}
-                      </p>
+                      <p
+                        className="px-2 text-center text-gray-600"
+                        dangerouslySetInnerHTML={{
+                          __html: row?.original?.description,
+                        }}
+                      ></p>
 
                       <div className="text-right">
                         <p className="text-gray-600">
@@ -246,7 +249,7 @@ function DataTable<TData, TValue>({
                           alt={row?.original?.createdBy?.userName}
                           width={32}
                           height={32}
-                          className="w-8 h-8 rounded-full object-cover"
+                          className="size-8 rounded-full object-cover"
                         />
                         <span className="text-gray-700">
                           {row?.original?.createdBy?.userName}
@@ -349,9 +352,12 @@ export function RulesTable({
           <p className="font-medium leading-none text-foreground">
             {row.getValue("title")}
           </p>
-          <p className="line-clamp-2 text-sm text-muted-foreground">
-            {row.original.description}
-          </p>
+          {/* <p
+            className="line-clamp-2 truncate text-xs text-muted-foreground after:content-['...']"
+            dangerouslySetInnerHTML={{
+              __html: row?.original?.description,
+            }}
+          ></p> */}
         </div>
       ),
     },
@@ -464,7 +470,7 @@ export function RulesTable({
                   View Details
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+              {/* <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                 <ContentDailog
                   plugin={plugin}
                   pluginId={row?.original?._id}
@@ -473,7 +479,7 @@ export function RulesTable({
                   setClickTrigger={setClickTrigger}
                   clickTrigger={clickTrigger}
                 />
-              </DropdownMenuItem>
+              </DropdownMenuItem> */}
             </DropdownMenuContent>
           </DropdownMenu>
         );
@@ -497,7 +503,7 @@ export function RulesTable({
 const reportSchema = z.object({
   offenderName: z
     .string()
-    .min(3, { message: "Offender name must be at least 3 characters long." }),
+    .nonempty({ message: "Offender name must be at least 3 characters long." }),
   description: z.string().min(2, { message: "Description is required." }),
   proofPhoto: z
     .instanceof(File)
