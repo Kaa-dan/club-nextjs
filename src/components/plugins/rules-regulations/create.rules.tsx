@@ -3,7 +3,7 @@
 import React, { useCallback, useState } from "react";
 import ReactQuill from "react-quill-new";
 import "react-quill-new/dist/quill.snow.css";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, Form } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
@@ -115,6 +115,7 @@ export default function RuleForm({
   const {
     control,
     handleSubmit,
+    getValues,
     formState: { errors, isSubmitting },
     reset,
     setValue,
@@ -612,7 +613,32 @@ export default function RuleForm({
           <Button type="button" variant="outline">
             Cancel
           </Button>
-          <Button type="button" variant="outline">
+          <Button
+            type="button"
+            onClick={() => {
+              const data = getValues();
+              const formDataToSend = new FormData();
+
+              Object.entries(data).forEach(([key, value]) => {
+                if (key !== "files") {
+                  formDataToSend.append(key, value.toString());
+                }
+              });
+
+              data.files?.forEach((fileObj: any) => {
+                formDataToSend.append("file", fileObj.file);
+              });
+
+              formDataToSend.append(section, nodeOrClubId);
+              formDataToSend.append("publishedStatus", "draft");
+              Endpoints.addRulesAndRegulations(formDataToSend).then((res) => {
+                if (res.isActive) {
+                  toast.success("saved to draft successfully");
+                }
+              });
+            }}
+            variant="outline"
+          >
             Save draft
           </Button>
 
@@ -625,7 +651,9 @@ export default function RuleForm({
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogCancel disabled={isSubmitting}>
+                  Cancel
+                </AlertDialogCancel>
                 <AlertDialogAction
                   disabled={isSubmitting}
                   onClick={handleSubmit(onSubmit)}

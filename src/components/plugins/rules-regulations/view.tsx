@@ -281,7 +281,10 @@ const View = () => {
 
       {/* Document Info */}
       {rule?.files?.map((file) => (
-        <div key={file._id} className="mb-4 flex items-center gap-4">
+        <div
+          key={file._id}
+          className="mb-4 flex items-center gap-4 cursor-pointer"
+        >
           <div className="flex items-center gap-2">
             <div className="flex size-8 items-center justify-center rounded bg-gray-100">
               {file.mimetype.includes("image") && (
@@ -302,7 +305,10 @@ const View = () => {
                 )}
             </div>
             <div>
-              <div onClick={() => router.push(file.url)} className="text-sm">
+              <div
+                onClick={() => window.open(file.url, "_blank")}
+                className="text-sm"
+              >
                 {file.originalname}
               </div>
             </div>
