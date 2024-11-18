@@ -35,6 +35,7 @@ import { Button } from "@/components/ui/button";
 import { useTokenStore } from "@/store/store";
 import { ICONS } from "@/lib/constants";
 import Image from "next/image";
+import { type } from "os";
 interface Item {
   _id: string;
   name: string;
@@ -45,7 +46,7 @@ interface ClubAndNodesData {
   clubs: Item[];
   nodes: Item[];
 }
-const View = () => {
+const View = ({ section }: { section: "club" | "node" }) => {
   const { globalUser } = useTokenStore((state) => state);
   const router = useRouter();
   const [rule, setRule] = useState<TRule>();
@@ -103,11 +104,14 @@ const View = () => {
     return moment(date).fromNow();
   };
 
-  const adopt = (clubId: string) => {
-    Endpoints.adoptRule(postId as string, "club", clubId)
+  const adopt = (item: { _id: string; type: "Club" | "Node" }) => {
+    Endpoints.adoptRule(
+      postId as string,
+      item?.type?.toLowerCase(),
+      item.type === "Club" ? item._id : null,
+      item.type === "Node" ? item._id : null
+    )
       .then((res) => {
-        console.log({ res });
-
         toast.success("rule adopted succesfully");
         fetchNodesAndClubs();
       })
@@ -265,7 +269,7 @@ const View = () => {
                             {item.description}
                           </span>
                         </div>
-                        <Button size="sm" onClick={() => adopt(item._id)}>
+                        <Button size="sm" onClick={() => adopt(item as any)}>
                           Adopt
                         </Button>
                       </div>

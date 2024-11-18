@@ -210,9 +210,9 @@ export class Endpoints {
   }
   static async adoptRule(
     rulesId: string,
-    type: "club" | "node",
-    clubId?: string,
-    nodeId?: string
+    type: "club" | "node" | string,
+    clubId?: string | null,
+    nodeId?: string | null
   ) {
     try {
       const response = await mainAxios.post("/rules-regulations/adopt-rules", {
@@ -269,6 +269,15 @@ export class Endpoints {
     } catch (error) {
       console.log({ error });
 
+      throw error;
+    }
+  }
+
+  static async saveDraft(data: any) {
+    try {
+      const response = await mainAxios.post("/rules-regulations/draft", data);
+      return response.data;
+    } catch (error) {
       throw error;
     }
   }
