@@ -658,7 +658,7 @@ export default function RuleForm({
 
                 formDataToSend.append(section, nodeOrClubId);
                 formDataToSend.append("publishedStatus", "draft");
-                Endpoints.addRulesAndRegulations(formDataToSend).then((res) => {
+                Endpoints.saveDraft(formDataToSend).then((res) => {
                   if (res.isActive) {
                     toast.success("saved to draft successfully");
                   }

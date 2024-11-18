@@ -106,6 +106,8 @@ const View = () => {
   const adopt = (clubId: string) => {
     Endpoints.adoptRule(postId as string, "club", clubId)
       .then((res) => {
+        console.log({ res });
+
         toast.success("rule adopted succesfully");
         fetchNodesAndClubs();
       })
