@@ -39,6 +39,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useNodeStore } from "@/store/nodes-store";
 import { toast } from "sonner";
+import { useTokenStore } from "@/store/store";
 const members = [
   {
     id: 1,
@@ -74,13 +75,14 @@ const members = [
 ];
 
 export default function Page() {
+  const { globalUser } = useTokenStore((state) => state);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { setUserJoinedNodes } = useNodeStore((state) => state);
   const { nodeId } = useParams<{ nodeId: string }>();
-  const [members, setMembers] = useState([]);
+  const [clickTrigger, setClickTrigger] = useState<boolean>(false);
   const [nodeDetails, setNodeDetails] = useState<{
     node: TNodeData;
-    members: TMembers[];
+    members: any[];
   }>();
 
   const fetchNodeDetails = async () => {
@@ -100,12 +102,15 @@ export default function Page() {
       const joinedNodes = await Endpoints.fetchUserJoinedNodes();
       setUserJoinedNodes(joinedNodes);
       toast.warning(response.message);
+      setClickTrigger(!clickTrigger);
     } catch (error) {}
   };
 
   useEffect(() => {
     fetchNodeDetails();
-  }, [nodeId]);
+  }, [nodeId, clickTrigger]);
+
+  console.log(nodeDetails, "node details");
   return (
     <>
       <Card className="mx-auto w-full max-w-3xl">
@@ -142,45 +147,52 @@ export default function Page() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Button className="gap-2">
-                <span>+ Invite</span>
-              </Button>
-              <Button variant="outline" className="gap-2">
+              {nodeDetails?.members?.some(
+                (member: any) => member?.user?._id == globalUser?._id
+              ) && (
+                <>
+                  <Button className="gap-2">
+                    <span>+ Invite</span>
+                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="gap-2 text-red-500 hover:text-red-600"
+                      >
+                        <LogOut className="size-4" />
+                        <span>Leave Node</span>
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                          Are you sure you want to leave the Node?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action cannot be undone. Leaving the club will
+                          remove you from the members list and you will lose
+                          access to all club activities and resources.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => leaveMyNode(nodeId)}
+                          className="bg-red-500 text-white hover:bg-red-600"
+                        >
+                          Leave Node
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </>
+              )}
+
+              {/* <Button variant="outline" className="gap-2">
                 <Copy className="size-4" />
                 <span>Copy Link</span>
-              </Button>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="gap-2 text-red-500 hover:text-red-600"
-                  >
-                    <LogOut className="size-4" />
-                    <span>Leave Node</span>
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>
-                      Are you sure you want to leave the Node?
-                    </AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. Leaving the club will remove
-                      you from the members list and you will lose access to all
-                      club activities and resources.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={() => leaveMyNode(nodeId)}
-                      className="bg-red-500 text-white hover:bg-red-600"
-                    >
-                      Leave Node
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+              </Button> */}
             </div>
           </div>
 

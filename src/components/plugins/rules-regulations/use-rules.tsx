@@ -16,6 +16,7 @@ const useRules = (section: TSections, nodeOrClubId: string) => {
     await Promise.allSettled([
       Endpoints.getActiveRules(section, nodeOrClubId)
         .then((response) => {
+          console.log({ rules: response });
           if (response) setActiveRules(response);
         })
         .catch((err) => {

@@ -3,7 +3,7 @@
 import React, { useCallback, useState } from "react";
 import ReactQuill from "react-quill-new";
 import "react-quill-new/dist/quill.snow.css";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, Form } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
+
 import { Info, Upload, X, FileIcon } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
@@ -28,7 +28,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import {
   AlertDialog,
-  AlertDialogTrigger,
   AlertDialogContent,
   AlertDialogTitle,
   AlertDialogDescription,
@@ -36,6 +35,13 @@ import {
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
 import { Endpoints } from "@/utils/endpoint";
+import {
+  TooltipProvider,
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
+import { useRouter } from "next/navigation";
 import {
   BreadcrumbItemType,
   CustomBreadcrumb,
@@ -122,6 +128,7 @@ export default function RuleForm({
   const {
     control,
     handleSubmit,
+    getValues,
     formState: { errors, isSubmitting },
     reset,
     setValue,
@@ -140,11 +147,10 @@ export default function RuleForm({
       files: [],
     },
   });
-  console.log({ errors });
 
   const files = watch("files") || [];
   const [isAlertOpen, setIsAlertOpen] = useState<boolean>(false);
-
+  const router = useRouter();
   const handleFiles = useCallback(
     (newFiles: File[]) => {
       const currentFiles = files;
@@ -219,7 +225,6 @@ export default function RuleForm({
   };
   // Form submission
   const onSubmit = async (data: FormData) => {
-    console.log({ data });
     try {
       const formDataToSend = new FormData();
 
@@ -237,6 +242,7 @@ export default function RuleForm({
 
       const response = await Endpoints.addRulesAndRegulations(formDataToSend);
       toast.success(response.message || "Rules successfully created");
+
       // Clean up previews before reset
       data.files?.forEach((fileObj) => {
         if (fileObj.preview) {
@@ -244,10 +250,12 @@ export default function RuleForm({
         }
       });
       setIsAlertOpen(false);
-      reset();
+      router.push(`/${section}/${nodeOrClubId}/rules`);
     } catch (error) {
       console.error("Error submitting form:", error);
       toast.error("Failed to submit rule. Please try again.");
+    } finally {
+      reset();
     }
   };
   return (
@@ -264,9 +272,21 @@ export default function RuleForm({
           {/* Title and Domain */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="ruleTitle" className="flex items-center gap-2">
-                Rule Title <Info className="size-4 text-muted-foreground" />
-              </Label>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Label
+                      htmlFor="description"
+                      className="flex items-center gap-2"
+                    >
+                      Title <Info className="size-4 text-muted-foreground" />
+                    </Label>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-white">Add title for your rule</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               <Controller
                 name="title"
                 control={control}
@@ -280,9 +300,22 @@ export default function RuleForm({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="domain" className="flex items-center gap-2">
-                Domain <Info className="size-4 text-muted-foreground" />
-              </Label>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Label
+                      htmlFor="description"
+                      className="flex items-center gap-2"
+                    >
+                      Domain <Info className="size-4 text-muted-foreground" />
+                    </Label>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-white">Add a domain for your rule</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
               <Controller
                 name="domain"
                 control={control}
@@ -308,9 +341,21 @@ export default function RuleForm({
           {/* Category and Applicable For */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="category" className="flex items-center gap-2">
-                Category <Info className="size-4 text-muted-foreground" />
-              </Label>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Label
+                      htmlFor="description"
+                      className="flex items-center gap-2"
+                    >
+                      Category <Info className="size-4 text-muted-foreground" />
+                    </Label>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-white">Add category for your rule</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               <Controller
                 name="category"
                 control={control}
@@ -330,13 +375,22 @@ export default function RuleForm({
             </div>
 
             <div className="space-y-2">
-              <Label
-                htmlFor="applicableFor"
-                className="flex items-center gap-2"
-              >
-                Applicable for?{" "}
-                <Info className="size-4 text-muted-foreground" />
-              </Label>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Label
+                      htmlFor="description"
+                      className="flex items-center gap-2"
+                    >
+                      Applicable for?{" "}
+                      <Info className="h-4 w-4 text-muted-foreground" />
+                    </Label>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-white">Applicable for?</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               <Controller
                 name="applicableFor"
                 control={control}
@@ -381,9 +435,22 @@ export default function RuleForm({
             </div>
             <div className="space-y-2">
               <div className="space-y-2">
-                <Label htmlFor="tags" className="flex items-center gap-2">
-                  Tags <Info className="size-4 text-muted-foreground" />
-                </Label>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Label
+                        htmlFor="description"
+                        className="flex items-center gap-2"
+                      >
+                        Tags <Info className="size-4 text-muted-foreground" />
+                      </Label>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="text-white">Enter Tags for your rule</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+
                 <div className="flex min-h-[40px] flex-wrap items-center gap-1 rounded-md border border-input bg-background  p-1">
                   {tags.map((tag) => (
                     <span
@@ -434,26 +501,50 @@ export default function RuleForm({
           </div>
 
           {/* Rule Description */}
-
-          <Controller
-            name="description"
-            control={control}
-            render={({ field }) => (
-              <div>
-                <ReactQuill
-                  id="description"
-                  {...field}
-                  theme="snow"
-                  placeholder="Write something amazing..."
-                />
-                {errors.description && (
-                  <p className="text-sm text-red-500">
-                    {errors.description.message}
+          {/* <TooltipLabel
+              label="Description"
+              tooltip="Enter"
+        /> */}
+          <div className="space-y-2">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Label
+                    htmlFor="description"
+                    className="flex items-center gap-2"
+                  >
+                    Description{" "}
+                    <Info className="h-4 w-4 text-muted-foreground" />
+                  </Label>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="text-white">
+                    Enter a detailed description of your project or task
                   </p>
-                )}
-              </div>
-            )}
-          />
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <Controller
+              name="description"
+              control={control}
+              render={({ field }) => (
+                <div>
+                  <ReactQuill
+                    id="description"
+                    theme="snow"
+                    placeholder="Write something amazing..."
+                    {...field}
+                    onChange={(content) => field.onChange(content)}
+                  />
+                  {errors.description && (
+                    <p className="text-sm text-red-500 mt-2">
+                      {errors.description.message}
+                    </p>
+                  )}
+                </div>
+              )}
+            />
+          </div>
 
           {/* File Upload */}
           <div className="space-y-2">
@@ -549,7 +640,32 @@ export default function RuleForm({
             <Button type="button" variant="outline">
               Cancel
             </Button>
-            <Button type="button" variant="outline">
+            <Button
+              type="button"
+              onClick={() => {
+                const data = getValues();
+                const formDataToSend = new FormData();
+
+                Object.entries(data).forEach(([key, value]) => {
+                  if (key !== "files") {
+                    formDataToSend.append(key, value.toString());
+                  }
+                });
+
+                data.files?.forEach((fileObj: any) => {
+                  formDataToSend.append("file", fileObj.file);
+                });
+
+                formDataToSend.append(section, nodeOrClubId);
+                formDataToSend.append("publishedStatus", "draft");
+                Endpoints.saveDraft(formDataToSend).then((res) => {
+                  if (res.isActive) {
+                    toast.success("saved to draft successfully");
+                  }
+                });
+              }}
+              variant="outline"
+            >
               Save draft
             </Button>
 
@@ -562,7 +678,9 @@ export default function RuleForm({
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogCancel disabled={isSubmitting}>
+                    Cancel
+                  </AlertDialogCancel>
                   <AlertDialogAction
                     disabled={isSubmitting}
                     onClick={handleSubmit(onSubmit)}

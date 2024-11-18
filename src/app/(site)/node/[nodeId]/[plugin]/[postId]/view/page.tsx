@@ -4,7 +4,7 @@ import React from "react";
 const PostViewPage = () => {
   return (
     <div>
-      <View />
+      <View section="node" />
     </div>
   );
 };
