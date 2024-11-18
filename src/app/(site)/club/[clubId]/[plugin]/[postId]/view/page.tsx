@@ -2,7 +2,7 @@ import View from "@/components/plugins/rules-regulations/view";
 const Page = () => {
   return (
     <>
-      <View />
+      <View section="club" />
     </>
   );
 };
