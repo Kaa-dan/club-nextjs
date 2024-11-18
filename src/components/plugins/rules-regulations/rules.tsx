@@ -557,6 +557,7 @@ const ContentDailog = ({
   }, [formData, form]);
 
   const fetchUserNodesOrClubs = async () => {
+    console.log("fetchUserNodesOrClubs");
     try {
       if (section === "node") {
         const response = await NodeEndpoints.fetchUsersOfNode(sectionId);
@@ -693,7 +694,7 @@ const ContentDailog = ({
                 Cancel
               </Button>
               <Button type="submit" disabled={form?.formState?.isSubmitting}>
-                {form?.formState?.isSubmitting ? "Submitting..." : "onSubmit"}
+                {form?.formState?.isSubmitting ? "Submitting..." : "Submit"}
               </Button>
             </DialogFooter>
           </form>
