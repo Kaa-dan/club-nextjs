@@ -42,7 +42,6 @@ export default function Page() {
   const [club, setClub] = useState<TClub>();
   const [sentClub, setSentClub] = useState(params.clubId);
   const { globalUser } = useTokenStore((state) => state);
-  console.log({ nithins: params.clubId });
   function fetchMem() {
     Endpoints.fetchClubMembers(params.clubId as string)
       .then((res) => {
@@ -77,7 +76,6 @@ export default function Page() {
   const handleInviteClick = () => {
     setInvite(true); // Open the modal
   };
-  console.log({ club });
 
   return (
     <>

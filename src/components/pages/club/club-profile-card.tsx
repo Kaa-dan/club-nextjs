@@ -59,8 +59,6 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
 
   const router = useRouter();
 
-  console.log({ club }, globalUser?._id);
-
   const currentUserRole =
     club?.members?.find((member) => member?.user?._id === globalUser?._id)
       ?.role || "";
@@ -142,8 +140,6 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
   };
 
   useEffect(() => {
-    console.log({ clubId });
-
     Endpoints.fetchClubUserStatus(clubId as string)
       .then((res) => {
         setJoinStatus(res.status);
