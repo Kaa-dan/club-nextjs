@@ -195,16 +195,12 @@ export function Menu({ isOpen }: MenuProps) {
   async function fetchJoinedClubsAndNodes() {
     const joinedClubs = await Endpoints.fetchUserJoinedClubs();
     setUserJoinedClubs(joinedClubs);
-    console.log("==> JOINED Clubs => ", joinedClubs);
     const joinedNodes = await Endpoints.fetchUserJoinedNodes();
     setUserJoinedNodes(joinedNodes);
-    console.log("==> JOINED Nodes => ", joinedNodes);
     const requestedClubs = await ClubEndpoints.fetchUserRequestedClubs();
     setUserRequestedClubs(requestedClubs);
-    console.log("==> Requested Club => ", requestedClubs);
     const requestedNodes = await NodeEndpoints.fetchUserRequestedNodes();
     setUserRequestedNodes(requestedNodes);
-    console.log("==> Requested Node => ", requestedNodes);
   }
 
   async function fetchMenuList() {
@@ -218,7 +214,6 @@ export function Menu({ isOpen }: MenuProps) {
     setMenuList(_menuList);
     return menuList;
   }
-  console.log({ menuList });
 
   const router = useRouter();
 
@@ -243,12 +238,6 @@ export function Menu({ isOpen }: MenuProps) {
   }, []);
 
   useEffect(() => {
-    console.log({
-      userJoinedClubs,
-      userJoinedNodes,
-      userRequestedClubs,
-      userRequestedNodes,
-    });
     if (userJoinedClubs || userJoinedNodes) fetchMenuList();
   }, [
     userJoinedClubs,
@@ -477,6 +466,7 @@ export function Menu({ isOpen }: MenuProps) {
                                       </div>
                                       <div>
                                         <div className="px-4 pt-2 text-sm font-semibold">
+                                          {"Joined "}
                                           {groupLabel === "Nodes"
                                             ? "Nodes"
                                             : "Clubs"}
@@ -537,8 +527,11 @@ export function Menu({ isOpen }: MenuProps) {
                                                     </ContextMenuContent>
                                                   </ContextMenu>
                                                 </PopoverClose>
-                                                <span className="text-[11px] leading-tight">
-                                                  {node.name}
+                                                <span
+                                                  className="truncate text-[11px] leading-tight"
+                                                  title={node.label}
+                                                >
+                                                  {node.label}
                                                 </span>
                                               </Link>
                                             ))}
@@ -550,83 +543,86 @@ export function Menu({ isOpen }: MenuProps) {
                                             see it here!
                                           </p>
                                         )}
-                                        <div className="px-4 pt-2 text-sm font-semibold">
-                                          {"Requested "}
-                                          {groupLabel === "Nodes"
-                                            ? "Nodes"
-                                            : "Clubs"}
-                                        </div>
-                                        {menuItems?.length > 0 ? (
-                                          <div className="grid grid-cols-5 gap-3 p-2">
-                                            {requestedMenuItems?.map(
-                                              (node: any) => (
-                                                <Link
-                                                  href={`/${
-                                                    groupLabel === "Nodes"
-                                                      ? "node"
-                                                      : "club"
-                                                  }/${node?._id}`}
-                                                  key={node._id}
-                                                  className="flex flex-col items-center gap-1 rounded-lg  p-1 text-center hover:bg-muted"
-                                                >
-                                                  <PopoverClose>
-                                                    <ContextMenu>
-                                                      <ContextMenuTrigger>
-                                                        <div className="relative size-12 overflow-hidden rounded-lg">
-                                                          <Image
-                                                            src={node?.image}
-                                                            alt={
-                                                              node?.name ||
-                                                              "profile"
-                                                            }
-                                                            fill
-                                                            className="object-cover"
-                                                          />
-                                                        </div>
-                                                      </ContextMenuTrigger>
-                                                      <ContextMenuContent>
-                                                        <ContextMenuItem>
-                                                          <div className="flex w-full cursor-pointer items-center justify-between">
-                                                            <div>Pin</div>
-                                                            <div>
-                                                              <Pin
-                                                                onClick={() => {
-                                                                  if (
-                                                                    groupLabel ===
-                                                                    "Clubs"
-                                                                  ) {
-                                                                    togglePinClub(
-                                                                      node._id
-                                                                    );
-                                                                  } else if (
-                                                                    groupLabel ===
-                                                                    "Nodes"
-                                                                  ) {
-                                                                    // togglePinNode(node._id);
-                                                                  }
-                                                                }}
-                                                                strokeWidth={
-                                                                  0.75
-                                                                }
-                                                              />
-                                                            </div>
+                                        {requestedMenuItems &&
+                                        requestedMenuItems?.length > 0 ? (
+                                          <>
+                                            <div className="px-4 pt-2 text-sm font-semibold">
+                                              {"Requested "}
+                                              {groupLabel === "Nodes"
+                                                ? "Nodes"
+                                                : "Clubs"}
+                                            </div>
+                                            <div className="grid grid-cols-5 gap-3 p-2">
+                                              {requestedMenuItems?.map(
+                                                (node: any) => (
+                                                  <Link
+                                                    href={`/${
+                                                      groupLabel === "Nodes"
+                                                        ? "node"
+                                                        : "club"
+                                                    }/${node?._id}`}
+                                                    key={node._id}
+                                                    className="flex flex-col items-center gap-1 rounded-lg  p-1 text-center hover:bg-muted"
+                                                  >
+                                                    <PopoverClose>
+                                                      <ContextMenu>
+                                                        <ContextMenuTrigger>
+                                                          <div className="relative size-12 overflow-hidden rounded-lg">
+                                                            <Image
+                                                              src={node?.image}
+                                                              alt={
+                                                                node?.name ||
+                                                                "profile"
+                                                              }
+                                                              fill
+                                                              className="object-cover"
+                                                            />
                                                           </div>
-                                                        </ContextMenuItem>
-                                                      </ContextMenuContent>
-                                                    </ContextMenu>
-                                                  </PopoverClose>
-                                                  <span className="text-[11px] leading-tight">
-                                                    {node.name}
-                                                  </span>
-                                                </Link>
-                                              )
-                                            )}
-                                          </div>
+                                                        </ContextMenuTrigger>
+                                                        <ContextMenuContent>
+                                                          <ContextMenuItem>
+                                                            <div className="flex w-full cursor-pointer items-center justify-between">
+                                                              <div>Pin</div>
+                                                              <div>
+                                                                <Pin
+                                                                  onClick={() => {
+                                                                    if (
+                                                                      groupLabel ===
+                                                                      "Clubs"
+                                                                    ) {
+                                                                      togglePinClub(
+                                                                        node._id
+                                                                      );
+                                                                    } else if (
+                                                                      groupLabel ===
+                                                                      "Nodes"
+                                                                    ) {
+                                                                      // togglePinNode(node._id);
+                                                                    }
+                                                                  }}
+                                                                  strokeWidth={
+                                                                    0.75
+                                                                  }
+                                                                />
+                                                              </div>
+                                                            </div>
+                                                          </ContextMenuItem>
+                                                        </ContextMenuContent>
+                                                      </ContextMenu>
+                                                    </PopoverClose>
+                                                    <span className="text-[11px] leading-tight">
+                                                      {node?.label}
+                                                    </span>
+                                                  </Link>
+                                                )
+                                              )}
+                                            </div>
+                                          </>
                                         ) : (
                                           <p className="p-10 text-center text-gray-600">
-                                            You haven’t joined any {groupLabel}{" "}
-                                            yet. Start exploring and join one to
-                                            see it here!
+                                            You haven’t requested any{" "}
+                                            {groupLabel} yet. Start exploring
+                                            and request one to see it here!
                                           </p>
                                         )}
                                       </div>

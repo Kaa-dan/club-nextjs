@@ -1,13 +1,12 @@
 "use client";
-import { Endpoints } from "@/utils/endpoint";
 import React, { useEffect, useState } from "react";
 import { TClub, TMembers } from "@/types";
 import { useParams } from "next/navigation";
 import ClubProfileCard from "@/components/pages/club/club-profile-card";
 import ModulesBar from "@/components/pages/club/module-bar";
-// import NodeTeams from "@/components/pages/club/club-teams";
 import { fetchSpecificClub } from "@/components/pages/club/endpoint";
 import TeamsSidePopover from "@/components/pages/club/club-teams";
+import { useClubStore } from "@/store/clubs-store";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const [currentPage, setCurrentPage] = useState("modules");
@@ -16,11 +15,15 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     members: TMembers[];
   } | null>(null);
   const params = useParams<{ clubId: string; plugin?: TPlugins }>();
+  const { setSelectedClub } = useClubStore((state) => state);
 
   const fetchClubDetails = async () => {
+    console.log("fetching new club details");
     if (!params.clubId) return;
     try {
       const res = await fetchSpecificClub(params.clubId);
+      setSelectedClub(res);
+
       setClub(res);
     } catch (error) {
       console.log(error);
