@@ -19,23 +19,26 @@ const PluginCreate = async ({
   const { plugin, nodeId } = await params;
   // console.log({ nodeId });
 
-  // const renderPlugin = () => {
-  //   switch (plugin) {
-  //     case "issues":
-  //       return <CreateIssueForm nodeOrClubId={nodeId} section={"node"} />;
-  //     case "rules":
-  //       return <RuleForm nodeOrClubId={nodeId} section={"node"} />;
-  //     default:
-  //       return <div>Not found</div>;
-  //   }
-  // };
+  const renderPlugin = () => {
+    switch (plugin) {
+      case "issues":
+        return <CreateIssueForm nodeOrClubId={nodeId} section={"node"} />;
+      case "rules":
+        // return <RuleForm nodeOrClubId={nodeId} section={"node"} />;
+        return <CreateRules nodeOrClubId={nodeId} section={"node"} />;
+      default:
+        return <div>Not found</div>;
+    }
+  };
 
   // return <div>{renderPlugin()}</div>;
   return (
-    <div className=" min-w-[100%]">
+    <div className=" min-w-full">
       <div className="flex flex-col gap-4">
         <div>
-          <h1 className="text-xl">Rules & Regulations</h1>
+          <h1 className="text-xl">
+            {plugin === "rules" ? "Rules & Regulations" : "Issues"}
+          </h1>
         </div>
         <div>
           <p className="text-xs">
@@ -61,9 +64,9 @@ const PluginCreate = async ({
           </BreadcrumbList>
         </Breadcrumb>
 
-        <div className="w-[100%]">
-          {}
-          <CreateRules nodeOrClubId={nodeId} section={"node"} />
+        <div className="w-full">
+          {renderPlugin()}
+          {/* <CreateRules nodeOrClubId={nodeId} section={"node"} /> */}
         </div>
       </div>
     </div>

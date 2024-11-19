@@ -33,8 +33,6 @@ export async function getMenuList(
   requestedClubs: any[],
   requestedNodes: any[]
 ): Promise<Group[]> {
-  console.log({ joinedNodes });
-  console.log({ joinedClubs });
   // const response = await Endpoints.fetchAllNodes();
 
   const clubMenus: Menu[] = joinedClubs?.map((club: any) => ({

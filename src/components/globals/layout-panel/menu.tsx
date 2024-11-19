@@ -195,16 +195,12 @@ export function Menu({ isOpen }: MenuProps) {
   async function fetchJoinedClubsAndNodes() {
     const joinedClubs = await Endpoints.fetchUserJoinedClubs();
     setUserJoinedClubs(joinedClubs);
-    console.log("==> JOINED Clubs => ", joinedClubs);
     const joinedNodes = await Endpoints.fetchUserJoinedNodes();
     setUserJoinedNodes(joinedNodes);
-    console.log("==> JOINED Nodes => ", joinedNodes);
     const requestedClubs = await ClubEndpoints.fetchUserRequestedClubs();
     setUserRequestedClubs(requestedClubs);
-    console.log("==> Requested Club => ", requestedClubs);
     const requestedNodes = await NodeEndpoints.fetchUserRequestedNodes();
     setUserRequestedNodes(requestedNodes);
-    console.log("==> Requested Node => ", requestedNodes);
   }
 
   async function fetchMenuList() {
@@ -218,7 +214,6 @@ export function Menu({ isOpen }: MenuProps) {
     setMenuList(_menuList);
     return menuList;
   }
-  console.log({ menuList });
 
   const router = useRouter();
 
@@ -243,12 +238,6 @@ export function Menu({ isOpen }: MenuProps) {
   }, []);
 
   useEffect(() => {
-    console.log({
-      userJoinedClubs,
-      userJoinedNodes,
-      userRequestedClubs,
-      userRequestedNodes,
-    });
     if (userJoinedClubs || userJoinedNodes) fetchMenuList();
   }, [
     userJoinedClubs,

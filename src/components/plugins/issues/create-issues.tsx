@@ -2,9 +2,9 @@
 
 import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { Controller, useForm, UseFormReturn } from "react-hook-form";
 import { format } from "date-fns";
-import { Calendar, Trash2 } from "lucide-react";
+import { Calendar, Trash2, X } from "lucide-react";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -43,11 +43,17 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import TooltipLabel from "@/components/globals/forms/tooltip-label";
-import {
-  CustomBreadcrumb,
-  type BreadcrumbItemType,
-} from "@/components/globals/breadcrumb-component";
 import { Card } from "@/components/ui/card";
+import { Endpoints } from "@/utils/endpoint";
+import { useClubStore } from "@/store/clubs-store";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
+import { Badge } from "@/components/ui/badge";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_FILE_TYPES = [
@@ -61,17 +67,22 @@ const ACCEPTED_FILE_TYPES = [
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
 ];
 
+const objectIdRegex = /^[0-9a-fA-F]{24}$/;
+const isValidObjectId = (value: string) => objectIdRegex.test(value);
+
 const formSchema = z.object({
-  issueTitle: z.string().min(1, "Issue title is required"),
+  title: z.string().min(1, "Title is required"),
   issueType: z.string().min(1, "Issue type is required"),
-  whereWho: z.string().min(1, "Where/Who is required"),
+  description: z.string().min(1, "Description is required"),
+  whereOrWho: z.string().min(1, "Where/Who is required"),
   deadline: z.date().optional(),
-  reasonOfDeadline: z.string().min(1, "Reason of deadline is required"),
+  reasonOfDeadline: z.string().optional(),
   significance: z.string().min(1, "Significance is required"),
-  whoShouldAddress: z.string().min(1, "Who should address is required"),
-  issueDescription: z.string().min(1, "Issue description is required"),
+  whoShouldAddress: z
+    .array(z.string().refine(isValidObjectId, "Invalid ObjectId format"))
+    .optional(),
   isPublic: z.boolean().default(false),
-  showName: z.boolean().default(false),
+  isAnonymous: z.boolean().default(false),
   files: z
     .array(
       z.object({
@@ -98,15 +109,7 @@ export default function CreateIssueForm({
   nodeOrClubId: string;
   section: TSections;
 }) {
-  const breadcrumbItems: BreadcrumbItemType[] = [
-    {
-      label: "Issues",
-      href: `/${section}/${nodeOrClubId}/issues`,
-    },
-    {
-      label: "Create",
-    },
-  ];
+  const { selectedClub } = useClubStore((state) => state);
   const [showPublishDialog, setShowPublishDialog] = React.useState(false);
   const [uploadedFiles, setUploadedFiles] = React.useState<File[]>([]);
 
@@ -114,7 +117,7 @@ export default function CreateIssueForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       isPublic: false,
-      showName: false,
+      isAnonymous: false,
     },
   });
 
@@ -149,16 +152,24 @@ export default function CreateIssueForm({
     setUploadedFiles([]);
   };
 
+  // function fetchClubMembers() {
+  //   Endpoints.fetchClubMembers(nodeOrClubId as string)
+  //     .then((res) => {
+  //     })
+  //     .catch((err) => {
+  //       console.log({ err });
+  //     });
+  // }
+
   return (
-    <div className="mx-auto max-w-2xl p-6">
-      <CustomBreadcrumb items={breadcrumbItems} className="my-4" />
+    <div className="mx-auto  p-6">
       <Card className="p-4">
         <Form {...form}>
           <form className="w-full space-y-6">
             <div className="flex w-full flex-col gap-3  md:flex-row">
               <FormField
                 control={form.control}
-                name="issueTitle"
+                name="title"
                 render={({ field }) => (
                   <FormItem className="w-full md:w-1/2">
                     <TooltipLabel
@@ -209,7 +220,7 @@ export default function CreateIssueForm({
             <div className="flex w-full flex-col gap-3  md:flex-row">
               <FormField
                 control={form.control}
-                name="whereWho"
+                name="whereOrWho"
                 render={({ field }) => (
                   <FormItem className="w-full md:w-1/2">
                     <TooltipLabel
@@ -217,7 +228,16 @@ export default function CreateIssueForm({
                       tooltip="Enter a clear, concise title for your issue"
                     />
                     <FormControl>
-                      <Input {...field} />
+                      <Controller
+                        control={form.control}
+                        name="whereOrWho"
+                        render={({ field }) => (
+                          <MultiSelect
+                            selectedValues={field.value ?? []}
+                            onValueChange={field.onChange}
+                          />
+                        )}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -324,7 +344,7 @@ export default function CreateIssueForm({
 
             <FormField
               control={form.control}
-              name="issueDescription"
+              name="description"
               render={({ field }) => (
                 <FormItem>
                   <TooltipLabel
@@ -401,7 +421,7 @@ export default function CreateIssueForm({
 
             <FormField
               control={form.control}
-              name="showName"
+              name="isAnonymous"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
@@ -478,3 +498,99 @@ export default function CreateIssueForm({
     </div>
   );
 }
+
+interface Member {
+  value: string;
+  label: string;
+}
+
+interface MultiSelectProps {
+  selectedValues?: string[];
+  onValueChange?: (value: string[]) => void;
+}
+
+interface WhereWhoFieldProps {
+  form: UseFormReturn<any>;
+}
+
+const MultiSelect: React.FC<MultiSelectProps> = ({
+  selectedValues = [],
+  onValueChange,
+}) => {
+  const [selected, setSelected] = React.useState<Member[]>([]);
+
+  const members: Member[] = [
+    {
+      value: "67208f7ab74aaf0060577078",
+      label: "Upton Valentine",
+    },
+    {
+      value: "67212bcc97aca190e60445ed",
+      label: "Carly Rodriguez",
+    },
+    {
+      value: "672b3d000a662305934ddc84",
+      label: "Phyllis Rivas",
+    },
+  ];
+
+  const selectMember = (member: Member): void => {
+    const newSelected = [...selected, member];
+    setSelected(newSelected);
+    onValueChange?.(newSelected?.map((item) => item?.value) ?? []);
+  };
+
+  const removeMember = (memberToRemove: Member): void => {
+    const newSelected =
+      selected?.filter((member) => member?.value !== memberToRemove?.value) ??
+      [];
+    setSelected(newSelected);
+    onValueChange?.(newSelected?.map((item) => item?.value) ?? []);
+  };
+
+  return (
+    <Command className="relative rounded-lg border">
+      <div className="flex flex-wrap gap-1 p-1">
+        {selected?.map((member) => (
+          <Badge
+            key={member?.value}
+            variant="secondary"
+            className="flex items-center gap-1"
+          >
+            {member?.label}
+            <button
+              type="button"
+              className="rounded-full outline-none"
+              onClick={() => removeMember(member)}
+            >
+              <X className="size-3" />
+            </button>
+          </Badge>
+        ))}
+        <CommandInput
+          placeholder="Search members..."
+          className="border-0 outline-none focus:ring-0"
+        />
+      </div>
+      <div className="absolute top-full z-10 w-full rounded-b-lg border-x border-b bg-white">
+        <CommandEmpty>No members found.</CommandEmpty>
+        <CommandGroup>
+          {members
+            ?.filter(
+              (member) => !selected?.find((s) => s?.value === member?.value)
+            )
+            ?.map((member) => (
+              <CommandItem
+                key={member?.value}
+                value={member?.label}
+                onSelect={() => selectMember(member)}
+                className="cursor-pointer"
+              >
+                {member?.label}
+              </CommandItem>
+            ))}
+        </CommandGroup>
+      </div>
+    </Command>
+  );
+};
