@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import ReactQuill from "react-quill-new";
 import "react-quill-new/dist/quill.snow.css";
 import { useForm, Controller, Form } from "react-hook-form";
@@ -149,6 +149,7 @@ export default function RuleForm({
   });
 
   const files = watch("files") || [];
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isAlertOpen, setIsAlertOpen] = useState<boolean>(false);
   const router = useRouter();
   const handleFiles = useCallback(
@@ -194,15 +195,22 @@ export default function RuleForm({
 
   const removeFile = useCallback(
     (index: number) => {
-      const currentFiles = files;
+      const currentFiles = [...files]; // Create a new array copy
       const fileToRemove = currentFiles[index];
+
+      // Revoke the preview URL if it exists
       if (fileToRemove.preview) {
         URL.revokeObjectURL(fileToRemove.preview);
       }
 
-      const updatedFiles = [...currentFiles];
-      updatedFiles.splice(index, 1);
-      setValue("files", updatedFiles, { shouldValidate: true });
+      // Remove the file from the array
+      currentFiles.splice(index, 1);
+      setValue("files", currentFiles, { shouldValidate: true });
+
+      // Reset the file input value
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     },
     [files, setValue]
   );
@@ -249,13 +257,13 @@ export default function RuleForm({
           URL.revokeObjectURL(fileObj.preview);
         }
       });
-      setIsAlertOpen(false);
       router.push(`/${section}/${nodeOrClubId}/rules`);
     } catch (error) {
       console.error("Error submitting form:", error);
       toast.error("Failed to submit rule. Please try again.");
     } finally {
-      reset();
+      // setIsAlertOpen(false);
+      // reset();
     }
   };
   return (
@@ -560,6 +568,7 @@ export default function RuleForm({
               className="rounded-lg border-2 border-dashed p-6 text-center"
             >
               <input
+                ref={fileInputRef}
                 type="file"
                 multiple
                 onChange={handleFileInput}
@@ -659,7 +668,7 @@ export default function RuleForm({
                 formDataToSend.append(section, nodeOrClubId);
                 formDataToSend.append("publishedStatus", "draft");
                 Endpoints.saveDraft(formDataToSend).then((res) => {
-                  if (res.isActive) {
+                  if (!res.isActive) {
                     toast.success("saved to draft successfully");
                   }
                 });

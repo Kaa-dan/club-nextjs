@@ -38,7 +38,7 @@ const tabs: TabData[] = [
   },
 ];
 
-const IssuesLayout = ({ children }: { children: ReactNode }) => {
+const DebateLayout = ({ children }: { children: ReactNode }) => {
   const formatCount = (count: number) => {
     if (count >= 1000000) return `${(count / 1000000).toFixed(0)}M`;
     if (count >= 1000) return `${(count / 1000).toFixed(2)}k`;
@@ -48,7 +48,7 @@ const IssuesLayout = ({ children }: { children: ReactNode }) => {
   return (
     <div className="w-full space-y-4  p-4">
       <div className="space-y-2">
-        <h2 className="text-2xl font-bold tracking-tight">Community Issues</h2>
+        <h2 className="text-2xl font-bold tracking-tight">Community Debate</h2>
         <p className="text-muted-foreground">
           {`Lorem ipsum dolor sit amet consectetur. Congue varius lorem et
           egestas. Iaculis semper risus sit egestas.`}
@@ -127,4 +127,4 @@ const IssuesLayout = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export default IssuesLayout;
+export default DebateLayout;

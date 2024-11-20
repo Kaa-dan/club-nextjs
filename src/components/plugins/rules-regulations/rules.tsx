@@ -1,5 +1,5 @@
 "use client";
-
+import { Badge } from "@/components/ui/badge";
 import { useState, useEffect } from "react";
 import {
   ColumnDef,
@@ -364,16 +364,42 @@ export function RulesTable({
       ),
     },
     {
+      accessorKey: "publishedStatus",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Status
+          <ArrowUpDown className="ml-2 size-4" />
+        </Button>
+      ),
+      cell: ({ row }) => (
+        <div className="max-w-[500px] space-y-1">
+          <p className="font-medium leading-none text-foreground text-white">
+            <Badge
+              variant={
+                row.getValue("publishedStatus") === "true"
+                  ? "default"
+                  : "outline"
+              }
+            >
+              {row.getValue("publishedStatus") === "true"
+                ? "Published"
+                : "Draft"}
+            </Badge>
+          </p>
+          {/* <p
+            className="line-clamp-2 truncate text-xs text-muted-foreground after:content-['...']"
+            dangerouslySetInnerHTML={{
+              __html: row?.original?.description,
+            }}
+          ></p> */}
+        </div>
+      ),
+    },
+    {
       accessorKey: "publishedDate",
-      /*************  ✨ Codeium Command ⭐  *************/
-      /**
-       * @description
-       * The header cell for the `publishedDate` column.
-       * It displays a button that toggles the sorting of the column when clicked.
-       * The button displays the text "Posted" and an arrow up/down icon that
-       * indicates the direction of the sort.
-       */
-      /******  b94d036e-89dc-42f6-b14c-14391b9c0d6c  *******/
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -400,21 +426,21 @@ export function RulesTable({
       accessorKey: "createdBy",
       header: "Author",
       cell: ({ row }) => {
-        const postedBy = row.getValue("createdBy") as Rule["createdBy"];
+        const postedBy: any = row.getValue("createdBy") as Rule["createdBy"];
         return (
           <div className="flex items-center gap-2">
             <Avatar className="size-8">
               <AvatarImage
                 src={
-                  postedBy?.avatar ||
+                  postedBy?.profileImage ||
                   "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWdu-qOixArQruGnl8wz6iK-ygXGGGOSQytg&s"
                 }
-                alt={postedBy?.name}
+                alt={postedBy?.firstName}
               />
               <AvatarFallback>{postedBy?.name?.[0] || "A"}</AvatarFallback>
             </Avatar>
             <span className="text-sm text-muted-foreground">
-              {postedBy?.name}
+              {postedBy?.firstName}
             </span>
           </div>
         );
@@ -475,24 +501,46 @@ export function RulesTable({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
+              {/* Conditional Create/View Details Item */}
+              <DropdownMenuItem>
+                {row?.original?.publishedStatus === "draft" ? (
+                  <Link
+                    href={`/${section}/${nodeorclubId}/${plugin}/${row?.original?._id}/edit`}
+                    className="w-full"
+                  >
+                    edit draft
+                  </Link>
+                ) : (
+                  <Link
+                    href={`/${section}/${nodeorclubId}/${plugin}/${row?.original?._id}/view`}
+                    className="w-full"
+                  >
+                    View Details
+                  </Link>
+                )}
+              </DropdownMenuItem>
+
+              {/* Edit Item for Section */}
               <DropdownMenuItem>
                 <Link
-                  href={`/${section}/${nodeorclubId}/${plugin}/${row.original._id}/view`}
+                  href={`/${section}/${nodeorclubId}/${plugin}/${row?.original?._id}/edit`}
                   className="w-full"
                 >
-                  View Details
+                  Edit Section
                 </Link>
               </DropdownMenuItem>
+
+              {/* Uncommented ContentDialog Option */}
               {/* <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                <ContentDailog
-                  plugin={plugin}
-                  pluginId={row?.original?._id}
-                  section={section}
-                  sectionId={nodeorclubId}
-                  setClickTrigger={setClickTrigger}
-                  clickTrigger={clickTrigger}
-                />
-              </DropdownMenuItem> */}
+              <ContentDailog
+                plugin={plugin}
+                pluginId={row?.original?._id}
+                section={section}
+                sectionId={nodeorclubId}
+                setClickTrigger={setClickTrigger}
+                clickTrigger={clickTrigger}
+              />
+            </DropdownMenuItem> */}
             </DropdownMenuContent>
           </DropdownMenu>
         );
