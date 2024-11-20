@@ -391,7 +391,7 @@ export default function RuleForm({
                       className="flex items-center gap-2"
                     >
                       Applicable for?{" "}
-                      <Info className="h-4 w-4 text-muted-foreground" />
+                      <Info className="size-4 text-muted-foreground" />
                     </Label>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -421,9 +421,22 @@ export default function RuleForm({
           {/* Significance and Tags */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="significance" className="flex items-center gap-2">
-                Significance <Info className="size-4 text-muted-foreground" />
-              </Label>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Label
+                      htmlFor="significance"
+                      className="flex items-center gap-2"
+                    >
+                      Significance{" "}
+                      <Info className="size-4 text-muted-foreground" />
+                    </Label>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-white">Enter Significance</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               <Controller
                 name="significance"
                 control={control}
@@ -522,7 +535,7 @@ export default function RuleForm({
                     className="flex items-center gap-2"
                   >
                     Description{" "}
-                    <Info className="h-4 w-4 text-muted-foreground" />
+                    <Info className="size-4 text-muted-foreground" />
                   </Label>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -545,7 +558,7 @@ export default function RuleForm({
                     onChange={(content) => field.onChange(content)}
                   />
                   {errors.description && (
-                    <p className="text-sm text-red-500 mt-2">
+                    <p className="mt-2 text-sm text-red-500">
                       {errors.description.message}
                     </p>
                   )}
@@ -556,12 +569,27 @@ export default function RuleForm({
 
           {/* File Upload */}
           <div className="space-y-2">
-            <Label htmlFor="file-upload" className="flex items-center gap-2">
-              Files/Media <Info className="size-4 text-muted-foreground" />
-              <span className="ml-2 text-xs text-muted-foreground">
-                (JPEG, PNG, PDF, DOCX, Excel)
-              </span>
-            </Label>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Label
+                    htmlFor="file-upload"
+                    className="flex items-center gap-2"
+                  >
+                    Files/Media{" "}
+                    <Info className="size-4 text-muted-foreground" />
+                    <span className="ml-2 text-xs text-muted-foreground">
+                      (JPEG, PNG, PDF, DOCX, Excel)
+                    </span>
+                  </Label>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="text-white">
+                    Upload files or media for your rule
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             <div
               onDragOver={(e) => e.preventDefault()}
               onDrop={handleDrop}
@@ -641,7 +669,7 @@ export default function RuleForm({
                 />
               )}
             />
-            <Label htmlFor="isPublic">Make this rule public</Label>
+            <Label htmlFor="isPublic">Make this rule Public</Label>
           </div>
 
           {/* Form Actions */}

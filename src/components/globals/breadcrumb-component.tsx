@@ -30,9 +30,13 @@ const CustomBreadcrumb: React.FC<CustomBreadcrumbProps> = ({
           <React.Fragment key={index}>
             <BreadcrumbItem>
               {index === items.length - 1 ? (
-                <BreadcrumbPage>{item.label}</BreadcrumbPage>
+                <BreadcrumbPage className="capitalize">
+                  {item.label}
+                </BreadcrumbPage>
               ) : (
-                <BreadcrumbLink href={item.href!}>{item.label}</BreadcrumbLink>
+                <BreadcrumbLink className="capitalize" href={item.href!}>
+                  {item.label}
+                </BreadcrumbLink>
               )}
             </BreadcrumbItem>
             {index < items.length - 1 && (

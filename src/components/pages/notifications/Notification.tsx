@@ -164,7 +164,6 @@ interface InvitationResponse {
 const Notification: React.FC<NotificationProps> = ({ ICON }) => {
   // state to store all the invitations
   const [invite, setInvites] = useState<Invitation[]>([]);
-  console.log({ invite });
 
   // gets all the invitations for the user
   const getInvitesHandler = async (): Promise<void> => {
@@ -212,7 +211,7 @@ const Notification: React.FC<NotificationProps> = ({ ICON }) => {
       <PopoverTrigger asChild>
         <Button variant="ghost" className="relative p-2 hover:bg-gray-100">
           <Image src={ICON} alt="Notification Icon" width={16} height={16} />
-          <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-orange-500 text-xs text-white">
+          <span className="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full bg-orange-500 text-xs text-white">
             {invite.length}
           </span>
         </Button>
@@ -233,7 +232,7 @@ const Notification: React.FC<NotificationProps> = ({ ICON }) => {
                   height={50}
                   className="rounded-full"
                 />
-                <div className="flex-grow">
+                <div className="grow">
                   <p className="font-medium">{invitation?.club?.name}</p>
                   <p className="text-sm text-gray-500">
                     {invitation?.club?.about}

@@ -30,6 +30,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Endpoints } from "@/utils/endpoint";
@@ -80,9 +81,9 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 type Rule = {
+  _id: string;
   id: number;
   title: string;
-  _id: string;
   description: string;
   publishedDate: string;
   club: string;
@@ -501,26 +502,7 @@ export function RulesTable({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              {/* Conditional Create/View Details Item */}
-              <DropdownMenuItem>
-                {row?.original?.publishedStatus === "draft" ? (
-                  <Link
-                    href={`/${section}/${nodeorclubId}/${plugin}/${row?.original?._id}/edit`}
-                    className="w-full"
-                  >
-                    edit draft
-                  </Link>
-                ) : (
-                  <Link
-                    href={`/${section}/${nodeorclubId}/${plugin}/${row?.original?._id}/view`}
-                    className="w-full"
-                  >
-                    View Details
-                  </Link>
-                )}
-              </DropdownMenuItem>
-
-              {/* Edit Item for Section */}
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuItem>
                 <Link
                   href={`/${section}/${nodeorclubId}/${plugin}/${row?.original?._id}/edit`}
@@ -605,6 +587,7 @@ const ContentDailog = ({
   }, [formData, form]);
 
   const fetchUserNodesOrClubs = async () => {
+    console.log("fetchUserNodesOrClubs");
     try {
       if (section === "node") {
         const response = await NodeEndpoints.fetchUsersOfNode(sectionId);
@@ -741,7 +724,7 @@ const ContentDailog = ({
                 Cancel
               </Button>
               <Button type="submit" disabled={form?.formState?.isSubmitting}>
-                {form?.formState?.isSubmitting ? "Submitting..." : "onSubmit"}
+                {form?.formState?.isSubmitting ? "Submitting..." : "Submit"}
               </Button>
             </DialogFooter>
           </form>

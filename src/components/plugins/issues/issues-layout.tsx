@@ -1,3 +1,5 @@
+"use client";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,37 +15,97 @@ import { TIssue } from "@/types";
 import { Search } from "lucide-react";
 import Link from "next/link";
 import React, { ReactNode } from "react";
+import IssueTable from "./issues-table";
+import useIssues from "./use-issues";
 
 interface TabData {
   label: string;
   count: number;
 }
 
-const tabs: TabData[] = [
-  {
-    label: "Live Issues",
-    count: 182,
-  },
-  {
-    label: "All Issues",
-    count: 652,
-  },
-  {
-    label: "Global Library",
-    count: 2000000,
-  },
-  {
-    label: "My Issues",
-    count: 2360,
-  },
-];
+// const tabs: TabData[] = [
+//   {
+//     label: "Live Issues",
+//     count: 182,
+//   },
+//   {
+//     label: "All Issues",
+//     count: 652,
+//   },
+//   {
+//     label: "Global Library",
+//     count: 2000000,
+//   },
+//   {
+//     label: "My Issues",
+//     count: 2360,
+//   },
+// ];
 
-const IssuesLayout = ({ children }: { children: ReactNode }) => {
+const IssuesLayout = ({
+  plugin,
+  section,
+  nodeorclubId,
+}: {
+  plugin: TPlugins;
+  section: TSections;
+  nodeorclubId: string;
+}) => {
+  const {
+    liveIssues,
+    allIssues,
+    globalIssues,
+    myIssues,
+    setClickTrigger,
+    clickTrigger,
+  } = useIssues(section, nodeorclubId);
+
+  const tabs: TabData[] = [
+    {
+      label: "Live Issues",
+      count: liveIssues.length || 0,
+    },
+    {
+      label: "All Issues",
+      count: allIssues.length || 0,
+    },
+    {
+      label: "Global Library",
+      count: globalIssues.length || 0,
+    },
+    {
+      label: "My Issues",
+      count: myIssues.length || 0,
+    },
+  ];
+
   const formatCount = (count: number) => {
     if (count >= 1000000) return `${(count / 1000000).toFixed(0)}M`;
     if (count >= 1000) return `${(count / 1000).toFixed(2)}k`;
     return count.toString();
   };
+
+  function getData(tab: TabData): any[] {
+    let data: any[] = [];
+    switch (tab.label) {
+      case "Live Issues":
+        data = liveIssues;
+        break;
+      case "All Issues":
+        data = allIssues;
+        break;
+      case "Global Library":
+        data = globalIssues;
+        break;
+      case "My Issues":
+        data = myIssues;
+        break;
+      default:
+        data = [];
+    }
+
+    return data;
+  }
 
   return (
     <div className="w-full space-y-4  p-4">
@@ -119,7 +181,15 @@ const IssuesLayout = ({ children }: { children: ReactNode }) => {
               </Button>
             </div>
             {/* <IssueTable issues={tab.issues} /> */}
-            {children}
+            {/* {children} */}
+            <IssueTable
+              nodeorclubId={nodeorclubId}
+              plugin={plugin}
+              section={section}
+              data={getData(tab)}
+              clickTrigger={clickTrigger}
+              setClickTrigger={setClickTrigger}
+            />
           </TabsContent>
         ))}
       </Tabs>
