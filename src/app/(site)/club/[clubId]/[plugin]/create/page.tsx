@@ -1,6 +1,6 @@
 import React from "react";
 import { CustomBreadcrumb } from "@/components/globals/breadcrumb-component";
-import { pluginConfig } from "@/components/plugins/plugins.config";
+import { createPluginConfig } from "@/components/plugins/create-plugins.config";
 
 const Page = async ({
   params,
@@ -10,11 +10,11 @@ const Page = async ({
   const { clubId, plugin } = await params;
 
   const isValidPlugin = (plugin: string): plugin is TPlugins =>
-    plugin in pluginConfig;
+    plugin in createPluginConfig;
 
   if (!isValidPlugin(plugin)) return <div>Plugin not found</div>;
 
-  const config = pluginConfig[plugin];
+  const config = createPluginConfig[plugin];
   const PluginComponent = config.component;
 
   const breadcrumbItems = [

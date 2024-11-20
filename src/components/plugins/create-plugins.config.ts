@@ -12,7 +12,7 @@ export interface PluginConfig {
   component: React.ComponentType<PluginProps>;
 }
 
-export const pluginConfig: Record<TPlugins, PluginConfig> = {
+export const createPluginConfig: Record<TPlugins, PluginConfig> = {
   issues: {
     title: "Issues",
     description: "Create and manage issues",
