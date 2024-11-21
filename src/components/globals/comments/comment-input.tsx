@@ -21,7 +21,7 @@ import {
 import FilePreview from "./file-preview";
 import { useCommentsStore } from "@/store/comments-store";
 const CommentInput = () => {
-  const { postId } = useParams<{ postId: string }>();
+  const { postId, plugin } = useParams<{ postId: string; plugin: TPlugins }>();
   const { setComments } = useCommentsStore((state) => state);
 
   const [comment, setComment] = useState("");
@@ -61,6 +61,7 @@ const CommentInput = () => {
       const formData = new FormData();
       formData.append("content", comment);
       formData.append("entityId", postId);
+      formData.append("entityType", plugin);
       if (selectedFile) {
         formData.append("file", selectedFile);
       }

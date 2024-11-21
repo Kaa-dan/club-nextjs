@@ -34,7 +34,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { table } from "console";
 import { useState } from "react";
 import { ExpandableTableRow } from "../rules-regulations/expandable-row";
 import Image from "next/image";
@@ -307,6 +306,7 @@ export default function IssueTable({
                     ? "secondary"
                     : "destructive"
             }
+            className="text-white"
           >
             {status}
           </Badge>
@@ -319,6 +319,7 @@ export default function IssueTable({
       header: "Posted by",
       cell: ({ row }) => {
         const postedBy = row.getValue("createdBy") as Issue["createdBy"];
+        console.log(postedBy, "posted by");
         return (
           <div className="flex items-center gap-2">
             <Avatar className="size-8">

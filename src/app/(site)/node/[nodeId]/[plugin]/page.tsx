@@ -14,9 +14,10 @@ const PluginPage = async ({
     switch (plugin) {
       case "issues":
         return (
-          <IssuesLayout>
-            <IssueTable />
-          </IssuesLayout>
+          <IssuesLayout section="node" plugin={plugin} nodeorclubId={nodeId} />
+          // <IssuesLayout>
+          //   <IssueTable />
+          // </IssuesLayout>
         );
 
       case "rules":

@@ -18,7 +18,7 @@ const Page = async ({
 
   const breadcrumbItems = [
     { label: config.title, href: `/club/${clubId}/${plugin}` },
-    { label: `Create new ${plugin}` },
+    { label: `View ${plugin.slice(0, -1)} details` },
   ];
 
   return (
