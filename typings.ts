@@ -88,3 +88,72 @@ type TRule = {
   irrelevant: Array<any>;
   adobtedClubs: [];
 };
+
+interface IssueFile {
+  url: string;
+  originalname: string;
+  mimetype: string;
+  size: number;
+  _id: string;
+}
+
+interface IRelevantAndView {
+  user: string;
+  date: Date;
+}
+
+interface IAdoptedItem {
+  club?: string;
+  node?: string;
+  date: Date;
+}
+
+
+type TIssue = {
+  _id: string;
+  title: string;
+  issueType: string;
+  whereOrWho?: string;
+  deadline?: Date;
+  reasonOfDeadline?: string;
+  significance?: string;
+  whoShouldAddress: Array<any>;
+  description: string;
+  files: Array<IssueFile>;
+
+  // Boolean flags
+  isPublic: boolean;
+  isAnonymous: boolean;
+  isActive: boolean;
+  isDeleted: boolean;
+
+  // Interactions
+  views: Array<any>;
+  relevant: Array<any>;
+  irrelevant: Array<any>;
+
+  // References
+  club: string | null;
+  node: string;
+  createdBy: TUser;
+  publishedBy: string;
+  adoptedFrom: string | null;
+
+  // Dates
+  publishedDate: string;
+  updatedDate: string;
+  adoptedDate: string;
+  createdAt: string;
+  updatedAt: string;
+
+  // Adoption related
+  adoptedClubs: Array<IAdoptedItem>;
+  adoptedNodes: Array<IAdoptedItem>;
+
+  // Version control
+  version: number;
+  publishedStatus: 'draft' | 'published' | 'olderversion' | 'proposed' | 'archived';
+  olderVersions: Array<Record<string, any>>;
+
+  __v: number;
+};
