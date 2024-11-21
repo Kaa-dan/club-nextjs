@@ -616,7 +616,7 @@ export default function EditRuleForm({
             )}
             {getValues("files").length > 0 && (
               <div className="mt-2 grid grid-cols-2 gap-2">
-                {getValues("files")
+                {getValues("files"):any
                   .filter(
                     (fileObj) =>
                       fileObj?.url && fileObj?.url?.startsWith("http")

@@ -302,4 +302,16 @@ export class Endpoints {
       throw error;
     }
   }
+  static async postDebate(data: any) {
+    try {
+      const response = await mainAxios.post("/debate", data, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
 }

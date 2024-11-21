@@ -21,19 +21,19 @@ interface TabData {
 
 const tabs: TabData[] = [
   {
-    label: "Live Issues",
+    label: "Ongoing Debates",
     count: 182,
   },
   {
-    label: "All Issues",
+    label: "All Debates",
     count: 652,
   },
   {
-    label: "Global Library",
+    label: "Global Debates",
     count: 2000000,
   },
   {
-    label: "My Issues",
+    label: "My Debates",
     count: 2360,
   },
 ];
@@ -71,7 +71,7 @@ const DebateLayout = ({ children }: { children: ReactNode }) => {
         {tabs.map((tab) => (
           <TabsContent key={tab.label} value={tab.label} className="space-y-4">
             <div className="flex items-center gap-4">
-              <Link href="issues/create">
+              <Link href="debate/create">
                 <Button className="bg-primary hover:bg-emerald-600">
                   Add a new Debate
                 </Button>
