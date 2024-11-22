@@ -39,6 +39,7 @@ const IssuesLayout = ({
     globalIssues,
     myIssues,
     setClickTrigger,
+    proposedIssues,
     clickTrigger,
   } = useIssues(section, nodeorclubId);
 
@@ -68,7 +69,7 @@ const IssuesLayout = ({
     if (currentUserRole === "admin") {
       _tabs.push({
         label: "Proposed Issues",
-        count: myIssues.length || 0,
+        count: proposedIssues.length || 0,
       });
     }
     return _tabs;
@@ -96,7 +97,7 @@ const IssuesLayout = ({
         data = myIssues;
         break;
       case "Proposed Issues":
-        data = globalIssues;
+        data = proposedIssues;
         break;
       default:
         data = [];

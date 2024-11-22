@@ -293,84 +293,87 @@ const IssueView = ({
               {issue?.adobtedClubs ? issue.adobtedClubs : "0"} Adopted
             </span>
           </div> */}
-            <Dialog>
-              <DialogTrigger asChild>
-                <button className="rounded-md bg-green-500 px-4 py-1.5 text-sm text-white">
-                  Adopt
-                </button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle>Clubs and Nodes</DialogTitle>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                  <div className="relative">
-                    <Search className="absolute left-2 top-2.5 size-4 text-muted-foreground" />
-                    <Input
-                      placeholder="Search clubs and nodes..."
-                      className="pl-8"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                  </div>
-                  <ScrollArea className="h-[300px] rounded-md border p-4">
-                    {filteredItems.length > 0 ? (
-                      filteredItems.map(
-                        (item) => (
-                          console.log(item, "itms"),
-                          (
-                            <div
-                              key={item._id}
-                              className="flex items-center justify-between py-2"
-                            >
-                              <div className="flex flex-col">
-                                <div className="flex items-center gap-2">
-                                  <span className="font-medium">
-                                    {item.name}
-                                  </span>
-                                  {item.type === "Club" ? (
-                                    <Image
-                                      src={ICONS.ClubGreyIcon}
-                                      alt="node_logo"
-                                      height={30}
-                                      width={30}
-                                      className="ml-2 size-6 object-cover"
-                                    />
-                                  ) : (
-                                    <Image
-                                      src={ICONS.NodeGreyIcon}
-                                      alt="node_logo"
-                                      height={30}
-                                      width={30}
-                                      className="ml-2 size-6 object-cover"
-                                    />
-                                  )}
-                                </div>
-                                <span className="text-sm text-muted-foreground">
-                                  {`${item.description.slice(0, 30)}${item.description.length > 30 ? "..." : ""}`}
-                                </span>
-                              </div>
-                              <Button
-                                size="sm"
-                                onClick={() => adopt(item as any)}
+
+            {!["draft", "proposed"]?.includes(issue?.publishedStatus || "") && (
+              <Dialog>
+                <DialogTrigger asChild>
+                  <button className="rounded-md bg-green-500 px-4 py-1.5 text-sm text-white">
+                    Adopt
+                  </button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px]">
+                  <DialogHeader>
+                    <DialogTitle>Clubs and Nodes</DialogTitle>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <div className="relative">
+                      <Search className="absolute left-2 top-2.5 size-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Search clubs and nodes..."
+                        className="pl-8"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                      />
+                    </div>
+                    <ScrollArea className="h-[300px] rounded-md border p-4">
+                      {filteredItems.length > 0 ? (
+                        filteredItems.map(
+                          (item) => (
+                            console.log(item, "itms"),
+                            (
+                              <div
+                                key={item._id}
+                                className="flex items-center justify-between py-2"
                               >
-                                {item.userRole === "admin"
-                                  ? "Adopt"
-                                  : "Propose"}
-                              </Button>
-                            </div>
+                                <div className="flex flex-col">
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-medium">
+                                      {item.name}
+                                    </span>
+                                    {item.type === "Club" ? (
+                                      <Image
+                                        src={ICONS.ClubGreyIcon}
+                                        alt="node_logo"
+                                        height={30}
+                                        width={30}
+                                        className="ml-2 size-6 object-cover"
+                                      />
+                                    ) : (
+                                      <Image
+                                        src={ICONS.NodeGreyIcon}
+                                        alt="node_logo"
+                                        height={30}
+                                        width={30}
+                                        className="ml-2 size-6 object-cover"
+                                      />
+                                    )}
+                                  </div>
+                                  <span className="text-sm text-muted-foreground">
+                                    {`${item.description.slice(0, 30)}${item.description.length > 30 ? "..." : ""}`}
+                                  </span>
+                                </div>
+                                <Button
+                                  size="sm"
+                                  onClick={() => adopt(item as any)}
+                                >
+                                  {item.userRole === "admin"
+                                    ? "Adopt"
+                                    : "Propose"}
+                                </Button>
+                              </div>
+                            )
                           )
                         )
-                      )
-                    ) : (
-                      <p className="text-center text-muted-foreground">
-                        No items found.
-                      </p>
-                    )}
-                  </ScrollArea>
-                </div>
-              </DialogContent>
-            </Dialog>
+                      ) : (
+                        <p className="text-center text-muted-foreground">
+                          No items found.
+                        </p>
+                      )}
+                    </ScrollArea>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            )}
           </div>
         </div>
 
@@ -432,7 +435,21 @@ const IssueView = ({
             )}
             {issue?.publishedStatus === "proposed" &&
               currentUserRole === "admin" && (
-                <Button className="">Approved & Adopt</Button>
+                <div className="flex justify-end gap-3">
+                  <Button variant={"destructive"} className="">
+                    Reject
+                  </Button>
+                  <Button
+                    className=""
+                    onClick={() => {
+                      IssuesEndpoints.adoptIssue(postId).then(() => {
+                        fetchSpecificIssue();
+                      });
+                    }}
+                  >
+                    Approve & Adopt
+                  </Button>
+                </div>
               )}
           </>
         ) : (
