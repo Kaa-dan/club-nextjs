@@ -1,5 +1,5 @@
 "use client";
-
+import { Badge } from "@/components/ui/badge";
 import { useState, useEffect } from "react";
 import {
   ColumnDef,
@@ -336,7 +336,7 @@ export function RulesTable({
   const columns: ColumnDef<Rule>[] = [
     {
       accessorKey: "sno",
-      header: "SNO",
+      header: "No.",
       cell: ({ row }) => <div className="font-medium">{row.index + 1}</div>,
     },
     {
@@ -346,7 +346,7 @@ export function RulesTable({
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Details
+          Rules & Regulations
           <ArrowUpDown className="ml-2 size-4" />
         </Button>
       ),
@@ -365,13 +365,48 @@ export function RulesTable({
       ),
     },
     {
+      accessorKey: "publishedStatus",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Status
+          <ArrowUpDown className="ml-2 size-4" />
+        </Button>
+      ),
+      cell: ({ row }) => (
+        <div className="max-w-[500px] space-y-1">
+          <p className="font-medium leading-none  text-white">
+            <Badge
+              variant={
+                row.getValue("publishedStatus") === "true"
+                  ? "default"
+                  : "outline"
+              }
+            >
+              {row.getValue("publishedStatus") === "true"
+                ? "Published"
+                : "Draft"}
+            </Badge>
+          </p>
+          {/* <p
+            className="line-clamp-2 truncate text-xs text-muted-foreground after:content-['...']"
+            dangerouslySetInnerHTML={{
+              __html: row?.original?.description,
+            }}
+          ></p> */}
+        </div>
+      ),
+    },
+    {
       accessorKey: "publishedDate",
       header: ({ column }) => (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Posted
+          Posted Date
           <ArrowUpDown className="ml-2 size-4" />
         </Button>
       ),
@@ -390,23 +425,23 @@ export function RulesTable({
     },
     {
       accessorKey: "createdBy",
-      header: "Author",
+      header: "Posted by",
       cell: ({ row }) => {
-        const postedBy = row.getValue("createdBy") as Rule["createdBy"];
+        const postedBy: any = row.getValue("createdBy") as Rule["createdBy"];
         return (
           <div className="flex items-center gap-2">
             <Avatar className="size-8">
               <AvatarImage
                 src={
-                  postedBy?.avatar ||
+                  postedBy?.profileImage ||
                   "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWdu-qOixArQruGnl8wz6iK-ygXGGGOSQytg&s"
                 }
-                alt={postedBy?.name}
+                alt={postedBy?.firstName}
               />
               <AvatarFallback>{postedBy?.name?.[0] || "A"}</AvatarFallback>
             </Avatar>
             <span className="text-sm text-muted-foreground">
-              {postedBy?.name}
+              {postedBy?.firstName}
             </span>
           </div>
         );
@@ -419,7 +454,7 @@ export function RulesTable({
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Engagement
+          Relevance Score
           <ArrowUpDown className="ml-2 size-4" />
         </Button>
       ),
@@ -470,22 +505,24 @@ export function RulesTable({
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuItem>
                 <Link
-                  href={`/${section}/${nodeorclubId}/${plugin}/${row.original._id}/view`}
+                  href={`/${section}/${nodeorclubId}/${plugin}/${row?.original?._id}/edit`}
                   className="w-full"
                 >
-                  View Details
+                  Edit Section
                 </Link>
               </DropdownMenuItem>
+
+              {/* Uncommented ContentDialog Option */}
               {/* <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                <ContentDailog
-                  plugin={plugin}
-                  pluginId={row?.original?._id}
-                  section={section}
-                  sectionId={nodeorclubId}
-                  setClickTrigger={setClickTrigger}
-                  clickTrigger={clickTrigger}
-                />
-              </DropdownMenuItem> */}
+              <ContentDailog
+                plugin={plugin}
+                pluginId={row?.original?._id}
+                section={section}
+                sectionId={nodeorclubId}
+                setClickTrigger={setClickTrigger}
+                clickTrigger={clickTrigger}
+              />
+            </DropdownMenuItem> */}
             </DropdownMenuContent>
           </DropdownMenu>
         );

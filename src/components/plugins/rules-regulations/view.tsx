@@ -84,14 +84,11 @@ const View = ({ section }: { section: "club" | "node" }) => {
 
   useEffect(() => {
     fetchSpecificRule();
-    Endpoints.createView(postId).then((err) => {
-      console.log("views created");
-    });
+    Endpoints.createView(postId).then((err) => {});
   }, []);
 
   function fetchNodesAndClubs() {
     Endpoints.getClubsNodesNotAdopted(postId as string).then((res) => {
-      console.log("effect1");
       setClubAndNodes(res);
     });
   }

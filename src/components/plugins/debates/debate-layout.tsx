@@ -1,7 +1,4 @@
 "use client";
-
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -15,16 +12,15 @@ import { TIssue } from "@/types";
 import { Search } from "lucide-react";
 import Link from "next/link";
 import React, { ReactNode } from "react";
-import IssueTable from "./issues-table";
-import useIssues from "./use-issues";
-import { useClubStore } from "@/store/clubs-store";
+import DebateTable from "./debate-table";
+import useDebates from "./use-debate";
 
 interface TabData {
-  label: TIssuesLabel;
+  label: string;
   count: number;
 }
 
-const IssuesLayout = ({
+const DebateLayout = ({
   plugin,
   section,
   nodeorclubId,
@@ -34,97 +30,77 @@ const IssuesLayout = ({
   nodeorclubId: string;
 }) => {
   const {
-    liveIssues,
-    allIssues,
-    globalIssues,
-    myIssues,
+    allDebates,
+    ongoingDebates,
+    myDebates,
+    globalDebates,
     setClickTrigger,
-    proposedIssues,
-    clickTrigger,
-  } = useIssues(section, nodeorclubId);
-
-  const { currentUserRole } = useClubStore((state) => state);
+    loading,
+  } = useDebates(section, nodeorclubId);
 
   const tabs: TabData[] = [
     {
-      label: "Live Issues",
-      count: liveIssues.length || 0,
+      label: "Ongoing Debates",
+      count: ongoingDebates?.length || 0,
     },
     {
-      label: "All Issues",
-      count: allIssues.length || 0,
+      label: "All Debates",
+      count: allDebates?.length || 0,
     },
     {
-      label: "Global Library",
-      count: globalIssues.length || 0,
+      label: "Global Debates",
+      count: globalDebates?.length || 0,
     },
     {
-      label: "My Issues",
-      count: myIssues.length || 0,
+      label: "My Debates",
+      count: myDebates?.length || 0,
     },
   ];
-
-  const getFilteredTabs = (): TabData[] => {
-    const _tabs = tabs;
-    if (currentUserRole === "admin") {
-      _tabs.push({
-        label: "Proposed Issues",
-        count: proposedIssues.length || 0,
-      });
-    }
-    return _tabs;
-  };
-
   const formatCount = (count: number) => {
     if (count >= 1000000) return `${(count / 1000000).toFixed(0)}M`;
     if (count >= 1000) return `${(count / 1000).toFixed(2)}k`;
-    return count.toString();
+    return count?.toString();
   };
-
   function getData(tab: TabData): any[] {
     let data: any[] = [];
     switch (tab.label) {
-      case "Live Issues":
-        data = liveIssues;
+      case "Ongoing Debates":
+        data = ongoingDebates;
         break;
-      case "All Issues":
-        data = allIssues;
+      case "All Debates":
+        data = allDebates;
         break;
-      case "Global Library":
-        data = globalIssues;
+      case "Global Debates":
+        data = globalDebates;
         break;
-      case "My Issues":
-        data = myIssues;
+      case "My Debates":
+        data = myDebates;
         break;
-      case "Proposed Issues":
-        data = proposedIssues;
-        break;
+
       default:
         data = [];
     }
-
     return data;
   }
-
   return (
     <div className="w-full space-y-4  p-4">
       <div className="space-y-2">
-        <h2 className="text-2xl font-bold tracking-tight">Community Issues</h2>
+        <h2 className="text-2xl font-bold tracking-tight">Community Debate</h2>
         <p className="text-muted-foreground">
           {`Lorem ipsum dolor sit amet consectetur. Congue varius lorem et
           egestas. Iaculis semper risus sit egestas.`}
         </p>
       </div>
 
-      <Tabs defaultValue="Live Issues" className="w-full space-y-4 ">
+      <Tabs defaultValue="My Debates" className="w-full space-y-4 ">
         <TabsList className="flex h-auto flex-wrap gap-1 bg-background p-1">
-          {getFilteredTabs()?.map((tab) => (
+          {tabs.map((tab) => (
             <TabsTrigger
               key={tab.label}
               value={tab.label}
               className="shrink-0 rounded-md border-primary px-3 py-1.5 text-sm data-[state=active]:border-b-4  data-[state=active]:text-primary"
             >
-              {tab.label} ({formatCount(tab.count)})
+              {tab?.label} ({formatCount(tab?.count)})
             </TabsTrigger>
           ))}
         </TabsList>
@@ -132,9 +108,9 @@ const IssuesLayout = ({
         {tabs.map((tab) => (
           <TabsContent key={tab.label} value={tab.label} className="space-y-4">
             <div className="flex items-center gap-4">
-              <Link href="issues/create">
+              <Link href="debate/create">
                 <Button className="bg-primary hover:bg-emerald-600">
-                  Add a new issue
+                  Add a new Debate
                 </Button>
               </Link>
               <div className="relative flex-1">
@@ -179,16 +155,11 @@ const IssuesLayout = ({
                 </svg>
               </Button>
             </div>
-            {/* <IssueTable issues={tab.issues} /> */}
-            {/* {children} */}
-            <IssueTable
-              nodeorclubId={nodeorclubId}
-              plugin={plugin}
-              section={section}
+            <DebateTable
+              nodeOrClubId={nodeorclubId}
               data={getData(tab)}
-              tab={tab.label}
-              clickTrigger={clickTrigger}
-              setClickTrigger={setClickTrigger}
+              section={section}
+              plugin={plugin}
             />
           </TabsContent>
         ))}
@@ -197,4 +168,4 @@ const IssuesLayout = ({
   );
 };
 
-export default IssuesLayout;
+export default DebateLayout;

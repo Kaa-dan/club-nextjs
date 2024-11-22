@@ -1,6 +1,13 @@
 type TPlugins = "rules" | "issues" | "debate";
 type TSections = "node" | "club";
 type TFileType = "image" | "video" | "document" | "pdf" | "unknown";
+type TIssuesLabel =
+  | "Live Issues"
+  | "All Issues"
+  | "Global Library"
+  | "My Issues"
+  | "Proposed Issues";
+
 interface TCommentUser {
   firstName: string;
   lastName: string;
@@ -108,13 +115,12 @@ interface IAdoptedItem {
   date: Date;
 }
 
-
 type TIssue = {
   _id: string;
   title: string;
   issueType: string;
-  whereOrWho?: string;
   deadline?: Date;
+  whereOrWho?: string;
   reasonOfDeadline?: string;
   significance?: string;
   whoShouldAddress: Array<any>;
@@ -152,7 +158,12 @@ type TIssue = {
 
   // Version control
   version: number;
-  publishedStatus: 'draft' | 'published' | 'olderversion' | 'proposed' | 'archived';
+  publishedStatus:
+    | "draft"
+    | "published"
+    | "olderversion"
+    | "proposed"
+    | "archived";
   olderVersions: Array<Record<string, any>>;
 
   __v: number;
