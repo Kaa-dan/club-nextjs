@@ -53,7 +53,14 @@ interface ClubAndNodesData {
   clubs: Item[];
   nodes: Item[];
 }
-const IssueView = ({ section }: { section: "club" | "node" }) => {
+const IssueView = ({
+  section,
+  nodeOrClubId,
+}: {
+  section: TSections;
+  nodeOrClubId: string;
+}) => {
+  console.log(section, nodeOrClubId, "nodeorclubId");
   const { globalUser } = useTokenStore((state) => state);
   const router = useRouter();
   const [issue, setIssue] = useState<TIssue>();
@@ -119,14 +126,14 @@ const IssueView = ({ section }: { section: "club" | "node" }) => {
   };
 
   const adopt = (item: { _id: string; type: "Club" | "Node" }) => {
-    Endpoints.adoptRule(
-      postId as string,
-      item?.type?.toLowerCase(),
-      item.type === "Club" ? item._id : null,
-      item.type === "Node" ? item._id : null
-    )
+    const entityType = item.type === "Club" ? "club" : "node";
+    const data = {
+      [entityType]: item._id,
+      issueId: postId,
+    };
+    IssuesEndpoints.adoptOrProposeIssue(data)
       .then((res) => {
-        toast.success("rule adopted succesfully");
+        toast.success("rule adopted successfully");
         fetchNodesAndClubs();
       })
       .catch((err) => {
@@ -134,6 +141,7 @@ const IssueView = ({ section }: { section: "club" | "node" }) => {
         console.log({ err });
       });
   };
+
   const images =
     issue?.files?.filter((file) => file.mimetype.includes("image")) || [];
   const pdfs =
@@ -345,7 +353,7 @@ const IssueView = ({ section }: { section: "club" | "node" }) => {
                               </div>
                               <Button
                                 size="sm"
-                                //   onClick={() => adopt(item as any)}
+                                onClick={() => adopt(item as any)}
                               >
                                 {item.userRole === "admin"
                                   ? "Adopt"

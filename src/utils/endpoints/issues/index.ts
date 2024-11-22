@@ -59,4 +59,9 @@ export class IssuesEndpoints {
         return response.data;
     }
 
+    static async adoptOrProposeIssue(data: any) {
+        const response = await mainAxios.post('/issues/adopt-issue', data);
+        return response.data
+    }
+
 }
