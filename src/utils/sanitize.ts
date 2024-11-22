@@ -6,8 +6,6 @@ import DOMPurify from "dompurify";
  * @returns {string} - The sanitized HTML content.
  */
 const sanitizeHtmlContent = (rawHtml: string): string => {
-  console.log({ rawHtml });
-
   // Ensure the rawHtml is a string
   if (typeof rawHtml !== "string") {
     throw new Error("Invalid input: HTML content must be a string");
