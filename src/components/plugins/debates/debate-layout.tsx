@@ -1,5 +1,4 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+"use client";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -13,38 +12,76 @@ import { TIssue } from "@/types";
 import { Search } from "lucide-react";
 import Link from "next/link";
 import React, { ReactNode } from "react";
+import DebateTable from "./debate-table";
+import useDebates from "./use-debate";
 
 interface TabData {
   label: string;
   count: number;
 }
 
-const tabs: TabData[] = [
-  {
-    label: "Ongoing Debates",
-    count: 182,
-  },
-  {
-    label: "All Debates",
-    count: 652,
-  },
-  {
-    label: "Global Debates",
-    count: 2000000,
-  },
-  {
-    label: "My Debates",
-    count: 2360,
-  },
-];
+const DebateLayout = ({
+  plugin,
+  section,
+  nodeorclubId,
+}: {
+  plugin: TPlugins;
+  section: TSections;
+  nodeorclubId: string;
+}) => {
+  const {
+    allDebates,
+    ongoingDebates,
+    myDebates,
+    globalDebates,
+    setClickTrigger,
+    loading,
+  } = useDebates(section, nodeorclubId);
 
-const DebateLayout = ({ children }: { children: ReactNode }) => {
+  const tabs: TabData[] = [
+    {
+      label: "Ongoing Debates",
+      count: ongoingDebates?.length || 0,
+    },
+    {
+      label: "All Debates",
+      count: allDebates?.length || 0,
+    },
+    {
+      label: "Global Debates",
+      count: globalDebates?.length || 0,
+    },
+    {
+      label: "My Debates",
+      count: myDebates?.length || 0,
+    },
+  ];
   const formatCount = (count: number) => {
     if (count >= 1000000) return `${(count / 1000000).toFixed(0)}M`;
     if (count >= 1000) return `${(count / 1000).toFixed(2)}k`;
-    return count.toString();
+    return count?.toString();
   };
+  function getData(tab: TabData): any[] {
+    let data: any[] = [];
+    switch (tab.label) {
+      case "Ongoing Debates":
+        data = ongoingDebates;
+        break;
+      case "All Debates":
+        data = allDebates;
+        break;
+      case "Global Debates":
+        data = globalDebates;
+        break;
+      case "My Debates":
+        data = myDebates;
+        break;
 
+      default:
+        data = [];
+    }
+    return data;
+  }
   return (
     <div className="w-full space-y-4  p-4">
       <div className="space-y-2">
@@ -63,7 +100,7 @@ const DebateLayout = ({ children }: { children: ReactNode }) => {
               value={tab.label}
               className="shrink-0 rounded-md border-primary px-3 py-1.5 text-sm data-[state=active]:border-b-4  data-[state=active]:text-primary"
             >
-              {tab.label} ({formatCount(tab.count)})
+              {tab?.label} ({formatCount(tab?.count)})
             </TabsTrigger>
           ))}
         </TabsList>
@@ -118,8 +155,12 @@ const DebateLayout = ({ children }: { children: ReactNode }) => {
                 </svg>
               </Button>
             </div>
-            {/* <IssueTable issues={tab.issues} /> */}
-            {children}
+            <DebateTable
+              nodeOrClubId={nodeorclubId}
+              data={getData(tab)}
+              section={section}
+              plugin={plugin}
+            />
           </TabsContent>
         ))}
       </Tabs>

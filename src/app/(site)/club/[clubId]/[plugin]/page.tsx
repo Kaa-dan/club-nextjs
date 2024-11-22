@@ -5,6 +5,7 @@ import React from "react";
 import { RulesTable } from "@/components/plugins/rules-regulations/rules";
 import DebateLayout from "@/components/plugins/debates/debate-layout";
 import DebateTable from "@/components/plugins/debates/debate-table";
+import plugin from "tailwindcss";
 const PluginPage = async ({
   params,
 }: {
@@ -37,9 +38,7 @@ const PluginPage = async ({
         );
       case "debate":
         return (
-          <DebateLayout>
-            <DebateTable />
-          </DebateLayout>
+          <DebateLayout nodeorclubId={clubId} section="club" plugin={plugin} />
         );
 
       default:

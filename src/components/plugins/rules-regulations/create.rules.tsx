@@ -243,8 +243,6 @@ export default function RuleForm({
       });
 
       data?.files?.forEach((fileObj: any) => {
-        console.log({ fileObj });
-
         formDataToSend.append("file", fileObj.file);
       });
 

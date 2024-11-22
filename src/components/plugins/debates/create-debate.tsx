@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Controller } from "react-hook-form";
 
 import { useForm } from "react-hook-form";
@@ -25,15 +25,14 @@ import { Endpoints } from "@/utils/endpoint";
 import { useParams } from "next/navigation";
 import ReactQuill from "react-quill-new";
 import { toast } from "sonner";
-import router from "next/navigation";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   topic: z.string().min(1, "Debate topic is required"),
   closingDate: z.string().optional(),
   significance: z.string().min(1, "Significance is required"),
   targetAudience: z.string().min(1, "Target audience is required"),
-  tags: z.string().optional(),
+  tags: z.array(z.string()),
   openingCommentsFor: z.string().min(1, "Opening comments (For) are required"),
   openingCommentsAgainst: z
     .string()
@@ -52,7 +51,7 @@ const DebateForm = ({
   nodeOrClubId: string;
 }) => {
   const [files, setFiles] = React.useState<File[]>([]);
-  const router = useRouter;
+  const router = useRouter();
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -60,7 +59,7 @@ const DebateForm = ({
       closingDate: "",
       significance: "",
       targetAudience: "",
-      tags: "",
+      tags: [],
       openingCommentsFor: "",
       openingCommentsAgainst: "",
       isPublic: false,
@@ -77,7 +76,10 @@ const DebateForm = ({
       Object.entries(data).forEach(([key, value]) => {
         console.log({ key });
 
-        if (key !== "files") {
+        if (key === "tags" && Array.isArray(value)) {
+          // Convert the array of tags into a JSON string
+          formDataToSend.append(key, JSON.stringify(value));
+        } else if (key !== "files") {
           formDataToSend.append(key, value.toString());
         }
       });
@@ -90,15 +92,10 @@ const DebateForm = ({
 
       formDataToSend.append(section, nodeOrClubId);
 
+      // Uncomment to send the data
       const response = await Endpoints.postDebate(formDataToSend);
-      toast.success(response.message || "Rules successfully created");
+      toast.success(response.message || "Debate successfully created");
 
-      // Clean up previews before reset
-      //   data.files?.forEach((fileObj) => {
-      //     if (fileObj.preview) {
-      //       URL.revokeObjectURL(fileObj.preview);
-      //     }
-      //   });
       router.push(`/${section}/${nodeOrClubId}/debate`);
     } catch (error) {
       console.error("Error submitting form:", error);
@@ -139,6 +136,22 @@ const DebateForm = ({
     setFiles((prev) => [...prev, ...droppedFiles]);
     form.setValue("files", [...files, ...droppedFiles]);
   };
+  const [tagInput, setTagInput] = useState("");
+
+  const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && tagInput.trim() !== "") {
+      e.preventDefault();
+      form.setValue("tags", [...form.getValues("tags"), tagInput.trim()]);
+      setTagInput("");
+    }
+  };
+
+  const handleRemoveTag = (tagToRemove: string) => {
+    form.setValue(
+      "tags",
+      form.getValues("tags").filter((tag) => tag !== tagToRemove)
+    );
+  };
 
   return (
     <Card className="max-w-5xl mx-auto">
@@ -169,7 +182,7 @@ const DebateForm = ({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="flex items-center">
-                      Closing date if any
+                      Closing date
                       <div className="ml-1 text-gray-400">ⓘ</div>
                     </FormLabel>
                     <FormControl>
@@ -230,7 +243,32 @@ const DebateForm = ({
                       <div className="ml-1 text-gray-400">ⓘ</div>
                     </FormLabel>
                     <FormControl>
-                      <Input {...field} className="h-9" />
+                      <div>
+                        <Input
+                          value={tagInput}
+                          onChange={(e) => setTagInput(e.target.value)}
+                          onKeyDown={handleAddTag}
+                          placeholder="Type a tag and press Enter"
+                          className="h-9 mb-2"
+                        />
+                        <div className="flex flex-wrap gap-2">
+                          {field.value.map((tag, index) => (
+                            <div
+                              key={index}
+                              className="flex items-center bg-gray-100 rounded-full px-3 py-1"
+                            >
+                              <span className="text-sm">{tag}</span>
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveTag(tag)}
+                                className="ml-2 text-gray-500 hover:text-gray-700"
+                              >
+                                <X className="h-4 w-4" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -299,18 +337,24 @@ const DebateForm = ({
                 control={form.control}
                 render={({ field }) => (
                   <div>
-                    <ReactQuill
-                      id=""
-                      theme="snow"
-                      placeholder="Write something amazing..."
-                      {...field}
-                      onChange={(content) => field.onChange(content)}
-                    />
-                    {/* {errors. && (
-                      <p className="mt-2 text-sm text-red-500">
-                        {errors.description.message}
-                      </p>
-                    )} */}
+                    <FormItem>
+                      <FormLabel className="flex items-center">
+                        CommentsFor
+                        <div className="ml-1 text-gray-400">ⓘ</div>
+                      </FormLabel>
+                      <ReactQuill
+                        theme="snow"
+                        placeholder="Write something amazing..."
+                        {...field}
+                        onChange={(content) => field.onChange(content)}
+                      />
+                    </FormItem>
+                    {/* Uncomment and update error handling when needed */}
+                    {/* {errors.openingCommentsFor && (
+          <p className="mt-2 text-sm text-red-500">
+            {errors.openingCommentsFor.message}
+          </p>
+        )} */}
                   </div>
                 )}
               />
@@ -320,18 +364,24 @@ const DebateForm = ({
                 control={form.control}
                 render={({ field }) => (
                   <div>
-                    <ReactQuill
-                      id=""
-                      theme="snow"
-                      placeholder="Write something amazing..."
-                      {...field}
-                      onChange={(content) => field.onChange(content)}
-                    />
-                    {/* {errors. && (
+                    <FormItem>
+                      <FormLabel className="flex items-center">
+                        CommentsAgainst
+                        <div className="ml-1 text-gray-400">ⓘ</div>
+                      </FormLabel>
+                      <ReactQuill
+                        id=""
+                        theme="snow"
+                        placeholder="Write something amazing..."
+                        {...field}
+                        onChange={(content) => field.onChange(content)}
+                      />
+                      {/* {errors. && (
                       <p className="mt-2 text-sm text-red-500">
                         {errors.description.message}
                       </p>
                     )} */}
+                    </FormItem>
                   </div>
                 )}
               />
@@ -358,6 +408,7 @@ const DebateForm = ({
 
               <div className="flex space-x-2">
                 <Button
+                  disabled={form.formState.isSubmitting}
                   type="button"
                   variant="ghost"
                   className="text-red-500 hover:text-red-600 hover:bg-red-50"
@@ -366,6 +417,7 @@ const DebateForm = ({
                   Cancel
                 </Button>
                 <Button
+                  disabled={form.formState.isSubmitting}
                   type="button"
                   variant="outline"
                   onClick={() => {
@@ -375,6 +427,7 @@ const DebateForm = ({
                   Save draft
                 </Button>
                 <Button
+                  disabled={form.formState.isSubmitting}
                   type="submit"
                   className="bg-emerald-500 hover:bg-emerald-600"
                 >

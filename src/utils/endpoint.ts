@@ -1,4 +1,5 @@
 import { mainAxios } from "@/lib/mainAxios";
+import { error } from "console";
 import { type } from "os";
 
 export class Endpoints {
@@ -308,6 +309,86 @@ export class Endpoints {
         headers: {
           "Content-Type": "multipart/form-data",
         },
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async fetchMyDebate(entity: string, entityId: string) {
+    try {
+      const response = await mainAxios.get(
+        `debate/my-debates?entityId=${entityId}&entity=${entity}`
+      );
+      return response.data;
+    } catch (error) {
+      return error;
+    }
+  }
+
+  static async fetchAllDebates(entity: string, entityId: string) {
+    try {
+      const response = await mainAxios.get(
+        `debate/all-debates?entityId=${entityId}&entity=${entity}`
+      );
+      return response.data;
+    } catch (error) {
+      return error;
+    }
+  }
+
+  static async fetchOnGoingDebates(entity: string, entityId: string) {
+    try {
+      const response = await mainAxios.get(
+        `debate/ongoing?entityId=${entityId}&entity=${entity}`
+      );
+      return response.data;
+    } catch (error) {
+      return error;
+    }
+  }
+  static async fetchGlobalDebates(entity: string, entityId: string) {
+    try {
+      const response = await mainAxios.get("debate/global");
+      return response.data;
+    } catch (error) {
+      return error;
+    }
+  }
+
+  static async viewDebate(debateId: string) {
+    try {
+      const response = await mainAxios.get(`debate/view/${debateId}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+  static async notAdoptedClubs(debateId: string) {
+    try {
+      const response = await mainAxios.get(
+        `debate/get-clubs-nodes-notadopted/${debateId}`
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+  static async adoptDebate(
+    debateId: string,
+    type: "club" | "node",
+    clubId?: string,
+    nodeId?: string
+  ) {
+    console.log({ debateId });
+
+    try {
+      const response = await mainAxios.post("debate/adopt", {
+        debateId,
+        type,
+        clubId,
+        nodeId,
       });
       return response.data;
     } catch (error) {

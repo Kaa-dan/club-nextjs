@@ -143,7 +143,7 @@ export default function EditRuleForm({
       files: [],
     },
   });
-  const [rule, setRule] = useState();
+  const [rule, setRule] = useState<any>();
   useEffect(() => {
     Endpoints.specificRule(postId).then((response) => {
       const data = response;
@@ -250,7 +250,7 @@ export default function EditRuleForm({
     );
   };
 
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = async (data: FormData | any) => {
     try {
       const formDataToSend = new FormData();
 
@@ -268,7 +268,7 @@ export default function EditRuleForm({
 
       // Add new files
       if (data?.file && data?.file?.length > 0) {
-        data?.file.forEach((fileObj) => {
+        data?.file.forEach((fileObj: any) => {
           formDataToSend.append("file", fileObj.file);
         });
       }
@@ -285,7 +285,7 @@ export default function EditRuleForm({
       toast.success(response.message || "Rules successfully updated");
 
       // Clean up previews
-      data?.file?.forEach((fileObj) => {
+      data?.file?.forEach((fileObj: any) => {
         if (fileObj?.preview) {
           URL.revokeObjectURL(fileObj?.preview);
         }
@@ -298,6 +298,7 @@ export default function EditRuleForm({
       toast.error("Failed to update rule. Please try again.");
     }
   };
+  const files: any = getValues("files");
 
   return (
     <>
@@ -614,14 +615,11 @@ export default function EditRuleForm({
             {errors.files && (
               <p className="text-sm text-red-500">{errors.files.message}</p>
             )}
-            {getValues("files").length > 0 && (
+            {files.length > 0 && (
               <div className="mt-2 grid grid-cols-2 gap-2">
-                {getValues("files"):any
-                  .filter(
-                    (fileObj) =>
-                      fileObj?.url && fileObj?.url?.startsWith("http")
-                  )
-                  .map((fileObj, index) => (
+                {files
+                  .filter((fileObj: any) => fileObj?.url?.startsWith("http"))
+                  .map((fileObj: any) => (
                     <div
                       key={fileObj._id} // Use _id for unique key
                       className="flex items-center justify-between rounded-lg border p-2"
@@ -651,7 +649,6 @@ export default function EditRuleForm({
                   ))}
               </div>
             )}
-
             {newFiles?.length > 0 && (
               <div className="mt-2 grid grid-cols-2 gap-2">
                 {newFiles.map((fileObj, index) => (

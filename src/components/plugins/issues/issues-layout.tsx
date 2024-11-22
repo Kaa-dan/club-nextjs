@@ -21,19 +21,19 @@ interface TabData {
 
 const tabs: TabData[] = [
   {
-    label: "ongoing Debates",
+    label: "Live Issues",
     count: 182,
   },
   {
-    label: "All Debates",
+    label: "All Issues",
     count: 652,
   },
   {
-    label: "Global Debates",
+    label: "Global Library",
     count: 2000000,
   },
   {
-    label: "My Debates",
+    label: "My Issues",
     count: 2360,
   },
 ];
