@@ -49,7 +49,7 @@ const FacebookSignup = () => {
         : router.replace("/onboarding");
     } catch (error: any) {
       if (error.response) {
-        toast.error(error.response.data.message);
+        toast.error(error.response.data.message || "Something Went Wrong!");
       } else {
         toast.error("Something went wrong");
       }

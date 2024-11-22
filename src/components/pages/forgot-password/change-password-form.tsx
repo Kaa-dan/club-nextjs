@@ -59,7 +59,7 @@ export function ChangePasswordForm() {
       //   const response = await forgotPassword({ email, password });
       //   console.log(response, "response");
     } catch (error: any) {
-      toast.error(error.response.data.message);
+      toast.error(error.response.data.message || "Something Went Wrong!");
     }
   };
 
