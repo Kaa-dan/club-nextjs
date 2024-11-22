@@ -1,3 +1,4 @@
+import IssueView from "./issues/view-issue";
 import View from "./rules-regulations/view";
 import ViewDebate from "./debates/view-debate";
 interface PluginProps {

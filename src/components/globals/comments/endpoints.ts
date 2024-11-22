@@ -1,10 +1,10 @@
 import { mainAxios } from "@/lib/mainAxios";
 
 export class Endpoints {
-  static async getRulesComments(ruleId: string) {
+  static async getRulesComments(entityType: string, entityId: string) {
     try {
       const { data } = await mainAxios.get(
-        `/rules-regulations/${ruleId}/comments`
+        `/comments/${entityType}/${entityId}`
       );
       return data;
     } catch (error) {
@@ -14,7 +14,7 @@ export class Endpoints {
 
   static async postRulesComment(formData: FormData) {
     try {
-      const res = await mainAxios.post(`/rules-regulations/comment`, formData, {
+      const res = await mainAxios.post(`/comments`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -29,7 +29,7 @@ export class Endpoints {
   static async putLikeComment(commentId: string) {
     try {
       const res = await mainAxios.put(
-        `/rules-regulations/comment/${commentId}/like`
+        `/comments/like/${commentId}`
       );
       return res;
     } catch (error) {
@@ -40,7 +40,7 @@ export class Endpoints {
   static async putDislikeComment(commentId: string) {
     try {
       const res = await mainAxios.put(
-        `/rules-regulations/comment/${commentId}/dislike`
+        `/comments/dislike/${commentId}`
       );
       return res;
     } catch (error) {

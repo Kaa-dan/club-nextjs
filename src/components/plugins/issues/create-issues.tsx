@@ -59,6 +59,7 @@ import { IssuesEndpoints } from "@/utils/endpoints/issues";
 import { toast } from "sonner";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useNodeStore } from "@/store/nodes-store";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const MAX_FILES = 5;
@@ -119,7 +120,8 @@ export default function CreateIssueForm({
   nodeOrClubId: string;
   section: TSections;
 }) {
-  const { selectedClub, userJoinedClubs } = useClubStore((state) => state);
+  const { currentClub, userJoinedClubs } = useClubStore((state) => state);
+  const { currentNode } = useNodeStore((state) => state);
   const [showPublishDialog, setShowPublishDialog] = React.useState(false);
   const [uploadedFiles, setUploadedFiles] = React.useState<File[]>([]);
   const imageRef = React.useRef<HTMLInputElement>(null);
@@ -383,12 +385,15 @@ export default function CreateIssueForm({
                   <FormControl>
                     <MultiSelect
                       options={
-                        selectedClub?.members
-                          ? selectedClub?.members?.map((member: any) => ({
+                        section === "club"
+                          ? currentClub?.members?.map((member: any) => ({
                               title: member?.user?.userName,
                               value: member?.user?._id,
-                            }))
-                          : []
+                            })) || []
+                          : currentNode?.members?.map((member: any) => ({
+                              title: member?.user?.userName,
+                              value: member?.user?._id,
+                            })) || []
                       }
                       defaultValue={field.value || []}
                       onValueChange={(selectedValues) => {
