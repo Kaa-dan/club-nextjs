@@ -42,6 +42,8 @@ import ClubMembersList from "@/components/pages/club/club-members-list";
 import IssueWhoShouldAddresList from "./issue-who-should-addres-list";
 import plugin from "tailwindcss";
 import { map } from "zod";
+import { formatDate, formatTimeAgo } from "@/lib/utils";
+import { useClubStore } from "@/store/clubs-store";
 interface Item {
   _id: string;
   name: string;
@@ -53,7 +55,14 @@ interface ClubAndNodesData {
   clubs: Item[];
   nodes: Item[];
 }
-const IssueView = ({ section }: { section: "club" | "node" }) => {
+const IssueView = ({
+  section,
+  nodeOrClubId,
+}: {
+  section: TSections;
+  nodeOrClubId: string;
+}) => {
+  const { currentUserRole } = useClubStore((state) => state);
   const { globalUser } = useTokenStore((state) => state);
   const router = useRouter();
   const [issue, setIssue] = useState<TIssue>();
@@ -114,19 +123,16 @@ const IssueView = ({ section }: { section: "club" | "node" }) => {
   useEffect(() => {
     fetchNodesAndClubs();
   }, []);
-  const formatDate = (date: string) => {
-    return moment(date).fromNow();
-  };
 
   const adopt = (item: { _id: string; type: "Club" | "Node" }) => {
-    Endpoints.adoptRule(
-      postId as string,
-      item?.type?.toLowerCase(),
-      item.type === "Club" ? item._id : null,
-      item.type === "Node" ? item._id : null
-    )
+    const entityType = item.type === "Club" ? "club" : "node";
+    const data = {
+      [entityType]: item._id,
+      issueId: postId,
+    };
+    IssuesEndpoints.adoptOrProposeIssue(data)
       .then((res) => {
-        toast.success("rule adopted succesfully");
+        toast.success("rule adopted successfully");
         fetchNodesAndClubs();
       })
       .catch((err) => {
@@ -134,6 +140,7 @@ const IssueView = ({ section }: { section: "club" | "node" }) => {
         console.log({ err });
       });
   };
+
   const images =
     issue?.files?.filter((file) => file.mimetype.includes("image")) || [];
   const pdfs =
@@ -195,51 +202,51 @@ const IssueView = ({ section }: { section: "club" | "node" }) => {
           </div>
           <div className="max-w-max rounded-md border border-gray-200 px-5 py-1">
             <div className="text-gray-500">Deadline</div>
-            <div>{457}</div>
+            <div>{formatDate(issue?.deadline)}</div>
           </div>
-          {/* <div className="max-w-max rounded-md border border-gray-200 px-5 py-1">
-            <div className="text-gray-500">Who should address</div>
-            <div>{issue?.whoShouldAddress}</div>
-            </div> */}
-          <div className="max-w-max rounded-md border border-gray-200 px-5 py-1">
-            <div className="text-gray-500">Who should address</div>
-            <div>
-              <div className="flex -space-x-2">
-                {issue?.whoShouldAddress
-                  .slice(0, visibleUsers)
-                  .map((member: any) => (
-                    <Avatar
-                      key={member._id}
-                      className="border-2 border-background"
-                    >
-                      <AvatarImage
-                        src={
-                          member?.profileImage ||
-                          `/placeholder.svg?height=32&width=32`
-                        } // Replace with dynamic src
-                      />
-                      <AvatarFallback>
-                        {member?.firstName?.charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
-                  ))}
+          {issue?.whoShouldAddress?.length ? (
+            <div className="max-w-max rounded-md border border-gray-200 px-5 py-1">
+              <div className="text-gray-500">Who should address</div>
+              <div>
+                <div className="flex -space-x-2">
+                  {issue?.whoShouldAddress
+                    .slice(0, visibleUsers)
+                    .map((member: any) => (
+                      <Avatar
+                        key={member._id}
+                        className="border-2 border-background"
+                      >
+                        <AvatarImage
+                          src={
+                            member?.profileImage ||
+                            `/placeholder.svg?height=32&width=32`
+                          } // Replace with dynamic src
+                        />
+                        <AvatarFallback>
+                          {member?.firstName?.charAt(0)}
+                        </AvatarFallback>
+                      </Avatar>
+                    ))}
 
-                {remainingUsers > 0 && (
-                  <div className="flex size-8 items-center justify-center rounded-full bg-muted text-xs">
-                    {displayRemainingCount}+
-                  </div>
-                )}
+                  {remainingUsers > 0 && (
+                    <div className="flex size-8 items-center justify-center rounded-full bg-muted text-xs">
+                      {displayRemainingCount}+
+                    </div>
+                  )}
 
-                <Button
-                  variant="link"
-                  className="text-sm"
-                  onClick={() => setIsModalOpen(true)}
-                >
-                  See all
-                </Button>
+                  <Button
+                    variant="link"
+                    className="text-sm"
+                    onClick={() => setIsModalOpen(true)}
+                  >
+                    See all
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
+          ) : (
+            <></>
+          )}
         </div>
 
         {/* Author Info */}
@@ -271,7 +278,7 @@ const IssueView = ({ section }: { section: "club" | "node" }) => {
               <div className="font-medium">{issue?.createdBy?.userName}</div>
               <div className="size-1 rounded-full bg-gray-500"></div>
               <div className="text-sm text-gray-500">
-                {formatDate(issue?.createdAt as string)}
+                {formatTimeAgo(issue?.createdAt as string)}
               </div>
             </div>
           </div>
@@ -286,84 +293,87 @@ const IssueView = ({ section }: { section: "club" | "node" }) => {
               {issue?.adobtedClubs ? issue.adobtedClubs : "0"} Adopted
             </span>
           </div> */}
-            <Dialog>
-              <DialogTrigger asChild>
-                <button className="rounded-md bg-green-500 px-4 py-1.5 text-sm text-white">
-                  Adopt
-                </button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle>Clubs and Nodes</DialogTitle>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                  <div className="relative">
-                    <Search className="absolute left-2 top-2.5 size-4 text-muted-foreground" />
-                    <Input
-                      placeholder="Search clubs and nodes..."
-                      className="pl-8"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                  </div>
-                  <ScrollArea className="h-[300px] rounded-md border p-4">
-                    {filteredItems.length > 0 ? (
-                      filteredItems.map(
-                        (item) => (
-                          console.log(item, "itms"),
-                          (
-                            <div
-                              key={item._id}
-                              className="flex items-center justify-between py-2"
-                            >
-                              <div className="flex flex-col">
-                                <div className="flex items-center gap-2">
-                                  <span className="font-medium">
-                                    {item.name}
-                                  </span>
-                                  {item.type === "Club" ? (
-                                    <Image
-                                      src={ICONS.ClubGreyIcon}
-                                      alt="node_logo"
-                                      height={30}
-                                      width={30}
-                                      className="ml-2 size-6 object-cover"
-                                    />
-                                  ) : (
-                                    <Image
-                                      src={ICONS.NodeGreyIcon}
-                                      alt="node_logo"
-                                      height={30}
-                                      width={30}
-                                      className="ml-2 size-6 object-cover"
-                                    />
-                                  )}
-                                </div>
-                                <span className="text-sm text-muted-foreground">
-                                  {`${item.description.slice(0, 30)}${item.description.length > 30 ? "..." : ""}`}
-                                </span>
-                              </div>
-                              <Button
-                                size="sm"
-                                //   onClick={() => adopt(item as any)}
+
+            {!["draft", "proposed"]?.includes(issue?.publishedStatus || "") && (
+              <Dialog>
+                <DialogTrigger asChild>
+                  <button className="rounded-md bg-green-500 px-4 py-1.5 text-sm text-white">
+                    Adopt
+                  </button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px]">
+                  <DialogHeader>
+                    <DialogTitle>Clubs and Nodes</DialogTitle>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <div className="relative">
+                      <Search className="absolute left-2 top-2.5 size-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Search clubs and nodes..."
+                        className="pl-8"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                      />
+                    </div>
+                    <ScrollArea className="h-[300px] rounded-md border p-4">
+                      {filteredItems.length > 0 ? (
+                        filteredItems.map(
+                          (item) => (
+                            console.log(item, "itms"),
+                            (
+                              <div
+                                key={item._id}
+                                className="flex items-center justify-between py-2"
                               >
-                                {item.userRole === "admin"
-                                  ? "Adopt"
-                                  : "Propose"}
-                              </Button>
-                            </div>
+                                <div className="flex flex-col">
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-medium">
+                                      {item.name}
+                                    </span>
+                                    {item.type === "Club" ? (
+                                      <Image
+                                        src={ICONS.ClubGreyIcon}
+                                        alt="node_logo"
+                                        height={30}
+                                        width={30}
+                                        className="ml-2 size-6 object-cover"
+                                      />
+                                    ) : (
+                                      <Image
+                                        src={ICONS.NodeGreyIcon}
+                                        alt="node_logo"
+                                        height={30}
+                                        width={30}
+                                        className="ml-2 size-6 object-cover"
+                                      />
+                                    )}
+                                  </div>
+                                  <span className="text-sm text-muted-foreground">
+                                    {`${item.description.slice(0, 30)}${item.description.length > 30 ? "..." : ""}`}
+                                  </span>
+                                </div>
+                                <Button
+                                  size="sm"
+                                  onClick={() => adopt(item as any)}
+                                >
+                                  {item.userRole === "admin"
+                                    ? "Adopt"
+                                    : "Propose"}
+                                </Button>
+                              </div>
+                            )
                           )
                         )
-                      )
-                    ) : (
-                      <p className="text-center text-muted-foreground">
-                        No items found.
-                      </p>
-                    )}
-                  </ScrollArea>
-                </div>
-              </DialogContent>
-            </Dialog>
+                      ) : (
+                        <p className="text-center text-muted-foreground">
+                          No items found.
+                        </p>
+                      )}
+                    </ScrollArea>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            )}
           </div>
         </div>
 
@@ -418,61 +428,85 @@ const IssueView = ({ section }: { section: "club" | "node" }) => {
         </div>
 
         {/* Interaction Bar */}
-        <div className="flex items-center justify-between border-t py-4">
-          <div className="flex gap-6">
-            <button className="flex items-center gap-1">
-              <ThumbsUp
-                onClick={() => {
-                  IssuesEndpoints.likeIssue(postId).then(() => {
-                    fetchSpecificIssue();
-                  });
-                }}
-                className="size-4  text-green-500"
-                fill={
-                  issue?.relevant?.some(
-                    (like) => like?.user === globalUser?._id
-                  )
-                    ? "currentColor"
-                    : "none"
-                }
-              />
-              <span className="text-sm text-green-500">
-                {issue?.relevant?.length} Relevant
-              </span>
-            </button>
-            <button className="flex items-center gap-1">
-              <ThumbsDown
-                onClick={() => {
-                  IssuesEndpoints.disLikeIssue(postId).then(() => {
-                    fetchSpecificIssue();
-                  });
-                }}
-                fill={
-                  issue?.irrelevant?.some(
-                    (dislike) => dislike?.user === globalUser?._id
-                  )
-                    ? "currentColor"
-                    : "none"
-                }
-                className="size-4 text-red-500"
-              />
-              <span className="text-sm text-red-500">
-                {issue?.irrelevant?.length} Not Relevant
-              </span>
-            </button>
-            <button className="flex items-center gap-1">
-              <MessageCircle className="size-4" />
-              <span className="text-sm">Comments</span>
-            </button>
-            <button className="flex items-center gap-1">
-              <Share2 className="size-4" />
-              <span className="text-sm">Share</span>
-            </button>
+        {["draft", "proposed"]?.includes(issue?.publishedStatus || "") ? (
+          <>
+            {issue?.publishedStatus === "draft" && (
+              <Button className="btn btn-primary">Save</Button>
+            )}
+            {issue?.publishedStatus === "proposed" &&
+              currentUserRole === "admin" && (
+                <div className="flex justify-end gap-3">
+                  <Button variant={"destructive"} className="">
+                    Reject
+                  </Button>
+                  <Button
+                    className=""
+                    onClick={() => {
+                      IssuesEndpoints.adoptIssue(postId).then(() => {
+                        fetchSpecificIssue();
+                      });
+                    }}
+                  >
+                    Approve & Adopt
+                  </Button>
+                </div>
+              )}
+          </>
+        ) : (
+          <div className="flex items-center justify-between border-t py-4">
+            <div className="flex gap-6">
+              <button className="flex items-center gap-1">
+                <ThumbsUp
+                  onClick={() => {
+                    IssuesEndpoints.likeIssue(postId).then(() => {
+                      fetchSpecificIssue();
+                    });
+                  }}
+                  className="size-4  text-green-500"
+                  fill={
+                    issue?.relevant?.some(
+                      (like) => like?.user === globalUser?._id
+                    )
+                      ? "currentColor"
+                      : "none"
+                  }
+                />
+                <span className="text-sm text-green-500">
+                  {issue?.relevant?.length} Relevant
+                </span>
+              </button>
+              <button className="flex items-center gap-1">
+                <ThumbsDown
+                  onClick={() => {
+                    IssuesEndpoints.disLikeIssue(postId).then(() => {
+                      fetchSpecificIssue();
+                    });
+                  }}
+                  fill={
+                    issue?.irrelevant?.some(
+                      (dislike) => dislike?.user === globalUser?._id
+                    )
+                      ? "currentColor"
+                      : "none"
+                  }
+                  className="size-4 text-red-500"
+                />
+                <span className="text-sm text-red-500">
+                  {issue?.irrelevant?.length} Not Relevant
+                </span>
+              </button>
+              <button className="flex items-center gap-1">
+                <Share2 className="size-4" />
+                <span className="text-sm">Share</span>
+              </button>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Comment Input */}
-        <CommentsSection plugin={plugin} postId={postId} />
+        {!["draft", "proposed"]?.includes(issue?.publishedStatus || "") && (
+          <CommentsSection plugin={plugin} postId={postId} />
+        )}
       </div>
       <IssueWhoShouldAddresList
         members={issue?.whoShouldAddress || []}

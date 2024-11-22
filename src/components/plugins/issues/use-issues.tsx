@@ -9,6 +9,7 @@ const useIssues = (section: TSections, nodeOrClubId: string) => {
   const [allIssues, setAllIssues] = useState([]);
   const [liveIssues, setLiveIssues] = useState([]);
   const [globalIssues, setGlobalIssues] = useState([]);
+  const [proposedIssues, setProposedIssues] = useState([]);
 
   console.log(section, nodeOrClubId, "useIssues");
   const fetchAllData = useCallback(async () => {
@@ -50,6 +51,14 @@ const useIssues = (section: TSections, nodeOrClubId: string) => {
         .catch((err) => {
           console.log("Error fetching active liveIssues:", err);
         }),
+
+      IssuesEndpoints.fetchProposedIssues(section, nodeOrClubId)
+        .then((response) => {
+          if (response) setProposedIssues(response);
+        })
+        .catch((err) => {
+          console.log("Error fetching proposedIssues:", err);
+        }),
     ]);
 
     setLoading(false);
@@ -64,6 +73,7 @@ const useIssues = (section: TSections, nodeOrClubId: string) => {
     allIssues,
     globalIssues,
     myIssues,
+    proposedIssues,
     refetch: fetchAllData,
     setClickTrigger,
     clickTrigger,

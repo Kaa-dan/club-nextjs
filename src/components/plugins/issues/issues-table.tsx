@@ -211,6 +211,7 @@ export default function IssueTable({
   data,
   clickTrigger,
   setClickTrigger,
+  tab,
 }: {
   plugin: TPlugins;
   section: TSections;
@@ -218,6 +219,7 @@ export default function IssueTable({
   data: any[];
   clickTrigger: boolean;
   setClickTrigger: React.Dispatch<React.SetStateAction<boolean>>;
+  tab: TIssuesLabel;
 }) {
   // const [sorting, setSorting] = useState<SortingState>([]);
 
@@ -410,9 +412,19 @@ export default function IssueTable({
     },
   ];
 
+  const getFilteredColumns = () => {
+    if (tab === "Proposed Issues") {
+      return columns.filter(
+        (col) =>
+          !("accessorKey" in col && col.accessorKey === "publishedStatus")
+      );
+    }
+    return columns;
+  };
+
   return (
     <DataTable
-      columns={columns}
+      columns={getFilteredColumns()}
       data={data}
       nodeorclubId={nodeorclubId}
       plugin={plugin}
