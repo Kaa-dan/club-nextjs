@@ -1,6 +1,6 @@
 import CreateIssueForm from "./issues/create-issues";
 import CreateRules from "@/components/plugins/rules-regulations/create.rules";
-
+import DebateForm from "./debates/create-debate";
 interface PluginProps {
   nodeOrClubId: string;
   section: TSections;
@@ -26,6 +26,6 @@ export const createPluginConfig: Record<TPlugins, PluginConfig> = {
   debate: {
     title: "Debate",
     description: "Manage Debate",
-    component: CreateRules,
+    component: DebateForm,
   },
 };

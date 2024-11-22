@@ -1,4 +1,5 @@
 import { mainAxios } from "@/lib/mainAxios";
+import { error } from "console";
 import { type } from "os";
 
 export class Endpoints {
@@ -276,6 +277,119 @@ export class Endpoints {
   static async saveDraft(data: any) {
     try {
       const response = await mainAxios.post("/rules-regulations/draft", data);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async updateRule(data: FormData) {
+    try {
+      const response = await mainAxios.put("/rules-regulations", data);
+
+      return response.data;
+    } catch (error) {
+      console.error("Error in updateRule:", error);
+      throw error;
+    }
+  }
+
+  static async myRules(entity: string, type: string) {
+    try {
+      const response = await mainAxios.get(
+        `/rules-regulation/get-my-rules?entity=${entity}&type?=${type}`
+      );
+    } catch (error) {
+      throw error;
+    }
+  }
+  static async postDebate(data: any) {
+    try {
+      const response = await mainAxios.post("/debate", data, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async fetchMyDebate(entity: string, entityId: string) {
+    try {
+      const response = await mainAxios.get(
+        `debate/my-debates?entityId=${entityId}&entity=${entity}`
+      );
+      return response.data;
+    } catch (error) {
+      return error;
+    }
+  }
+
+  static async fetchAllDebates(entity: string, entityId: string) {
+    try {
+      const response = await mainAxios.get(
+        `debate/all-debates?entityId=${entityId}&entity=${entity}`
+      );
+      return response.data;
+    } catch (error) {
+      return error;
+    }
+  }
+
+  static async fetchOnGoingDebates(entity: string, entityId: string) {
+    try {
+      const response = await mainAxios.get(
+        `debate/ongoing?entityId=${entityId}&entity=${entity}`
+      );
+      return response.data;
+    } catch (error) {
+      return error;
+    }
+  }
+  static async fetchGlobalDebates(entity: string, entityId: string) {
+    try {
+      const response = await mainAxios.get("debate/global");
+      return response.data;
+    } catch (error) {
+      return error;
+    }
+  }
+
+  static async viewDebate(debateId: string) {
+    try {
+      const response = await mainAxios.get(`debate/view/${debateId}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+  static async notAdoptedClubs(debateId: string) {
+    try {
+      const response = await mainAxios.get(
+        `debate/get-clubs-nodes-notadopted/${debateId}`
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+  static async adoptDebate(
+    debateId: string,
+    type: "club" | "node",
+    clubId?: string,
+    nodeId?: string
+  ) {
+    console.log({ debateId });
+
+    try {
+      const response = await mainAxios.post("debate/adopt", {
+        debateId,
+        type,
+        clubId,
+        nodeId,
+      });
       return response.data;
     } catch (error) {
       throw error;

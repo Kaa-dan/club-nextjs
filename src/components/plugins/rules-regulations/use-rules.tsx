@@ -46,6 +46,8 @@ const useRules = (section: TSections, nodeOrClubId: string) => {
         nodeOrClubId
       )
         .then((response) => {
+          console.log({ myyyRules: response });
+
           if (response) setMyRules(response);
         })
         .catch((err) => {
