@@ -50,9 +50,9 @@ const EmailInput = forwardRef<HTMLInputElement, any>(
       } catch (error: any) {
         //handling error
         if (error.response) {
-          toast.error(error.response.data.message);
+          toast.error(error.response.data.message || "Something Went Wrong!");
         } else {
-          toast.error(error.message);
+          toast.error(error.message || "Something Went Wrong!");
         }
       }
     };

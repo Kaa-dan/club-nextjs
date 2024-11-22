@@ -6,16 +6,7 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 
-import {
-  Ellipsis,
-  HomeIcon,
-  Icon,
-  LogOut,
-  Pin,
-  Plus,
-  Trash2,
-  X,
-} from "lucide-react";
+import { Ellipsis, HomeIcon, LogOut, Pin, Plus, X } from "lucide-react";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -36,18 +27,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { use, useEffect, useState } from "react";
-import { DialogHeader, DialogFooter } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { boolean } from "zod";
+import { useEffect, useState } from "react";
 import { pinClub } from "@/components/pages/club/endpoint";
 import { toast } from "sonner";
 import { useTokenStore } from "@/store/store";
@@ -58,15 +38,7 @@ import { useNodeStore } from "@/store/nodes-store";
 import { PopoverClose } from "@radix-ui/react-popover";
 import { ClubEndpoints } from "@/utils/endpoints/club";
 import { NodeEndpoints } from "@/utils/endpoints/node";
-import {
-  AlertDialogHeader,
-  AlertDialog,
-  AlertDialogTrigger,
-  AlertDialogContent,
-  AlertDialogTitle,
-  AlertDialogCancel,
-  AlertDialogAction,
-} from "@/components/ui/alert-dialog";
+import CustomAlertDialog from "@/components/ui/custom/custom-alert-dialog";
 
 interface MenuProps {
   isOpen: boolean | undefined;
@@ -452,11 +424,6 @@ export function Menu({ isOpen }: MenuProps) {
                                               />
                                             </>
                                           )}
-                                          {/* <span
-                                          className="text-xs text-primary hover:underline"
-                                        >
-                                          Create Node {groupLabel}
-                                        </span> */}
                                           <PopoverClose>
                                             <div className="p-2">
                                               <X className="size-4" />
@@ -775,66 +742,33 @@ export function Menu({ isOpen }: MenuProps) {
             <TooltipProvider disableHoverableContent>
               <Tooltip delayDuration={100}>
                 <TooltipTrigger asChild>
-                  {/* <Button
-                    onClick={() => {
-                      clearStore();
-                      router.replace("/sign-in");
-                    }}
-                    variant="outline"
-                    className="mt-5 h-10 w-full justify-center"
-                  >
-                    <span className={cn(isOpen === false ? "" : "mr-4")}>
-                      <LogOut size={18} />
-                    </span>
-                    <p
-                      className={cn(
-                        "whitespace-nowrap",
-                        isOpen === false ? "opacity-0 hidden" : "opacity-100"
-                      )}
-                    >
-                      Sign out
-                    </p>
-                  </Button> */}
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
+                  <CustomAlertDialog
+                    trigger={
                       <Button
                         variant="outline"
-                        className="mt-5 h-10 w-full justify-center"
+                        className="mt-5 h-12 w-full justify-center  gap-2 hover:bg-red-50 hover:text-red-600"
                       >
-                        <span className={cn(isOpen === false ? "" : "mr-4")}>
-                          <LogOut size={18} />
-                        </span>
+                        <LogOut size={18} />
                         <p
                           className={cn(
                             "whitespace-nowrap",
-                            isOpen === false
-                              ? "opacity-0 hidden"
-                              : "opacity-100"
+                            !isOpen && "hidden"
                           )}
                         >
                           Sign out
                         </p>
                       </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle className="text-center">
-                          Are you absolutely sure?
-                        </AlertDialogTitle>
-                      </AlertDialogHeader>
-                      <div className="flex w-full justify-center gap-4">
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={() => {
-                            clearStore();
-                            router.replace("/sign-in");
-                          }}
-                        >
-                          Continue
-                        </AlertDialogAction>
-                      </div>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                    }
+                    title="Sign Out Confirmation"
+                    description="Are you sure you want to sign out? You'll need to sign in again to access your account."
+                    type="error"
+                    actionText="Sign out"
+                    cancelText="Cancel"
+                    onAction={() => {
+                      clearStore();
+                      router.replace("/sign-in");
+                    }}
+                  />
                 </TooltipTrigger>
                 {isOpen === false && (
                   <TooltipContent side="right">Sign out</TooltipContent>
