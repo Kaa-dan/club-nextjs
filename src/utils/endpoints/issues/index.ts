@@ -64,4 +64,9 @@ export class IssuesEndpoints {
         return response.data
     }
 
+    static async fetchProposedIssues(entity: TSections, entityId: string) {
+        const response = await mainAxios.get(`/issues/proposed-issues/${entity}/${entityId}`);
+        return response.data;
+    }
+
 }
