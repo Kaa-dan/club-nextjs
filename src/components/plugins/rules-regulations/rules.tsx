@@ -336,7 +336,7 @@ export function RulesTable({
   const columns: ColumnDef<Rule>[] = [
     {
       accessorKey: "sno",
-      header: "SNO",
+      header: "No.",
       cell: ({ row }) => <div className="font-medium">{row.index + 1}</div>,
     },
     {
@@ -346,7 +346,7 @@ export function RulesTable({
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Details
+          Rules & Regulations
           <ArrowUpDown className="ml-2 size-4" />
         </Button>
       ),
@@ -371,7 +371,7 @@ export function RulesTable({
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Posted
+          Posted Date
           <ArrowUpDown className="ml-2 size-4" />
         </Button>
       ),
@@ -390,7 +390,7 @@ export function RulesTable({
     },
     {
       accessorKey: "createdBy",
-      header: "Author",
+      header: "Posted by",
       cell: ({ row }) => {
         const postedBy = row.getValue("createdBy") as Rule["createdBy"];
         return (
@@ -419,7 +419,7 @@ export function RulesTable({
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Engagement
+          Relevance Score
           <ArrowUpDown className="ml-2 size-4" />
         </Button>
       ),
