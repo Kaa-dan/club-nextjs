@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { Controller } from "react-hook-form";
-
+import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -12,6 +12,14 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
 import { Calendar, X } from "lucide-react";
 import {
   Form,
@@ -26,6 +34,13 @@ import { useParams } from "next/navigation";
 import ReactQuill from "react-quill-new";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { DialogHeader } from "@/components/ui/dialog";
+
+import { url } from "inspector";
+import {
+  AlertDialogHeader,
+  AlertDialogFooter,
+} from "@/components/ui/alert-dialog";
 
 const formSchema = z.object({
   topic: z.string().min(1, "Debate topic is required"),
@@ -66,6 +81,8 @@ const DebateForm = ({
       files: [],
     },
   });
+
+  const [open, setOpen] = useState<boolean>(false);
   // Form submission
   const onSubmit = async (data: FormValues) => {
     try {
@@ -101,8 +118,8 @@ const DebateForm = ({
       console.error("Error submitting form:", error);
       toast.error("Failed to submit rule. Please try again.");
     } finally {
-      // setIsAlertOpen(false);
-      // reset();
+      setOpen(false);
+      reset();
     }
   };
 
@@ -157,7 +174,10 @@ const DebateForm = ({
     <Card className="max-w-5xl mx-auto">
       <CardContent className="p-6">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form
+            onSubmit={form.handleSubmit(() => setOpen(true))}
+            className="space-y-6"
+          >
             <div className="grid grid-cols-2 gap-6">
               <FormField
                 control={form.control}
@@ -309,18 +329,33 @@ const DebateForm = ({
                       <div className="grid grid-cols-2 gap-2 mt-2">
                         {files.map((file, index) => (
                           <div key={index} className="relative group">
-                            <div className="border rounded-lg p-2 bg-gray-50 text-xs">
-                              <div className="truncate">{file.name}</div>
-                              <div className="text-gray-500">
-                                {(file.size / 1024).toFixed(1)} KB
+                            <div className="border rounded-lg p-2 bg-gray-50 hover:bg-gray-100 transition-colors">
+                              <div className="relative h-32 w-full mb-2">
+                                <Image
+                                  width={40}
+                                  height={40}
+                                  src={URL.createObjectURL(file)}
+                                  alt={file.name}
+                                  className="rounded-md object-cover w-full h-full"
+                                />
+                              </div>
+
+                              <div className="space-y-1">
+                                <div className="text-sm font-medium truncate">
+                                  {file.name}
+                                </div>
+                                <div className="text-xs text-gray-500">
+                                  {(file.size / 1024).toFixed(1)} KB
+                                </div>
                               </div>
                             </div>
+
                             <button
                               type="button"
                               onClick={() => removeFile(index)}
-                              className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                              className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                             >
-                              <X className="h-3 w-3" />
+                              <X className="h-4 w-4" />
                             </button>
                           </div>
                         ))}
@@ -438,6 +473,28 @@ const DebateForm = ({
           </form>
         </Form>
       </CardContent>
+
+      <AlertDialog open={open} onOpenChange={setOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Create New Debate</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to create this Debate?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={form.formState.isSubmitting}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              disabled={form.formState.isSubmitting}
+              onClick={form.handleSubmit(onSubmit)}
+            >
+              {form.formState.isSubmitting ? "Submitting..." : "Publish"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 };

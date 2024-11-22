@@ -20,6 +20,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useRouter } from "next/navigation";
+import { AvatarImage, AvatarFallback, Avatar } from "@/components/ui/avatar";
 
 // Sample data structure
 
@@ -134,6 +135,18 @@ export default function DebateTable({
     {
       accessorKey: "postedBy",
       header: "Posted by",
+      cell: ({ row }) => {
+        const { firstName, profileIMage } = row?.original?.createdBy; // Assuming `postedBy` contains `name` and `avatar`
+        return (
+          <div className="flex items-center gap-2">
+            <Avatar>
+              <AvatarImage src={profileIMage} alt={firstName} />
+              <AvatarFallback>{firstName || "?"}</AvatarFallback>
+            </Avatar>
+            <span>{firstName}</span>
+          </div>
+        );
+      },
     },
   ];
   const [sorting, setSorting] = useState<SortingState>([]);

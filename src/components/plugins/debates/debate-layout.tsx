@@ -92,7 +92,7 @@ const DebateLayout = ({
         </p>
       </div>
 
-      <Tabs defaultValue="Live Issues" className="w-full space-y-4 ">
+      <Tabs defaultValue="My Debates" className="w-full space-y-4 ">
         <TabsList className="flex h-auto flex-wrap gap-1 bg-background p-1">
           {tabs.map((tab) => (
             <TabsTrigger
