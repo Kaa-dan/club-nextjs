@@ -18,7 +18,7 @@ export class RulesAndRegulationsEndpoints {
 
   static async fetchMyRulesOnNodeOrClub(section: TSections, entityId: string) {
     const response = await mainAxios.get(
-      `/rules-regulations/get-my-rules?type=${section}&enitityId=${entityId}`
+      `/rules-regulations/get-my-rules?type=${section}&entity=${entityId}`
     );
     return response.data;
   }

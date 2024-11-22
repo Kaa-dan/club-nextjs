@@ -1,48 +1,40 @@
 import React from "react";
-import CreateRules from "@/components/plugins/rules-regulations/create.rules";
-import {
-  Breadcrumb,
-  BreadcrumbList,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbSeparator,
-  BreadcrumbPage,
-} from "@/components/ui/breadcrumb";
-const Page = async ({ params }: { params: Promise<{ clubId: string }> }) => {
-  const { clubId } = await params;
+import { CustomBreadcrumb } from "@/components/globals/breadcrumb-component";
+import { createPluginConfig } from "@/components/plugins/create-plugins.config";
+
+const Page = async ({
+  params,
+}: {
+  params: Promise<{ clubId: string; plugin: string }>;
+}) => {
+  const { clubId, plugin } = await params;
+
+  const isValidPlugin = (plugin: string): plugin is TPlugins =>
+    plugin in createPluginConfig;
+
+  if (!isValidPlugin(plugin)) return <div>Plugin not found</div>;
+
+  const config = createPluginConfig[plugin];
+  const PluginComponent = config.component;
+
+  const breadcrumbItems = [
+    { label: config.title, href: `/club/${clubId}/${plugin}` },
+    { label: `Create new ${plugin}` },
+  ];
+
   return (
-    <div className=" min-w-[100%]">
+    <div className=" min-w-full">
       <div className="flex flex-col gap-4">
         <div>
-          <h1 className="text-xl">Rules & Regulations</h1>
+          <h1 className="text-xl">{config.title}</h1>
         </div>
         <div>
-          <p className="text-xs">
-            Lorem ipsum dolor, sit amet consectetur adipisicing elit. Mollitia
-          </p>
+          <p className="text-xs">{config.description}</p>
         </div>
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink
-                className="text-xs"
-                href={`/club/${clubId}/rules`}
-              >
-                Rules & Regulations
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage className="text-xs">
-                Create new rule
-              </BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
+        <CustomBreadcrumb items={breadcrumbItems} className="my-1" />
 
-        <div className="w-[100%]">
-          {}
-          <CreateRules nodeOrClubId={clubId} section={"club"} />
+        <div className="w-full">
+          <PluginComponent nodeOrClubId={clubId} section="club" />
         </div>
       </div>
     </div>

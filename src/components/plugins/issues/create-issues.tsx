@@ -2,9 +2,9 @@
 
 import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { format } from "date-fns";
-import { Calendar, Trash2 } from "lucide-react";
+import { Controller, useForm, UseFormReturn } from "react-hook-form";
+import { format, set } from "date-fns";
+import { Calendar, FileIcon, Trash2, X } from "lucide-react";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -43,13 +43,26 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import TooltipLabel from "@/components/globals/forms/tooltip-label";
-import {
-  CustomBreadcrumb,
-  type BreadcrumbItemType,
-} from "@/components/globals/breadcrumb-component";
 import { Card } from "@/components/ui/card";
+import { Endpoints } from "@/utils/endpoint";
+import { useClubStore } from "@/store/clubs-store";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
+import { Badge } from "@/components/ui/badge";
+import { MultiSelect } from "@/components/ui/multi-select";
+import { IssuesEndpoints } from "@/utils/endpoints/issues";
+import { toast } from "sonner";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useNodeStore } from "@/store/nodes-store";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_FILES = 5;
 const ACCEPTED_FILE_TYPES = [
   "image/jpeg",
   "image/png",
@@ -61,32 +74,41 @@ const ACCEPTED_FILE_TYPES = [
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
 ];
 
+const objectIdRegex = /^[0-9a-fA-F]{24}$/;
+const isValidObjectId = (value: string) => objectIdRegex.test(value);
+
 const formSchema = z.object({
-  issueTitle: z.string().min(1, "Issue title is required"),
+  title: z.string().min(1, "Title is required"),
   issueType: z.string().min(1, "Issue type is required"),
-  whereWho: z.string().min(1, "Where/Who is required"),
-  deadline: z.date().optional(),
-  reasonOfDeadline: z.string().min(1, "Reason of deadline is required"),
+  description: z.string().min(1, "Description is required"),
+  whereOrWho: z.string().min(1, "Where/Who is required"),
+  deadline: z.date(),
+  reasonOfDeadline: z.string(),
   significance: z.string().min(1, "Significance is required"),
-  whoShouldAddress: z.string().min(1, "Who should address is required"),
-  issueDescription: z.string().min(1, "Issue description is required"),
+  whoShouldAddress: z.array(
+    z.string().refine(isValidObjectId, "Invalid ObjectId format")
+  ),
   isPublic: z.boolean().default(false),
-  showName: z.boolean().default(false),
+  isAnonymous: z.boolean().default(false),
   files: z
     .array(
       z.object({
-        name: z.string(),
-        size: z.number().max(MAX_FILE_SIZE, "File size must be less than 5MB"),
-        type: z
-          .string()
+        file: z
+          .instanceof(File)
           .refine(
-            (type) => ACCEPTED_FILE_TYPES.includes(type),
-            "Invalid file type"
+            (file) => file.size <= MAX_FILE_SIZE,
+            `File size should be less than 5MB`
+          )
+          .refine(
+            (file) => ACCEPTED_FILE_TYPES.includes(file.type as any),
+            `File type must be one of: ${ACCEPTED_FILE_TYPES.join(", ")}`
           ),
-        url: z.string(),
+        preview: z.string().optional(),
       })
     )
-    .optional(),
+    .max(MAX_FILES, `You can only upload up to ${MAX_FILES} files`)
+    .optional()
+    .default([]),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -98,67 +120,113 @@ export default function CreateIssueForm({
   nodeOrClubId: string;
   section: TSections;
 }) {
-  const breadcrumbItems: BreadcrumbItemType[] = [
-    {
-      label: "Issues",
-      href: `/${section}/${nodeOrClubId}/issues`,
-    },
-    {
-      label: "Create",
-    },
-  ];
+  const { currentClub, userJoinedClubs } = useClubStore((state) => state);
+  const { currentNode } = useNodeStore((state) => state);
   const [showPublishDialog, setShowPublishDialog] = React.useState(false);
   const [uploadedFiles, setUploadedFiles] = React.useState<File[]>([]);
+  const imageRef = React.useRef<HTMLInputElement>(null);
+  const [issueStatus, setIssueStatus] = React.useState<"draft" | "published">(
+    "draft"
+  );
+
+  const router = useRouter();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       isPublic: false,
-      showName: false,
+      isAnonymous: false,
     },
   });
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    setUploadedFiles((prev) => [...prev, ...files]);
+  const files = form.watch("files") || [];
+  const handleFiles = React.useCallback(
+    (newFiles: File[]) => {
+      const currentFiles = files;
+      if (currentFiles.length + newFiles.length > MAX_FILES) {
+        toast.warning(`You can only upload a maximum of ${MAX_FILES} files.`);
+        return;
+      }
 
-    // Create file objects for form
-    const fileObjects = files.map((file) => ({
-      name: file.name,
-      size: file.size,
-      type: file.type,
-      url: URL.createObjectURL(file),
-    }));
+      const filesWithPreviews = newFiles.map((file) => ({
+        file,
+        preview: file.type.startsWith("image/")
+          ? URL.createObjectURL(file)
+          : undefined,
+      }));
 
-    const currentFiles = form.getValues("files") || [];
-    form.setValue("files", [...currentFiles, ...fileObjects]);
-  };
+      form.setValue("files", [...currentFiles, ...filesWithPreviews], {
+        shouldValidate: true,
+      });
+    },
+    [files, form.setValue]
+  );
 
-  const removeFile = (index: number) => {
-    const newFiles = [...uploadedFiles];
-    newFiles.splice(index, 1);
-    setUploadedFiles(newFiles);
+  const handleFileInput = React.useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (e.target.files) {
+        const selectedFiles = Array.from(e.target.files);
+        handleFiles(selectedFiles);
+      }
+    },
+    [handleFiles]
+  );
 
-    const formFiles = form.getValues("files") || [];
-    formFiles.splice(index, 1);
-    form.setValue("files", formFiles);
-  };
+  const removeFile = React.useCallback(
+    (index: number) => {
+      const currentFiles = files;
+      const fileToRemove = currentFiles[index];
+      if (fileToRemove.preview) {
+        URL.revokeObjectURL(fileToRemove.preview);
+      }
+
+      if (imageRef.current) {
+        imageRef.current.value = "";
+      }
+
+      const updatedFiles = [...currentFiles];
+      updatedFiles.splice(index, 1);
+      form.setValue("files", updatedFiles, { shouldValidate: true });
+    },
+    [files, form.setValue]
+  );
 
   const onSubmit = async (values: FormValues) => {
-    form.reset();
-    setUploadedFiles([]);
+    try {
+      const formData = new FormData();
+      Object.entries(values).forEach(([key, value]) => {
+        if (key !== "files") {
+          formData.append(key, value.toString());
+        }
+      });
+      values.files?.forEach((fileObj: any) => {
+        formData.append("files", fileObj.file);
+      });
+      formData.append(section, nodeOrClubId);
+      formData.append("publishedStatus", issueStatus);
+
+      await IssuesEndpoints.createIssue(formData);
+
+      toast.success("Issue created successfully");
+      router.push(`/${section}/${nodeOrClubId}/issues`);
+      setUploadedFiles([]);
+      setShowPublishDialog(false);
+      form.reset();
+    } catch (error) {
+      console.log(error, "error");
+      toast.error("Something went wrong");
+    }
   };
 
   return (
-    <div className="mx-auto max-w-2xl p-6">
-      <CustomBreadcrumb items={breadcrumbItems} className="my-4" />
+    <div className="mx-auto  p-6">
       <Card className="p-4">
         <Form {...form}>
           <form className="w-full space-y-6">
             <div className="flex w-full flex-col gap-3  md:flex-row">
               <FormField
                 control={form.control}
-                name="issueTitle"
+                name="title"
                 render={({ field }) => (
                   <FormItem className="w-full md:w-1/2">
                     <TooltipLabel
@@ -209,7 +277,7 @@ export default function CreateIssueForm({
             <div className="flex w-full flex-col gap-3  md:flex-row">
               <FormField
                 control={form.control}
-                name="whereWho"
+                name="whereOrWho"
                 render={({ field }) => (
                   <FormItem className="w-full md:w-1/2">
                     <TooltipLabel
@@ -309,13 +377,33 @@ export default function CreateIssueForm({
               control={form.control}
               name="whoShouldAddress"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="flex w-full flex-col md:w-1/2">
                   <TooltipLabel
                     label="Who should address"
                     tooltip="Enter a clear, concise title for your issue"
                   />
                   <FormControl>
-                    <Input {...field} />
+                    <MultiSelect
+                      options={
+                        section === "club"
+                          ? currentClub?.members?.map((member: any) => ({
+                              title: member?.user?.userName,
+                              value: member?.user?._id,
+                            })) || []
+                          : currentNode?.members?.map((member: any) => ({
+                              title: member?.user?.userName,
+                              value: member?.user?._id,
+                            })) || []
+                      }
+                      defaultValue={field.value || []}
+                      onValueChange={(selectedValues) => {
+                        field.onChange(selectedValues);
+                      }}
+                      placeholder="Select where/who"
+                      variant="inverted"
+                      // maxCount={serviceTypes.length}
+                      maxCount={1}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -324,7 +412,7 @@ export default function CreateIssueForm({
 
             <FormField
               control={form.control}
-              name="issueDescription"
+              name="description"
               render={({ field }) => (
                 <FormItem>
                   <TooltipLabel
@@ -347,16 +435,17 @@ export default function CreateIssueForm({
               <Input
                 type="file"
                 multiple
-                onChange={handleFileChange}
+                onChange={handleFileInput}
                 accept={ACCEPTED_FILE_TYPES.join(",")}
                 className="cursor-pointer"
+                ref={imageRef}
               />
               <FormDescription>
                 Upload images, PDFs, Word documents, or Excel files (max 5MB
                 each)
               </FormDescription>
 
-              {uploadedFiles.length > 0 && (
+              {/* {uploadedFiles.length > 0 && (
                 <div className="grid gap-4">
                   {uploadedFiles.map((file, index) => (
                     <div
@@ -372,6 +461,44 @@ export default function CreateIssueForm({
                         onClick={() => removeFile(index)}
                       >
                         <Trash2 className="size-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )} */}
+
+              {files.length > 0 && (
+                <div className="mt-2 grid grid-cols-2 gap-2">
+                  {files.map((fileObj, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between rounded-lg border p-2"
+                    >
+                      <div className="flex items-center space-x-2">
+                        {fileObj.file.type.startsWith("image/") &&
+                        fileObj.preview ? (
+                          <Image
+                            src={fileObj.preview}
+                            alt={`Preview of ${fileObj.file.name}`}
+                            width={40}
+                            height={40}
+                            className="rounded object-cover"
+                          />
+                        ) : (
+                          <FileIcon className="size-10 text-muted-foreground" />
+                        )}
+                        <span className="max-w-[150px] truncate text-sm">
+                          {fileObj.file.name}
+                        </span>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeFile(index)}
+                      >
+                        <X className="size-4" />
+                        <span className="sr-only">Remove file</span>
                       </Button>
                     </div>
                   ))}
@@ -401,7 +528,7 @@ export default function CreateIssueForm({
 
             <FormField
               control={form.control}
-              name="showName"
+              name="isAnonymous"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
@@ -428,7 +555,8 @@ export default function CreateIssueForm({
                 type="button"
                 onClick={() => {
                   if (form.formState.isValid) {
-                    form.handleSubmit(onSubmit)();
+                    setShowPublishDialog(true);
+                    setIssueStatus("draft");
                   } else {
                     form.trigger();
                   }
@@ -441,6 +569,7 @@ export default function CreateIssueForm({
                 onClick={() => {
                   if (form.formState.isValid) {
                     setShowPublishDialog(true);
+                    setIssueStatus("published");
                   } else {
                     form.trigger();
                   }
@@ -463,12 +592,12 @@ export default function CreateIssueForm({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={form.formState.isSubmitting}>
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => {
-                form.handleSubmit(onSubmit)();
-                setShowPublishDialog(false);
-              }}
+              onClick={form.handleSubmit(onSubmit)}
+              disabled={form.formState.isSubmitting}
             >
               Publish
             </AlertDialogAction>

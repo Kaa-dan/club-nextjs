@@ -30,6 +30,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Endpoints } from "@/utils/endpoint";
@@ -80,9 +81,9 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 type Rule = {
+  _id: string;
   id: number;
   title: string;
-  _id: string;
   description: string;
   publishedDate: string;
   club: string;
@@ -365,15 +366,6 @@ export function RulesTable({
     },
     {
       accessorKey: "publishedDate",
-      /*************  ✨ Codeium Command ⭐  *************/
-      /**
-       * @description
-       * The header cell for the `publishedDate` column.
-       * It displays a button that toggles the sorting of the column when clicked.
-       * The button displays the text "Posted" and an arrow up/down icon that
-       * indicates the direction of the sort.
-       */
-      /******  b94d036e-89dc-42f6-b14c-14391b9c0d6c  *******/
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -475,6 +467,7 @@ export function RulesTable({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuItem>
                 <Link
                   href={`/${section}/${nodeorclubId}/${plugin}/${row.original._id}/view`}
@@ -557,6 +550,7 @@ const ContentDailog = ({
   }, [formData, form]);
 
   const fetchUserNodesOrClubs = async () => {
+    console.log("fetchUserNodesOrClubs");
     try {
       if (section === "node") {
         const response = await NodeEndpoints.fetchUsersOfNode(sectionId);
@@ -693,7 +687,7 @@ const ContentDailog = ({
                 Cancel
               </Button>
               <Button type="submit" disabled={form?.formState?.isSubmitting}>
-                {form?.formState?.isSubmitting ? "Submitting..." : "onSubmit"}
+                {form?.formState?.isSubmitting ? "Submitting..." : "Submit"}
               </Button>
             </DialogFooter>
           </form>

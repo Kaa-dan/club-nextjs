@@ -45,7 +45,7 @@ interface ClubAndNodesData {
   clubs: Item[];
   nodes: Item[];
 }
-const View = () => {
+const View = ({ section }: { section: "club" | "node" }) => {
   const { globalUser } = useTokenStore((state) => state);
   const router = useRouter();
   const [rule, setRule] = useState<TRule>();
@@ -103,8 +103,13 @@ const View = () => {
     return moment(date).fromNow();
   };
 
-  const adopt = (clubId: string) => {
-    Endpoints.adoptRule(postId as string, "club", clubId)
+  const adopt = (item: { _id: string; type: "Club" | "Node" }) => {
+    Endpoints.adoptRule(
+      postId as string,
+      item?.type?.toLowerCase(),
+      item.type === "Club" ? item._id : null,
+      item.type === "Node" ? item._id : null
+    )
       .then((res) => {
         toast.success("rule adopted succesfully");
         fetchNodesAndClubs();
@@ -145,14 +150,19 @@ const View = () => {
       <div className="mb-4">
         <div className="mb-1 text-sm text-gray-500">Tags:</div>
         <div className="flex gap-2">
-          {rule?.tags?.map((tag, index) => (
-            <span
-              key={index}
-              className="rounded-full bg-gray-100 px-3 py-1 text-sm"
-            >
-              {tag}
-            </span>
-          ))}
+          {rule?.tags?.map(
+            (tag, index) => (
+              console.log(rule?.tags, "tags"),
+              (
+                <span
+                  key={index}
+                  className="rounded-full bg-gray-100 px-3 py-1 text-sm"
+                >
+                  {tag}
+                </span>
+              )
+            )
+          )}
         </div>
       </div>
 
@@ -176,10 +186,12 @@ const View = () => {
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
           {rule?.createdBy?.profileImage ? (
-            <img
+            <Image
               src={rule.createdBy.profileImage}
               alt={rule.createdBy?.userName || "User"}
               className="size-8 rounded-full object-cover"
+              width={32}
+              height={32}
             />
           ) : (
             <div className="flex size-8 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white">
@@ -263,7 +275,7 @@ const View = () => {
                             {item.description}
                           </span>
                         </div>
-                        <Button size="sm" onClick={() => adopt(item._id)}>
+                        <Button size="sm" onClick={() => adopt(item as any)}>
                           Adopt
                         </Button>
                       </div>
@@ -293,7 +305,10 @@ const View = () => {
 
       {/* Document Info */}
       {rule?.files?.map((file) => (
-        <div key={file._id} className="mb-4 flex items-center gap-4">
+        <div
+          key={file._id}
+          className="mb-4 flex cursor-pointer items-center gap-4"
+        >
           <div className="flex items-center gap-2">
             <div className="flex size-8 items-center justify-center rounded bg-gray-100">
               {file.mimetype.includes("image") && (
@@ -314,7 +329,10 @@ const View = () => {
                 )}
             </div>
             <div>
-              <div onClick={() => router.push(file.url)} className="text-sm">
+              <div
+                onClick={() => window.open(file.url, "_blank")}
+                className="text-sm"
+              >
                 {file.originalname}
               </div>
             </div>

@@ -54,7 +54,7 @@ const CommentsSection: React.FC<{
 
   async function getComments() {
     try {
-      const response = await Endpoints.getRulesComments(postId);
+      const response = await Endpoints.getRulesComments(plugin, postId);
       if (response) {
         setComments(response);
         console.log({ response });

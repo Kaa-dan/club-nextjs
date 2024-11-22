@@ -12,7 +12,7 @@ export class NodeEndpoints {
     }
 
     static async fetchUsersOfNode(nodeId: string) {
-        const response = await mainAxios.get(`/node/node-users/${nodeId}`);
+        const response = await mainAxios.get(`/node/node-members/${nodeId}`);
         return response.data;
     }
 }

@@ -26,12 +26,13 @@ export function BoardingForm() {
         setGlobalUser(response.data);
       }
     } catch (error: any) {
-      toast.error(error.message);
+      toast.error(error.message || "Something Went Wrong!");
       console.log(error);
     }
   };
 
   // fetch onboarding
+
   useEffect(() => {
     fetchOnboarding();
   }, [step]);

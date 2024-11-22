@@ -81,7 +81,11 @@ export default function Invite({ clubId }: InviteProps): JSX.Element {
     } catch (error: unknown) {
       console.log({ error });
       const apiError = error as ApiError;
-      toast.error(apiError?.response?.data?.message || apiError?.message);
+      toast.error(
+        apiError?.response?.data?.message ||
+          apiError?.message ||
+          "Something Went Wrong!"
+      );
     }
   };
 

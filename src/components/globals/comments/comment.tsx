@@ -77,7 +77,9 @@ interface InteractionState {
 const Comment: React.FC<{ comment: TCommentType }> = ({ comment }) => {
   const { setComments, comments } = useCommentsStore((state) => state);
   const { globalUser } = useTokenStore((state) => state);
-  const { postId } = useParams<{ postId: string }>();
+  const { postId, plugin } = useParams<{ postId: string; plugin: TPlugins }>();
+
+  console.log("lkasdflalfd", postId, plugin);
 
   const [showReplies, setShowReplies] = useState(false);
   const [showReplyInput, setShowReplyInput] = useState(false);
@@ -155,6 +157,7 @@ const Comment: React.FC<{ comment: TCommentType }> = ({ comment }) => {
       const formData = new FormData();
       formData.append("content", replyText);
       formData.append("entityId", postId);
+      formData.append("entityType", plugin);
       formData.append("parent", comment._id);
 
       const res = await Endpoints.postRulesComment(formData);

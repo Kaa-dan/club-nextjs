@@ -6,16 +6,7 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 
-import {
-  Ellipsis,
-  HomeIcon,
-  Icon,
-  LogOut,
-  Pin,
-  Plus,
-  Trash2,
-  X,
-} from "lucide-react";
+import { Ellipsis, HomeIcon, LogOut, Pin, Plus, X } from "lucide-react";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -36,18 +27,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { use, useEffect, useState } from "react";
-import { DialogHeader, DialogFooter } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { boolean } from "zod";
+import { useEffect, useState } from "react";
 import { pinClub } from "@/components/pages/club/endpoint";
 import { toast } from "sonner";
 import { useTokenStore } from "@/store/store";
@@ -58,15 +38,7 @@ import { useNodeStore } from "@/store/nodes-store";
 import { PopoverClose } from "@radix-ui/react-popover";
 import { ClubEndpoints } from "@/utils/endpoints/club";
 import { NodeEndpoints } from "@/utils/endpoints/node";
-import {
-  AlertDialogHeader,
-  AlertDialog,
-  AlertDialogTrigger,
-  AlertDialogContent,
-  AlertDialogTitle,
-  AlertDialogCancel,
-  AlertDialogAction,
-} from "@/components/ui/alert-dialog";
+import CustomAlertDialog from "@/components/ui/custom/custom-alert-dialog";
 
 interface MenuProps {
   isOpen: boolean | undefined;
@@ -195,16 +167,12 @@ export function Menu({ isOpen }: MenuProps) {
   async function fetchJoinedClubsAndNodes() {
     const joinedClubs = await Endpoints.fetchUserJoinedClubs();
     setUserJoinedClubs(joinedClubs);
-    console.log("==> JOINED Clubs => ", joinedClubs);
     const joinedNodes = await Endpoints.fetchUserJoinedNodes();
     setUserJoinedNodes(joinedNodes);
-    console.log("==> JOINED Nodes => ", joinedNodes);
     const requestedClubs = await ClubEndpoints.fetchUserRequestedClubs();
     setUserRequestedClubs(requestedClubs);
-    console.log("==> Requested Club => ", requestedClubs);
     const requestedNodes = await NodeEndpoints.fetchUserRequestedNodes();
     setUserRequestedNodes(requestedNodes);
-    console.log("==> Requested Node => ", requestedNodes);
   }
 
   async function fetchMenuList() {
@@ -218,7 +186,6 @@ export function Menu({ isOpen }: MenuProps) {
     setMenuList(_menuList);
     return menuList;
   }
-  console.log({ menuList });
 
   const router = useRouter();
 
@@ -243,12 +210,6 @@ export function Menu({ isOpen }: MenuProps) {
   }, []);
 
   useEffect(() => {
-    console.log({
-      userJoinedClubs,
-      userJoinedNodes,
-      userRequestedClubs,
-      userRequestedNodes,
-    });
     if (userJoinedClubs || userJoinedNodes) fetchMenuList();
   }, [
     userJoinedClubs,
@@ -463,11 +424,6 @@ export function Menu({ isOpen }: MenuProps) {
                                               />
                                             </>
                                           )}
-                                          {/* <span
-                                          className="text-xs text-primary hover:underline"
-                                        >
-                                          Create Node {groupLabel}
-                                        </span> */}
                                           <PopoverClose>
                                             <div className="p-2">
                                               <X className="size-4" />
@@ -477,6 +433,7 @@ export function Menu({ isOpen }: MenuProps) {
                                       </div>
                                       <div>
                                         <div className="px-4 pt-2 text-sm font-semibold">
+                                          {"Joined "}
                                           {groupLabel === "Nodes"
                                             ? "Nodes"
                                             : "Clubs"}
@@ -537,8 +494,11 @@ export function Menu({ isOpen }: MenuProps) {
                                                     </ContextMenuContent>
                                                   </ContextMenu>
                                                 </PopoverClose>
-                                                <span className="text-[11px] leading-tight">
-                                                  {node.name}
+                                                <span
+                                                  className="truncate text-[11px] leading-tight"
+                                                  title={node.label}
+                                                >
+                                                  {node.label}
                                                 </span>
                                               </Link>
                                             ))}
@@ -550,83 +510,86 @@ export function Menu({ isOpen }: MenuProps) {
                                             see it here!
                                           </p>
                                         )}
-                                        <div className="px-4 pt-2 text-sm font-semibold">
-                                          {"Requested "}
-                                          {groupLabel === "Nodes"
-                                            ? "Nodes"
-                                            : "Clubs"}
-                                        </div>
-                                        {menuItems?.length > 0 ? (
-                                          <div className="grid grid-cols-5 gap-3 p-2">
-                                            {requestedMenuItems?.map(
-                                              (node: any) => (
-                                                <Link
-                                                  href={`/${
-                                                    groupLabel === "Nodes"
-                                                      ? "node"
-                                                      : "club"
-                                                  }/${node?._id}`}
-                                                  key={node._id}
-                                                  className="flex flex-col items-center gap-1 rounded-lg  p-1 text-center hover:bg-muted"
-                                                >
-                                                  <PopoverClose>
-                                                    <ContextMenu>
-                                                      <ContextMenuTrigger>
-                                                        <div className="relative size-12 overflow-hidden rounded-lg">
-                                                          <Image
-                                                            src={node?.image}
-                                                            alt={
-                                                              node?.name ||
-                                                              "profile"
-                                                            }
-                                                            fill
-                                                            className="object-cover"
-                                                          />
-                                                        </div>
-                                                      </ContextMenuTrigger>
-                                                      <ContextMenuContent>
-                                                        <ContextMenuItem>
-                                                          <div className="flex w-full cursor-pointer items-center justify-between">
-                                                            <div>Pin</div>
-                                                            <div>
-                                                              <Pin
-                                                                onClick={() => {
-                                                                  if (
-                                                                    groupLabel ===
-                                                                    "Clubs"
-                                                                  ) {
-                                                                    togglePinClub(
-                                                                      node._id
-                                                                    );
-                                                                  } else if (
-                                                                    groupLabel ===
-                                                                    "Nodes"
-                                                                  ) {
-                                                                    // togglePinNode(node._id);
-                                                                  }
-                                                                }}
-                                                                strokeWidth={
-                                                                  0.75
-                                                                }
-                                                              />
-                                                            </div>
+                                        {requestedMenuItems &&
+                                        requestedMenuItems?.length > 0 ? (
+                                          <>
+                                            <div className="px-4 pt-2 text-sm font-semibold">
+                                              {"Requested "}
+                                              {groupLabel === "Nodes"
+                                                ? "Nodes"
+                                                : "Clubs"}
+                                            </div>
+                                            <div className="grid grid-cols-5 gap-3 p-2">
+                                              {requestedMenuItems?.map(
+                                                (node: any) => (
+                                                  <Link
+                                                    href={`/${
+                                                      groupLabel === "Nodes"
+                                                        ? "node"
+                                                        : "club"
+                                                    }/${node?._id}`}
+                                                    key={node._id}
+                                                    className="flex flex-col items-center gap-1 rounded-lg  p-1 text-center hover:bg-muted"
+                                                  >
+                                                    <PopoverClose>
+                                                      <ContextMenu>
+                                                        <ContextMenuTrigger>
+                                                          <div className="relative size-12 overflow-hidden rounded-lg">
+                                                            <Image
+                                                              src={node?.image}
+                                                              alt={
+                                                                node?.name ||
+                                                                "profile"
+                                                              }
+                                                              fill
+                                                              className="object-cover"
+                                                            />
                                                           </div>
-                                                        </ContextMenuItem>
-                                                      </ContextMenuContent>
-                                                    </ContextMenu>
-                                                  </PopoverClose>
-                                                  <span className="text-[11px] leading-tight">
-                                                    {node.name}
-                                                  </span>
-                                                </Link>
-                                              )
-                                            )}
-                                          </div>
+                                                        </ContextMenuTrigger>
+                                                        <ContextMenuContent>
+                                                          <ContextMenuItem>
+                                                            <div className="flex w-full cursor-pointer items-center justify-between">
+                                                              <div>Pin</div>
+                                                              <div>
+                                                                <Pin
+                                                                  onClick={() => {
+                                                                    if (
+                                                                      groupLabel ===
+                                                                      "Clubs"
+                                                                    ) {
+                                                                      togglePinClub(
+                                                                        node._id
+                                                                      );
+                                                                    } else if (
+                                                                      groupLabel ===
+                                                                      "Nodes"
+                                                                    ) {
+                                                                      // togglePinNode(node._id);
+                                                                    }
+                                                                  }}
+                                                                  strokeWidth={
+                                                                    0.75
+                                                                  }
+                                                                />
+                                                              </div>
+                                                            </div>
+                                                          </ContextMenuItem>
+                                                        </ContextMenuContent>
+                                                      </ContextMenu>
+                                                    </PopoverClose>
+                                                    <span className="text-[11px] leading-tight">
+                                                      {node?.label}
+                                                    </span>
+                                                  </Link>
+                                                )
+                                              )}
+                                            </div>
+                                          </>
                                         ) : (
                                           <p className="p-10 text-center text-gray-600">
-                                            You haven’t joined any {groupLabel}{" "}
-                                            yet. Start exploring and join one to
-                                            see it here!
+                                            You haven’t requested any{" "}
+                                            {groupLabel} yet. Start exploring
+                                            and request one to see it here!
                                           </p>
                                         )}
                                       </div>
@@ -779,66 +742,33 @@ export function Menu({ isOpen }: MenuProps) {
             <TooltipProvider disableHoverableContent>
               <Tooltip delayDuration={100}>
                 <TooltipTrigger asChild>
-                  {/* <Button
-                    onClick={() => {
-                      clearStore();
-                      router.replace("/sign-in");
-                    }}
-                    variant="outline"
-                    className="mt-5 h-10 w-full justify-center"
-                  >
-                    <span className={cn(isOpen === false ? "" : "mr-4")}>
-                      <LogOut size={18} />
-                    </span>
-                    <p
-                      className={cn(
-                        "whitespace-nowrap",
-                        isOpen === false ? "opacity-0 hidden" : "opacity-100"
-                      )}
-                    >
-                      Sign out
-                    </p>
-                  </Button> */}
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
+                  <CustomAlertDialog
+                    trigger={
                       <Button
                         variant="outline"
-                        className="mt-5 h-10 w-full justify-center"
+                        className="mt-5 h-12 w-full justify-center  gap-2 hover:bg-red-50 hover:text-red-600"
                       >
-                        <span className={cn(isOpen === false ? "" : "mr-4")}>
-                          <LogOut size={18} />
-                        </span>
+                        <LogOut size={18} />
                         <p
                           className={cn(
                             "whitespace-nowrap",
-                            isOpen === false
-                              ? "opacity-0 hidden"
-                              : "opacity-100"
+                            !isOpen && "hidden"
                           )}
                         >
                           Sign out
                         </p>
                       </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle className="text-center">
-                          Are you absolutely sure?
-                        </AlertDialogTitle>
-                      </AlertDialogHeader>
-                      <div className="flex w-full justify-center gap-4">
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={() => {
-                            clearStore();
-                            router.replace("/sign-in");
-                          }}
-                        >
-                          Continue
-                        </AlertDialogAction>
-                      </div>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                    }
+                    title="Sign Out Confirmation"
+                    description="Are you sure you want to sign out? You'll need to sign in again to access your account."
+                    type="error"
+                    actionText="Sign out"
+                    cancelText="Cancel"
+                    onAction={() => {
+                      clearStore();
+                      router.replace("/sign-in");
+                    }}
+                  />
                 </TooltipTrigger>
                 {isOpen === false && (
                   <TooltipContent side="right">Sign out</TooltipContent>

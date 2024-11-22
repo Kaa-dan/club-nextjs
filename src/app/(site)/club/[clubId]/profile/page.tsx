@@ -27,11 +27,13 @@ import { toast } from "sonner";
 import { TClub } from "@/types";
 import { useClubStore } from "@/store/clubs-store";
 import { Dialog, DialogTrigger } from "@radix-ui/react-dialog";
+import { useTokenStore } from "@/store/store";
 
 export default function Page() {
   const { setUserJoinedClubs } = useClubStore((state) => state);
   const [invite, setInvite] = useState<boolean>();
   const [members, setMembers] = useState([]);
+  const [clickTrigger, setClickTrigger] = useState(false);
   const params = useParams<{ clubId: string }>();
   const visibleUsers = 5;
   const totalUsers = members.length;
@@ -39,9 +41,8 @@ export default function Page() {
   const displayRemainingCount = remainingUsers > 100 ? "100+" : remainingUsers;
   const [club, setClub] = useState<TClub>();
   const [sentClub, setSentClub] = useState(params.clubId);
-
-  console.log({ nithins: params.clubId });
-  useEffect(() => {
+  const { globalUser } = useTokenStore((state) => state);
+  function fetchMem() {
     Endpoints.fetchClubMembers(params.clubId as string)
       .then((res) => {
         setMembers(res);
@@ -49,7 +50,9 @@ export default function Page() {
       .catch((err) => {
         console.log({ err });
       });
-
+  }
+  useEffect(() => {
+    fetchMem();
     fetchSpecificClub(params.clubId)
       .then((res) => {
         setClub(res.club);
@@ -57,7 +60,7 @@ export default function Page() {
       .catch((err) => {
         console.log({ err });
       });
-  }, [params.clubId]);
+  }, [params.clubId, clickTrigger]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const leaveMyClub = async (clubId: string) => {
     try {
@@ -65,7 +68,10 @@ export default function Page() {
       const joinedClubs = await Endpoints.fetchUserJoinedClubs();
       setUserJoinedClubs(joinedClubs);
       toast.warning(response.message);
-    } catch (error) {}
+      setClickTrigger(!clickTrigger);
+    } catch (error) {
+      console.log({ error });
+    }
   };
   const handleInviteClick = () => {
     setInvite(true); // Open the modal
@@ -129,39 +135,45 @@ export default function Page() {
                 <CopyLink />
               </Dialog> */}
 
-              <Invite clubId={sentClub} />
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="gap-2 text-red-500 hover:text-red-600"
-                  >
-                    <LogOut className="size-4" />
-                    <span>Leave Club</span>
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>
-                      Are you sure you want to leave the club?
-                    </AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. Leaving the club will remove
-                      you from the members list and you will lose access to all
-                      club activities and resources.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={() => leaveMyClub(params.clubId)}
-                      className="bg-red-500 text-white hover:bg-red-600"
-                    >
-                      Leave Club
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+              {members?.some(
+                (member: any) => member?.user?._id == globalUser?._id
+              ) && (
+                <>
+                  <Invite clubId={sentClub} />
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="gap-2 text-red-500 hover:text-red-600"
+                      >
+                        <LogOut className="size-4" />
+                        <span>Leave Club</span>
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                          Are you sure you want to leave the club?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action cannot be undone. Leaving the club will
+                          remove you from the members list and you will lose
+                          access to all club activities and resources.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => leaveMyClub(params.clubId)}
+                          className="bg-red-500 text-white hover:bg-red-600"
+                        >
+                          Leave Club
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </>
+              )}
             </div>
           </div>
 
