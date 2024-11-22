@@ -306,7 +306,7 @@ export default function CreateIssueForm({
                         <FormControl>
                           <Button
                             variant="outline"
-                            className={`w-full pl-3 text-left font-normal ${
+                            className={`w-full border-slate-700 pl-3 text-left font-normal text-slate-700 ${
                               !field.value && "text-muted-foreground"
                             }`}
                           >
