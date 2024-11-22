@@ -100,6 +100,9 @@ const IssuesLayout = ({
       case "My Issues":
         data = myIssues;
         break;
+      case "Proposed Issues":
+        data = myIssues;
+        break;
       default:
         data = [];
     }
