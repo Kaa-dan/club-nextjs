@@ -3,6 +3,9 @@ import IssuesLayout from "@/components/plugins/issues/issues-layout";
 import IssueTable from "@/components/plugins/issues/issues-table";
 import React from "react";
 import { RulesTable } from "@/components/plugins/rules-regulations/rules";
+import DebateLayout from "@/components/plugins/debates/debate-layout";
+import DebateTable from "@/components/plugins/debates/debate-table";
+import plugin from "tailwindcss";
 const PluginPage = async ({
   params,
 }: {
@@ -32,6 +35,10 @@ const PluginPage = async ({
           //   section={"club"}
           // />
           // </RulesLayout>
+        );
+      case "debate":
+        return (
+          <DebateLayout nodeorclubId={clubId} section="club" plugin={plugin} />
         );
 
       default:
