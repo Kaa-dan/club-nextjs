@@ -119,7 +119,7 @@ const DebateForm = ({
       toast.error("Failed to submit rule. Please try again.");
     } finally {
       setOpen(false);
-      reset();
+      form.reset();
     }
   };
 

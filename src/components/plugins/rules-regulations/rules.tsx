@@ -377,7 +377,7 @@ export function RulesTable({
       ),
       cell: ({ row }) => (
         <div className="max-w-[500px] space-y-1">
-          <p className="font-medium leading-none text-foreground text-white">
+          <p className="font-medium leading-none  text-white">
             <Badge
               variant={
                 row.getValue("publishedStatus") === "true"
