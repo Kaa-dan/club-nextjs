@@ -10,6 +10,7 @@ const useIssues = (section: TSections, nodeOrClubId: string) => {
   const [liveIssues, setLiveIssues] = useState([]);
   const [globalIssues, setGlobalIssues] = useState([]);
 
+  console.log(section, nodeOrClubId, "useIssues");
   const fetchAllData = useCallback(async () => {
     setLoading(true);
 
@@ -20,7 +21,7 @@ const useIssues = (section: TSections, nodeOrClubId: string) => {
           if (response) setMyIssues(response);
         })
         .catch((err) => {
-          console.error("Error fetching active MyIssues:", err);
+          console.log("Error fetching active MyIssues:", err);
         }),
 
       //fetch allIssues
@@ -29,7 +30,7 @@ const useIssues = (section: TSections, nodeOrClubId: string) => {
           if (response) setAllIssues(response);
         })
         .catch((err) => {
-          console.error("Error fetching active allIssues:", err);
+          console.log("Error fetching active allIssues:", err);
         }),
 
       //fetch all liveIssues
@@ -38,7 +39,7 @@ const useIssues = (section: TSections, nodeOrClubId: string) => {
           if (response) setLiveIssues(response);
         })
         .catch((err) => {
-          console.error("Error fetching active liveIssues:", err);
+          console.log("Error fetching active liveIssues:", err);
         }),
 
       //fetch global issuess
@@ -47,7 +48,7 @@ const useIssues = (section: TSections, nodeOrClubId: string) => {
           if (response) setGlobalIssues(response);
         })
         .catch((err) => {
-          console.error("Error fetching active liveIssues:", err);
+          console.log("Error fetching active liveIssues:", err);
         }),
     ]);
 

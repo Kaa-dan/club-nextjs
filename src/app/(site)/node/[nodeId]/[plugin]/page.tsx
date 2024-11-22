@@ -12,7 +12,12 @@ const PluginPage = async ({
   const renderPluginContent = () => {
     switch (plugin) {
       case "issues":
-        return <IssuesLayout section="node" nodeorclubId={nodeId} />;
+        return (
+          <IssuesLayout section="node" plugin={plugin} nodeorclubId={nodeId} />
+          // <IssuesLayout>
+          //   <IssueTable />
+          // </IssuesLayout>
+        );
 
       case "rules":
         return (

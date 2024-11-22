@@ -1,3 +1,4 @@
+import IssueView from "./issues/view-issue";
 import View from "./rules-regulations/view";
 
 interface PluginProps {
@@ -15,7 +16,7 @@ export const viewPluginConfig: Record<TPlugins, PluginConfig> = {
     issues: {
         title: "Issues",
         description: "View issues",
-        component: View,
+        component: IssueView,
     },
     rules: {
         title: "Rules & Regulations",
