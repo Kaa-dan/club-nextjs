@@ -305,7 +305,8 @@ export default function CreateIssueForm({
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
-                            className={`w-full pl-3 text-left font-normal ${
+                            variant="outline"
+                            className={`w-full border-slate-700 pl-3 text-left font-normal text-slate-700 ${
                               !field.value && "text-muted-foreground"
                             }`}
                           >
