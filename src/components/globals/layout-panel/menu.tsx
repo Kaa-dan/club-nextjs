@@ -218,7 +218,7 @@ export function Menu({ isOpen }: MenuProps) {
     userRequestedNodes,
   ]);
 
-  if (!menuList) return;
+  // if (!menuList) return;
   return (
     <ScrollArea className=" [&>div>div[style]]:!block">
       <nav className="mt-8 size-full">

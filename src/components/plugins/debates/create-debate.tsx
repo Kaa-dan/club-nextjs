@@ -59,10 +59,10 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 const DebateForm = ({
-  section,
+  forum,
   nodeOrClubId,
 }: {
-  section: "club" | "node";
+  forum: TForum;
   nodeOrClubId: string;
 }) => {
   const [files, setFiles] = React.useState<File[]>([]);
@@ -107,13 +107,13 @@ const DebateForm = ({
         formDataToSend.append("files", fileObj);
       });
 
-      formDataToSend.append(section, nodeOrClubId);
+      formDataToSend.append(forum, nodeOrClubId);
 
       // Uncomment to send the data
       const response = await Endpoints.postDebate(formDataToSend);
       toast.success(response.message || "Debate successfully created");
 
-      router.push(`/${section}/${nodeOrClubId}/debate`);
+      router.push(`/${forum}/${nodeOrClubId}/debate`);
     } catch (error) {
       console.error("Error submitting form:", error);
       toast.error("Failed to submit debate. Please try again.");
@@ -171,7 +171,7 @@ const DebateForm = ({
   };
 
   return (
-    <Card className="max-w-5xl mx-auto">
+    <Card className="mx-auto max-w-5xl">
       <CardContent className="p-6">
         <Form {...form}>
           <form
@@ -208,7 +208,7 @@ const DebateForm = ({
                     <FormControl>
                       <div className="relative">
                         <Input {...field} type="date" className="h-9 pl-10" />
-                        <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                        <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                       </div>
                     </FormControl>
                     <FormMessage />
@@ -269,13 +269,13 @@ const DebateForm = ({
                           onChange={(e) => setTagInput(e.target.value)}
                           onKeyDown={handleAddTag}
                           placeholder="Type a tag and press Enter"
-                          className="h-9 mb-2"
+                          className="mb-2 h-9"
                         />
                         <div className="flex flex-wrap gap-2">
                           {field.value.map((tag, index) => (
                             <div
                               key={index}
-                              className="flex items-center bg-gray-100 rounded-full px-3 py-1"
+                              className="flex items-center rounded-full bg-gray-100 px-3 py-1"
                             >
                               <span className="text-sm">{tag}</span>
                               <button
@@ -283,7 +283,7 @@ const DebateForm = ({
                                 onClick={() => handleRemoveTag(tag)}
                                 className="ml-2 text-gray-500 hover:text-gray-700"
                               >
-                                <X className="h-4 w-4" />
+                                <X className="size-4" />
                               </button>
                             </div>
                           ))}
@@ -306,7 +306,7 @@ const DebateForm = ({
                     </FormLabel>
                     <FormControl>
                       <div
-                        className="border-2 border-dashed rounded-lg p-4 text-center text-gray-500 cursor-pointer transition-colors"
+                        className="cursor-pointer rounded-lg border-2 border-dashed p-4 text-center text-gray-500 transition-colors"
                         onDragOver={handleDragOver}
                         onDragLeave={handleDragLeave}
                         onDrop={handleDrop}
@@ -326,22 +326,22 @@ const DebateForm = ({
                     </FormControl>
                     <FormMessage />
                     {files.length > 0 && (
-                      <div className="grid grid-cols-2 gap-2 mt-2">
+                      <div className="mt-2 grid grid-cols-2 gap-2">
                         {files.map((file, index) => (
-                          <div key={index} className="relative group">
-                            <div className="border rounded-lg p-2 bg-gray-50 hover:bg-gray-100 transition-colors">
-                              <div className="relative h-32 w-full mb-2">
+                          <div key={index} className="group relative">
+                            <div className="rounded-lg border bg-gray-50 p-2 transition-colors hover:bg-gray-100">
+                              <div className="relative mb-2 h-32 w-full">
                                 <Image
                                   width={40}
                                   height={40}
                                   src={URL.createObjectURL(file)}
                                   alt={file.name}
-                                  className="rounded-md object-cover w-full h-full"
+                                  className="size-full rounded-md object-cover"
                                 />
                               </div>
 
                               <div className="space-y-1">
-                                <div className="text-sm font-medium truncate">
+                                <div className="truncate text-sm font-medium">
                                   {file.name}
                                 </div>
                                 <div className="text-xs text-gray-500">
@@ -353,9 +353,9 @@ const DebateForm = ({
                             <button
                               type="button"
                               onClick={() => removeFile(index)}
-                              className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                              className="absolute -right-2 -top-2 rounded-full bg-red-500 p-1.5 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                             >
-                              <X className="h-4 w-4" />
+                              <X className="size-4" />
                             </button>
                           </div>
                         ))}
@@ -422,7 +422,7 @@ const DebateForm = ({
               />
             </div>
 
-            <div className="flex items-center justify-between pt-4 border-t">
+            <div className="flex items-center justify-between border-t pt-4">
               <FormField
                 control={form.control}
                 name="isPublic"
@@ -446,7 +446,7 @@ const DebateForm = ({
                   disabled={form.formState.isSubmitting}
                   type="button"
                   variant="ghost"
-                  className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                  className="text-red-500 hover:bg-red-50 hover:text-red-600"
                   onClick={() => form.reset()}
                 >
                   Cancel

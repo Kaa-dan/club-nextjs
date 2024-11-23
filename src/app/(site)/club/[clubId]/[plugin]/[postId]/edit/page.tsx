@@ -15,7 +15,7 @@ const Page = async ({
 }) => {
   const { clubId, plugin, postId } = await params;
   return (
-    <div className=" min-w-[100%]">
+    <div className=" min-w-full">
       <div className="flex flex-col gap-4">
         <div>
           <h1 className="text-xl">Rules & Regulations</h1>
@@ -44,9 +44,9 @@ const Page = async ({
           </BreadcrumbList>
         </Breadcrumb>
 
-        <div className="w-[100%]">
+        <div className="w-full">
           {}
-          <EditRuleForm nodeOrClubId={clubId} section="club" postId={postId} />
+          <EditRuleForm nodeOrClubId={clubId} forum="club" postId={postId} />
         </div>
       </div>
     </div>

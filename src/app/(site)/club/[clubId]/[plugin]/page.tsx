@@ -1,11 +1,7 @@
 import RulesLayout from "@/components/plugins/rules-regulations/rules-layout";
 import IssuesLayout from "@/components/plugins/issues/issues-layout";
-import IssueTable from "@/components/plugins/issues/issues-table";
 import React from "react";
-import { RulesTable } from "@/components/plugins/rules-regulations/rules";
 import DebateLayout from "@/components/plugins/debates/debate-layout";
-import DebateTable from "@/components/plugins/debates/debate-table";
-import plugin from "tailwindcss";
 const PluginPage = async ({
   params,
 }: {
@@ -17,28 +13,15 @@ const PluginPage = async ({
     switch (plugin) {
       case "issues":
         return (
-          <IssuesLayout
-            section={"club"}
-            nodeorclubId={clubId}
-            plugin={plugin}
-          />
-          // <IssuesLayout>
-          //   <IssueTable />
-          // </IssuesLayout>
+          <IssuesLayout forum={"club"} nodeorclubId={clubId} plugin={plugin} />
         );
       case "rules":
         return (
-          <RulesLayout section={"club"} nodeorclubId={clubId} plugin={plugin} />
-          //   <RulesTable
-          //   nodeorclubId={clubId}
-          //   plugin={plugin}
-          //   section={"club"}
-          // />
-          // </RulesLayout>
+          <RulesLayout forum={"club"} nodeorclubId={clubId} plugin={plugin} />
         );
       case "debate":
         return (
-          <DebateLayout nodeorclubId={clubId} section="club" plugin={plugin} />
+          <DebateLayout nodeorclubId={clubId} forum="club" plugin={plugin} />
         );
 
       default:

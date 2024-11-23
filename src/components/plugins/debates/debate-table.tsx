@@ -87,7 +87,7 @@ interface DebateTableProps {
 export default function DebateTable({
   tab,
   data,
-  section,
+  forum,
   plugin,
   nodeOrClubId,
 }: DebateTableProps) {
@@ -138,9 +138,7 @@ export default function DebateTable({
       cell: ({ row }) => {
         const debate = row.original;
         const handleClick = () => {
-          router.push(
-            `/${section}/${nodeOrClubId}/${plugin}/${debate._id}/view`
-          );
+          router.push(`/${forum}/${nodeOrClubId}/${plugin}/${debate._id}/view`);
         };
         return (
           <div onClick={handleClick} className="space-y-1 hover:cursor-pointer">

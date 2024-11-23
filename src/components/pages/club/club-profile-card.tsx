@@ -31,6 +31,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ProfileCardProps {
   club: {
@@ -67,7 +68,7 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
       club?.members?.find((member) => member?.user?._id === globalUser?._id)
         ?.role || "";
     setCurrentUserRole(_currentUserRole);
-  },[]);
+  }, []);
 
   const isAdmin = () => currentUserRole === "admin";
   const isModeratorOrAdmin = () =>
@@ -174,34 +175,46 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
   };
   return (
     <div className="sticky top-16 h-fit  w-full overflow-hidden rounded-lg bg-white pb-2 shadow-md">
-      <div className="relative">
-        {club?.club?.coverImage && (
-          <Image
-            src={club?.club?.coverImage?.url}
-            alt="Cover"
-            width={300}
-            height={120}
-            className="max-h-[120px] w-full max-w-[300px] rounded-t-lg object-cover"
-            layout="responsive"
-          />
-        )}
-
-        <div className="absolute -bottom-6 left-4">
-          {club?.club?.profileImage?.url && (
+      {club ? (
+        <div className="relative">
+          {club?.club?.coverImage && (
             <Image
-              src={club?.club.profileImage?.url}
-              alt="Avatar"
-              width={60}
-              height={60}
-              className="max-h-[60px] max-w-[60px] rounded-md border-4 border-white"
+              src={club?.club?.coverImage?.url}
+              alt="Cover"
+              width={300}
+              height={120}
+              className="max-h-[120px] w-full max-w-[300px] rounded-t-lg object-cover"
+              layout="responsive"
             />
           )}
+
+          <div className="absolute -bottom-6 left-4">
+            {club?.club?.profileImage?.url && (
+              <Image
+                src={club?.club.profileImage?.url}
+                alt="Avatar"
+                width={60}
+                height={60}
+                className="max-h-[60px] max-w-[60px] rounded-full  border-4 border-white"
+              />
+            )}
+          </div>
         </div>
-      </div>
+      ) : (
+        <ImageSkeleton />
+      )}
       <div className="mt-6 px-4">
         <div className="flex flex-col justify-center gap-2">
-          <h2 className="text-lg font-bold">{club?.club?.name}</h2>
-          <p className="text-xs text-gray-500">{club?.club?.about}</p>
+          {club ? (
+            <h2 className="text-lg font-bold">{club?.club?.name}</h2>
+          ) : (
+            <Skeleton className="h-4 w-1/2" />
+          )}
+          {club ? (
+            <p className="text-xs text-gray-500">{club?.club?.about}</p>
+          ) : (
+            <Skeleton className="h-8 w-3/4" />
+          )}
           <div className="mt-2 flex text-xs font-medium text-gray-700">
             <span className="flex items-center gap-1">
               {club?.club?.isPublic ? (
@@ -255,12 +268,18 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
               className="h-8 w-full border border-gray-500 bg-transparent text-gray-800 hover:bg-transparent"
               disabled={joinStatus === "REQUESTED" || joinStatus === "MEMBER"} // Disable when requested or joined
             >
-              {club?.club?.isPublic && joinStatus === "VISITOR" && "Join"}
-              {!club?.club?.isPublic &&
-                joinStatus === "VISITOR" &&
-                "Request to Join"}
-              {joinStatus === "MEMBER" && "Joined"}
-              {joinStatus === "REQUESTED" && "Request Pending"}
+              {!club ? (
+                <Skeleton className="h-4 w-1/2" />
+              ) : (
+                <>
+                  {club?.club?.isPublic && joinStatus === "VISITOR" && "Join"}
+                  {!club?.club?.isPublic &&
+                    joinStatus === "VISITOR" &&
+                    "Request to Join"}
+                  {joinStatus === "MEMBER" && "Joined"}
+                  {joinStatus === "REQUESTED" && "Request Pending"}
+                </>
+              )}
             </Button>
             {joinStatus === "REQUESTED" && (
               <AlertDialog>
@@ -334,3 +353,17 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
 };
 
 export default ClubProfileCard;
+
+export const ImageSkeleton = () => {
+  return (
+    <div className="relative">
+      {/* Cover image skeleton */}
+      <Skeleton className="h-[120px] w-full max-w-[300px] rounded-t-lg" />
+
+      {/* Profile image skeleton */}
+      <div className="absolute -bottom-6 left-4">
+        <Skeleton className="size-[60px] rounded-full border-4 border-white" />
+      </div>
+    </div>
+  );
+};
