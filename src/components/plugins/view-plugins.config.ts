@@ -16,7 +16,7 @@ export const viewPluginConfig: Record<TPlugins, PluginConfig> = {
   issues: {
     title: "Issues",
     description: "View issues",
-    component: View,
+    component: IssueView,
   },
   rules: {
     title: "Rules & Regulations",
