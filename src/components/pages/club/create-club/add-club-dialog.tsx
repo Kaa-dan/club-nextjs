@@ -328,20 +328,7 @@ const DetailsForm = ({
             <FormItem>
               <FormLabel>About</FormLabel>
               <FormControl>
-                <Textarea
-                  placeholder="Write text..."
-                  {...field}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    const formattedName = formatName(value, {
-                      makeFirstLetterUppercase: true,
-                      allowNonConsecutiveSpaces: true,
-                      makeLettersAfterSpaceCapital: false,
-                    });
-                    field.onChange(formattedName);
-                    form.setValue("about", formattedName);
-                  }}
-                />
+                <Textarea placeholder="Write text..." {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -379,20 +366,7 @@ const DetailsForm = ({
             <FormItem>
               <FormLabel>Description</FormLabel>
               <FormControl>
-                <Textarea
-                  placeholder="Write text..."
-                  {...field}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    const formattedName = formatName(value, {
-                      makeFirstLetterUppercase: true,
-                      allowNonConsecutiveSpaces: true,
-                      makeLettersAfterSpaceCapital: false,
-                    });
-                    field.onChange(formattedName);
-                    form.setValue("description", formattedName);
-                  }}
-                />
+                <Textarea placeholder="Write text..." {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -444,9 +418,9 @@ const AddClubDialog = ({ open, setOpen }: IProps) => {
 
     if (values.coverPhoto) formData.append("coverImage", values.coverPhoto);
     formData.append("name", values.name);
-    formData.append("about", values.about);
+    formData.append("about", values.about.trim());
     formData.append("isPublic", values.visiblity);
-    formData.append("description", values.description);
+    formData.append("description", values.description.trim());
     console.log("values", values);
     try {
       const response = await addClub(formData);
