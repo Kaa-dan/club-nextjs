@@ -10,4 +10,20 @@ export class SharedEndpoints {
         });
         return response.data;
     }
+
+    static async makeAdmin(data: any) {
+        const response = await mainAxios.put("/users/make-admin", data);
+        return response.data;
+    }
+
+    static async makeModerator(data: any) {
+        const response = await mainAxios.put("/users/make-moderator", data);
+        return response.data;
+    }
+
+    static async makeMember(data: any) {
+        console.log("first")
+        const response = await mainAxios.put("/users/make-member", data);
+        return response.data;
+    }
 }

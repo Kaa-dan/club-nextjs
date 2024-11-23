@@ -3,7 +3,14 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Link, Copy, LogOut, Search, Filter } from "lucide-react";
+import {
+  Link,
+  Copy,
+  LogOut,
+  Search,
+  Filter,
+  MoreHorizontal,
+} from "lucide-react";
 
 import {
   Dialog,
@@ -40,6 +47,16 @@ import {
 import { useNodeStore } from "@/store/nodes-store";
 import { toast } from "sonner";
 import { useTokenStore } from "@/store/store";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { title } from "process";
+import { SharedEndpoints } from "@/utils/endpoints/shared";
 const members = [
   {
     id: 1,
@@ -84,12 +101,18 @@ export default function Page() {
     node: TNodeData;
     members: any[];
   }>();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  const visibleUsers = 5;
+  const totalUsers = members.length;
+  const remainingUsers = totalUsers - visibleUsers;
+  const displayRemainingCount = remainingUsers > 100 ? "100+" : remainingUsers;
 
   const fetchNodeDetails = async () => {
     if (!nodeId) return;
     try {
       const response = await Endpoints.fetchNodeDetails(nodeId);
-      console.log({ response });
+      console.log("node details", response?.data);
       setNodeDetails(response?.data);
     } catch (error) {
       console.log(error);
@@ -110,7 +133,99 @@ export default function Page() {
     fetchNodeDetails();
   }, [nodeId, clickTrigger]);
 
-  console.log(nodeDetails, "node details");
+  const currentUserRole =
+    nodeDetails?.members?.find(
+      (member) => member?.user?._id === globalUser?._id
+    )?.role || "";
+
+  const isOwner = () => currentUserRole === "owner";
+
+  const isOWnerOrAdmin = () => ["owner", "admin"].includes(currentUserRole);
+
+  const isModeratorOrAdminOrOwner = () =>
+    ["moderator", "admin", "owner"].includes(currentUserRole);
+
+  const SECTIONS = [
+    {
+      title: "Change to admin",
+      description: (member: any) =>
+        `Are you sure you want to make ${member?.user?.firstName} ${member?.user?.lastName} to Admin?`,
+      onClickFunction: async (accessToUserId: string) => {
+        const data = {
+          entityId: nodeId,
+          entity: "node",
+          accessToUserId,
+        };
+        try {
+          await SharedEndpoints.makeAdmin(data);
+          setClickTrigger(!clickTrigger);
+        } catch (error) {
+          console.log(error, "error");
+          toast.error("something went wrong when making admin");
+        }
+      },
+      show: (role: "member" | "admin" | "moderator") => {
+        return role !== "admin" && isOwner();
+      },
+    },
+
+    {
+      title: "Change to moderator",
+      description: (member: any) =>
+        `Are you sure you want to make ${member?.user?.firstName} ${member?.user?.lastName} to Moderator?`,
+      onClickFunction: async (accessToUserId: string) => {
+        const data = {
+          entityId: nodeId,
+          entity: "node",
+          accessToUserId,
+        };
+        try {
+          await SharedEndpoints.makeModerator(data);
+          setClickTrigger(!clickTrigger);
+        } catch (error) {
+          console.log(error, "error");
+          toast.error("something went wrong when making moderator");
+        }
+      },
+      show: (role: "member" | "admin" | "moderator") => {
+        return role !== "moderator" && isOwner();
+      },
+    },
+
+    {
+      title: "Change to member",
+      description: (member: any) =>
+        `Are you sure you want to make ${member?.user?.firstName} ${member?.user?.lastName} to Member?`,
+      onClickFunction: async (accessToUserId: string) => {
+        const data = {
+          entityId: nodeId,
+          entity: "node",
+          accessToUserId,
+        };
+        try {
+          await SharedEndpoints.makeMember(data);
+          setClickTrigger(!clickTrigger);
+        } catch (error) {
+          toast.error("something went wrong when making member");
+          console.log(error, "error");
+        }
+      },
+      show: (role: "member" | "admin" | "moderator") => {
+        return role !== "member" && isOwner();
+      },
+    },
+
+    {
+      title: "Remove user",
+      description: (member: any) =>
+        `Are you sure you want to remove ${member?.user?.firstName} ${member?.user?.lastName}?`,
+      onClickFunction: () => {
+        console.log("remove user");
+      },
+      show: isOWnerOrAdmin,
+    },
+  ];
+
   return (
     <>
       <Card className="mx-auto w-full max-w-3xl">
@@ -120,22 +235,35 @@ export default function Page() {
               <h2 className="flex items-center gap-2 text-lg font-semibold">
                 Members
                 <span className="text-sm font-normal text-muted-foreground">
-                  • {nodeDetails?.members?.length}
+                  • {nodeDetails?.members?.length}{" "}
+                  {nodeDetails?.members?.length === 1 ? "Member" : "Members"}
                 </span>
               </h2>
               <div className="flex items-center gap-2">
                 <div className="flex -space-x-2">
-                  {[1, 2, 3, 4].map((i) => (
-                    <Avatar key={i} className="border-2 border-background">
-                      <AvatarImage
-                        src={`/placeholder.svg?height=32&width=32`}
-                      />
-                      <AvatarFallback>U{i}</AvatarFallback>
-                    </Avatar>
-                  ))}
-                  <div className="flex size-8 items-center justify-center rounded-full bg-muted text-xs">
-                    2+
-                  </div>
+                  {nodeDetails?.members
+                    ?.slice(0, visibleUsers)
+                    .map((member: any) => (
+                      <Avatar
+                        key={member?.user?._id}
+                        className="border-2 border-background"
+                      >
+                        <AvatarImage
+                          src={
+                            member?.user?.profileImage ||
+                            `/placeholder.svg?height=32&width=32`
+                          }
+                        />
+                        <AvatarFallback>
+                          {member?.user?.firstName?.charAt(0)}
+                        </AvatarFallback>
+                      </Avatar>
+                    ))}
+                  {remainingUsers > 0 && (
+                    <div className="flex size-8 items-center justify-center rounded-full bg-muted text-xs">
+                      {displayRemainingCount}+
+                    </div>
+                  )}
                 </div>
                 <Button
                   variant="link"
@@ -291,7 +419,12 @@ export default function Page() {
                     <div>
                       <div className="font-medium">
                         {member?.user?.firstName || ""}{" "}
-                        {member?.user?.lastName || ""}
+                        {member?.user?.lastName || ""}{" "}
+                        {member?.user?._id === globalUser?._id && (
+                          <span className="text-sm text-muted-foreground">
+                            (You)
+                          </span>
+                        )}
                       </div>
                       <div className="text-sm text-muted-foreground">
                         {member?.role}
@@ -305,6 +438,38 @@ export default function Page() {
                   <TableCell>
                     {new Date(member?.createdAt).toLocaleDateString()}
                   </TableCell>
+                  {isModeratorOrAdminOrOwner() &&
+                    isOwner() &&
+                    member?.user?._id !== globalUser?._id && (
+                      <TableCell>
+                        <DropdownMenu
+                          open={dropdownOpen}
+                          onOpenChange={setDropdownOpen}
+                        >
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="size-8 p-0">
+                              <span className="sr-only">Open menu</span>
+                              <MoreHorizontal className="size-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            {SECTIONS?.filter(
+                              (section) =>
+                                !section.show || section.show(member?.role)
+                            )?.map((section) => (
+                              <CustomAlertDialog
+                                key={section?.title}
+                                section={section}
+                                member={member}
+                                onClose={() => setDropdownOpen(false)}
+                              />
+                            ))}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    )}
                 </TableRow>
               ))}
             </TableBody>
@@ -334,11 +499,12 @@ export default function Page() {
 }
 
 type RoleBadgeProps = BadgeProps & {
-  role: "admin" | "moderator" | "member";
+  role: "owner" | "admin" | "moderator" | "member";
 };
 
 function RoleBadge({ role, className, ...props }: RoleBadgeProps) {
   const roleStyles = {
+    owner: "bg-red-100 text-red-800 hover:bg-red-200",
     admin: "bg-green-100 text-green-800 hover:bg-green-200",
     moderator: "bg-orange-100 text-orange-800 hover:bg-orange-200",
     member: "bg-blue-100 text-blue-800 hover:bg-blue-200",
@@ -354,3 +520,53 @@ function RoleBadge({ role, className, ...props }: RoleBadgeProps) {
     </Badge>
   );
 }
+
+const CustomAlertDialog = ({
+  section,
+  member,
+  onClose,
+}: {
+  section: any;
+  member: any;
+  onClose: () => void;
+}) => {
+  const [open, setOpen] = useState(false);
+
+  const handleAction = async () => {
+    await section.onClickFunction?.(member?.user?._id);
+    setOpen(false);
+    onClose();
+  };
+
+  const handleCancel = () => {
+    setOpen(false);
+    onClose();
+  };
+
+  return (
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <AlertDialogTrigger asChild>
+        <DropdownMenuItem
+          onSelect={(event) => {
+            event.preventDefault();
+            setOpen(true);
+          }}
+        >
+          {section?.title}
+        </DropdownMenuItem>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogDescription>
+            {section?.description(member)}
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={handleCancel}>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={handleAction}>Continue</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+};

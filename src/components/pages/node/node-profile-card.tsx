@@ -51,8 +51,8 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
       ?.role || "";
 
   const isAdmin = () => currentUserRole === "admin";
-  const isModeratorOrAdmin = () =>
-    ["moderator", "admin"].includes(currentUserRole.toLowerCase());
+  const isModeratorOrAdminOrOwner = () =>
+    ["moderator", "admin", "owner"].includes(currentUserRole.toLowerCase());
 
   const SECTIONS = [
     { name: "News Feed", icon: ICONS.NodeNewsFeedIcon, path: "#" },
@@ -78,7 +78,7 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
       icon: ICONS.NodeApprovalsIcon,
       notifications: 0,
       path: `/node/${nodeData?.node?._id}/approvals`,
-      show: isModeratorOrAdmin, // Only show for moderator and admin
+      show: isModeratorOrAdminOrOwner, // Only show for moderator and admin
     },
     {
       name: "Insights/Analytics",

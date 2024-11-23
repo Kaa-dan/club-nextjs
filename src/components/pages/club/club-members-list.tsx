@@ -98,11 +98,13 @@ const columns: ColumnDef<Member>[] = [
         <Badge
           variant="secondary"
           className={
-            role === "admin"
-              ? "bg-green-100 text-green-800"
-              : role === "moderator"
-                ? "bg-orange-100 text-orange-800"
-                : "bg-gray-100 text-gray-800"
+            role === "owner"
+              ? "bg-red-100 text-red-800 hover:bg-red-200"
+              : role === "admin"
+                ? "bg-green-100 text-green-800 hover:bg-green-200"
+                : role === "moderator"
+                  ? "bg-orange-100 text-orange-800 hover:bg-orange-200"
+                  : "bg-gray-100 text-gray-800 hover:bg-gray-200"
           }
         >
           {role}

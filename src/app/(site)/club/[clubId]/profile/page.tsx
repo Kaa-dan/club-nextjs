@@ -86,7 +86,8 @@ export default function Page() {
               <h2 className="flex items-center gap-2 text-lg font-semibold">
                 Members
                 <span className="flex text-sm font-normal  text-muted-foreground">
-                  • {members?.length} Members
+                  • {members?.length}{" "}
+                  {members?.length === 1 ? "Member" : "Members"}
                 </span>
               </h2>
               <div className="flex items-center gap-2">
