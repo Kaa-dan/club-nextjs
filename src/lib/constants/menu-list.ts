@@ -92,7 +92,7 @@ export async function getMenuList(
         {
           href: "",
           key: "createNode",
-          label: "Create Node",
+          label: "See more",
           active: pathname?.includes("/my-account"),
           image: "https://picsum.photos/200",
           submenus: [],
@@ -107,7 +107,7 @@ export async function getMenuList(
         ...top3Clubs, // Insert fetched club data here without `href`
         {
           key: "createClub",
-          label: "Create Club",
+          label: "See more",
           active: pathname?.includes("/my-account"),
           image: "https://picsum.photos/200",
           href: "",
