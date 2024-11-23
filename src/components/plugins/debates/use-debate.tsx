@@ -9,6 +9,7 @@ const useDebates = (entity: string, entityId: string) => {
   const [myDebates, setMyDebates] = useState([]);
   const [loading, setLoading] = useState(false);
   const [clickTrigger, setClickTrigger] = useState(false);
+  const [proposed, setProposed] = useState([]);
 
   const fetchAllData = useCallback(async () => {
     setLoading(true);
@@ -50,6 +51,9 @@ const useDebates = (entity: string, entityId: string) => {
         .catch((err) => {
           console.error("Error fetching my debates:", err);
         }),
+      Endpoints.fetchProposed(entityId).then((res) => {
+        if (res) setProposed(res);
+      }),
     ]);
 
     setLoading(false);

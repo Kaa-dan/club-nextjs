@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { Endpoints } from "@/utils/endpoint";
 import { ThumbsUp, ThumbsDown } from "lucide-react";
 import { useTokenStore } from "@/store/store";
+import sanitizeHtmlContent from "@/utils/sanitize";
 
 const DebateCard = ({
   content,
@@ -32,11 +33,9 @@ const DebateCard = ({
   const [irrelevant, setIrrelevant] = useState(initialIrrelevant);
 
   const handleVote = async (type: "relevant" | "irrelevant") => {
-    // Store previous state for recovery if needed
     const previousRelevant = [...relevant];
     const previousIrrelevant = [...irrelevant];
 
-    // Instantly update UI
     if (type === "relevant") {
       const isCurrentlyRelevant = relevant.includes(userId);
       setRelevant(
@@ -44,7 +43,7 @@ const DebateCard = ({
           ? relevant.filter((id) => id !== userId)
           : [...relevant, userId]
       );
-      // Remove from irrelevant if it exists there
+
       if (irrelevant.includes(userId)) {
         setIrrelevant(irrelevant.filter((id) => id !== userId));
       }
@@ -55,21 +54,20 @@ const DebateCard = ({
           ? irrelevant.filter((id) => id !== userId)
           : [...irrelevant, userId]
       );
-      // Remove from relevant if it exists there
+
       if (relevant.includes(userId)) {
         setRelevant(relevant.filter((id) => id !== userId));
       }
     }
 
     try {
-      // Make API call in background
       const updatedArgument = await Endpoints.toggleVote(debateId, type);
-      // Sync with server response
+
       setRelevant(updatedArgument.relevant);
       setIrrelevant(updatedArgument.irrelevant);
     } catch (error) {
       console.error("Error toggling vote:", error);
-      // Restore previous state on error
+
       setRelevant(previousRelevant);
       setIrrelevant(previousIrrelevant);
     }
@@ -81,7 +79,10 @@ const DebateCard = ({
   return (
     <Card className="bg-white shadow">
       <div className="p-4">
-        <p className="text-lg mb-4">{content}</p>
+        <p
+          className="text-lg mb-4"
+          dangerouslySetInnerHTML={{ __html: sanitizeHtmlContent(content) }}
+        ></p>
 
         <div className="flex items-center gap-2 mb-4">
           <Avatar className="w-8 h-8">

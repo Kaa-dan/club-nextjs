@@ -419,4 +419,12 @@ export class Endpoints {
       throw error;
     }
   }
+  static async fetchProposed(entityId: string) {
+    try {
+      const response = await mainAxios.get(`'/debate/proposed/${entityId}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
