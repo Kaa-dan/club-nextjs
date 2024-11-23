@@ -56,10 +56,10 @@ interface ClubAndNodesData {
   nodes: Item[];
 }
 const IssueView = ({
-  section,
+  forum,
   nodeOrClubId,
 }: {
-  section: TSections;
+  forum: TForum;
   nodeOrClubId: string;
 }) => {
   const { currentUserRole } = useClubStore((state) => state);

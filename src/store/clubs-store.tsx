@@ -5,11 +5,11 @@ interface ClubState {
   userJoinedClubs: TClub[];
   userRequestedClubs: any[];
   currentClub: TClub | null;
-  currentUserRole: "admin" | "member";
+  currentUserRole: TUserRole;
   setUserJoinedClubs: (userJoinedClub: TClub[]) => void;
   setUserRequestedClubs: (userRequestedClubs: any[]) => void;
   setCurrentClub: (currentClub: TClub) => void;
-  setCurrentUserRole: (currentUserRole: "admin" | "member") => void;
+  setCurrentUserRole: (currentUserRole: TUserRole) => void;
 }
 
 export const useClubStore = create<ClubState>()((set) => ({

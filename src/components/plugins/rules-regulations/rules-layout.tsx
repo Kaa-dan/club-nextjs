@@ -45,11 +45,11 @@ type Rule = {
 // const RulesLayout = ({ children }: { children: ReactNode }) => {
 const RulesLayout = ({
   plugin,
-  section,
+  forum,
   nodeorclubId,
 }: {
   plugin: TPlugins;
-  section: TSections;
+  forum: TForum;
   nodeorclubId: string;
 }) => {
   const {
@@ -60,7 +60,7 @@ const RulesLayout = ({
     setClickTrigger,
     offenses,
     loading,
-  } = useRules(section, nodeorclubId);
+  } = useRules(forum, nodeorclubId);
 
   const tabs: TabData[] = [
     {
@@ -198,21 +198,18 @@ const RulesLayout = ({
                 </svg>
               </Button>
             </div>
-            {/* <IssueTable issues={tab.issues} /> */}
-            {/* {children}
-             */}
             {tab.label === "Report Offenses" ? (
               <OffenceTable
                 nodeorclubId={nodeorclubId}
                 plugin={plugin}
-                section={section}
+                forum={forum}
                 data={offenses}
               />
             ) : (
               <RulesTable
                 nodeorclubId={nodeorclubId}
                 plugin={plugin}
-                section={section}
+                forum={forum}
                 data={getData(tab)}
                 clickTrigger={clickTrigger}
                 setClickTrigger={setClickTrigger}

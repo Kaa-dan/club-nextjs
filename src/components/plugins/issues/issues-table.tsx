@@ -60,7 +60,7 @@ interface DataTableProps {
   data: any[];
   nodeorclubId: string;
   plugin: TPlugins;
-  section: TSections;
+  forum: TForum;
   clickTrigger: boolean;
   setClickTrigger: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -70,7 +70,7 @@ function DataTable({
   data,
   nodeorclubId,
   plugin,
-  section,
+  forum,
   clickTrigger,
   setClickTrigger,
 }: DataTableProps) {
@@ -141,72 +141,9 @@ function DataTable({
   );
 }
 
-// const issues: Issue[] = [
-//   {
-//     _id: "1",
-//     title: "Login page error",
-//     description: "Users unable to log in with correct credentials.",
-//     createdAt: "2024-11-11",
-//     status: "ACTIVE",
-//     createdBy: {
-//       name: "Alice Johnson",
-//       avatar: "https://example.com/avatar/alice.jpg",
-//     },
-//     relevanceScore: 8,
-//   },
-//   {
-//     _id: "2",
-//     title: "Payment gateway timeout",
-//     description: "Intermittent timeouts occurring on payment submission.",
-//     createdAt: "2024-11-10",
-//     status: "RESOLVED",
-//     createdBy: {
-//       name: "Bob Smith",
-//       avatar: "https://example.com/avatar/bob.jpg",
-//     },
-//     relevanceScore: 9,
-//   },
-//   {
-//     _id: "3",
-//     title: "Broken links on homepage",
-//     description: "Several links on the homepage are broken.",
-//     createdAt: "2024-11-09",
-//     status: "INACTIVE",
-//     createdBy: {
-//       name: "Carol Martinez",
-//       avatar: "https://example.com/avatar/carol.jpg",
-//     },
-//     relevanceScore: 6,
-//   },
-//   {
-//     _id: "4",
-//     title: "Mobile responsiveness issues",
-//     description: "Layout breaks on smaller screens.",
-//     createdAt: "2024-11-08",
-//     status: "ACTIVE",
-//     createdBy: {
-//       name: "David Lee",
-//       avatar: "https://example.com/avatar/david.jpg",
-//     },
-//     relevanceScore: 7,
-//   },
-//   {
-//     _id: "5",
-//     title: "404 error on contact page",
-//     description: "Contact page not found for certain users.",
-//     createdAt: "2024-11-07",
-//     status: "RESOLVED",
-//     postedBy: {
-//       name: "Emma Davis",
-//       avatar: "https://example.com/avatar/emma.jpg",
-//     },
-//     relevanceScore: 8,
-//   },
-// ];
-
 export default function IssueTable({
   plugin,
-  section,
+  forum,
   nodeorclubId,
   data,
   clickTrigger,
@@ -214,7 +151,7 @@ export default function IssueTable({
   tab,
 }: {
   plugin: TPlugins;
-  section: TSections;
+  forum: TForum;
   nodeorclubId: string;
   data: any[];
   clickTrigger: boolean;
@@ -399,7 +336,7 @@ export default function IssueTable({
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuItem>
                 <Link
-                  href={`/${section}/${nodeorclubId}/${plugin}/${row.original._id}/view`}
+                  href={`/${forum}/${nodeorclubId}/${plugin}/${row.original._id}/view`}
                   className="w-full"
                 >
                   View Details
@@ -428,7 +365,7 @@ export default function IssueTable({
       data={data}
       nodeorclubId={nodeorclubId}
       plugin={plugin}
-      section={section}
+      forum={forum}
       clickTrigger={clickTrigger}
       setClickTrigger={setClickTrigger}
     />

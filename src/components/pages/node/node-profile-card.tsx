@@ -23,6 +23,7 @@ import { NodeEndpoints } from "@/utils/endpoints/node";
 import { toast } from "sonner";
 import { DialogHeader } from "@/components/ui/dialog";
 import { Dialog, DialogTitle, DialogContent } from "@/components/ui/dialog";
+import { ImageSkeleton } from "../club/club-profile-card";
 
 interface ProfileCardProps {
   nodeData: { node: TNodeData; members: TMembers[] };
@@ -159,25 +160,29 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
   };
   return (
     <div className="sticky top-16 h-fit  w-full overflow-hidden rounded-lg bg-white pb-2 text-sm shadow-md">
-      <div className="relative">
-        <Image
-          src={nodeData?.node?.coverImage?.url}
-          alt="Cover"
-          width={300}
-          height={120}
-          className="max-h-[120px] w-full max-w-[300px] rounded-t-lg object-cover"
-          layout="responsive"
-        />
-        <div className="absolute -bottom-6 left-4">
+      {nodeData ? (
+        <div className="relative">
           <Image
-            src={nodeData?.node?.profileImage?.url as string}
-            alt="Avatar"
-            width={60}
-            height={60}
-            className="max-h-[60px] max-w-[60px] rounded-md border-4 border-white"
+            src={nodeData?.node?.coverImage?.url}
+            alt="Cover"
+            width={300}
+            height={120}
+            className="max-h-[120px] w-full max-w-[300px] rounded-t-lg object-cover"
+            layout="responsive"
           />
+          <div className="absolute -bottom-6 left-4">
+            <Image
+              src={nodeData?.node?.profileImage?.url as string}
+              alt="Avatar"
+              width={60}
+              height={60}
+              className="max-h-[60px] max-w-[60px] rounded-full border-4 border-white"
+            />
+          </div>
         </div>
-      </div>
+      ) : (
+        <ImageSkeleton />
+      )}
       <div className="px-4">
         <div className="pt-8">
           <h2 className="text-lg font-bold">{nodeData?.node?.name}</h2>

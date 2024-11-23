@@ -1,5 +1,5 @@
 "use client";
-import ModulesBar from "@/components/pages/node/modules-bar";
+// import ModulesBar from "@/components/pages/node/modules-bar";
 import NodeProfileCard from "@/components/pages/node/node-profile-card";
 import { Endpoints } from "@/utils/endpoint";
 import React, { useEffect, useState } from "react";
@@ -7,6 +7,7 @@ import { TMembers, TNodeData } from "@/types";
 import { useParams } from "next/navigation";
 import TeamsSidePopover from "@/components/pages/club/club-teams";
 import { useNodeStore } from "@/store/nodes-store";
+import ModulesBar from "@/components/pages/node/modules-bar";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const [currentPage, setCurrentPage] = useState("modules");
@@ -34,31 +35,25 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <div className="flex w-full gap-6">
-      {node ? (
-        <>
-          <div className=" flex w-11/12 gap-3">
-            <div className="w-1/4 shrink-0 flex-col">
-              <NodeProfileCard
-                currentPage={currentPage}
-                setCurrentPage={setCurrentPage}
-                nodeData={node}
-              />
-            </div>
-            <div className="flex w-3/4 flex-col ">
-              <ModulesBar plugin={params?.plugin} nodeId={params.nodeId} />
-              {children}
-            </div>
-          </div>
-          {/* <div className="hidden lg:flex">
+      <div className=" flex w-11/12 gap-3">
+        <div className="w-1/4 shrink-0 flex-col">
+          <NodeProfileCard
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+            nodeData={node!}
+          />
+        </div>
+        <div className="flex w-3/4 flex-col ">
+          <ModulesBar plugin={params?.plugin} nodeId={params.nodeId} />
+          {children}
+        </div>
+      </div>
+      {/* <div className="hidden lg:flex">
             <NodeTeams />
           </div> */}
-          <div className="">
-            <TeamsSidePopover />
-          </div>
-        </>
-      ) : (
-        "Loading..."
-      )}
+      <div className="">
+        <TeamsSidePopover />
+      </div>
     </div>
   );
 };
