@@ -419,9 +419,11 @@ export class Endpoints {
       throw error;
     }
   }
-  static async fetchProposed(entityId: string) {
+  static async fetchProposedDebate(entityId: string, forum: TForum) {
     try {
-      const response = await mainAxios.get(`'/debate/proposed/${entityId}`);
+      const response = await mainAxios.get(
+        `'/debate/proposed/${entityId}/${forum}`
+      );
       return response.data;
     } catch (error) {
       throw error;

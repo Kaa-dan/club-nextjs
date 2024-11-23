@@ -2,7 +2,7 @@
 import { useCallback, useState, useEffect } from "react";
 import { Endpoints } from "@/utils/endpoint"; // Import Endpoints from your utils file
 
-const useDebates = (entity: string, entityId: string) => {
+const useDebates = (forum: TForum, forumId: string) => {
   const [ongoingDebates, setOngoingDebates] = useState([]);
   const [allDebates, setAllDebates] = useState([]);
   const [globalDebates, setGlobalDebates] = useState([]);
@@ -16,7 +16,7 @@ const useDebates = (entity: string, entityId: string) => {
 
     await Promise.allSettled([
       // Fetch ongoing debates
-      Endpoints.fetchOnGoingDebates(entity, entityId)
+      Endpoints.fetchOnGoingDebates(forum, forumId)
         .then((response) => {
           if (response) setOngoingDebates(response.data);
         })
@@ -25,7 +25,7 @@ const useDebates = (entity: string, entityId: string) => {
         }),
 
       // Fetch all debates
-      Endpoints.fetchAllDebates(entity, entityId)
+      Endpoints.fetchAllDebates(forum, forumId)
         .then((response) => {
           if (response) setAllDebates(response.ongoingDebates);
           console.log({ all: response });
@@ -35,7 +35,7 @@ const useDebates = (entity: string, entityId: string) => {
         }),
 
       // Fetch global debates
-      Endpoints.fetchGlobalDebates(entity, entityId)
+      Endpoints.fetchGlobalDebates(forum, forumId)
         .then((response) => {
           if (response) setGlobalDebates(response.data);
         })
@@ -44,24 +44,28 @@ const useDebates = (entity: string, entityId: string) => {
         }),
 
       // Fetch my debates
-      Endpoints.fetchMyDebate(entity, entityId)
+      Endpoints.fetchMyDebate(forum, forumId)
         .then((response) => {
           if (response) setMyDebates(response.data);
         })
         .catch((err) => {
           console.error("Error fetching my debates:", err);
         }),
-      Endpoints.fetchProposed(entityId).then((res) => {
-        if (res) setProposed(res);
-      }),
+      Endpoints.fetchProposedDebate(forumId, forum)
+        .then((res) => {
+          if (res) setProposed(res);
+        })
+        .catch((err) => {
+          console.error("Error fetching proposed debates:", err);
+        }),
     ]);
 
     setLoading(false);
-  }, [entity, entityId]);
+  }, [forum, forumId]);
 
   useEffect(() => {
     fetchAllData();
-  }, [entityId, clickTrigger]);
+  }, [forumId, clickTrigger]);
 
   return {
     ongoingDebates,

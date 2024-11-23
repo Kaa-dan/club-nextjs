@@ -22,6 +22,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     if (!params.clubId) return;
     try {
       const res = await fetchSpecificClub(params.clubId);
+      console.log({ current: res });
+
       setCurrentClub(res);
 
       setClub(res);

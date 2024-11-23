@@ -21,6 +21,7 @@ import { Endpoints } from "@/utils/endpoint";
 import { RulesAndRegulationsEndpoints } from "@/utils/endpoints/plugins/rules-and-regulations";
 import { OffenceTable } from "./offence-table";
 import useRules from "./use-rules";
+import { useClubStore } from "@/store/clubs-store";
 
 interface TabData {
   label: string;
@@ -84,7 +85,8 @@ const RulesLayout = ({
       count: offenses.length || 0,
     },
   ];
-
+  const { currentUserRole } = useClubStore((state) => state);
+  console.log({ currentUserRole });
   const formatCount = (count: number) => {
     if (count >= 1000000) return `${(count / 1000000).toFixed(0)}M`;
     if (count >= 1000) return `${(count / 1000).toFixed(2)}k`;

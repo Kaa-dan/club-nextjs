@@ -22,6 +22,7 @@ import {
 import { useRouter } from "next/navigation";
 import { AvatarImage, AvatarFallback, Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { useClubStore } from "@/store/clubs-store";
 
 // Type for badge variants
 type BadgeVariant = "default" | "destructive" | "outline" | "secondary";
@@ -78,7 +79,7 @@ interface IDebate {
 
 interface DebateTableProps {
   data: IDebate[];
-  section: "club" | "node";
+  forum: TForum;
   plugin: string;
   nodeOrClubId: string;
   tab: string;
@@ -91,6 +92,7 @@ export default function DebateTable({
   plugin,
   nodeOrClubId,
 }: DebateTableProps) {
+  const { currentUserRole } = useClubStore((state) => state);
   const router = useRouter();
   const isMyDebates = tab === "My Debates";
   const isGlobalDebates = tab === "Global Debates";

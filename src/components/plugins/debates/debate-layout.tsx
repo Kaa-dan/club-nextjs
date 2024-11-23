@@ -14,6 +14,7 @@ import Link from "next/link";
 import React, { ReactNode } from "react";
 import DebateTable from "./debate-table";
 import useDebates from "./use-debate";
+import { useClubStore } from "@/store/clubs-store";
 
 interface TabData {
   label: string;
@@ -29,11 +30,16 @@ const DebateLayout = ({
   forum: TForum;
   nodeorclubId: string;
 }) => {
+  const { currentUserRole } = useClubStore((state) => state);
+  console.log({ currentUserRole });
+
   const {
     allDebates,
     ongoingDebates,
     myDebates,
     globalDebates,
+    proposed,
+
     setClickTrigger,
     loading,
   } = useDebates(forum, nodeorclubId);
@@ -55,7 +61,17 @@ const DebateLayout = ({
       label: "My Debates",
       count: myDebates?.length || 0,
     },
+    // Include Proposed Debates only if the user is an admin
+    ...(currentUserRole === "admin"
+      ? [
+          {
+            label: "Proposed Debates",
+            count: proposed?.length || 0,
+          },
+        ]
+      : []),
   ];
+
   const formatCount = (count: number) => {
     if (count >= 1000000) return `${(count / 1000000).toFixed(0)}M`;
     if (count >= 1000) return `${(count / 1000).toFixed(2)}k`;
