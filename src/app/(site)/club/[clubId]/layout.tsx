@@ -7,7 +7,6 @@ import ModulesBar from "@/components/pages/club/module-bar";
 import { fetchSpecificClub } from "@/components/pages/club/endpoint";
 import TeamsSidePopover from "@/components/pages/club/club-teams";
 import { useClubStore } from "@/store/clubs-store";
-import { Endpoints } from "@/utils/endpoint";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const [currentPage, setCurrentPage] = useState("modules");
@@ -36,29 +35,25 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <div className="relative flex w-full gap-6 ">
-      {club ? (
-        <>
-          <div className=" flex  w-11/12  gap-3">
-            <div className="w-1/4 shrink-0 flex-col">
-              <ClubProfileCard
-                currentPage={currentPage}
-                setCurrentPage={setCurrentPage}
-                clubId={params.clubId}
-                club={club}
-              />
-            </div>
-            <div className="flex w-3/4 flex-col ">
-              <ModulesBar plugin={params?.plugin} clubId={params.clubId} />
-              {children}
-            </div>
+      <>
+        <div className=" flex  w-11/12  gap-3">
+          <div className="w-1/4 shrink-0 flex-col">
+            <ClubProfileCard
+              currentPage={currentPage}
+              setCurrentPage={setCurrentPage}
+              clubId={params.clubId}
+              club={club!}
+            />
           </div>
-          <div className="">
-            <TeamsSidePopover />
+          <div className="flex w-3/4 flex-col ">
+            <ModulesBar plugin={params?.plugin} clubId={params.clubId} />
+            {children}
           </div>
-        </>
-      ) : (
-        "Loading..."
-      )}
+        </div>
+        <div className="">
+          <TeamsSidePopover />
+        </div>
+      </>
     </div>
   );
 };

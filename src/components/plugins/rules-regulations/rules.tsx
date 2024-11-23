@@ -101,7 +101,7 @@ interface DataTableProps {
   data: any[];
   nodeorclubId: string;
   plugin: TPlugins;
-  section: TSections;
+  forum: TForum;
   clickTrigger: boolean;
   setClickTrigger: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -111,7 +111,7 @@ function DataTable({
   data,
   nodeorclubId,
   plugin,
-  section,
+  forum,
   clickTrigger,
   setClickTrigger,
 }: DataTableProps) {
@@ -265,7 +265,7 @@ function DataTable({
                         </span> */}
                         <button className="rounded-lg border border-gray-200 px-4 py-2 text-gray-600 hover:text-gray-800">
                           <Link
-                            href={`/${section}/${nodeorclubId}/${plugin}/${row?.original?._id}/view`}
+                            href={`/${forum}/${nodeorclubId}/${plugin}/${row?.original?._id}/view`}
                             className="w-full"
                           >
                             View Original
@@ -277,8 +277,8 @@ function DataTable({
                         <ContentDailog
                           plugin={plugin}
                           pluginId={row?.original?._id}
-                          section={section}
-                          sectionId={nodeorclubId}
+                          forum={forum}
+                          forumId={nodeorclubId}
                           isBtn={true}
                           setClickTrigger={setClickTrigger}
                           clickTrigger={clickTrigger}
@@ -309,14 +309,14 @@ function DataTable({
 
 export function RulesTable({
   plugin,
-  section,
+  forum,
   nodeorclubId,
   data,
   clickTrigger,
   setClickTrigger,
 }: {
   plugin: TPlugins;
-  section: TSections;
+  forum: TForum;
   nodeorclubId: string;
   data: any;
   clickTrigger: boolean;
@@ -505,24 +505,12 @@ export function RulesTable({
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuItem>
                 <Link
-                  href={`/${section}/${nodeorclubId}/${plugin}/${row?.original?._id}/edit`}
+                  href={`/${forum}/${nodeorclubId}/${plugin}/${row?.original?._id}/edit`}
                   className="w-full"
                 >
                   Edit Section
                 </Link>
               </DropdownMenuItem>
-
-              {/* Uncommented ContentDialog Option */}
-              {/* <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-              <ContentDailog
-                plugin={plugin}
-                pluginId={row?.original?._id}
-                section={section}
-                sectionId={nodeorclubId}
-                setClickTrigger={setClickTrigger}
-                clickTrigger={clickTrigger}
-              />
-            </DropdownMenuItem> */}
             </DropdownMenuContent>
           </DropdownMenu>
         );
@@ -531,15 +519,17 @@ export function RulesTable({
   ];
 
   return (
-    <DataTable
-      columns={columns}
-      data={data}
-      nodeorclubId={nodeorclubId}
-      plugin={plugin}
-      section={section}
-      setClickTrigger={setClickTrigger}
-      clickTrigger={clickTrigger}
-    />
+    <div>
+      <DataTable
+        columns={columns}
+        data={data}
+        nodeorclubId={nodeorclubId}
+        plugin={plugin}
+        forum={forum}
+        setClickTrigger={setClickTrigger}
+        clickTrigger={clickTrigger}
+      />
+    </div>
   );
 }
 
@@ -559,16 +549,16 @@ type ReportType = z.infer<typeof reportSchema>;
 const ContentDailog = ({
   plugin,
   pluginId,
-  sectionId,
-  section,
+  forumId,
+  forum,
   clickTrigger,
   setClickTrigger,
   isBtn,
 }: {
   plugin: TPlugins;
   pluginId: string;
-  section: TSections;
-  sectionId: string;
+  forum: TForum;
+  forumId: string;
   clickTrigger: boolean;
   setClickTrigger: React.Dispatch<React.SetStateAction<boolean>>;
   isBtn?: boolean;
@@ -589,12 +579,12 @@ const ContentDailog = ({
   const fetchUserNodesOrClubs = async () => {
     console.log("fetchUserNodesOrClubs");
     try {
-      if (section === "node") {
-        const response = await NodeEndpoints.fetchUsersOfNode(sectionId);
+      if (forum === "node") {
+        const response = await NodeEndpoints.fetchUsersOfNode(forumId);
         console.log("users node", response);
         setUsers(response);
-      } else if (section === "club") {
-        const response = await Endpoints.fetchClubMembers(sectionId);
+      } else if (forum === "club") {
+        const response = await Endpoints.fetchClubMembers(forumId);
         console.log("users club", response);
         setUsers(response);
       }
@@ -614,8 +604,8 @@ const ContentDailog = ({
     console.log(values, "values");
 
     const formData = new FormData();
-    formData.append("type", section);
-    formData.append("typeId", sectionId);
+    formData.append("type", forum);
+    formData.append("typeId", forumId);
     formData.append("reason", values.description);
     formData.append("rulesID", pluginId);
     formData.append("offenderID", values.offenderName);

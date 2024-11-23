@@ -13,7 +13,7 @@ const PluginPage = async ({
     switch (plugin) {
       case "issues":
         return (
-          <IssuesLayout section="node" plugin={plugin} nodeorclubId={nodeId} />
+          <IssuesLayout forum="node" plugin={plugin} nodeorclubId={nodeId} />
           // <IssuesLayout>
           //   <IssueTable />
           // </IssuesLayout>
@@ -21,7 +21,7 @@ const PluginPage = async ({
 
       case "rules":
         return (
-          <RulesLayout section="node" plugin={plugin} nodeorclubId={nodeId} />
+          <RulesLayout forum="node" plugin={plugin} nodeorclubId={nodeId} />
         );
 
       default:

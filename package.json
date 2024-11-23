@@ -42,6 +42,7 @@
     "eslint-config-prettier": "^9.1.0",
     "eslint-config-standard": "^17.1.0",
     "eslint-plugin-tailwindcss": "^3.17.5",
+    "framer-motion": "^11.11.17",
     "immer": "^10.1.1",
     "install": "^0.13.0",
     "js-cookie": "^3.0.5",

@@ -45,7 +45,7 @@ interface ClubAndNodesData {
   clubs: Item[];
   nodes: Item[];
 }
-const View = ({ section }: { section: "club" | "node" }) => {
+const View = ({ forum }: { forum: TForum }) => {
   const { globalUser } = useTokenStore((state) => state);
   const router = useRouter();
   const [rule, setRule] = useState<TRule>();

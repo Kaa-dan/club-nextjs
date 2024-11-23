@@ -103,17 +103,17 @@ type FormData = z.infer<typeof formSchema>;
 
 export default function EditRuleForm({
   nodeOrClubId,
-  section,
+  forum,
   postId,
 }: {
   nodeOrClubId: string;
-  section: string;
+  forum: string;
   postId: string;
 }) {
   const breadcrumbItems: BreadcrumbItemType[] = [
     {
       label: "Rules",
-      href: `/${section}/${nodeOrClubId}/issues`,
+      href: `/${forum}/${nodeOrClubId}/issues`,
     },
     {
       label: "Create",
@@ -278,7 +278,7 @@ export default function EditRuleForm({
         formDataToSend.append("files", JSON.stringify(data.files));
       }
 
-      // Add section identifier
+      // Add forum identifier
       formDataToSend.append("_id", postId);
 
       const response = await Endpoints.updateRule(formDataToSend);
@@ -292,7 +292,7 @@ export default function EditRuleForm({
       });
 
       setIsAlertOpen(false);
-      router.push(`/${section}/${nodeOrClubId}/rules`);
+      router.push(`/${forum}/${nodeOrClubId}/rules`);
     } catch (error) {
       console.error("Error submitting form:", error);
       toast.error("Failed to update rule. Please try again.");
@@ -422,7 +422,7 @@ export default function EditRuleForm({
                       className="flex items-center gap-2"
                     >
                       Applicable for?{" "}
-                      <Info className="h-4 w-4 text-muted-foreground" />
+                      <Info className="size-4 text-muted-foreground" />
                     </Label>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -549,7 +549,7 @@ export default function EditRuleForm({
                     className="flex items-center gap-2"
                   >
                     Description{" "}
-                    <Info className="h-4 w-4 text-muted-foreground" />
+                    <Info className="size-4 text-muted-foreground" />
                   </Label>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -572,7 +572,7 @@ export default function EditRuleForm({
                     onChange={(content) => field.onChange(content)}
                   />
                   {errors.description && (
-                    <p className="text-sm text-red-500 mt-2">
+                    <p className="mt-2 text-sm text-red-500">
                       {errors.description.message}
                     </p>
                   )}
@@ -643,7 +643,7 @@ export default function EditRuleForm({
                         onClick={() => handleRemoveFile(fileObj._id)} // Remove the file on click
                         className="text-red-500 hover:text-red-700"
                       >
-                        <XCircle className="w-5 h-5" /> {/* Lucid Cross icon */}
+                        <XCircle className="size-5" /> {/* Lucid Cross icon */}
                       </button>
                     </div>
                   ))}

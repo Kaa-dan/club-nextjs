@@ -3,7 +3,7 @@ import View from "./rules-regulations/view";
 import ViewDebate from "./debates/view-debate";
 interface PluginProps {
   nodeOrClubId: string;
-  section: TSections;
+  forum: TForum;
 }
 
 export interface PluginConfig {

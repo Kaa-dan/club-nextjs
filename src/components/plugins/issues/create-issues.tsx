@@ -115,10 +115,10 @@ type FormValues = z.infer<typeof formSchema>;
 
 export default function CreateIssueForm({
   nodeOrClubId,
-  section,
+  forum,
 }: {
   nodeOrClubId: string;
-  section: TSections;
+  forum: TForum;
 }) {
   const { currentClub, userJoinedClubs } = useClubStore((state) => state);
   const { currentNode } = useNodeStore((state) => state);
@@ -202,13 +202,13 @@ export default function CreateIssueForm({
       values.files?.forEach((fileObj: any) => {
         formData.append("files", fileObj.file);
       });
-      formData.append(section, nodeOrClubId);
+      formData.append(forum, nodeOrClubId);
       formData.append("publishedStatus", issueStatus);
 
       await IssuesEndpoints.createIssue(formData);
 
       toast.success("Issue created successfully");
-      router.push(`/${section}/${nodeOrClubId}/issues`);
+      router.push(`/${forum}/${nodeOrClubId}/issues`);
       setUploadedFiles([]);
       setShowPublishDialog(false);
       form.reset();
@@ -385,7 +385,7 @@ export default function CreateIssueForm({
                   <FormControl>
                     <MultiSelect
                       options={
-                        section === "club"
+                        forum === "club"
                           ? currentClub?.members?.map((member: any) => ({
                               title: member?.user?.userName,
                               value: member?.user?._id,

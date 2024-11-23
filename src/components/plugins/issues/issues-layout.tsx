@@ -26,11 +26,11 @@ interface TabData {
 
 const IssuesLayout = ({
   plugin,
-  section,
+  forum,
   nodeorclubId,
 }: {
   plugin: TPlugins;
-  section: TSections;
+  forum: TForum;
   nodeorclubId: string;
 }) => {
   const {
@@ -41,7 +41,7 @@ const IssuesLayout = ({
     setClickTrigger,
     proposedIssues,
     clickTrigger,
-  } = useIssues(section, nodeorclubId);
+  } = useIssues(forum, nodeorclubId);
 
   const { currentUserRole } = useClubStore((state) => state);
 
@@ -184,7 +184,7 @@ const IssuesLayout = ({
             <IssueTable
               nodeorclubId={nodeorclubId}
               plugin={plugin}
-              section={section}
+              forum={forum}
               data={getData(tab)}
               tab={tab.label}
               clickTrigger={clickTrigger}
