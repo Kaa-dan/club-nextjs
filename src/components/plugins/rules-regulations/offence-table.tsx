@@ -204,14 +204,14 @@ export function DataTable({ data }: DataTableProps) {
 
 interface OffenceTableProps {
   plugin: TPlugins;
-  section: TSections;
+  forum: TForum;
   nodeorclubId: string;
   data: any[];
 }
 
 export function OffenceTable({
   plugin,
-  section,
+  forum,
   nodeorclubId,
   data,
 }: OffenceTableProps) {
@@ -338,7 +338,7 @@ export function OffenceTable({
             <DropdownMenuContent align="end">
               <DropdownMenuItem>
                 <Link
-                  href={`/${section}/${nodeorclubId}/${plugin}/${row.original._id}/view`}
+                  href={`/${forum}/${nodeorclubId}/${plugin}/${row.original._id}/view`}
                   className="w-full"
                 >
                   View Details

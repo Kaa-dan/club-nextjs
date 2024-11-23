@@ -1,5 +1,6 @@
+type TUserRole = "admin" | "member" | "owner" | "moderator";
 type TPlugins = "rules" | "issues" | "debate";
-type TSections = "node" | "club";
+type TForum = "node" | "club";
 type TFileType = "image" | "video" | "document" | "pdf" | "unknown";
 type TIssuesLabel =
   | "Live Issues"

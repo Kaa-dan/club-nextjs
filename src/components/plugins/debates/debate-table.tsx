@@ -22,16 +22,14 @@ import {
 import { useRouter } from "next/navigation";
 import { AvatarImage, AvatarFallback, Avatar } from "@/components/ui/avatar";
 
-// Sample data structure
-
 export default function DebateTable({
   data,
-  section,
+  forum,
   plugin,
   nodeOrClubId,
 }: {
   data: any;
-  section: "club" | "node";
+  forum: TForum;
   plugin: string;
   nodeOrClubId: string;
 }) {
@@ -58,9 +56,7 @@ export default function DebateTable({
         const debate = row.original;
         const handleClick = () => {
           // Navigate to the debate details page
-          router.push(
-            `/${section}/${nodeOrClubId}/${plugin}/${debate._id}/view`
-          );
+          router.push(`/${forum}/${nodeOrClubId}/${plugin}/${debate._id}/view`);
         };
         return (
           <div

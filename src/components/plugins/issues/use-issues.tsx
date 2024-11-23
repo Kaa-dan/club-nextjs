@@ -2,7 +2,7 @@
 import { IssuesEndpoints } from "@/utils/endpoints/issues";
 import { useCallback, useEffect, useState } from "react";
 
-const useIssues = (section: TSections, nodeOrClubId: string) => {
+const useIssues = (forum: TForum, nodeOrClubId: string) => {
   const [loading, setLoading] = useState(false);
   const [clickTrigger, setClickTrigger] = useState(false);
   const [myIssues, setMyIssues] = useState([]);
@@ -11,13 +11,13 @@ const useIssues = (section: TSections, nodeOrClubId: string) => {
   const [globalIssues, setGlobalIssues] = useState([]);
   const [proposedIssues, setProposedIssues] = useState([]);
 
-  console.log(section, nodeOrClubId, "useIssues");
+  console.log(forum, nodeOrClubId, "useIssues");
   const fetchAllData = useCallback(async () => {
     setLoading(true);
 
     await Promise.allSettled([
       //fetch myIssues
-      IssuesEndpoints.fetchMyIssues(section, nodeOrClubId)
+      IssuesEndpoints.fetchMyIssues(forum, nodeOrClubId)
         .then((response) => {
           if (response) setMyIssues(response);
         })
@@ -26,7 +26,7 @@ const useIssues = (section: TSections, nodeOrClubId: string) => {
         }),
 
       //fetch allIssues
-      IssuesEndpoints.fetchAllIssues(section, nodeOrClubId)
+      IssuesEndpoints.fetchAllIssues(forum, nodeOrClubId)
         .then((response) => {
           if (response) setAllIssues(response);
         })
@@ -35,7 +35,7 @@ const useIssues = (section: TSections, nodeOrClubId: string) => {
         }),
 
       //fetch all liveIssues
-      IssuesEndpoints.fetchAllLiveIssues(section, nodeOrClubId)
+      IssuesEndpoints.fetchAllLiveIssues(forum, nodeOrClubId)
         .then((response) => {
           if (response) setLiveIssues(response);
         })
@@ -52,7 +52,7 @@ const useIssues = (section: TSections, nodeOrClubId: string) => {
           console.log("Error fetching active liveIssues:", err);
         }),
 
-      IssuesEndpoints.fetchProposedIssues(section, nodeOrClubId)
+      IssuesEndpoints.fetchProposedIssues(forum, nodeOrClubId)
         .then((response) => {
           if (response) setProposedIssues(response);
         })
@@ -62,7 +62,7 @@ const useIssues = (section: TSections, nodeOrClubId: string) => {
     ]);
 
     setLoading(false);
-  }, [section, nodeOrClubId]);
+  }, [forum, nodeOrClubId]);
 
   useEffect(() => {
     fetchAllData();

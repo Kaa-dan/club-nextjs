@@ -27,14 +27,6 @@ export default function LayoutPanel({
       >
         <ContentLayout title="">{children}</ContentLayout>
       </main>
-      {/* <footer
-        className={cn(
-          "transition-[margin-left] ease-in-out duration-300",
-          sidebar?.isOpen === false ? "lg:ml-[90px]" : "lg:ml-72"
-        )}
-      >
-        <Footer />
-      </footer> */}
     </>
   );
 }

@@ -1,3 +1,4 @@
+'use client'
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useStore } from "@/hooks/use-store";
@@ -11,7 +12,7 @@ import { IMGS } from "@/lib/constants";
 export function Sidebar() {
   const sidebar = useStore(useSidebarToggle, (state) => state);
 
-  if (!sidebar) return null;
+  // if (!sidebar) return null;
 
   return (
     <aside

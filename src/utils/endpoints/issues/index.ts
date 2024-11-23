@@ -16,17 +16,17 @@ export class IssuesEndpoints {
     return response.data;
   }
 
-  static async fetchMyIssues(section: TSections, nodeOrclub: string) {
+  static async fetchMyIssues(forum: TForum, nodeOrclub: string) {
     const response = await mainAxios.get(
-      `/issues/get-my-issues?entity=${section}&entityId=${nodeOrclub}`
+      `/issues/get-my-issues?entity=${forum}&entityId=${nodeOrclub}`
     );
     console.log(response.data, "response my issue");
     return response.data;
   }
 
-  static async fetchAllIssues(section: TSections, nodeOrclub: string) {
+  static async fetchAllIssues(forum: TForum, nodeOrclub: string) {
     const response = await mainAxios.get(
-      `/issues/all-issues?entity=${section}&entityId=${nodeOrclub}`
+      `/issues/all-issues?entity=${forum}&entityId=${nodeOrclub}`
     );
     console.log(response.data, "response all issue");
     return response.data;
@@ -38,10 +38,10 @@ export class IssuesEndpoints {
     return response.data;
   }
 
-  static async fetchAllLiveIssues(section: TSections, nodeOrclub: string) {
-    console.log("nic", section, nodeOrclub);
+  static async fetchAllLiveIssues(forum: TForum, nodeOrclub: string) {
+    console.log("nic", forum, nodeOrclub);
     const response = await mainAxios.get(
-      `/issues/get-all-active-issues?entity=${section}&entityId=${nodeOrclub}`
+      `/issues/get-all-active-issues?entity=${forum}&entityId=${nodeOrclub}`
     );
     console.log(response.data, "response all live issue");
     return response.data;
@@ -77,7 +77,7 @@ export class IssuesEndpoints {
     return response.data;
   }
 
-  static async fetchProposedIssues(entity: TSections, entityId: string) {
+  static async fetchProposedIssues(entity: TForum, entityId: string) {
     const response = await mainAxios.get(
       `/issues/proposed-issues/${entity}/${entityId}`
     );

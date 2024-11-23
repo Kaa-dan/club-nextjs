@@ -3,7 +3,7 @@ import CreateRules from "@/components/plugins/rules-regulations/create.rules";
 import DebateForm from "./debates/create-debate";
 interface PluginProps {
   nodeOrClubId: string;
-  section: TSections;
+  forum: TForum;
 }
 
 export interface PluginConfig {

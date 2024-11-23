@@ -9,16 +9,16 @@ export class RulesAndRegulationsEndpoints {
     return response.data;
   }
 
-  static async fetchOffeses(section: TSections, typeId: string) {
+  static async fetchOffeses(forum: TForum, typeId: string) {
     const response = await mainAxios.get(
-      `/rules-regulations/get-all-report-offence?type=${section}&clubId=${typeId}`
+      `/rules-regulations/get-all-report-offence?type=${forum}&clubId=${typeId}`
     );
     return response.data;
   }
 
-  static async fetchMyRulesOnNodeOrClub(section: TSections, entityId: string) {
+  static async fetchMyRulesOnNodeOrClub(forum: TForum, entityId: string) {
     const response = await mainAxios.get(
-      `/rules-regulations/get-my-rules?type=${section}&entity=${entityId}`
+      `/rules-regulations/get-my-rules?type=${forum}&entity=${entityId}`
     );
     return response.data;
   }
