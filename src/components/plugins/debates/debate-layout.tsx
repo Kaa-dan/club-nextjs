@@ -158,6 +158,7 @@ const DebateLayout = ({
             <DebateTable
               nodeOrClubId={nodeorclubId}
               data={getData(tab)}
+              tab={tab.label}
               section={section}
               plugin={plugin}
             />

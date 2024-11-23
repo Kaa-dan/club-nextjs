@@ -116,7 +116,7 @@ const DebateForm = ({
       router.push(`/${section}/${nodeOrClubId}/debate`);
     } catch (error) {
       console.error("Error submitting form:", error);
-      toast.error("Failed to submit rule. Please try again.");
+      toast.error("Failed to submit debate. Please try again.");
     } finally {
       setOpen(false);
       form.reset();

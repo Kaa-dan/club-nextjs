@@ -21,23 +21,104 @@ import {
 } from "@/components/ui/table";
 import { useRouter } from "next/navigation";
 import { AvatarImage, AvatarFallback, Avatar } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 
-// Sample data structure
+// Type for badge variants
+type BadgeVariant = "default" | "destructive" | "outline" | "secondary";
+
+// Rest of the type definitions remain the same
+type TPublishedStatus = "proposed" | "published" | "draft" | "archived";
+
+interface IFile {
+  url: string;
+  originalName: string;
+  mimetype: string;
+  size: number;
+}
+
+interface IView {
+  user: string;
+  date: Date;
+}
+
+interface IAdopted {
+  club?: string;
+  node?: string;
+  date: Date;
+}
+
+interface IUser {
+  _id: string;
+  firstName: string;
+  profileIMage?: string;
+}
+
+interface IDebate {
+  _id: string;
+  topic: string;
+  closingDate: Date;
+  significance: string;
+  targetAudience: string;
+  tags: string[];
+  files: IFile[];
+  openingCommentsFor: string;
+  openingCommentsAgainst: string;
+  isPublic: boolean;
+  club?: string;
+  node?: string;
+  adoptedClubs: IAdopted[];
+  adoptedNodes: IAdopted[];
+  views: IView[];
+  createdBy: IUser;
+  publishedBy?: string;
+  publishedStatus: TPublishedStatus;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface DebateTableProps {
+  data: IDebate[];
+  section: "club" | "node";
+  plugin: string;
+  nodeOrClubId: string;
+  tab: string;
+}
 
 export default function DebateTable({
+  tab,
   data,
   section,
   plugin,
   nodeOrClubId,
-}: {
-  data: any;
-  section: "club" | "node";
-  plugin: string;
-  nodeOrClubId: string;
-}) {
+}: DebateTableProps) {
   const router = useRouter();
+  const isMyDebates = tab === "My Debates";
+  const isGlobalDebates = tab === "Global Debates";
 
-  const columns: ColumnDef<any>[] = [
+  const getStatusStyles = (status: string) => {
+    switch (status) {
+      case "ongoing":
+        return "border-green-500 text-green-700 bg-green-50";
+      case "expired":
+        return "border-red-500 text-red-700 bg-red-50";
+      case "draft":
+        return "border-yellow-500 text-yellow-700 bg-yellow-50";
+      default:
+        return "border-gray-200 text-gray-700 bg-gray-50";
+    }
+  };
+
+  const getDebateStatus = (debate: IDebate) => {
+    if (debate.publishedStatus === "published") {
+      const now = new Date();
+      const closingDate = new Date(debate.closingDate);
+      return now > closingDate ? "expired" : "ongoing";
+    }
+    return debate.publishedStatus;
+  };
+
+  // Base columns remain the same
+  const baseColumns: ColumnDef<IDebate>[] = [
     {
       accessorKey: "_id",
       cell: ({ row }) => <div>{row.index + 1}</div>,
@@ -57,26 +138,22 @@ export default function DebateTable({
       cell: ({ row }) => {
         const debate = row.original;
         const handleClick = () => {
-          // Navigate to the debate details page
           router.push(
             `/${section}/${nodeOrClubId}/${plugin}/${debate._id}/view`
           );
         };
         return (
-          <div
-            onClick={handleClick}
-            className="space-y-1 hover:cursor-pointer "
-          >
+          <div onClick={handleClick} className="space-y-1 hover:cursor-pointer">
             <div className="font-medium">{debate.topic}</div>
             <div className="text-sm text-muted-foreground">
-              {debate.description}
+              {debate.significance}
             </div>
           </div>
         );
       },
     },
     {
-      accessorKey: "for",
+      accessorKey: "views",
       header: ({ column }) => {
         return (
           <Button
@@ -89,10 +166,13 @@ export default function DebateTable({
           </Button>
         );
       },
-      cell: ({ row }) => <div className="text-center">{row.original.for}</div>,
+      cell: ({ row }) => {
+        const forViews = row.original.views.length;
+        return <div className="text-center">{forViews}</div>;
+      },
     },
     {
-      accessorKey: "against",
+      accessorKey: "adoptedClubs",
       header: ({ column }) => {
         return (
           <Button
@@ -105,50 +185,93 @@ export default function DebateTable({
           </Button>
         );
       },
-      cell: ({ row }) => (
-        <div className="text-center">{row.original.against}</div>
-      ),
-    },
-    {
-      accessorKey: "createdAt", // Use createdAt field
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            className="px-2"
-          >
-            Posted Date
-            <ArrowUpDown className="ml-1 size-3" />
-          </Button>
-        );
-      },
       cell: ({ row }) => {
-        const createdAt = row.original.createdAt;
-        return (
-          <div className="mx-auto text-center">
-            {format(new Date(createdAt), "dd/MM/yyyy")}
-          </div> // Format the date
-        );
-      },
-    },
-    {
-      accessorKey: "postedBy",
-      header: "Posted by",
-      cell: ({ row }) => {
-        const { firstName, profileIMage } = row?.original?.createdBy; // Assuming `postedBy` contains `name` and `avatar`
-        return (
-          <div className="flex items-center gap-2">
-            <Avatar>
-              <AvatarImage src={profileIMage} alt={firstName} />
-              <AvatarFallback>{firstName || "?"}</AvatarFallback>
-            </Avatar>
-            <span>{firstName}</span>
-          </div>
-        );
+        const againstCount =
+          row.original.adoptedClubs.length + row.original.adoptedNodes.length;
+        return <div className="text-center">{againstCount}</div>;
       },
     },
   ];
+
+  const statusColumn: ColumnDef<IDebate> = {
+    accessorKey: "publishedStatus",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="px-2"
+        >
+          Status
+          <ArrowUpDown className="ml-1 size-3" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const status = getDebateStatus(row.original);
+      return (
+        <div className="text-center">
+          <div
+            className={`inline-block px-3 py-1 rounded-full border ${getStatusStyles(status)}`}
+          >
+            {status}
+          </div>
+        </div>
+      );
+    },
+  };
+
+  const postedByColumn: ColumnDef<IDebate> = {
+    accessorKey: "createdBy",
+    header: "Posted by",
+    cell: ({ row }) => {
+      const { firstName, profileIMage } = row.original.createdBy;
+      return (
+        <div className="flex items-center gap-2">
+          <Avatar>
+            <AvatarImage src={profileIMage} alt={firstName} />
+            <AvatarFallback>{firstName?.charAt(0) || "?"}</AvatarFallback>
+          </Avatar>
+          <span>{firstName}</span>
+        </div>
+      );
+    },
+  };
+
+  const postedDateColumn: ColumnDef<IDebate> = {
+    accessorKey: "createdAt",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="px-2"
+        >
+          Posted Date
+          <ArrowUpDown className="ml-1 size-3" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      return (
+        <div className="mx-auto text-center">
+          {format(new Date(row.original.createdAt), "dd/MM/yyyy")}
+        </div>
+      );
+    },
+  };
+
+  // Arrange columns based on the tab
+  let columns = [...baseColumns];
+
+  if (isMyDebates) {
+    columns.push(statusColumn, postedDateColumn);
+  } else if (isGlobalDebates) {
+    columns = [...baseColumns, postedDateColumn, postedByColumn];
+  } else {
+    columns = [...baseColumns, postedByColumn, postedDateColumn];
+  }
+
   const [sorting, setSorting] = useState<SortingState>([]);
 
   const table = useReactTable({
@@ -168,7 +291,7 @@ export default function DebateTable({
       <div className="rounded-md border">
         <Table>
           <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
+            {table?.getHeaderGroups()?.map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <TableHead key={header.id}>
@@ -184,7 +307,7 @@ export default function DebateTable({
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {table?.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}

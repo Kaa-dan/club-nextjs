@@ -381,14 +381,38 @@ export class Endpoints {
     clubId?: string,
     nodeId?: string
   ) {
-    console.log({ debateId });
-
     try {
       const response = await mainAxios.post("debate/adopt", {
         debateId,
         type,
         clubId,
         nodeId,
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+  static async fetchDebateArgs(debateId: string) {
+    try {
+      const response = await mainAxios.get(`debate/argument/${debateId}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+  static async postArgument(data: any) {
+    const response = await mainAxios.post("debate/create-argument", data);
+    return response.data;
+  }
+
+  static async toggleVote(
+    debateId: string,
+    voteType: "relevant" | "irrelevant"
+  ) {
+    try {
+      const response = await mainAxios.post(`debate/vote/${debateId}`, {
+        voteType,
       });
       return response.data;
     } catch (error) {

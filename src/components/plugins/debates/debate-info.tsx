@@ -76,7 +76,7 @@ function DebateInfo() {
     });
   }, []);
   return (
-    <Card className="max-w-2xl mx-auto border">
+    <Card className="mx-auto border">
       <CardHeader>
         <div className="flex justify-between items-start">
           <div>
