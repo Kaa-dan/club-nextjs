@@ -70,6 +70,7 @@
   "devDependencies": {
     "@shadcn/ui": "^0.0.4",
     "@types/js-cookie": "^3.0.6",
+    "@types/lodash": "^4.17.13",
     "@types/node": "^20.17.1",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
