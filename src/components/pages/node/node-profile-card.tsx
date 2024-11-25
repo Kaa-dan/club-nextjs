@@ -36,7 +36,6 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
   currentPage,
   setCurrentPage,
 }) => {
-  console.log({ nodeData });
   const [joinStatus, setJoinStatus] = useState<String>("");
   const [cancelRequestTriggered, setCancelRequestTriggered] = useState(false);
   const recaptchaRef = useRef(null);
@@ -98,7 +97,6 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
     },
   ];
   const router = useRouter();
-  console.log({ nodeImg: nodeData });
   const joinToNode = async (nodeId: string) => {
     try {
       const response = await Endpoints.requestToJoinNode(nodeId);
@@ -126,16 +124,16 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
   };
 
   useEffect(() => {
-    console.log({ nodeData });
-
-    Endpoints.fetchNodeUserStatus(nodeData?.node?._id as string)
-      .then((res) => {
-        setJoinStatus(res.status);
-        console.log("user status", res.status);
-      })
-      .catch((err) => {
-        console.log({ err });
-      });
+    if(nodeData?.node?._id){
+      Endpoints.fetchNodeUserStatus(nodeData?.node?._id as string)
+        .then((res) => {
+          setJoinStatus(res.status);
+          console.log("user status", res.status);
+        })
+        .catch((err) => {
+          console.log({ err });
+        });
+    }
   }, [nodeData?.node?._id, cancelRequestTriggered]);
 
   const onRecaptchaChange = (token: any) => {

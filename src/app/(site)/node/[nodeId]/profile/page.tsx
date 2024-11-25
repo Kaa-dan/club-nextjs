@@ -40,61 +40,14 @@ import {
 import { useNodeStore } from "@/store/nodes-store";
 import { toast } from "sonner";
 import { useTokenStore } from "@/store/store";
-const members = [
-  {
-    id: 1,
-    name: "Cameron Williamson",
-    role: "UI UX Designer",
-    level: "Admin",
-    contribution: 2500,
-    joinDate: "October 30, 2017",
-    avatar: "/placeholder.svg",
-  },
-
-  {
-    id: 2,
-    name: "Bessie Cooper",
-    role: "President of Sales",
-    level: "Moderator",
-    contribution: 256,
-    joinDate: "July 14, 2015",
-    avatar: "/placeholder.svg",
-  },
-
-  {
-    id: 3,
-    name: "Ronald Richards",
-    role: "Dog Trainer",
-    level: "Moderator",
-    contribution: 19500,
-    joinDate: "October 25, 2019",
-    avatar: "/placeholder.svg",
-  },
-
-  // Add more members as needed
-];
 
 export default function Page() {
   const { globalUser } = useTokenStore((state) => state);
+  const { currentNode } = useNodeStore((state) => state);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { setUserJoinedNodes } = useNodeStore((state) => state);
   const { nodeId } = useParams<{ nodeId: string }>();
   const [clickTrigger, setClickTrigger] = useState<boolean>(false);
-  const [nodeDetails, setNodeDetails] = useState<{
-    node: TNodeData;
-    members: any[];
-  }>();
-
-  const fetchNodeDetails = async () => {
-    if (!nodeId) return;
-    try {
-      const response = await Endpoints.fetchNodeDetails(nodeId);
-      console.log({ response });
-      setNodeDetails(response?.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   const leaveMyNode = async (nodeId: string) => {
     try {
@@ -106,11 +59,7 @@ export default function Page() {
     } catch (error) {}
   };
 
-  useEffect(() => {
-    fetchNodeDetails();
-  }, [nodeId, clickTrigger]);
-
-  console.log(nodeDetails, "node details");
+  console.log(currentNode, "node details");
   return (
     <>
       <Card className="mx-auto w-full max-w-3xl">
@@ -120,7 +69,7 @@ export default function Page() {
               <h2 className="flex items-center gap-2 text-lg font-semibold">
                 Members
                 <span className="text-sm font-normal text-muted-foreground">
-                  • {nodeDetails?.members?.length}
+                  • {currentNode?.members?.length}
                 </span>
               </h2>
               <div className="flex items-center gap-2">
@@ -147,7 +96,7 @@ export default function Page() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              {nodeDetails?.members?.some(
+              {currentNode?.members?.some(
                 (member: any) => member?.user?._id == globalUser?._id
               ) && (
                 <>
@@ -279,7 +228,7 @@ export default function Page() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {nodeDetails?.members?.map((member: TMembers) => (
+              {currentNode?.members?.map((member: TMembers) => (
                 <TableRow key={member?.user?._id}>
                   <TableCell className="flex items-center gap-2">
                     <Avatar>

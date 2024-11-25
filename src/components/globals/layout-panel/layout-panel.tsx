@@ -5,6 +5,7 @@ import { useStore } from "@/hooks/use-store";
 import { Sidebar } from "./sidebar";
 import { useSidebarToggle } from "@/hooks/use-sidebar-toggle";
 import { ContentLayout } from "./content-layout";
+import NextTopLoader from "nextjs-toploader";
 
 export default function LayoutPanel({
   children,
@@ -25,6 +26,12 @@ export default function LayoutPanel({
           sidebar?.isOpen === false ? "ml-[90px]" : "ml-64"
         )}
       >
+        <NextTopLoader
+          color="#22B573"
+          zIndex={100}
+          showSpinner={false}
+          height={4}
+        />
         <ContentLayout title="">{children}</ContentLayout>
       </main>
     </>

@@ -1,14 +1,19 @@
-import { TClub } from "@/types";
+import { TClub, TMembers } from "@/types";
 import { create } from "zustand";
+
+interface ICurrentClub {
+  club: TClub;
+  members: TMembers[];
+}
 
 interface ClubState {
   userJoinedClubs: TClub[];
   userRequestedClubs: any[];
-  currentClub: TClub | null;
+  currentClub: ICurrentClub | null;
   currentUserRole: TUserRole;
   setUserJoinedClubs: (userJoinedClub: TClub[]) => void;
   setUserRequestedClubs: (userRequestedClubs: any[]) => void;
-  setCurrentClub: (currentClub: TClub) => void;
+  setCurrentClub: (currentClub: ICurrentClub) => void;
   setCurrentUserRole: (currentUserRole: TUserRole) => void;
 }
 

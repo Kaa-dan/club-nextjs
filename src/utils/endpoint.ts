@@ -51,11 +51,6 @@ export class Endpoints {
     return response.data;
   }
 
-  static async getNodeJoinRequestOfUser(nodeId: string) {
-    const response = await withTokenAxios.get("/node/check-status/" + nodeId);
-    return response.data;
-  }
-
   static async getAllClubs() {
     try {
       const response = await withTokenAxios.get("/clubs");
