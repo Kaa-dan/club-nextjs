@@ -32,6 +32,7 @@ const IssuesLayout = ({
     setClickTrigger,
     proposedIssues,
     clickTrigger,
+    loading,
   } = useIssues(forum, forumId);
 
   const { currentUserRole } = useClubStore((state) => state);
@@ -170,8 +171,6 @@ const IssuesLayout = ({
                 </svg>
               </Button>
             </div>
-            {/* <IssueTable issues={tab.issues} /> */}
-            {/* {children} */}
             <IssueTable
               forumId={forumId}
               plugin={plugin}
@@ -180,6 +179,7 @@ const IssuesLayout = ({
               tab={tab.label}
               clickTrigger={clickTrigger}
               setClickTrigger={setClickTrigger}
+              loading={loading}
             />
           </TabsContent>
         ))}

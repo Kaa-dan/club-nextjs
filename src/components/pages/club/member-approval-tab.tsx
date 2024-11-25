@@ -16,7 +16,7 @@ const MemberApprovalTab: React.FC<{ clubId: string }> = ({ clubId }) => {
   return (
     <Link
       href={"approvals/member-approvals"}
-      className="flex justify-between items-center bg-white rounded-lg p-3 shadow-sm"
+      className="flex items-center justify-between rounded-lg bg-white p-3 shadow-sm"
     >
       <div className="flex items-center ">
         <div className="p-4">
@@ -28,7 +28,7 @@ const MemberApprovalTab: React.FC<{ clubId: string }> = ({ clubId }) => {
           />
         </div>
         <div className="flex-col ">
-          <h1 className="font-medium text-xs">Members Approval</h1>
+          <h1 className="text-xs font-medium">Members Approval</h1>
           <p className="text-xs text-gray-600">
             Evaluate and decide on requests by either approving or rejecting
             them.
@@ -37,8 +37,8 @@ const MemberApprovalTab: React.FC<{ clubId: string }> = ({ clubId }) => {
       </div>
       <div className="flex justify-between gap-5">
         {request > 0 && (
-          <div className="bg-orange-500   p-2   rounded-xl">
-            <p className="text-white text-xs text-center ">{requestToShow}</p>
+          <div className="rounded-xl   bg-orange-500   p-2">
+            <p className="text-center text-xs text-white ">{requestToShow}</p>
           </div>
         )}
 

@@ -20,10 +20,17 @@ import {
 } from "@/components/ui/popover";
 import FilePreview from "./file-preview";
 import { useCommentsStore } from "@/store/comments-store";
+import { useProfanity } from "@/hooks/use-profanity";
+import CustomAlertDialog from "@/components/ui/custom/custom-alert-dialog";
 const CommentInput = () => {
   const { postId, plugin } = useParams<{ postId: string; plugin: TPlugins }>();
   const { setComments } = useCommentsStore((state) => state);
-
+  const { checkProfanity, hasProfanity, profanityScore } = useProfanity({
+    onProfanityDetected: (result) => {
+      console.log("Profanity check result:", result);
+    },
+    scoreThreshold: 0.87, // Customize sensitivity
+  });
   const [comment, setComment] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -76,6 +83,7 @@ const CommentInput = () => {
       }
 
       setComment("");
+      checkProfanity("");
       removeFile();
     } catch (error) {
       toast.error("Error", {
@@ -114,6 +122,24 @@ const CommentInput = () => {
     });
   };
 
+  const getWarningLevel = (score: number) => {
+    if (score > 0.95) return "high";
+    if (score > 0.86) return "medium";
+    return "none";
+  };
+  const getWarningStyles = (level: string) => {
+    switch (level) {
+      case "high":
+        return "border-red-500";
+      case "medium":
+        return "border-orange-400 ";
+      default:
+        return "";
+    }
+  };
+
+  const warningLevel = getWarningLevel(profanityScore);
+  const warningStyles = getWarningStyles(warningLevel);
   return (
     <div className="mx-auto w-full max-w-2xl rounded-lg bg-white shadow">
       <div className="border-b p-4">
@@ -121,17 +147,34 @@ const CommentInput = () => {
           <textarea
             ref={textareaRef}
             placeholder="Write your comment..."
-            className="max-h-[200px] min-h-[40px] w-full resize-none overflow-hidden rounded-lg border bg-gray-50 p-3 pr-24"
+            className={`max-h-[200px] min-h-[40px] w-full resize-none overflow-hidden 
+              rounded-lg border p-3 pr-24 transition-colors duration-200
+              focus:outline-none focus:ring-0 
+              disabled:cursor-not-allowed disabled:opacity-50
+              ${warningStyles}
+              `}
             value={comment}
             onChange={(e) => {
               setComment(e.target.value);
               adjustTextareaHeight(e.target);
+              checkProfanity(e.target.value);
             }}
             disabled={isSubmitting}
             rows={1}
           />
+          {hasProfanity && (
+            <div className="flex items-center gap-2">
+              <div
+                className={`text-sm ${warningLevel === "high" ? "text-red-500" : "text-orange-500"}`}
+              >
+                {warningLevel === "high"
+                  ? "This content may be considered inappropriate."
+                  : "This content may be considered inappropriate."}
+              </div>
+            </div>
+          )}
 
-          <div className="absolute right-2 top-3 flex items-center gap-1 bg-gray-50">
+          <div className="absolute right-2 top-2 flex items-center gap-1 bg-gray-50">
             <input
               type="file"
               className="hidden"
@@ -179,16 +222,35 @@ const CommentInput = () => {
               <ImageIcon className="size-4" />
             </Button>
 
-            {(comment || selectedFile) && (
-              <Button
-                size="icon"
-                className="size-8"
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-              >
-                <Send className="size-4" />
-              </Button>
-            )}
+            {(comment || selectedFile) &&
+              (hasProfanity ? (
+                <CustomAlertDialog
+                  trigger={
+                    <Button
+                      size="icon"
+                      className="size-8"
+                      disabled={isSubmitting}
+                    >
+                      <Send className="size-4" />
+                    </Button>
+                  }
+                  title="Content Warning"
+                  description="Your comment may contain inappropriate content. Are you sure you want to post it?"
+                  type="warning"
+                  actionText="Post Anyway"
+                  cancelText="Edit Comment"
+                  onAction={handleSubmit}
+                />
+              ) : (
+                <Button
+                  size="icon"
+                  className="size-8"
+                  onClick={handleSubmit}
+                  disabled={isSubmitting}
+                >
+                  <Send className="size-4" />
+                </Button>
+              ))}
           </div>
         </div>
       </div>

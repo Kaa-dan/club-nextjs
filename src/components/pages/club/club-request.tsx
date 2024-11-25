@@ -14,15 +14,15 @@ const ClubRequest: React.FC<ClubRequestProps> = ({
   onReject,
 }) => {
   return (
-    <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg shadow-sm border border-gray-200">
+    <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 p-4 shadow-sm">
       <div className="flex items-center gap-2">
-        <div className="w-10 h-10 rounded-sm overflow-hidden border border-gray-300">
+        <div className="size-10 overflow-hidden rounded-sm border border-gray-300">
           <Image
             width={40}
             height={40}
             alt="user"
             src={request.user.profileImage}
-            className="object-cover w-full h-full"
+            className="size-full object-cover"
           />
         </div>
         <div>
@@ -34,13 +34,13 @@ const ClubRequest: React.FC<ClubRequestProps> = ({
       <div className="flex space-x-2">
         <button
           onClick={() => onReject(request._id, "REJECTED")}
-          className="px-4 py-1 text-xs font-medium text-red-600 border border-red-600 rounded hover:bg-red-100"
+          className="rounded border border-red-600 px-4 py-1 text-xs font-medium text-red-600 hover:bg-red-100"
         >
           Reject
         </button>
         <button
           onClick={() => onAccept(request._id, "ACCEPTED")}
-          className="px-4 py-1 text-xs font-medium text-green-600 border border-green-600 rounded hover:bg-green-100"
+          className="rounded border border-green-600 px-4 py-1 text-xs font-medium text-green-600 hover:bg-green-100"
         >
           Accept
         </button>

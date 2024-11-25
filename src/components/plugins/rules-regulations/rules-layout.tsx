@@ -187,6 +187,7 @@ const RulesLayout = ({
                 data={getData(tab)}
                 clickTrigger={clickTrigger}
                 setClickTrigger={setClickTrigger}
+                loading={loading}
               />
             )}
           </TabsContent>

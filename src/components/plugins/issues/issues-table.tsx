@@ -39,6 +39,7 @@ import { ExpandableTableRow } from "../rules-regulations/expandable-row";
 import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import Loader1 from "@/components/globals/loaders/loader-1";
 
 export type Issue = {
   _id: string;
@@ -63,6 +64,7 @@ interface DataTableProps {
   forum: TForum;
   clickTrigger: boolean;
   setClickTrigger: React.Dispatch<React.SetStateAction<boolean>>;
+  loading: boolean;
 }
 
 function DataTable({
@@ -73,6 +75,7 @@ function DataTable({
   forum,
   clickTrigger,
   setClickTrigger,
+  loading,
 }: DataTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
@@ -124,16 +127,32 @@ function DataTable({
               </TableRow>
             ))
           ) : (
-            <TableRow>
-              <TableCell colSpan={columns.length} className="h-32 text-center">
-                <div className="flex flex-col items-center justify-center space-y-1">
-                  <div className="text-lg font-medium">No rules found</div>
-                  <div className="text-sm text-muted-foreground">
-                    There are no rules available at the moment
-                  </div>
-                </div>
-              </TableCell>
-            </TableRow>
+            <>
+              {loading ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-32 text-center"
+                  >
+                    <Loader1 />
+                  </TableCell>
+                </TableRow>
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-32 text-center"
+                  >
+                    <div className="flex flex-col items-center justify-center space-y-1">
+                      <div className="text-lg font-medium">No Issues found</div>
+                      <div className="text-sm text-muted-foreground">
+                        There are no issues available at the moment
+                      </div>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              )}
+            </>
           )}
         </TableBody>
       </Table>
@@ -149,6 +168,7 @@ export default function IssueTable({
   clickTrigger,
   setClickTrigger,
   tab,
+  loading,
 }: {
   plugin: TPlugins;
   forum: TForum;
@@ -157,6 +177,7 @@ export default function IssueTable({
   clickTrigger: boolean;
   setClickTrigger: React.Dispatch<React.SetStateAction<boolean>>;
   tab: TIssuesLabel;
+  loading: boolean;
 }) {
   // const [sorting, setSorting] = useState<SortingState>([]);
 
@@ -368,6 +389,7 @@ export default function IssueTable({
       forum={forum}
       clickTrigger={clickTrigger}
       setClickTrigger={setClickTrigger}
+      loading={loading}
     />
   );
 }
