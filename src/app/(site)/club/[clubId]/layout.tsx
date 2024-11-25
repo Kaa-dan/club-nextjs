@@ -3,11 +3,11 @@ import React, { useEffect, useState } from "react";
 import { TClub, TMembers } from "@/types";
 import { useParams } from "next/navigation";
 import ClubProfileCard from "@/components/pages/club/club-profile-card";
-import ModulesBar from "@/components/pages/forum-common/module-bar";
+
 import { fetchSpecificClub } from "@/components/pages/club/endpoint";
 import TeamsSidePopover from "@/components/pages/club/club-teams";
 import { useClubStore } from "@/store/clubs-store";
-import { useTokenStore } from "@/store/store";
+import ModulesBar from "@/components/pages/forum-common/module-bar";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const [currentPage, setCurrentPage] = useState("modules");
@@ -16,22 +16,15 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     members: TMembers[];
   } | null>(null);
   const params = useParams<{ clubId: string; plugin?: TPlugins }>();
-  const { globalUser } = useTokenStore((state) => state);
-  const { setCurrentClub, setCurrentUserRole } = useClubStore((state) => state);
+  const { setCurrentClub } = useClubStore((state) => state);
 
   const fetchClubDetails = async () => {
     console.log("fetching new club details");
     if (!params.clubId) return;
     try {
       const res = await fetchSpecificClub(params.clubId);
-      console.log({ current: res });
 
       setCurrentClub(res);
-      const _currentUserRole =
-        res?.members?.find(
-          (member: any) => member?.user?._id === globalUser?._id
-        )?.role || "VISITOR";
-      setCurrentUserRole(_currentUserRole);
 
       setClub(res);
     } catch (error) {
@@ -55,7 +48,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             />
           </div>
           <div className="flex w-3/4 flex-col ">
-            <ModulesBar plugin={params?.plugin} forumId={params.clubId} />
+            <ModulesBar
+              forum="club"
+              plugin={params?.plugin}
+              forumId={params.clubId}
+            />
             {children}
           </div>
         </div>

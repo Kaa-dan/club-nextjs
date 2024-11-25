@@ -26,9 +26,7 @@ const PluginPage = async ({
         );
 
       case "debate":
-        return (
-          <DebateLayout nodeorclubId={nodeId} forum="node" plugin={plugin} />
-        );
+        return <DebateLayout forumId={nodeId} forum="node" plugin={plugin} />;
     }
   };
 

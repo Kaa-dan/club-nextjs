@@ -43,7 +43,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           />
         </div>
         <div className="flex w-3/4 flex-col ">
-          <ModulesBar plugin={params?.plugin} forumId={params.nodeId} />
+          <ModulesBar
+            forum="node"
+            plugin={params?.plugin}
+            forumId={params.nodeId}
+          />
           {children}
         </div>
       </div>

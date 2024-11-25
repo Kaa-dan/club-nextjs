@@ -12,10 +12,11 @@ interface Module {
   notifications?: number;
 }
 
-const ModulesBar: React.FC<{ forumId: string; plugin?: TPlugins }> = ({
-  forumId,
-  plugin,
-}) => {
+const ModulesBar: React.FC<{
+  forumId: string;
+  plugin?: TPlugins;
+  forum: TForum;
+}> = ({ forumId, plugin, forum }) => {
   const modules: Module[] = [
     {
       link: "rules",
@@ -44,7 +45,7 @@ const ModulesBar: React.FC<{ forumId: string; plugin?: TPlugins }> = ({
       {modules.map((module, index) => (
         <div
           onClick={() => {
-            router.push(`/club/${forumId}/${module.link}`);
+            router.push(`/${forum}/${forumId}/${module.link}`);
           }}
           key={index}
           className="relative flex cursor-pointer flex-col items-center gap-1 rounded-sm  p-1 px-4 hover:bg-slate-50"

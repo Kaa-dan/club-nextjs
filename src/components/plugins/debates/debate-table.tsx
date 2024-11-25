@@ -80,7 +80,7 @@ interface DebateTableProps {
   data: IDebate[];
   forum: TForum;
   plugin: string;
-  nodeOrClubId: string;
+  forumId: string;
   tab: string;
   setClickTrigger: React.Dispatch<React.SetStateAction<boolean>>;
   clickTrigger: boolean;
@@ -286,9 +286,7 @@ export default function DebateTable({
         cell: ({ row }) => {
           const debate = row.original;
           const handleClick = () => {
-            router.push(
-              `/${forum}/${nodeOrClubId}/${plugin}/${debate._id}/view`
-            );
+            router.push(`/${forum}/${forumId}/${plugin}/${debate._id}/view`);
           };
           return (
             <div
