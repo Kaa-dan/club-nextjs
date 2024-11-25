@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { TClub, TMembers } from "@/types";
 import { useParams } from "next/navigation";
 import ClubProfileCard from "@/components/pages/club/club-profile-card";
-import ModulesBar from "@/components/pages/club/module-bar";
+import ModulesBar from "@/components/pages/forum-common/module-bar";
 import { fetchSpecificClub } from "@/components/pages/club/endpoint";
 import TeamsSidePopover from "@/components/pages/club/club-teams";
 import { useClubStore } from "@/store/clubs-store";
@@ -53,7 +53,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             />
           </div>
           <div className="flex w-3/4 flex-col ">
-            <ModulesBar plugin={params?.plugin} clubId={params.clubId} />
+            <ModulesBar plugin={params?.plugin} forumId={params.clubId} />
             {children}
           </div>
         </div>

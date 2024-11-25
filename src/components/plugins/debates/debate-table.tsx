@@ -26,12 +26,12 @@ export default function DebateTable({
   data,
   forum,
   plugin,
-  nodeOrClubId,
+  forumId,
 }: {
   data: any;
   forum: TForum;
   plugin: string;
-  nodeOrClubId: string;
+  forumId: string;
 }) {
   const router = useRouter();
 
@@ -56,7 +56,7 @@ export default function DebateTable({
         const debate = row.original;
         const handleClick = () => {
           // Navigate to the debate details page
-          router.push(`/${forum}/${nodeOrClubId}/${plugin}/${debate._id}/view`);
+          router.push(`/${forum}/${forumId}/${plugin}/${debate._id}/view`);
         };
         return (
           <div

@@ -35,7 +35,7 @@ const Page = async ({
         <CustomBreadcrumb items={breadcrumbItems} className="my-1" />
 
         <div className="w-full">
-          <PluginComponent nodeOrClubId={nodeId} forum="node" />
+          <PluginComponent forumId={nodeId} forum="node" />
         </div>
       </div>
     </div>

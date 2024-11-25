@@ -99,7 +99,7 @@ type Rule = {
 interface DataTableProps {
   columns: ColumnDef<any>[];
   data: any[];
-  nodeorclubId: string;
+  forumId: string;
   plugin: TPlugins;
   forum: TForum;
   clickTrigger: boolean;
@@ -109,7 +109,7 @@ interface DataTableProps {
 function DataTable({
   columns,
   data,
-  nodeorclubId,
+  forumId,
   plugin,
   forum,
   clickTrigger,
@@ -265,7 +265,7 @@ function DataTable({
                         </span> */}
                         <button className="rounded-lg border border-gray-200 px-4 py-2 text-gray-600 hover:text-gray-800">
                           <Link
-                            href={`/${forum}/${nodeorclubId}/${plugin}/${row?.original?._id}/view`}
+                            href={`/${forum}/${forumId}/${plugin}/${row?.original?._id}/view`}
                             className="w-full"
                           >
                             View Original
@@ -278,7 +278,7 @@ function DataTable({
                           plugin={plugin}
                           pluginId={row?.original?._id}
                           forum={forum}
-                          forumId={nodeorclubId}
+                          forumId={forumId}
                           isBtn={true}
                           setClickTrigger={setClickTrigger}
                           clickTrigger={clickTrigger}
@@ -310,14 +310,14 @@ function DataTable({
 export function RulesTable({
   plugin,
   forum,
-  nodeorclubId,
+  forumId,
   data,
   clickTrigger,
   setClickTrigger,
 }: {
   plugin: TPlugins;
   forum: TForum;
-  nodeorclubId: string;
+  forumId: string;
   data: any;
   clickTrigger: boolean;
   setClickTrigger: React.Dispatch<React.SetStateAction<boolean>>;
@@ -505,7 +505,7 @@ export function RulesTable({
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuItem>
                 <Link
-                  href={`/${forum}/${nodeorclubId}/${plugin}/${row?.original?._id}/edit`}
+                  href={`/${forum}/${forumId}/${plugin}/${row?.original?._id}/edit`}
                   className="w-full"
                 >
                   Edit Section
@@ -523,7 +523,7 @@ export function RulesTable({
       <DataTable
         columns={columns}
         data={data}
-        nodeorclubId={nodeorclubId}
+        forumId={forumId}
         plugin={plugin}
         forum={forum}
         setClickTrigger={setClickTrigger}
