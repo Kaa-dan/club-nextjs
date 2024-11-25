@@ -13,9 +13,9 @@ import { Button } from "@/components/ui/button";
 
 const ClubPostApproval = () => {
   return (
-    <div className="bg-white border rounded-lg p-4 shadow-sm ">
+    <div className="rounded-lg border bg-white p-4 shadow-sm ">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center">
           <Image
             src="https://img.freepik.com/premium-photo/stylish-man-flat-vector-profile-picture-ai-generated_606187-310.jpg?semt=ais_hybrid" // Replace with your image source
@@ -44,7 +44,7 @@ const ClubPostApproval = () => {
                 viewBox="0 0 24 24"
                 strokeWidth="2"
                 stroke="currentColor"
-                className="w-5 h-5"
+                className="size-5"
               >
                 <path
                   strokeLinecap="round"
@@ -81,10 +81,10 @@ const ClubPostApproval = () => {
 
       {/* Footer */}
       <div className="flex justify-end gap-2">
-        <button className="px-2 py-2 text-xs text-red-600 border border-red-600 rounded-md hover:bg-red-50">
+        <button className="rounded-md border border-red-600 p-2 text-xs text-red-600 hover:bg-red-50">
           ✕ Reject
         </button>
-        <button className="text-xs px-2 py-2 text-green-600 border border-green-600 rounded-md hover:bg-green-50">
+        <button className="rounded-md border border-green-600 p-2 text-xs text-green-600 hover:bg-green-50">
           ✓ Accept
         </button>
       </div>
