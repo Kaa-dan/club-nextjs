@@ -68,7 +68,7 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
       club?.members?.find((member) => member?.user?._id === globalUser?._id)
         ?.role || "";
     setCurrentUserRole(_currentUserRole);
-  }, []);
+  }, [club]);
 
   const isAdmin = () => currentUserRole === "admin";
   const isModeratorOrAdmin = () =>

@@ -129,8 +129,13 @@ const DebateCard = ({
   );
 };
 
-export function DebateSection() {
-  const { postId } = useParams<{ postId: string }>();
+export function DebateSection({ forum }: { forum: TForum }) {
+  const { postId, clubId, nodeId } = useParams<{
+    postId: string;
+    clubId: string;
+    nodeId: string;
+  }>();
+  const entityId = clubId ? clubId : nodeId;
   const [supportArgs, setSupportArgs] = useState([]);
   const [againstArgs, setAgainstArgs] = useState([]);
   const { globalUser } = useTokenStore((state) => state);
@@ -160,6 +165,8 @@ export function DebateSection() {
         <div className="flex justify-between items-center">
           <h2 className="text-lg font-bold">For ({supportArgs.length})</h2>
           <AddPointDialog
+            entity={entityId}
+            entityType={forum}
             fetchArg={fetchArgs}
             side="support"
             debateId={postId}
@@ -187,6 +194,8 @@ export function DebateSection() {
         <div className="flex justify-between items-center">
           <h2 className="text-lg font-bold">Against ({againstArgs.length})</h2>
           <AddPointDialog
+            entity={entityId}
+            entityType={forum}
             fetchArg={fetchArgs}
             side="against"
             debateId={postId}

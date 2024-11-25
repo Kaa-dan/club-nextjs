@@ -422,8 +422,42 @@ export class Endpoints {
   static async fetchProposedDebate(entityId: string, forum: TForum) {
     try {
       const response = await mainAxios.get(
-        `'/debate/proposed/${entityId}/${forum}`
+        `/debate/proposed/${entityId}/${forum}`
       );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+  static async acceptDebate(debateId: string) {
+    try {
+      const response = await mainAxios.put(`/debate/accept/${debateId}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async rejectDebate(debateId: string) {
+    try {
+      const response = await mainAxios.put(`debate/reject/${debateId}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async checkParticipationStatus(
+    debateId: string,
+    entityType: TForum,
+    entity: string
+  ) {
+    try {
+      const response = await mainAxios.post("debate/check-status", {
+        debateId,
+        entityType,
+        entity,
+      });
       return response.data;
     } catch (error) {
       throw error;

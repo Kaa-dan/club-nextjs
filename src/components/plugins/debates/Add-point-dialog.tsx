@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -58,16 +58,21 @@ interface AddPointDialogProps {
   debateId: string;
   trigger?: React.ReactNode;
   fetchArg: () => void;
+  entityType: TForum;
+  entity: string;
 }
 
 export function AddPointDialog({
   side,
   debateId,
+  entityType,
+  entity,
   trigger,
   fetchArg,
 }: AddPointDialogProps) {
   const [open, setOpen] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
+  const [status, setStatus] = useState<boolean>(false); // Default status is false
 
   const form = useForm<AddPointFormData>({
     resolver: zodResolver(addPointSchema),
@@ -84,6 +89,15 @@ export function AddPointDialog({
     };
     reader.readAsDataURL(file);
   };
+
+  // Fetch participation status when component mounts
+  useEffect(() => {
+    Endpoints.checkParticipationStatus(debateId, entityType, entity).then(
+      (res) => {
+        setStatus(res.isAllowed);
+      }
+    );
+  }, [debateId, entityType, entity]);
 
   const onSubmit = async (data: AddPointFormData) => {
     try {
@@ -106,23 +120,25 @@ export function AddPointDialog({
       setPreview(null);
       setOpen(false);
     } catch (error) {
-      console.log("first");
       console.error("Failed to submit point:", error);
     }
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger || (
-          <Button
-            variant="outline"
-            className={side === "support" ? "text-blue-600" : "text-red-600"}
-          >
-            + Add a point {side}
-          </Button>
-        )}
-      </DialogTrigger>
+      {/* Show the Add Point button only if status is true */}
+      {status && (
+        <DialogTrigger asChild>
+          {trigger || (
+            <Button
+              variant="outline"
+              className={side === "support" ? "text-blue-600" : "text-red-600"}
+            >
+              + Add a point {side}
+            </Button>
+          )}
+        </DialogTrigger>
+      )}
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">

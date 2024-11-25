@@ -18,44 +18,49 @@ const useDebates = (forum: TForum, forumId: string) => {
       // Fetch ongoing debates
       Endpoints.fetchOnGoingDebates(forum, forumId)
         .then((response) => {
-          if (response) setOngoingDebates(response.data);
+          if (response) setOngoingDebates(response.data || []);
         })
         .catch((err) => {
+          setOngoingDebates([]);
           console.error("Error fetching ongoing debates:", err);
         }),
 
       // Fetch all debates
       Endpoints.fetchAllDebates(forum, forumId)
         .then((response) => {
-          if (response) setAllDebates(response.ongoingDebates);
+          if (response) setAllDebates(response.debates || []);
           console.log({ all: response });
         })
         .catch((err) => {
+          setAllDebates([]);
           console.error("Error fetching all debates:", err);
         }),
 
       // Fetch global debates
       Endpoints.fetchGlobalDebates(forum, forumId)
         .then((response) => {
-          if (response) setGlobalDebates(response.data);
+          if (response) setGlobalDebates(response.data || []);
         })
         .catch((err) => {
+          setGlobalDebates([]);
           console.error("Error fetching global debates:", err);
         }),
 
       // Fetch my debates
       Endpoints.fetchMyDebate(forum, forumId)
         .then((response) => {
-          if (response) setMyDebates(response.data);
+          if (response) setMyDebates(response.data || []);
         })
         .catch((err) => {
+          setMyDebates([]);
           console.error("Error fetching my debates:", err);
         }),
       Endpoints.fetchProposedDebate(forumId, forum)
         .then((res) => {
-          if (res) setProposed(res);
+          if (res) setProposed(res || []);
         })
         .catch((err) => {
+          setProposed([]);
           console.error("Error fetching proposed debates:", err);
         }),
     ]);
@@ -76,6 +81,7 @@ const useDebates = (forum: TForum, forumId: string) => {
     refetch: fetchAllData,
     setClickTrigger,
     clickTrigger,
+    proposed,
   };
 };
 

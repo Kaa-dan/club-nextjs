@@ -23,11 +23,10 @@ import { useRouter } from "next/navigation";
 import { AvatarImage, AvatarFallback, Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useClubStore } from "@/store/clubs-store";
+import { Endpoints } from "@/utils/endpoint";
 
 // Type for badge variants
 type BadgeVariant = "default" | "destructive" | "outline" | "secondary";
-
-// Rest of the type definitions remain the same
 type TPublishedStatus = "proposed" | "published" | "draft" | "archived";
 
 interface IFile {
@@ -51,7 +50,7 @@ interface IAdopted {
 interface IUser {
   _id: string;
   firstName: string;
-  profileIMage?: string;
+  profileImage?: string;
 }
 
 interface IDebate {
@@ -83,6 +82,8 @@ interface DebateTableProps {
   plugin: string;
   nodeOrClubId: string;
   tab: string;
+  setClickTrigger: React.Dispatch<React.SetStateAction<boolean>>;
+  clickTrigger: boolean;
 }
 
 export default function DebateTable({
@@ -91,17 +92,20 @@ export default function DebateTable({
   forum,
   plugin,
   nodeOrClubId,
+  setClickTrigger,
+  clickTrigger,
 }: DebateTableProps) {
-  const { currentUserRole } = useClubStore((state) => state);
   const router = useRouter();
   const isMyDebates = tab === "My Debates";
   const isGlobalDebates = tab === "Global Debates";
+  const isProposeDebates = tab === "Proposed Debates";
+  const isAllDebates = !isMyDebates && !isGlobalDebates && !isProposeDebates;
 
   const getStatusStyles = (status: string) => {
     switch (status) {
       case "ongoing":
         return "border-green-500 text-green-700 bg-green-50";
-      case "expired":
+      case "ended":
         return "border-red-500 text-red-700 bg-red-50";
       case "draft":
         return "border-yellow-500 text-yellow-700 bg-yellow-50";
@@ -110,16 +114,18 @@ export default function DebateTable({
     }
   };
 
-  const getDebateStatus = (debate: IDebate) => {
-    if (debate.publishedStatus === "published") {
+  const getDebateStatus = (
+    debate: IDebate,
+    isAllDebatesTab: boolean = false
+  ) => {
+    if (isAllDebatesTab || debate.publishedStatus === "published") {
       const now = new Date();
       const closingDate = new Date(debate.closingDate);
-      return now > closingDate ? "expired" : "ongoing";
+      return now > closingDate ? "ended" : "ongoing";
     }
     return debate.publishedStatus;
   };
 
-  // Base columns remain the same
   const baseColumns: ColumnDef<IDebate>[] = [
     {
       accessorKey: "_id",
@@ -194,7 +200,7 @@ export default function DebateTable({
   ];
 
   const statusColumn: ColumnDef<IDebate> = {
-    accessorKey: "publishedStatus",
+    accessorKey: "status",
     header: ({ column }) => {
       return (
         <Button
@@ -208,11 +214,13 @@ export default function DebateTable({
       );
     },
     cell: ({ row }) => {
-      const status = getDebateStatus(row.original);
+      const status = getDebateStatus(row.original, isAllDebates);
       return (
         <div className="text-center">
           <div
-            className={`inline-block px-3 py-1 rounded-full border ${getStatusStyles(status)}`}
+            className={`inline-block px-3 py-1 rounded-full border ${getStatusStyles(
+              status
+            )}`}
           >
             {status}
           </div>
@@ -225,11 +233,11 @@ export default function DebateTable({
     accessorKey: "createdBy",
     header: "Posted by",
     cell: ({ row }) => {
-      const { firstName, profileIMage } = row.original.createdBy;
+      const { firstName, profileImage } = row.original.createdBy;
       return (
         <div className="flex items-center gap-2">
           <Avatar>
-            <AvatarImage src={profileIMage} alt={firstName} />
+            <AvatarImage src={profileImage} alt={firstName} />
             <AvatarFallback>{firstName?.charAt(0) || "?"}</AvatarFallback>
           </Avatar>
           <span>{firstName}</span>
@@ -261,15 +269,118 @@ export default function DebateTable({
     },
   };
 
-  // Arrange columns based on the tab
-  let columns = [...baseColumns];
+  // Define different column sets based on tab
+  let columns: ColumnDef<IDebate>[];
 
-  if (isMyDebates) {
-    columns.push(statusColumn, postedDateColumn);
+  if (isProposeDebates) {
+    columns = [
+      {
+        accessorKey: "_id",
+        cell: ({ row }) => <div>{row.index + 1}</div>,
+        header: "No.",
+        size: 60,
+      },
+      {
+        accessorKey: "debates",
+        header: "Debate",
+        cell: ({ row }) => {
+          const debate = row.original;
+          const handleClick = () => {
+            router.push(
+              `/${forum}/${nodeOrClubId}/${plugin}/${debate._id}/view`
+            );
+          };
+          return (
+            <div
+              onClick={handleClick}
+              className="space-y-1 hover:cursor-pointer"
+            >
+              <div className="font-medium">{debate.topic}</div>
+              <div className="text-sm text-muted-foreground">
+                {debate.significance}
+              </div>
+            </div>
+          );
+        },
+      },
+      {
+        accessorKey: "createdAt",
+        header: ({ column }) => {
+          return (
+            <Button
+              variant="ghost"
+              onClick={() =>
+                column.toggleSorting(column.getIsSorted() === "asc")
+              }
+              className="px-2"
+            >
+              Created Date
+              <ArrowUpDown className="ml-1 size-3" />
+            </Button>
+          );
+        },
+        cell: ({ row }) => {
+          return (
+            <div className="mx-auto text-center">
+              {format(new Date(row.original.createdAt), "dd/MM/yyyy")}
+            </div>
+          );
+        },
+      },
+      {
+        accessorKey: "createdBy",
+        header: "Posted By",
+        cell: ({ row }) => {
+          const { firstName, profileImage } = row.original.createdBy;
+          return (
+            <div className="flex items-center gap-2">
+              <Avatar>
+                <AvatarImage src={profileImage} alt={firstName} />
+                <AvatarFallback>{firstName?.charAt(0) || "?"}</AvatarFallback>
+              </Avatar>
+              <span>{firstName}</span>
+            </div>
+          );
+        },
+      },
+      {
+        accessorKey: "actions",
+        header: "Action",
+        cell: ({ row }) => {
+          const handleApprove = () => {
+            Endpoints.acceptDebate(row.original._id)
+              .then((res) => {
+                setClickTrigger(!clickTrigger);
+              })
+              .catch((err) => {
+                console.log({ err });
+              });
+          };
+
+          const handleReject = () => {
+            console.log(`Rejecting debate ID: ${row.original._id}`);
+          };
+
+          return (
+            <div className="flex items-center space-x-2">
+              <Button variant="outline" size="sm" onClick={handleApprove}>
+                Approve
+              </Button>
+              <Button variant="destructive" size="sm" onClick={handleReject}>
+                Reject
+              </Button>
+            </div>
+          );
+        },
+      },
+    ];
+  } else if (isMyDebates) {
+    columns = [...baseColumns, statusColumn, postedDateColumn];
   } else if (isGlobalDebates) {
     columns = [...baseColumns, postedDateColumn, postedByColumn];
   } else {
-    columns = [...baseColumns, postedByColumn, postedDateColumn];
+    // For "All Debates" tab
+    columns = [...baseColumns, statusColumn, postedByColumn, postedDateColumn];
   }
 
   const [sorting, setSorting] = useState<SortingState>([]);

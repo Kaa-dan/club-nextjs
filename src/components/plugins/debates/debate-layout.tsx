@@ -41,6 +41,7 @@ const DebateLayout = ({
     proposed,
 
     setClickTrigger,
+    clickTrigger,
     loading,
   } = useDebates(forum, nodeorclubId);
 
@@ -91,6 +92,9 @@ const DebateLayout = ({
         break;
       case "My Debates":
         data = myDebates;
+        break;
+      case "Proposed Debates":
+        data = proposed;
         break;
 
       default:
@@ -172,6 +176,8 @@ const DebateLayout = ({
               </Button>
             </div>
             <DebateTable
+              clickTrigger={clickTrigger}
+              setClickTrigger={setClickTrigger}
               nodeOrClubId={nodeorclubId}
               data={getData(tab)}
               tab={tab.label}
