@@ -1,8 +1,8 @@
-import { axiosInstance } from "@/lib/axios";
+import { noTokenAxios } from "@/lib/axios";
 
 export const login = async (data: any) => {
   try {
-    const response = await axiosInstance.post("/login", data);
+    const response = await noTokenAxios.post("/login", data);
     return response.data;
   } catch (error) {
     throw error;
@@ -10,8 +10,8 @@ export const login = async (data: any) => {
 };
 export const signinWithSocial = async (data: any) => {
   try {
-    const response = await axiosInstance.post("/google-signin", data);
-    console.log("response", response.data)
+    const response = await noTokenAxios.post("/google-signin", data);
+    console.log("response", response.data);
     return response.data;
   } catch (error) {
     throw error;

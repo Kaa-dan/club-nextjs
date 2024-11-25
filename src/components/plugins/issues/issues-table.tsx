@@ -39,6 +39,7 @@ import { ExpandableTableRow } from "../rules-regulations/expandable-row";
 import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import Loader1 from "@/components/globals/loaders/loader-1";
 
 export type Issue = {
   _id: string;
@@ -58,21 +59,23 @@ export type Issue = {
 interface DataTableProps {
   columns: ColumnDef<any>[];
   data: any[];
-  nodeorclubId: string;
+  forumId: string;
   plugin: TPlugins;
   forum: TForum;
   clickTrigger: boolean;
   setClickTrigger: React.Dispatch<React.SetStateAction<boolean>>;
+  loading: boolean;
 }
 
 function DataTable({
   columns,
   data,
-  nodeorclubId,
+  forumId,
   plugin,
   forum,
   clickTrigger,
   setClickTrigger,
+  loading,
 }: DataTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
@@ -124,16 +127,32 @@ function DataTable({
               </TableRow>
             ))
           ) : (
-            <TableRow>
-              <TableCell colSpan={columns.length} className="h-32 text-center">
-                <div className="flex flex-col items-center justify-center space-y-1">
-                  <div className="text-lg font-medium">No rules found</div>
-                  <div className="text-sm text-muted-foreground">
-                    There are no rules available at the moment
-                  </div>
-                </div>
-              </TableCell>
-            </TableRow>
+            <>
+              {loading ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-32 text-center"
+                  >
+                    <Loader1 />
+                  </TableCell>
+                </TableRow>
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-32 text-center"
+                  >
+                    <div className="flex flex-col items-center justify-center space-y-1">
+                      <div className="text-lg font-medium">No Issues found</div>
+                      <div className="text-sm text-muted-foreground">
+                        There are no issues available at the moment
+                      </div>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              )}
+            </>
           )}
         </TableBody>
       </Table>
@@ -144,19 +163,21 @@ function DataTable({
 export default function IssueTable({
   plugin,
   forum,
-  nodeorclubId,
+  forumId,
   data,
   clickTrigger,
   setClickTrigger,
   tab,
+  loading,
 }: {
   plugin: TPlugins;
   forum: TForum;
-  nodeorclubId: string;
+  forumId: string;
   data: any[];
   clickTrigger: boolean;
   setClickTrigger: React.Dispatch<React.SetStateAction<boolean>>;
   tab: TIssuesLabel;
+  loading: boolean;
 }) {
   // const [sorting, setSorting] = useState<SortingState>([]);
 
@@ -336,7 +357,7 @@ export default function IssueTable({
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuItem>
                 <Link
-                  href={`/${forum}/${nodeorclubId}/${plugin}/${row.original._id}/view`}
+                  href={`/${forum}/${forumId}/${plugin}/${row.original._id}/view`}
                   className="w-full"
                 >
                   View Details
@@ -363,11 +384,12 @@ export default function IssueTable({
     <DataTable
       columns={getFilteredColumns()}
       data={data}
-      nodeorclubId={nodeorclubId}
+      forumId={forumId}
       plugin={plugin}
       forum={forum}
       clickTrigger={clickTrigger}
       setClickTrigger={setClickTrigger}
+      loading={loading}
     />
   );
 }

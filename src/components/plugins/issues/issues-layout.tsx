@@ -1,20 +1,11 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TIssue } from "@/types";
 import { Search } from "lucide-react";
 import Link from "next/link";
-import React, { ReactNode } from "react";
+import React from "react";
 import IssueTable from "./issues-table";
 import useIssues from "./use-issues";
 import { useClubStore } from "@/store/clubs-store";
@@ -27,11 +18,11 @@ interface TabData {
 const IssuesLayout = ({
   plugin,
   forum,
-  nodeorclubId,
+  forumId,
 }: {
   plugin: TPlugins;
   forum: TForum;
-  nodeorclubId: string;
+  forumId: string;
 }) => {
   const {
     liveIssues,
@@ -41,7 +32,8 @@ const IssuesLayout = ({
     setClickTrigger,
     proposedIssues,
     clickTrigger,
-  } = useIssues(forum, nodeorclubId);
+    loading,
+  } = useIssues(forum, forumId);
 
   const { currentUserRole } = useClubStore((state) => state);
 
@@ -179,16 +171,15 @@ const IssuesLayout = ({
                 </svg>
               </Button>
             </div>
-            {/* <IssueTable issues={tab.issues} /> */}
-            {/* {children} */}
             <IssueTable
-              nodeorclubId={nodeorclubId}
+              forumId={forumId}
               plugin={plugin}
               forum={forum}
               data={getData(tab)}
               tab={tab.label}
               clickTrigger={clickTrigger}
               setClickTrigger={setClickTrigger}
+              loading={loading}
             />
           </TabsContent>
         ))}

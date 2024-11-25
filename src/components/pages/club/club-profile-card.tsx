@@ -49,12 +49,9 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
   setCurrentPage,
   clubId,
 }) => {
-  const {
-    setUserJoinedClubs,
-    setUserRequestedClubs,
-    currentUserRole,
-    setCurrentUserRole,
-  } = useClubStore((state) => state);
+  const { setUserJoinedClubs, setUserRequestedClubs, currentUserRole } =
+    useClubStore((state) => state);
+  console.log({ currentUserRole });
   const [recaptcha, setRecaptcha] = useState(false);
   const recaptchaRef = useRef(null);
   const [joinStatus, setJoinStatus] = useState<String>("");
@@ -62,13 +59,6 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
   const { globalUser } = useTokenStore((state) => state);
 
   const router = useRouter();
-
-  useEffect(() => {
-    const _currentUserRole =
-      club?.members?.find((member) => member?.user?._id === globalUser?._id)
-        ?.role || "";
-    setCurrentUserRole(_currentUserRole);
-  }, []);
 
   const isAdmin = () => currentUserRole === "admin";
   const isModeratorOrAdmin = () =>

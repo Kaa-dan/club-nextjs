@@ -16,7 +16,6 @@ import {
   VideoIcon,
   Search,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 
 import CommentsSection from "@/components/globals/comments/comments-section";
 import { Endpoints } from "@/utils/endpoint";

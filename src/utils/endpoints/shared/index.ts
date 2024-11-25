@@ -1,4 +1,4 @@
-import { mainAxios } from "@/lib/mainAxios";
+import { withTokenAxios } from "@/lib/mainAxios";
 
 export class SharedEndpoints {
   static async search(term: string, tag?: string) {

@@ -1,10 +1,5 @@
 import React, { useEffect, useState } from "react";
 import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
-import {
   ChevronDown,
   ChevronRight,
   MoreHorizontal,
@@ -21,54 +16,23 @@ import { useCommentsStore } from "@/store/comments-store";
 import AttachmentRenderComponent from "./attachment-component";
 import { useTokenStore } from "@/store/store";
 import { cn } from "@/lib/utils";
+import UserHoverCard from "../user-hover-card";
 
-const UserHoverCard: React.FC<{ user: TCommentUser }> = ({ user }) => (
-  <HoverCard>
-    <HoverCardTrigger asChild>
-      <span className="cursor-pointer text-blue-500 hover:underline">
-        @{user?.firstName}_{user?.lastName}
-      </span>
-    </HoverCardTrigger>
-    <HoverCardContent className="w-80">
-      <div className="flex gap-4">
-        <Image
-          src={user?.profileImage}
-          alt={`${user?.firstName} ${user?.lastName}`}
-          width={48}
-          height={48}
-          className="size-12 rounded-full object-cover"
-        />
-        <div className="flex-1">
-          <h4 className="font-bold">{`${user?.firstName} ${user?.lastName}`}</h4>
-          <p className="text-sm text-gray-500">{user?.email}</p>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {user?.interests?.map((interest, index) => (
-              <span
-                key={index}
-                className="rounded-full bg-blue-100 px-2 py-1 text-xs text-blue-600"
-              >
-                {interest}
-              </span>
-            ))}
-          </div>
-        </div>
-      </div>
-    </HoverCardContent>
-  </HoverCard>
-);
-
-const processCommentText = (text: string, user: TCommentUser) => {
+const processCommentText = (text: string) => {
   return text?.split(" ")?.map((word, index) => {
     return word?.startsWith("@") ? (
       <React.Fragment key={index}>
-        <UserHoverCard user={user} />{" "}
+        <UserHoverCard username={word?.slice(1)?.trim()}>
+          <span className="cursor-pointer text-blue-500 hover:underline">
+            {word}{" "}
+          </span>
+        </UserHoverCard>
       </React.Fragment>
     ) : (
       word + " "
     );
   });
 };
-
 interface InteractionState {
   isLiked: boolean;
   isDisLiked: boolean;
@@ -78,8 +42,6 @@ const Comment: React.FC<{ comment: TCommentType }> = ({ comment }) => {
   const { setComments, comments } = useCommentsStore((state) => state);
   const { globalUser } = useTokenStore((state) => state);
   const { postId, plugin } = useParams<{ postId: string; plugin: TPlugins }>();
-
-  console.log("lkasdflalfd", postId, plugin);
 
   const [showReplies, setShowReplies] = useState(false);
   const [showReplyInput, setShowReplyInput] = useState(false);
@@ -176,7 +138,7 @@ const Comment: React.FC<{ comment: TCommentType }> = ({ comment }) => {
   };
 
   const handleReplyToReply = (reply: TCommentReply) => {
-    setReplyText(`@${reply.firstName}_${reply.lastName} `);
+    setReplyText(`@${reply?.userName} `);
     setShowReplyInput(true);
     document
       .getElementById("likeReplySection")
@@ -218,19 +180,23 @@ const Comment: React.FC<{ comment: TCommentType }> = ({ comment }) => {
 
   return (
     <div className="flex gap-3">
-      <Image
-        src={comment.profileImage}
-        alt={`${comment.firstName} ${comment.lastName}`}
-        width={32}
-        height={32}
-        className="size-8 rounded-full object-cover"
-      />
+      <UserHoverCard username={comment?.userName} userData={comment}>
+        <Image
+          src={comment.profileImage}
+          alt={`${comment.firstName} ${comment.lastName}`}
+          width={32}
+          height={32}
+          className="size-8 rounded-full object-cover"
+        />
+      </UserHoverCard>
       <div className="flex-1">
         <div className="flex items-center justify-between">
           <div>
-            <span className="font-medium">
-              {comment.firstName} {comment.lastName}
-            </span>
+            <UserHoverCard username={comment?.userName} userData={comment}>
+              <span className="font-medium">
+                {comment.firstName} {comment.lastName}
+              </span>
+            </UserHoverCard>
             <span className="ml-2 text-sm text-gray-500">
               •{" "}
               {formatDistanceToNow(new Date(comment.createdAt), {
@@ -244,7 +210,7 @@ const Comment: React.FC<{ comment: TCommentType }> = ({ comment }) => {
         </div>
 
         <p className="mt-1 whitespace-pre-wrap text-sm">
-          {processCommentText(comment.content, comment)}
+          {processCommentText(comment?.content)}
         </p>
 
         {comment.attachment && (
@@ -318,19 +284,26 @@ const Comment: React.FC<{ comment: TCommentType }> = ({ comment }) => {
               <div className="ml-8 mt-4 space-y-4">
                 {comment.replies.map((reply) => (
                   <div key={reply._id} className="flex gap-3">
-                    <Image
-                      src={reply.profileImage}
-                      alt={`${reply.firstName} ${reply.lastName}`}
-                      width={32}
-                      height={32}
-                      className="size-8 rounded-full object-cover"
-                    />
+                    <UserHoverCard username={reply?.userName} userData={reply}>
+                      <Image
+                        src={reply.profileImage}
+                        alt={`${reply.firstName} ${reply.lastName}`}
+                        width={32}
+                        height={32}
+                        className="size-8 rounded-full object-cover"
+                      />
+                    </UserHoverCard>
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
                         <div>
-                          <span className="font-medium">
-                            {reply.firstName} {reply.lastName}
-                          </span>
+                          <UserHoverCard
+                            username={reply?.userName}
+                            userData={reply}
+                          >
+                            <span className="font-medium">
+                              {reply.firstName} {reply.lastName}
+                            </span>
+                          </UserHoverCard>
                           <span className="ml-2 text-sm text-gray-500">
                             •{" "}
                             {formatDistanceToNow(new Date(reply.createdAt), {
@@ -343,7 +316,7 @@ const Comment: React.FC<{ comment: TCommentType }> = ({ comment }) => {
                         </button>
                       </div>
                       <p className="mt-1 text-sm">
-                        {processCommentText(reply.content, reply)}
+                        {processCommentText(reply.content)}
                       </p>
                       <div className="mt-2 flex items-center gap-4">
                         <InteractionButtons

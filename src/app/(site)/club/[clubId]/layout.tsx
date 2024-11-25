@@ -3,10 +3,11 @@ import React, { useEffect, useState } from "react";
 import { TClub, TMembers } from "@/types";
 import { useParams } from "next/navigation";
 import ClubProfileCard from "@/components/pages/club/club-profile-card";
-import ModulesBar from "@/components/pages/club/module-bar";
+import ModulesBar from "@/components/pages/forum-common/module-bar";
 import { fetchSpecificClub } from "@/components/pages/club/endpoint";
 import TeamsSidePopover from "@/components/pages/club/club-teams";
 import { useClubStore } from "@/store/clubs-store";
+import { useTokenStore } from "@/store/store";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const [currentPage, setCurrentPage] = useState("modules");
@@ -15,7 +16,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     members: TMembers[];
   } | null>(null);
   const params = useParams<{ clubId: string; plugin?: TPlugins }>();
-  const { setCurrentClub } = useClubStore((state) => state);
+  const { globalUser } = useTokenStore((state) => state);
+  const { setCurrentClub, setCurrentUserRole } = useClubStore((state) => state);
 
   const fetchClubDetails = async () => {
     console.log("fetching new club details");
@@ -23,6 +25,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     try {
       const res = await fetchSpecificClub(params.clubId);
       setCurrentClub(res);
+      const _currentUserRole =
+        res?.members?.find(
+          (member: any) => member?.user?._id === globalUser?._id
+        )?.role || "VISITOR";
+      setCurrentUserRole(_currentUserRole);
 
       setClub(res);
     } catch (error) {
@@ -46,7 +53,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             />
           </div>
           <div className="flex w-3/4 flex-col ">
-            <ModulesBar plugin={params?.plugin} clubId={params.clubId} />
+            <ModulesBar plugin={params?.plugin} forumId={params.clubId} />
             {children}
           </div>
         </div>

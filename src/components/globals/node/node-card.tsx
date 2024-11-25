@@ -25,20 +25,20 @@ const NodeCardMini: React.FC<{ node: INode }> = ({
   },
 }) => {
   return (
-    <Card className="flex flex-col text-xs rounded-sm gap-1 size-[9rem] p-3">
+    <Card className="flex size-36 flex-col gap-1 rounded-sm p-3 text-xs">
       <Image
         height={200}
         width={200}
         src={profileImage}
         alt={name}
-        className="size-10 object-cover rounded-md"
+        className="size-10 rounded-md object-cover"
       />
-      <span className="text-sm font-semibold w-full truncate">{name}</span>
+      <span className="w-full truncate text-sm font-semibold">{name}</span>
       <div className="flex items-center gap-1">
         <Users size={"1rem"} />
         {members.length}
       </div>
-      <div className="w-4/5 p-1 bg-slate-50 rounded-md flex items-center">
+      <div className="flex w-4/5 items-center rounded-md bg-slate-50 p-1">
         <MapPin size={"1rem"} className="text-red-500" />
         {`${location}`}
       </div>
