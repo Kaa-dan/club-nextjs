@@ -101,7 +101,7 @@ export default function Page() {
     node: TNodeData;
     members: any[];
   }>();
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
 
   const visibleUsers = 5;
   const totalUsers = members.length;
@@ -443,8 +443,10 @@ export default function Page() {
                     member?.user?._id !== globalUser?._id && (
                       <TableCell>
                         <DropdownMenu
-                          open={dropdownOpen}
-                          onOpenChange={setDropdownOpen}
+                          open={dropdownOpen === member?.user?._id}
+                          onOpenChange={(open) =>
+                            setDropdownOpen(open ? member?.user?._id : null)
+                          }
                         >
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" className="size-8 p-0">
@@ -463,7 +465,7 @@ export default function Page() {
                                 key={section?.title}
                                 section={section}
                                 member={member}
-                                onClose={() => setDropdownOpen(false)}
+                                onClose={() => setDropdownOpen(null)}
                               />
                             ))}
                           </DropdownMenuContent>
