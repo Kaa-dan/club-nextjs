@@ -1,27 +1,15 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TIssue } from "@/types";
 import { Search } from "lucide-react";
 import Link from "next/link";
-import React, { ReactNode, useEffect, useState } from "react";
-import plugin from "tailwindcss";
+import React from "react";
 import { RulesTable } from "./rules";
-import { Endpoints } from "@/utils/endpoint";
-import { RulesAndRegulationsEndpoints } from "@/utils/endpoints/plugins/rules-and-regulations";
 import { OffenceTable } from "./offence-table";
 import useRules from "./use-rules";
-import { useClubStore } from "@/store/clubs-store";
+import { formatCount } from "@/lib/utils";
 
 interface TabData {
   label: string;
@@ -43,15 +31,14 @@ type Rule = {
   comments: number;
 };
 
-// const RulesLayout = ({ children }: { children: ReactNode }) => {
 const RulesLayout = ({
   plugin,
   forum,
-  nodeorclubId,
+  forumId,
 }: {
   plugin: TPlugins;
   forum: TForum;
-  nodeorclubId: string;
+  forumId: string;
 }) => {
   const {
     activeRules,
@@ -61,7 +48,7 @@ const RulesLayout = ({
     setClickTrigger,
     offenses,
     loading,
-  } = useRules(forum, nodeorclubId);
+  } = useRules(forum, forumId);
 
   const tabs: TabData[] = [
     {
@@ -85,21 +72,6 @@ const RulesLayout = ({
       count: offenses.length || 0,
     },
   ];
-  const { currentUserRole } = useClubStore((state) => state);
-  console.log({ currentUserRole });
-  const formatCount = (count: number) => {
-    if (count >= 1000000) return `${(count / 1000000).toFixed(0)}M`;
-    if (count >= 1000) return `${(count / 1000).toFixed(2)}k`;
-    return count.toString();
-  };
-
-  if (loading) {
-    return (
-      <div className="flex h-32 items-center justify-center">
-        <div className="size-8 animate-spin rounded-full border-b-2 border-primary"></div>
-      </div>
-    );
-  }
 
   function getData(tab: TabData): Rule[] {
     let data: Rule[] = [];
@@ -202,14 +174,14 @@ const RulesLayout = ({
             </div>
             {tab.label === "Report Offenses" ? (
               <OffenceTable
-                nodeorclubId={nodeorclubId}
+                forumId={forumId}
                 plugin={plugin}
                 forum={forum}
                 data={offenses}
               />
             ) : (
               <RulesTable
-                nodeorclubId={nodeorclubId}
+                forumId={forumId}
                 plugin={plugin}
                 forum={forum}
                 data={getData(tab)}

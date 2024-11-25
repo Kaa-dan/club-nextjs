@@ -91,7 +91,7 @@ export default function DebateTable({
   data,
   forum,
   plugin,
-  nodeOrClubId,
+  forumId,
   setClickTrigger,
   clickTrigger,
 }: DebateTableProps) {
@@ -146,7 +146,7 @@ export default function DebateTable({
       cell: ({ row }) => {
         const debate = row.original;
         const handleClick = () => {
-          router.push(`/${forum}/${nodeOrClubId}/${plugin}/${debate._id}/view`);
+          router.push(`/${forum}/${forumId}/${plugin}/${debate._id}/view`);
         };
         return (
           <div onClick={handleClick} className="space-y-1 hover:cursor-pointer">
@@ -218,7 +218,7 @@ export default function DebateTable({
       return (
         <div className="text-center">
           <div
-            className={`inline-block px-3 py-1 rounded-full border ${getStatusStyles(
+            className={`inline-block rounded-full border px-3 py-1 ${getStatusStyles(
               status
             )}`}
           >

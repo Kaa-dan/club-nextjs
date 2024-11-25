@@ -1,5 +1,4 @@
 "use client";
-// import ModulesBar from "@/components/pages/node/modules-bar";
 import NodeProfileCard from "@/components/pages/node/node-profile-card";
 import { Endpoints } from "@/utils/endpoint";
 import React, { useEffect, useState } from "react";
@@ -7,7 +6,7 @@ import { TMembers, TNodeData } from "@/types";
 import { useParams } from "next/navigation";
 import TeamsSidePopover from "@/components/pages/club/club-teams";
 import { useNodeStore } from "@/store/nodes-store";
-import ModulesBar from "@/components/pages/node/modules-bar";
+import ModulesBar from "@/components/pages/forum-common/module-bar";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const [currentPage, setCurrentPage] = useState("modules");
@@ -29,7 +28,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       console.log(error);
     }
   };
-  -+useEffect(() => {
+  useEffect(() => {
     fetchNodeDetails();
   }, [params.nodeId]);
 
@@ -44,7 +43,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           />
         </div>
         <div className="flex w-3/4 flex-col ">
-          <ModulesBar plugin={params?.plugin} nodeId={params.nodeId} />
+          <ModulesBar plugin={params?.plugin} forumId={params.nodeId} />
           {children}
         </div>
       </div>

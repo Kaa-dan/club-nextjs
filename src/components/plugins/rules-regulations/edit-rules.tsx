@@ -102,18 +102,18 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 export default function EditRuleForm({
-  nodeOrClubId,
+  forumId,
   forum,
   postId,
 }: {
-  nodeOrClubId: string;
+  forumId: string;
   forum: string;
   postId: string;
 }) {
   const breadcrumbItems: BreadcrumbItemType[] = [
     {
       label: "Rules",
-      href: `/${forum}/${nodeOrClubId}/issues`,
+      href: `/${forum}/${forumId}/issues`,
     },
     {
       label: "Create",
@@ -292,7 +292,7 @@ export default function EditRuleForm({
       });
 
       setIsAlertOpen(false);
-      router.push(`/${forum}/${nodeOrClubId}/rules`);
+      router.push(`/${forum}/${forumId}/rules`);
     } catch (error) {
       console.error("Error submitting form:", error);
       toast.error("Failed to update rule. Please try again.");

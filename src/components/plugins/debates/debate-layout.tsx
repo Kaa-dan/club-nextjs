@@ -24,11 +24,11 @@ interface TabData {
 const DebateLayout = ({
   plugin,
   forum,
-  nodeorclubId,
+  forumId,
 }: {
   plugin: TPlugins;
   forum: TForum;
-  nodeorclubId: string;
+  forumId: string;
 }) => {
   const { currentUserRole } = useClubStore((state) => state);
   console.log({ currentUserRole });
@@ -43,7 +43,7 @@ const DebateLayout = ({
     setClickTrigger,
     clickTrigger,
     loading,
-  } = useDebates(forum, nodeorclubId);
+  } = useDebates(forum, forumId);
 
   const tabs: TabData[] = [
     {
@@ -178,7 +178,7 @@ const DebateLayout = ({
             <DebateTable
               clickTrigger={clickTrigger}
               setClickTrigger={setClickTrigger}
-              nodeOrClubId={nodeorclubId}
+              forumId={forumId}
               data={getData(tab)}
               tab={tab.label}
               forum={forum}

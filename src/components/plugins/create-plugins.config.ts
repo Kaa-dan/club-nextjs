@@ -2,7 +2,7 @@ import CreateIssueForm from "./issues/create-issues";
 import CreateRules from "@/components/plugins/rules-regulations/create.rules";
 import DebateForm from "./debates/create-debate";
 interface PluginProps {
-  nodeOrClubId: string;
+  forumId: string;
   forum: TForum;
 }
 

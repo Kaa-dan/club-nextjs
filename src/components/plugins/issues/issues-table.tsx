@@ -58,7 +58,7 @@ export type Issue = {
 interface DataTableProps {
   columns: ColumnDef<any>[];
   data: any[];
-  nodeorclubId: string;
+  forumId: string;
   plugin: TPlugins;
   forum: TForum;
   clickTrigger: boolean;
@@ -68,7 +68,7 @@ interface DataTableProps {
 function DataTable({
   columns,
   data,
-  nodeorclubId,
+  forumId,
   plugin,
   forum,
   clickTrigger,
@@ -144,7 +144,7 @@ function DataTable({
 export default function IssueTable({
   plugin,
   forum,
-  nodeorclubId,
+  forumId,
   data,
   clickTrigger,
   setClickTrigger,
@@ -152,7 +152,7 @@ export default function IssueTable({
 }: {
   plugin: TPlugins;
   forum: TForum;
-  nodeorclubId: string;
+  forumId: string;
   data: any[];
   clickTrigger: boolean;
   setClickTrigger: React.Dispatch<React.SetStateAction<boolean>>;
@@ -336,7 +336,7 @@ export default function IssueTable({
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuItem>
                 <Link
-                  href={`/${forum}/${nodeorclubId}/${plugin}/${row.original._id}/view`}
+                  href={`/${forum}/${forumId}/${plugin}/${row.original._id}/view`}
                   className="w-full"
                 >
                   View Details
@@ -363,7 +363,7 @@ export default function IssueTable({
     <DataTable
       columns={getFilteredColumns()}
       data={data}
-      nodeorclubId={nodeorclubId}
+      forumId={forumId}
       plugin={plugin}
       forum={forum}
       clickTrigger={clickTrigger}

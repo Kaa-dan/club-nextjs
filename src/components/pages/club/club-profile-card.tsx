@@ -49,12 +49,9 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
   setCurrentPage,
   clubId,
 }) => {
-  const {
-    setUserJoinedClubs,
-    setUserRequestedClubs,
-    currentUserRole,
-    setCurrentUserRole,
-  } = useClubStore((state) => state);
+  const { setUserJoinedClubs, setUserRequestedClubs, currentUserRole } =
+    useClubStore((state) => state);
+  console.log({ currentUserRole });
   const [recaptcha, setRecaptcha] = useState(false);
   const recaptchaRef = useRef(null);
   const [joinStatus, setJoinStatus] = useState<String>("");
