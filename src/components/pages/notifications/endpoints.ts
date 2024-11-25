@@ -1,1 +1,1 @@
-import { mainAxios } from "@/lib/mainAxios";
+import { withTokenAxios } from "@/lib/mainAxios";

@@ -1,8 +1,8 @@
-import { mainAxios } from "@/lib/mainAxios";
+import { withTokenAxios } from "@/lib/mainAxios";
 
 export const addClub = async (data: any) => {
   try {
-    const response = await mainAxios.post("/clubs", data);
+    const response = await withTokenAxios.post("/clubs", data);
     return response.data;
   } catch (error) {
     throw error;
@@ -11,7 +11,7 @@ export const addClub = async (data: any) => {
 
 export const fetchSpecificClub = async (id: string) => {
   try {
-    const response = await mainAxios.get(`/clubs/${id}`);
+    const response = await withTokenAxios.get(`/clubs/${id}`);
 
     return response.data;
   } catch (error) {
@@ -23,7 +23,7 @@ export const fetchSpecificClub = async (id: string) => {
 
 export const pinClub = async (id: string) => {
   try {
-    const response = await mainAxios.patch(`/clubs/${id}`);
+    const response = await withTokenAxios.patch(`/clubs/${id}`);
     return response.data;
   } catch (error) {
     throw error;

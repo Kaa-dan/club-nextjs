@@ -11,7 +11,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { axiosInstance } from "@/lib/axios";
+import { noTokenAxios } from "@/lib/axios";
 import { useTokenStore } from "@/store/store";
 
 type InputRefType = HTMLInputElement | null;

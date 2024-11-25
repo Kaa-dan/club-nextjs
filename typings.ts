@@ -16,6 +16,7 @@ interface TCommentUser {
   profileImage: string;
   coverImage: string;
   interests: string[];
+  userName: string;
 }
 
 interface TCommentReply extends TCommentUser {
@@ -24,6 +25,7 @@ interface TCommentReply extends TCommentUser {
   createdAt: string;
   like: string[];
   dislike: string[];
+  userName: string;
 }
 
 interface TCommentType extends TCommentUser {
