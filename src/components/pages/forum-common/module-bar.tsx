@@ -12,8 +12,8 @@ interface Module {
   notifications?: number;
 }
 
-const ModulesBar: React.FC<{ clubId: string; plugin?: TPlugins }> = ({
-  clubId,
+const ModulesBar: React.FC<{ forumId: string; plugin?: TPlugins }> = ({
+  forumId,
   plugin,
 }) => {
   const modules: Module[] = [
@@ -44,7 +44,7 @@ const ModulesBar: React.FC<{ clubId: string; plugin?: TPlugins }> = ({
       {modules.map((module, index) => (
         <div
           onClick={() => {
-            router.push(`/club/${clubId}/${module.link}`);
+            router.push(`/club/${forumId}/${module.link}`);
           }}
           key={index}
           className="relative flex cursor-pointer flex-col items-center gap-1 rounded-sm  p-1 px-4 hover:bg-slate-50"

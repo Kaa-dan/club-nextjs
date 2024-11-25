@@ -23,11 +23,11 @@ interface TabData {
 const DebateLayout = ({
   plugin,
   forum,
-  nodeorclubId,
+  forumId,
 }: {
   plugin: TPlugins;
   forum: TForum;
-  nodeorclubId: string;
+  forumId: string;
 }) => {
   const {
     allDebates,
@@ -36,7 +36,7 @@ const DebateLayout = ({
     globalDebates,
     setClickTrigger,
     loading,
-  } = useDebates(forum, nodeorclubId);
+  } = useDebates(forum, forumId);
 
   const tabs: TabData[] = [
     {
@@ -156,7 +156,7 @@ const DebateLayout = ({
               </Button>
             </div>
             <DebateTable
-              nodeOrClubId={nodeorclubId}
+              forumId={forumId}
               data={getData(tab)}
               forum={forum}
               plugin={plugin}

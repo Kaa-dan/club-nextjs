@@ -12,18 +12,11 @@ const PluginPage = async ({
   const renderPluginContent = () => {
     switch (plugin) {
       case "issues":
-        return (
-          <IssuesLayout forum={"club"} nodeorclubId={clubId} plugin={plugin} />
-        );
+        return <IssuesLayout forum={"club"} forumId={clubId} plugin={plugin} />;
       case "rules":
-        return (
-          <RulesLayout forum={"club"} nodeorclubId={clubId} plugin={plugin} />
-        );
+        return <RulesLayout forum={"club"} forumId={clubId} plugin={plugin} />;
       case "debate":
-        return (
-          <DebateLayout nodeorclubId={clubId} forum="club" plugin={plugin} />
-        );
-
+        return <DebateLayout forumId={clubId} forum="club" plugin={plugin} />;
       default:
         return (
           <div className="flex h-full items-center justify-center">
