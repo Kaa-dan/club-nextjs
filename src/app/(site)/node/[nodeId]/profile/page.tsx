@@ -219,8 +219,19 @@ export default function Page() {
       title: "Remove user",
       description: (member: any) =>
         `Are you sure you want to remove ${member?.user?.firstName} ${member?.user?.lastName}?`,
-      onClickFunction: () => {
-        console.log("remove user");
+      onClickFunction: async (accessToUserId: string) => {
+        const data = {
+          entityId: nodeId,
+          entity: "node",
+          accessToUserId,
+        };
+        try {
+          await SharedEndpoints.removeMember(data);
+          setClickTrigger(!clickTrigger);
+        } catch (error) {
+          console.log(error, "error");
+          toast.error("something went wrong when removing member");
+        }
       },
       show: isOWnerOrAdmin,
     },

@@ -222,6 +222,8 @@ export default function Page() {
         members={members}
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
+        setClickTrigger={setClickTrigger}
+        clickTrigger={clickTrigger}
       />
     </>
   );

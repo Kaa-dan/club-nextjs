@@ -150,6 +150,7 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
     Endpoints.fetchClubUserStatus(clubId as string)
       .then((res) => {
         setJoinStatus(res.status);
+        console.log(res.status, "join status");
       })
       .catch((err) => {
         console.log({ err });
