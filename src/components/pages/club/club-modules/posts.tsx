@@ -44,11 +44,11 @@ function PostCard() {
                   News & events
                 </Badge>
               </div>
-              <div className="text-muted-foreground flex items-center gap-2 text-sm">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <span>UI UX Designer</span>
                 <span>•</span>
                 <span>2 min ago</span>
-              </div>  
+              </div>
             </div>
           </div>
           <div className="flex items-center gap-2">
