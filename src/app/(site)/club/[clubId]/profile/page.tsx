@@ -26,9 +26,11 @@ import { TClub } from "@/types";
 import { useClubStore } from "@/store/clubs-store";
 import { Dialog, DialogTrigger } from "@radix-ui/react-dialog";
 import { useTokenStore } from "@/store/store";
+import { useClubCalls } from "@/components/pages/club/use-club-calls";
 
 export default function Page() {
-  const { setUserJoinedClubs, currentClub } = useClubStore((state) => state);
+  const { leaveClub } = useClubCalls();
+  const { currentClub } = useClubStore((state) => state);
   const [invite, setInvite] = useState<boolean>();
   const [clickTrigger, setClickTrigger] = useState(false);
   const params = useParams<{ clubId: string }>();
@@ -36,21 +38,9 @@ export default function Page() {
   const totalUsers = currentClub?.members?.length || 0;
   const remainingUsers = totalUsers - visibleUsers;
   const displayRemainingCount = remainingUsers > 100 ? "100+" : remainingUsers;
-  const [club, setClub] = useState<TClub>();
   const [sentClub, setSentClub] = useState(params.clubId);
   const { globalUser } = useTokenStore((state) => state);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const leaveMyClub = async (clubId: string) => {
-    try {
-      const response = await Endpoints.leaveClub(clubId);
-      const joinedClubs = await Endpoints.fetchUserJoinedClubs();
-      setUserJoinedClubs(joinedClubs);
-      toast.warning(response.message);
-      setClickTrigger(!clickTrigger);
-    } catch (error) {
-      console.log({ error });
-    }
-  };
   const handleInviteClick = () => {
     setInvite(true); // Open the modal
   };
@@ -64,7 +54,8 @@ export default function Page() {
               <h2 className="flex items-center gap-2 text-lg font-semibold">
                 Members
                 <span className="flex text-sm font-normal  text-muted-foreground">
-                  • {currentClub?.members?.length} Members
+                  • {currentClub?.members?.length}{" "}
+                  {currentClub?.members?.length === 1 ? "Member" : "Members"}
                 </span>
               </h2>
               <div className="flex items-center gap-2">
@@ -144,7 +135,7 @@ export default function Page() {
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
                         <AlertDialogAction
-                          onClick={() => leaveMyClub(params.clubId)}
+                          onClick={() => leaveClub(params.clubId)}
                           className="bg-red-500 text-white hover:bg-red-600"
                         >
                           Leave Club
@@ -159,7 +150,9 @@ export default function Page() {
 
           <div className="space-y-2">
             <h3 className="font-semibold">Description</h3>
-            <p className="text-sm text-muted-foreground">{club?.description}</p>
+            <p className="text-sm text-muted-foreground">
+              {currentClub?.club?.description}
+            </p>
           </div>
 
           <div className="grid grid-cols-4 gap-4 border-t pt-4">
@@ -199,14 +192,15 @@ export default function Page() {
         </CardContent>
       </Card>
 
-{
-  currentClub?.members && 
-      <ClubMembersList
-        members={currentClub?.members!}
-        isModalOpen={isModalOpen}
-        setIsModalOpen={setIsModalOpen}
-      />
-}
+      {currentClub?.members && (
+        <ClubMembersList
+          members={currentClub?.members!}
+          isModalOpen={isModalOpen}
+          setIsModalOpen={setIsModalOpen}
+          setClickTrigger={setClickTrigger}
+          clickTrigger={clickTrigger}
+        />
+      )}
     </>
   );
 }

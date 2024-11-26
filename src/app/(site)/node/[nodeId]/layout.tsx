@@ -1,42 +1,18 @@
 "use client";
 import NodeProfileCard from "@/components/pages/node/node-profile-card";
-import { Endpoints } from "@/utils/endpoint";
 import React, { useEffect, useState } from "react";
-import { TMembers, TNodeData } from "@/types";
 import { useParams } from "next/navigation";
 import TeamsSidePopover from "@/components/pages/club/club-teams";
-import { useNodeStore } from "@/store/nodes-store";
 import ModulesBar from "@/components/pages/forum-common/module-bar";
-import { useTokenStore } from "@/store/store";
+import { useNodeCalls } from "@/components/pages/node/use-node-calls";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
+  const { fetchNodeDetails } = useNodeCalls();
   const [currentPage, setCurrentPage] = useState("modules");
-  const { globalUser } = useTokenStore((state) => state);
-  const [node, setNode] = useState<{
-    node: TNodeData;
-    members: TMembers[];
-  } | null>(null);
   const params = useParams<{ nodeId: string; plugin?: TPlugins }>();
-  const { setCurrentNode, setCurrentUserRole } = useNodeStore((state) => state);
 
-  const fetchNodeDetails = async () => {
-    if (!params.nodeId) return;
-    try {
-      const response = await Endpoints.fetchNodeDetails(params.nodeId);
-      const _currentUserRole =
-        response?.data?.members?.find(
-          (member: any) => member?.user?._id === globalUser?._id
-        )?.role || "VISITOR";
-      setCurrentUserRole(_currentUserRole);
-
-      setCurrentNode(response.data);
-      setNode(response.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
   useEffect(() => {
-    fetchNodeDetails();
+    if (params?.nodeId) fetchNodeDetails(params?.nodeId);
   }, [params.nodeId]);
 
   return (
@@ -46,17 +22,17 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           <NodeProfileCard
             currentPage={currentPage}
             setCurrentPage={setCurrentPage}
-            nodeData={node!}
           />
         </div>
         <div className="flex w-3/4 flex-col ">
-          <ModulesBar plugin={params?.plugin} forumId={params.nodeId} />
+          <ModulesBar
+            plugin={params?.plugin}
+            forum={"node"}
+            forumId={params.nodeId}
+          />
           {children}
         </div>
       </div>
-      {/* <div className="hidden lg:flex">
-            <NodeTeams />
-          </div> */}
       <div className="">
         <TeamsSidePopover />
       </div>

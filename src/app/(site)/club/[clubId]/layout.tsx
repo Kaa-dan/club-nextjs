@@ -8,36 +8,15 @@ import { fetchSpecificClub } from "@/components/pages/club/endpoint";
 import TeamsSidePopover from "@/components/pages/club/club-teams";
 import { useClubStore } from "@/store/clubs-store";
 import { useTokenStore } from "@/store/store";
+import { useClubCalls } from "@/components/pages/club/use-club-calls";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
+  const { fetchClubDetails } = useClubCalls();
   const [currentPage, setCurrentPage] = useState("modules");
-  const [club, setClub] = useState<{
-    club: TClub;
-    members: TMembers[];
-  } | null>(null);
   const params = useParams<{ clubId: string; plugin?: TPlugins }>();
-  const { globalUser } = useTokenStore((state) => state);
-  const { setCurrentClub, setCurrentUserRole } = useClubStore((state) => state);
 
-  const fetchClubDetails = async () => {
-    console.log("fetching new club details");
-    if (!params.clubId) return;
-    try {
-      const res = await fetchSpecificClub(params.clubId);
-      setCurrentClub(res);
-      const _currentUserRole =
-        res?.members?.find(
-          (member: any) => member?.user?._id === globalUser?._id
-        )?.role || "VISITOR";
-      setCurrentUserRole(_currentUserRole);
-
-      setClub(res);
-    } catch (error) {
-      console.log(error);
-    }
-  };
   useEffect(() => {
-    fetchClubDetails();
+    fetchClubDetails(params?.clubId);
   }, [params.clubId]);
 
   return (
@@ -49,11 +28,14 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               currentPage={currentPage}
               setCurrentPage={setCurrentPage}
               clubId={params.clubId}
-              club={club!}
             />
           </div>
           <div className="flex w-3/4 flex-col ">
-            <ModulesBar plugin={params?.plugin} forumId={params.clubId} />
+            <ModulesBar
+              plugin={params?.plugin}
+              forum={"club"}
+              forumId={params.clubId}
+            />
             {children}
           </div>
         </div>

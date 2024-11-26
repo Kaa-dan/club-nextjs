@@ -2,14 +2,11 @@ import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { ICONS } from "@/lib/constants";
 import { ChevronRight } from "lucide-react";
-import { TMembers, TNodeData } from "@/types";
 import { useRouter } from "next/navigation";
 import { Endpoints } from "@/utils/endpoint";
 import { useNodeStore } from "@/store/nodes-store";
-import { useTokenStore } from "@/store/store";
 import { Button } from "@/components/ui/button";
 import ReCAPTCHA from "react-google-recaptcha";
-
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,36 +19,28 @@ import {
 import { NodeEndpoints } from "@/utils/endpoints/node";
 import { toast } from "sonner";
 import { DialogHeader } from "@/components/ui/dialog";
-import { Dialog, DialogTitle, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { ImageSkeleton } from "../club/club-profile-card";
 
 interface ProfileCardProps {
-  nodeData: { node: TNodeData; members: TMembers[] };
   currentPage: string;
   setCurrentPage: (page: string) => void;
 }
 
 const NodeProfileCard: React.FC<ProfileCardProps> = ({
-  nodeData,
   currentPage,
   setCurrentPage,
 }) => {
+  const { currentNode, currentUserRole } = useNodeStore((state) => state);
   const [joinStatus, setJoinStatus] = useState<String>("");
   const [cancelRequestTriggered, setCancelRequestTriggered] = useState(false);
   const recaptchaRef = useRef(null);
 
-  const { setUserJoinedNodes, setUserRequestedNodes } = useNodeStore(
-    (state) => state
-  );
-  const { globalUser } = useTokenStore((state) => state);
-
-  const currentUserRole =
-    nodeData?.members?.find((member) => member?.user?._id === globalUser?._id)
-      ?.role || "";
+  const { setUserRequestedNodes } = useNodeStore((state) => state);
 
   const isAdmin = () => currentUserRole === "admin";
-  const isModeratorOrAdmin = () =>
-    ["moderator", "admin"].includes(currentUserRole.toLowerCase());
+  const isModeratorOrAdminOrOwner = () =>
+    ["moderator", "admin", "owner"].includes(currentUserRole.toLowerCase());
 
   const SECTIONS = [
     { name: "News Feed", icon: ICONS.NodeNewsFeedIcon, path: "#" },
@@ -59,7 +48,7 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
     {
       name: "Profile",
       icon: ICONS.NodeProfileIcon,
-      path: `/node/${nodeData?.node?._id}/profile`,
+      path: `/node/${currentNode?.node?._id}/profile`,
     },
     {
       name: "Chapters",
@@ -70,14 +59,14 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
     {
       name: "Members",
       icon: ICONS.NodeMembersIcon,
-      path: `/node/${nodeData?.node?._id}/members`,
+      path: `/node/${currentNode?.node?._id}/members`,
     },
     {
       name: "Approvals",
       icon: ICONS.NodeApprovalsIcon,
       notifications: 0,
-      path: `/node/${nodeData?.node?._id}/approvals`,
-      show: isModeratorOrAdmin, // Only show for moderator and admin
+      path: `/node/${currentNode?.node?._id}/approvals`,
+      show: isModeratorOrAdminOrOwner, // Only show for moderator and admin
     },
     {
       name: "Insights/Analytics",
@@ -88,7 +77,7 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
     {
       name: "Activities",
       icon: ICONS.NodeActivitiesIcon,
-      path: `/node/${nodeData?.node?._id}/activity`, // Fixed the path from approvals to activity
+      path: `/node/${currentNode?.node?._id}/activity`, // Fixed the path from approvals to activity
     },
     {
       name: "Preferences",
@@ -124,8 +113,8 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
   };
 
   useEffect(() => {
-    if(nodeData?.node?._id){
-      Endpoints.fetchNodeUserStatus(nodeData?.node?._id as string)
+    if (currentNode?.node?._id) {
+      Endpoints.fetchNodeUserStatus(currentNode?.node?._id as string)
         .then((res) => {
           setJoinStatus(res.status);
           console.log("user status", res.status);
@@ -134,7 +123,7 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
           console.log({ err });
         });
     }
-  }, [nodeData?.node?._id, cancelRequestTriggered]);
+  }, [currentNode?.node?._id, cancelRequestTriggered]);
 
   const onRecaptchaChange = (token: any) => {
     if (!token) {
@@ -144,7 +133,7 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
     Endpoints.recaptcha(token)
       .then((res) => {
         if (res) {
-          joinToNode(nodeData.node._id as string);
+          joinToNode(currentNode?.node?._id as string);
         }
       })
       .catch((err) => {
@@ -158,10 +147,10 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
   };
   return (
     <div className="sticky top-16 h-fit  w-full overflow-hidden rounded-lg bg-white pb-2 text-sm shadow-md">
-      {nodeData ? (
+      {currentNode ? (
         <div className="relative">
           <Image
-            src={nodeData?.node?.coverImage?.url}
+            src={currentNode?.node?.coverImage?.url}
             alt="Cover"
             width={300}
             height={120}
@@ -170,7 +159,7 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
           />
           <div className="absolute -bottom-6 left-4">
             <Image
-              src={nodeData?.node?.profileImage?.url as string}
+              src={currentNode?.node?.profileImage?.url as string}
               alt="Avatar"
               width={60}
               height={60}
@@ -183,39 +172,43 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
       )}
       <div className="px-4">
         <div className="pt-8">
-          <h2 className="text-lg font-bold">{nodeData?.node?.name}</h2>
-          <p className="text-xs text-gray-600">{nodeData?.node?.about}</p>
+          <h2 className="text-lg font-bold">{currentNode?.node?.name}</h2>
+          <p className="text-xs text-gray-600">{currentNode?.node?.about}</p>
           <p className="mb-1 flex gap-2 text-xs text-gray-500">
-            {nodeData?.node?.location}
+            {currentNode?.node?.location}
             <span>•</span>
             <span>
-              {nodeData?.members?.length}
+              {currentNode?.members?.length}
               {"  Members"}
             </span>
           </p>
         </div>
         {recaptcha && (
-          <Dialog open={recaptcha} onOpenChange={setRecaptcha}>
-            <DialogContent
-              className="pointer-events-auto "
-              onInteractOutside={(e) => {
-                e.preventDefault();
-              }}
-            >
-              <DialogHeader>
-                {recaptcha ? (
-                  <ReCAPTCHA
-                    className="z-50 flex justify-center"
-                    ref={recaptchaRef}
-                    sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_CLIENT as string}
-                    onChange={onRecaptchaChange}
-                  />
-                ) : (
-                  "Loading..."
-                )}
-              </DialogHeader>
-            </DialogContent>
-          </Dialog>
+          <div>
+            <Dialog open={recaptcha} onOpenChange={setRecaptcha}>
+              <DialogContent
+                className="pointer-events-auto z-40"
+                onInteractOutside={(e) => {
+                  e.preventDefault();
+                }}
+              >
+                <DialogHeader>
+                  {recaptcha ? (
+                    <ReCAPTCHA
+                      className="z-50 flex justify-center"
+                      ref={recaptchaRef}
+                      sitekey={
+                        process.env.NEXT_PUBLIC_RECAPTCHA_CLIENT as string
+                      }
+                      onChange={onRecaptchaChange}
+                    />
+                  ) : (
+                    "Loading..."
+                  )}
+                </DialogHeader>
+              </DialogContent>
+            </Dialog>
+          </div>
         )}
 
         <div className="flex flex-col gap-2">
@@ -244,7 +237,7 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
                 <div className="flex w-full justify-center gap-4">
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                   <AlertDialogAction
-                    onClick={() => cancelJoinRequest(nodeData?.node._id)}
+                    onClick={() => cancelJoinRequest(currentNode?.node?._id!)}
                   >
                     Continue
                   </AlertDialogAction>

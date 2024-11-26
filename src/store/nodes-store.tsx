@@ -1,14 +1,19 @@
-import { TClub, TNodeData } from "@/types";
+import { TMembers, TNodeData } from "@/types";
 import { create } from "zustand";
+
+interface ICurrentNode {
+  node: TNodeData;
+  members: TMembers[];
+}
 
 interface NodeState {
   userJoinedNodes: TNodeData[];
   userRequestedNodes: any[];
-  currentNode: TNodeData | null;
+  currentNode: ICurrentNode | null;
   currentUserRole: TUserRole;
   setUserJoinedNodes: (userJoinedClub: TNodeData[]) => void;
   setUserRequestedNodes: (userRequestedNodes: any[]) => void;
-  setCurrentNode: (currentNode: TNodeData) => void;
+  setCurrentNode: (currentNode: ICurrentNode) => void;
   setCurrentUserRole: (currentUserRole: TUserRole) => void;
 }
 

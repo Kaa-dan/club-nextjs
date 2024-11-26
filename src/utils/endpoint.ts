@@ -90,6 +90,10 @@ export class Endpoints {
       throw error;
     }
   }
+
+  /**
+   * VISITOR || MEMBER || REQUESTED
+   * */
   static async fetchNodeUserStatus(nodeId: string) {
     try {
       const response = await withTokenAxios.get(`node/check-status/${nodeId}`);

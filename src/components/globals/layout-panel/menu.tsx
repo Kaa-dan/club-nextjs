@@ -39,6 +39,7 @@ import { PopoverClose } from "@radix-ui/react-popover";
 import { ClubEndpoints } from "@/utils/endpoints/club";
 import { NodeEndpoints } from "@/utils/endpoints/node";
 import CustomAlertDialog from "@/components/ui/custom/custom-alert-dialog";
+import { useClubCalls } from "@/components/pages/club/use-club-calls";
 
 interface MenuProps {
   isOpen: boolean | undefined;
@@ -58,6 +59,7 @@ interface Node {
 }
 
 export function Menu({ isOpen }: MenuProps) {
+  const { fetchJoinedClubs, fetchRequestedClubs } = useClubCalls();
   const { clearStore } = useTokenStore((state) => state);
   const {
     setUserJoinedClubs,
@@ -88,14 +90,16 @@ export function Menu({ isOpen }: MenuProps) {
   const [open, setOpen] = useState<boolean>(false);
 
   async function fetchJoinedClubsAndNodes() {
-    const joinedClubs = await Endpoints.fetchUserJoinedClubs();
-    setUserJoinedClubs(joinedClubs);
     const joinedNodes = await Endpoints.fetchUserJoinedNodes();
     setUserJoinedNodes(joinedNodes);
-    const requestedClubs = await ClubEndpoints.fetchUserRequestedClubs();
-    setUserRequestedClubs(requestedClubs);
     const requestedNodes = await NodeEndpoints.fetchUserRequestedNodes();
     setUserRequestedNodes(requestedNodes);
+    // const joinedClubs = await Endpoints.fetchUserJoinedClubs();
+    // setUserJoinedClubs(joinedClubs);
+    // const requestedClubs = await ClubEndpoints.fetchUserRequestedClubs();
+    // setUserRequestedClubs(requestedClubs);
+    fetchJoinedClubs();
+    fetchRequestedClubs();
   }
 
   async function fetchMenuList() {
@@ -244,19 +248,23 @@ export function Menu({ isOpen }: MenuProps) {
                                             )}
                                           >
                                             <div
-                                              className={"rounded-xl  object-cover relative "}
+                                              className={
+                                                "relative  rounded-xl object-cover "
+                                              }
                                             >
                                               <Image
                                                 src={image}
                                                 height={50}
                                                 width={50}
-                                                className={"size-9 rounded-lg  object-cover brightness-50"}
+                                                className={
+                                                  "size-9 rounded-lg  object-cover brightness-50"
+                                                }
                                                 alt={label}
                                               />
-                                                <Plus
-                                                  size={"2rem"}
-                                                  className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2  font-extrabold text-white"
-                                                />
+                                              <Plus
+                                                size={"2rem"}
+                                                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2  font-extrabold text-white"
+                                              />
                                             </div>
                                           </span>
                                           <span
