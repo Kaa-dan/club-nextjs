@@ -5,7 +5,7 @@ export type TNodeData = {
   name: string;
   about: string;
   location: string;
-  descripion: string;
+  description: string;
   createdBy: string;
   members: { user: any; role: "admin" | "moderator" | "member" }[];
   coverImage: {
@@ -16,6 +16,7 @@ export type TNodeData = {
     fileName: string;
     url: string;
   };
+  createdAt: string;
 };
 
 export type TUser = {

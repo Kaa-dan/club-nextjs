@@ -2,16 +2,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { ICONS } from "@/lib/constants";
-import { ChevronRight, Globe2, Lock, Trash2 } from "lucide-react";
-import { TClub } from "@/types";
+import { ChevronRight, Globe2, Lock } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { joinClub } from "./endpoint";
 import { Endpoints } from "@/utils/endpoint";
 import { useClubStore } from "@/store/clubs-store";
-import { useTokenStore } from "@/store/store";
 import ReCAPTCHA from "react-google-recaptcha";
-
 import {
   AlertDialogHeader,
   AlertDialog,
@@ -34,17 +31,12 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface ProfileCardProps {
-  club: {
-    club: TClub;
-    members: Array<any>;
-  };
   currentPage: string;
   setCurrentPage: (page: string) => void;
   clubId: string;
 }
 
 const ClubProfileCard: React.FC<ProfileCardProps> = ({
-  club,
   currentPage,
   setCurrentPage,
   clubId,
@@ -53,14 +45,12 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
     setUserJoinedClubs,
     setUserRequestedClubs,
     currentUserRole,
-    setCurrentUserRole,
+    currentClub,
   } = useClubStore((state) => state);
-  console.log({ currentUserRole });
   const [recaptcha, setRecaptcha] = useState(false);
   const recaptchaRef = useRef(null);
   const [joinStatus, setJoinStatus] = useState<String>("");
   const [cancelRequestTriggered, setCancelRequestTriggered] = useState(false);
-  const { globalUser } = useTokenStore((state) => state);
 
   const router = useRouter();
 
@@ -151,6 +141,7 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
     Endpoints.fetchClubUserStatus(clubId as string)
       .then((res) => {
         setJoinStatus(res.status);
+        console.log(res.status, "join status");
       })
       .catch((err) => {
         console.log({ err });
@@ -176,11 +167,11 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
   };
   return (
     <div className="sticky top-16 h-fit  w-full overflow-hidden rounded-lg bg-white pb-2 shadow-md">
-      {club ? (
+      {currentClub ? (
         <div className="relative">
-          {club?.club?.coverImage && (
+          {currentClub?.club?.coverImage && (
             <Image
-              src={club?.club?.coverImage?.url}
+              src={currentClub?.club?.coverImage?.url}
               alt="Cover"
               width={300}
               height={120}
@@ -190,9 +181,9 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
           )}
 
           <div className="absolute -bottom-6 left-4">
-            {club?.club?.profileImage?.url && (
+            {currentClub?.club?.profileImage?.url && (
               <Image
-                src={club?.club.profileImage?.url}
+                src={currentClub?.club.profileImage?.url}
                 alt="Avatar"
                 width={60}
                 height={60}
@@ -206,19 +197,19 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
       )}
       <div className="mt-6 px-4">
         <div className="flex flex-col justify-center gap-2">
-          {club ? (
-            <h2 className="text-lg font-bold">{club?.club?.name}</h2>
+          {currentClub ? (
+            <h2 className="text-lg font-bold">{currentClub?.club?.name}</h2>
           ) : (
             <Skeleton className="h-4 w-1/2" />
           )}
-          {club ? (
-            <p className="text-xs text-gray-500">{club?.club?.about}</p>
+          {currentClub ? (
+            <p className="text-xs text-gray-500">{currentClub?.club?.about}</p>
           ) : (
             <Skeleton className="h-8 w-3/4" />
           )}
           <div className="mt-2 flex text-xs font-medium text-gray-700">
             <span className="flex items-center gap-1">
-              {club?.club?.isPublic ? (
+              {currentClub?.club?.isPublic ? (
                 <>
                   <Globe2 size={"0.8rem"} />
                   Public{" "}
@@ -230,7 +221,7 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
                 </>
               )}{" "}
             </span>{" "}
-            • {club?.members?.length} Members
+            • {currentClub?.members?.length} Members
           </div>
 
           {recaptcha && (
@@ -269,12 +260,14 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
               className="h-8 w-full border border-gray-500 bg-transparent text-gray-800 hover:bg-transparent"
               disabled={joinStatus === "REQUESTED" || joinStatus === "MEMBER"} // Disable when requested or joined
             >
-              {!club ? (
+              {!currentClub ? (
                 <Skeleton className="h-4 w-1/2" />
               ) : (
                 <>
-                  {club?.club?.isPublic && joinStatus === "VISITOR" && "Join"}
-                  {!club?.club?.isPublic &&
+                  {currentClub?.club?.isPublic &&
+                    joinStatus === "VISITOR" &&
+                    "Join"}
+                  {!currentClub?.club?.isPublic &&
                     joinStatus === "VISITOR" &&
                     "Request to Join"}
                   {joinStatus === "MEMBER" && "Joined"}

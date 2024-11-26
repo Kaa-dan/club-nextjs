@@ -7,32 +7,17 @@ import ClubProfileCard from "@/components/pages/club/club-profile-card";
 import { fetchSpecificClub } from "@/components/pages/club/endpoint";
 import TeamsSidePopover from "@/components/pages/club/club-teams";
 import { useClubStore } from "@/store/clubs-store";
+import { useTokenStore } from "@/store/store";
+import { useClubCalls } from "@/components/pages/club/use-club-calls";
 import ModulesBar from "@/components/pages/forum-common/module-bar";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
+  const { fetchClubDetails } = useClubCalls();
   const [currentPage, setCurrentPage] = useState("modules");
-  const [club, setClub] = useState<{
-    club: TClub;
-    members: TMembers[];
-  } | null>(null);
   const params = useParams<{ clubId: string; plugin?: TPlugins }>();
-  const { setCurrentClub } = useClubStore((state) => state);
 
-  const fetchClubDetails = async () => {
-    console.log("fetching new club details");
-    if (!params.clubId) return;
-    try {
-      const res = await fetchSpecificClub(params.clubId);
-
-      setCurrentClub(res);
-
-      setClub(res);
-    } catch (error) {
-      console.log(error);
-    }
-  };
   useEffect(() => {
-    fetchClubDetails();
+    fetchClubDetails(params?.clubId);
   }, [params.clubId]);
 
   return (
@@ -44,13 +29,12 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               currentPage={currentPage}
               setCurrentPage={setCurrentPage}
               clubId={params.clubId}
-              club={club!}
             />
           </div>
           <div className="flex w-3/4 flex-col ">
             <ModulesBar
-              forum="club"
               plugin={params?.plugin}
+              forum={"club"}
               forumId={params.clubId}
             />
             {children}

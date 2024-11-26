@@ -9,18 +9,6 @@ export const addClub = async (data: any) => {
   }
 };
 
-export const fetchSpecificClub = async (id: string) => {
-  try {
-    const response = await withTokenAxios.get(`/clubs/${id}`);
-
-    return response.data;
-  } catch (error) {
-    console.log(error, "errr");
-
-    throw error;
-  }
-};
-
 export const pinClub = async (id: string) => {
   try {
     const response = await withTokenAxios.patch(`/clubs/${id}`);
