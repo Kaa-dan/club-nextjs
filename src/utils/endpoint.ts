@@ -1,7 +1,6 @@
-import { withTokenAxios } from "@/lib/mainAxios";
 import { error } from "console";
 import { type } from "os";
-
+import { withTokenAxios } from "@/lib/mainAxios";
 export class Endpoints {
   static async fetchNodeDetails(nodeId: string) {
     const { data } = await withTokenAxios.get("/node/" + nodeId);
@@ -420,14 +419,14 @@ export class Endpoints {
   }
   static async fetchDebateArgs(debateId: string) {
     try {
-      const response = await mainAxios.get(`debate/argument/${debateId}`);
+      const response = await withTokenAxios.get(`debate/argument/${debateId}`);
       return response.data;
     } catch (error) {
       throw error;
     }
   }
   static async postArgument(data: any) {
-    const response = await mainAxios.post("debate/create-argument", data);
+    const response = await withTokenAxios.post("debate/create-argument", data);
     return response.data;
   }
 
@@ -436,7 +435,7 @@ export class Endpoints {
     voteType: "relevant" | "irrelevant"
   ) {
     try {
-      const response = await mainAxios.post(`debate/vote/${debateId}`, {
+      const response = await withTokenAxios.post(`debate/vote/${debateId}`, {
         voteType,
       });
       return response.data;
@@ -446,7 +445,7 @@ export class Endpoints {
   }
   static async fetchProposedDebate(entityId: string, forum: TForum) {
     try {
-      const response = await mainAxios.get(
+      const response = await withTokenAxios.get(
         `/debate/proposed/${entityId}/${forum}`
       );
       return response.data;
@@ -456,7 +455,7 @@ export class Endpoints {
   }
   static async acceptDebate(debateId: string) {
     try {
-      const response = await mainAxios.put(`/debate/accept/${debateId}`);
+      const response = await withTokenAxios.put(`/debate/accept/${debateId}`);
       return response.data;
     } catch (error) {
       throw error;
@@ -465,7 +464,7 @@ export class Endpoints {
 
   static async rejectDebate(debateId: string) {
     try {
-      const response = await mainAxios.put(`debate/reject/${debateId}`);
+      const response = await withTokenAxios.put(`debate/reject/${debateId}`);
       return response.data;
     } catch (error) {
       throw error;
@@ -478,7 +477,7 @@ export class Endpoints {
     entity: string
   ) {
     try {
-      const response = await mainAxios.post("debate/check-status", {
+      const response = await withTokenAxios.post("debate/check-status", {
         debateId,
         entityType,
         entity,
@@ -491,9 +490,12 @@ export class Endpoints {
 
   static async replyToDebateArgument(parentId: string, content: string) {
     try {
-      const response = await mainAxios.post("debate/" + parentId + "/reply", {
-        content,
-      });
+      const response = await withTokenAxios.post(
+        "debate/" + parentId + "/reply",
+        {
+          content,
+        }
+      );
       console.log("Reply successful:", response.data);
       return response.data;
     } catch (error) {
@@ -504,7 +506,7 @@ export class Endpoints {
   static async getRepliesForDebateArgument(parentId: string) {
     try {
       // Send GET request to fetch replies for the given parentId
-      const response = await mainAxios.get(`debate/replies/${parentId}`);
+      const response = await withTokenAxios.get(`debate/replies/${parentId}`);
 
       // Log the successful response
       console.log("Replies fetched successfully:", response.data);
