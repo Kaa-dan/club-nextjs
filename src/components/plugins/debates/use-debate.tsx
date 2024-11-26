@@ -28,8 +28,7 @@ const useDebates = (forum: TForum, forumId: string) => {
       // Fetch all debates
       Endpoints.fetchAllDebates(forum, forumId)
         .then((response) => {
-          if (response) setAllDebates(response.debates || []);
-          console.log({ all: response });
+          if (response) setAllDebates(response.data || []);
         })
         .catch((err) => {
           setAllDebates([]);

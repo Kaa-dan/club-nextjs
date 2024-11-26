@@ -463,4 +463,33 @@ export class Endpoints {
       throw error;
     }
   }
+
+  static async replyToDebateArgument(parentId: string, content: string) {
+    try {
+      const response = await mainAxios.post("debate/" + parentId + "/reply", {
+        content,
+      });
+      console.log("Reply successful:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Error posting reply:", error);
+      throw error;
+    }
+  }
+  static async getRepliesForDebateArgument(parentId: string) {
+    try {
+      // Send GET request to fetch replies for the given parentId
+      const response = await mainAxios.get(`debate/replies/${parentId}`);
+
+      // Log the successful response
+      console.log("Replies fetched successfully:", response.data);
+
+      // Return the replies data
+      return response.data;
+    } catch (error) {
+      // Log the error if the request fails
+      console.error("Error fetching replies:", error);
+      throw error;
+    }
+  }
 }

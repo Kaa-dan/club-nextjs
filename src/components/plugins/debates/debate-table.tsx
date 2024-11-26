@@ -28,29 +28,69 @@ import { Endpoints } from "@/utils/endpoint";
 // Type for badge variants
 type BadgeVariant = "default" | "destructive" | "outline" | "secondary";
 type TPublishedStatus = "proposed" | "published" | "draft" | "archived";
+interface IUser {
+  _id: string;
+  email: string;
+  interests: string[];
+  isBlocked: boolean;
+  emailVerified: boolean;
+  registered: boolean;
+  signupThrough: string;
+  isOnBoarded: boolean;
+  onBoardingStage: string;
+  createdAt: Date;
+  updatedAt: Date;
+  password: string;
+  dateOfBirth: Date;
+  firstName: string;
+  lastName: string;
+  gender: string;
+  phoneNumber: string;
+  userName: string;
+  profileImage: string;
+}
 
 interface IFile {
   url: string;
-  originalName: string;
   mimetype: string;
   size: number;
-}
-
-interface IView {
-  user: string;
-  date: Date;
+  _id: string;
 }
 
 interface IAdopted {
   club?: string;
   node?: string;
   date: Date;
+  _id: string;
 }
 
-interface IUser {
+interface IView {
+  user: IUser;
+  timestamp: Date;
+}
+
+// type TPublishedStatus = "draft" | "published" | "archived";
+
+interface IArgs {
+  for: IArgument[];
+  against: IArgument[];
+}
+
+interface IArgument {
   _id: string;
-  firstName: string;
-  profileImage?: string;
+  debate: string;
+  participant: {
+    user: IUser;
+    side: "support" | "against";
+    _id: string;
+  };
+  content: string;
+  relevant: string[];
+  irrelevant: string[];
+  timestamp: Date;
+  createdAt: Date;
+  updatedAt: Date;
+  __v: number;
 }
 
 interface IDebate {
@@ -61,8 +101,6 @@ interface IDebate {
   targetAudience: string;
   tags: string[];
   files: IFile[];
-  openingCommentsFor: string;
-  openingCommentsAgainst: string;
   isPublic: boolean;
   club?: string;
   node?: string;
@@ -74,6 +112,9 @@ interface IDebate {
   publishedStatus: TPublishedStatus;
   createdAt: Date;
   updatedAt: Date;
+  openingCommentsFor?: string;
+  openingCommentsAgainst?: string;
+  args: IArgs;
 }
 
 interface DebateTableProps {
@@ -95,6 +136,8 @@ export default function DebateTable({
   setClickTrigger,
   clickTrigger,
 }: DebateTableProps) {
+  console.log({ all: data });
+
   const router = useRouter();
   const isMyDebates = tab === "My Debates";
   const isGlobalDebates = tab === "Global Debates";
@@ -159,7 +202,7 @@ export default function DebateTable({
       },
     },
     {
-      accessorKey: "views",
+      accessorKey: "For",
       header: ({ column }) => {
         return (
           <Button
@@ -173,12 +216,12 @@ export default function DebateTable({
         );
       },
       cell: ({ row }) => {
-        const forViews = row.original.views.length;
-        return <div className="text-center">{forViews}</div>;
+        const support = row?.original?.args?.for;
+        return <div className="text-center">{support?.length}</div>;
       },
     },
     {
-      accessorKey: "adoptedClubs",
+      accessorKey: "Against",
       header: ({ column }) => {
         return (
           <Button
@@ -192,8 +235,7 @@ export default function DebateTable({
         );
       },
       cell: ({ row }) => {
-        const againstCount =
-          row.original.adoptedClubs.length + row.original.adoptedNodes.length;
+        const againstCount = row?.original?.args?.against?.length;
         return <div className="text-center">{againstCount}</div>;
       },
     },
