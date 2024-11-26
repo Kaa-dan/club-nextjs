@@ -70,14 +70,15 @@ export async function getMenuList(
   }));
   const top3Clubs = clubMenus?.slice(0, 3);
   const top3Nodes = nodeMenus?.slice(0, 3);
+  console.log("pathname", pathname);
   return [
     {
       groupLabel: "",
       menus: [
         {
-          href: "/home",
+          href: "/",
           label: "Home",
-          active: pathname.includes("/home"),
+          active: false,
           image: "https://picsum.photos/200",
           submenus: [],
         },
