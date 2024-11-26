@@ -31,7 +31,6 @@ import { useEffect, useState } from "react";
 import { pinClub } from "@/components/pages/club/endpoint";
 import { toast } from "sonner";
 import { useTokenStore } from "@/store/store";
-import { Endpoints } from "@/utils/endpoint";
 import { useClubStore } from "@/store/clubs-store";
 import Link from "next/link";
 import { useNodeStore } from "@/store/nodes-store";
