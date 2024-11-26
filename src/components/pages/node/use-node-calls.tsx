@@ -8,17 +8,10 @@ import { useTokenStore } from "@/store/store";
 interface UseNodeDataReturn {
   // Fetch operations
   fetchNodeDetails: (nodeId: string) => Promise<void>;
-  fetchUserNodes: () => Promise<void>;
+  fetchJoinedNodes: () => Promise<void>;
+  fetchRequestedNodes: () => Promise<void>;
 
-  // CRUD operations
-  //   updateNode: (
-  //     nodeId: string,
-  //     nodeData: Partial<TNodeData>
-  //   ) => Promise<TNodeData>;
-  //   deleteNode: (nodeId: string) => Promise<void>;
-
-  //   // Join/Leave operations
-  //   joinNode: (nodeId: string) => Promise<void>;
+  // operations
   leaveNode: (nodeId: string) => Promise<void>;
 
   // Error state
@@ -72,55 +65,28 @@ export const useNodeCalls = (): UseNodeDataReturn => {
     }
   }, [setUserJoinedNodes, setUserRequestedNodes]);
 
+  const fetchJoinedNodes = useCallback(async () => {
+    try {
+      const joinedNodes = await Endpoints.fetchUserJoinedNodes();
+      setUserJoinedNodes(joinedNodes);
+    } catch (error) {
+      console.error("Error fetching joined Nodes:", error);
+      throw error;
+    }
+  }, [setUserJoinedNodes]);
+
+  const fetchRequestedNodes = useCallback(async () => {
+    try {
+      const requestedNodes =
+        await await NodeEndpoints.fetchUserRequestedNodes();
+      setUserRequestedNodes(requestedNodes);
+    } catch (error) {
+      console.error("Error fetching requested Nodes:", error);
+      throw error;
+    }
+  }, [setUserRequestedNodes]);
+
   // CRUD Operations
-
-  //   const updateNode = useCallback(
-  //     async (nodeId: string, nodeData: Partial<TNodeData>) => {
-  //       try {
-  //         const response = await Endpoints.updateNode(nodeId, nodeData);
-  //         // Refresh node details after update
-  //         if (response.data) {
-  //           setCurrentNode(response.data);
-  //         }
-  //         return response.data;
-  //       } catch (error) {
-  //         console.error("Error updating node:", error);
-  //         throw error;
-  //       }
-  //     },
-  //     [setCurrentNode]
-  //   );
-
-  //   const deleteNode = useCallback(
-  //     async (nodeId: string) => {
-  //       try {
-  //         await Endpoints.deleteNode(nodeId);
-  //         // Update the local state after deletion
-  //         setUserJoinedNodes(
-  //           userJoinedNodes.filter((node) => node._id !== nodeId)
-  //         );
-  //       } catch (error) {
-  //         console.error("Error deleting node:", error);
-  //         throw error;
-  //       }
-  //     },
-  //     [setUserJoinedNodes, userJoinedNodes]
-  //   );
-
-  // Join/Leave operations
-  //   const joinNode = useCallback(
-  //     async (nodeId: string) => {
-  //       try {
-  //         await Endpoints.joinNode(nodeId);
-  //         await fetchUserNodes(); // Refresh the nodes list
-  //       } catch (error) {
-  //         console.error("Error joining node:", error);
-  //         throw error;
-  //       }
-  //     },
-  //     [fetchUserNodes]
-  //   );
-
   const leaveNode = useCallback(
     async (nodeId: string) => {
       try {
@@ -137,7 +103,8 @@ export const useNodeCalls = (): UseNodeDataReturn => {
 
   return {
     fetchNodeDetails,
-    fetchUserNodes,
+    fetchJoinedNodes,
+    fetchRequestedNodes,
     // createNode,
     // updateNode,
     // deleteNode,

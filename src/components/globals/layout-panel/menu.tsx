@@ -40,6 +40,7 @@ import { ClubEndpoints } from "@/utils/endpoints/club";
 import { NodeEndpoints } from "@/utils/endpoints/node";
 import CustomAlertDialog from "@/components/ui/custom/custom-alert-dialog";
 import { useClubCalls } from "@/components/pages/club/use-club-calls";
+import { useNodeCalls } from "@/components/pages/node/use-node-calls";
 
 interface MenuProps {
   isOpen: boolean | undefined;
@@ -60,19 +61,14 @@ interface Node {
 
 export function Menu({ isOpen }: MenuProps) {
   const { fetchJoinedClubs, fetchRequestedClubs } = useClubCalls();
+  const { fetchJoinedNodes, fetchRequestedNodes } = useNodeCalls();
   const { clearStore } = useTokenStore((state) => state);
-  const {
-    setUserJoinedClubs,
-    userJoinedClubs,
-    userRequestedClubs,
-    setUserRequestedClubs,
-  } = useClubStore((state) => state);
-  const {
-    setUserJoinedNodes,
-    userJoinedNodes,
-    setUserRequestedNodes,
-    userRequestedNodes,
-  } = useNodeStore((state) => state);
+  const { userJoinedClubs, userRequestedClubs } = useClubStore(
+    (state) => state
+  );
+  const { userJoinedNodes, userRequestedNodes } = useNodeStore(
+    (state) => state
+  );
   const togglePinClub = async (clubId: string) => {
     try {
       const response = await pinClub(clubId);
@@ -90,14 +86,8 @@ export function Menu({ isOpen }: MenuProps) {
   const [open, setOpen] = useState<boolean>(false);
 
   async function fetchJoinedClubsAndNodes() {
-    const joinedNodes = await Endpoints.fetchUserJoinedNodes();
-    setUserJoinedNodes(joinedNodes);
-    const requestedNodes = await NodeEndpoints.fetchUserRequestedNodes();
-    setUserRequestedNodes(requestedNodes);
-    // const joinedClubs = await Endpoints.fetchUserJoinedClubs();
-    // setUserJoinedClubs(joinedClubs);
-    // const requestedClubs = await ClubEndpoints.fetchUserRequestedClubs();
-    // setUserRequestedClubs(requestedClubs);
+    fetchJoinedNodes();
+    fetchRequestedNodes();
     fetchJoinedClubs();
     fetchRequestedClubs();
   }
