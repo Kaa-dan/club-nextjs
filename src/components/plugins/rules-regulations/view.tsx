@@ -16,7 +16,6 @@ import {
   VideoIcon,
   Search,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 
 import CommentsSection from "@/components/globals/comments/comments-section";
 import { Endpoints } from "@/utils/endpoint";
@@ -35,7 +34,6 @@ import { Button } from "@/components/ui/button";
 import { useTokenStore } from "@/store/store";
 import { ICONS } from "@/lib/constants";
 import Image from "next/image";
-import { type } from "os";
 interface Item {
   _id: string;
   name: string;
@@ -46,7 +44,7 @@ interface ClubAndNodesData {
   clubs: Item[];
   nodes: Item[];
 }
-const View = ({ section }: { section: "club" | "node" }) => {
+const View = ({ forum }: { forum: TForum }) => {
   const { globalUser } = useTokenStore((state) => state);
   const router = useRouter();
   const [rule, setRule] = useState<TRule>();
@@ -85,14 +83,11 @@ const View = ({ section }: { section: "club" | "node" }) => {
 
   useEffect(() => {
     fetchSpecificRule();
-    Endpoints.createView(postId).then((err) => {
-      console.log("views created");
-    });
+    Endpoints.createView(postId).then((err) => {});
   }, []);
 
   function fetchNodesAndClubs() {
     Endpoints.getClubsNodesNotAdopted(postId as string).then((res) => {
-      console.log("effect1");
       setClubAndNodes(res);
     });
   }
@@ -151,14 +146,19 @@ const View = ({ section }: { section: "club" | "node" }) => {
       <div className="mb-4">
         <div className="mb-1 text-sm text-gray-500">Tags:</div>
         <div className="flex gap-2">
-          {rule?.tags?.map((tag, index) => (
-            <span
-              key={index}
-              className="rounded-full bg-gray-100 px-3 py-1 text-sm"
-            >
-              {tag}
-            </span>
-          ))}
+          {rule?.tags?.map(
+            (tag, index) => (
+              console.log(rule?.tags, "tags"),
+              (
+                <span
+                  key={index}
+                  className="rounded-full bg-gray-100 px-3 py-1 text-sm"
+                >
+                  {tag}
+                </span>
+              )
+            )
+          )}
         </div>
       </div>
 
@@ -182,10 +182,12 @@ const View = ({ section }: { section: "club" | "node" }) => {
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
           {rule?.createdBy?.profileImage ? (
-            <img
+            <Image
               src={rule.createdBy.profileImage}
               alt={rule.createdBy?.userName || "User"}
               className="size-8 rounded-full object-cover"
+              width={32}
+              height={32}
             />
           ) : (
             <div className="flex size-8 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white">
@@ -301,7 +303,7 @@ const View = ({ section }: { section: "club" | "node" }) => {
       {rule?.files?.map((file) => (
         <div
           key={file._id}
-          className="mb-4 flex items-center gap-4 cursor-pointer"
+          className="mb-4 flex cursor-pointer items-center gap-4"
         >
           <div className="flex items-center gap-2">
             <div className="flex size-8 items-center justify-center rounded bg-gray-100">

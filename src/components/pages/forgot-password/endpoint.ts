@@ -1,8 +1,8 @@
-import { axiosInstance } from "@/lib/axios";
+import { noTokenAxios } from "@/lib/axios";
 
 export const forgotPassword = async (email: string) => {
   try {
-    const response = await axiosInstance.post("/forgot-password", { email });
+    const response = await noTokenAxios.post("/forgot-password", { email });
     return response.data;
   } catch (error) {
     throw error;
@@ -16,7 +16,7 @@ export const changePassword = async (password: string) => {
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get("token");
     console.log(token, "tokennn");
-    const response = await axiosInstance.post(
+    const response = await noTokenAxios.post(
       "/change-password",
       { password },
       {

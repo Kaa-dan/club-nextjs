@@ -1,3 +1,4 @@
+"use client";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useStore } from "@/hooks/use-store";
@@ -11,7 +12,7 @@ import { IMGS } from "@/lib/constants";
 export function Sidebar() {
   const sidebar = useStore(useSidebarToggle, (state) => state);
 
-  if (!sidebar) return null;
+  // if (!sidebar) return null;
 
   return (
     <aside
@@ -30,7 +31,7 @@ export function Sidebar() {
           variant="link"
           asChild
         >
-          <Link href="/performance" className="flex items-center gap-2 ">
+          <Link href="/" className="flex items-center gap-2 ">
             <Image src={IMGS.LogoGreen} alt="logo" className="w-fit" />
             <h1
               className={cn(

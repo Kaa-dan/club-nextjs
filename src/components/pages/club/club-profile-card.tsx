@@ -2,16 +2,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { ICONS } from "@/lib/constants";
-import { ChevronRight, Globe2, Lock, Trash2 } from "lucide-react";
-import { TClub } from "@/types";
+import { ChevronRight, Globe2, Lock } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { joinClub } from "./endpoint";
 import { Endpoints } from "@/utils/endpoint";
 import { useClubStore } from "@/store/clubs-store";
-import { useTokenStore } from "@/store/store";
 import ReCAPTCHA from "react-google-recaptcha";
-
 import {
   AlertDialogHeader,
   AlertDialog,
@@ -31,37 +28,31 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ProfileCardProps {
-  club: {
-    club: TClub;
-    members: Array<any>;
-  };
   currentPage: string;
   setCurrentPage: (page: string) => void;
   clubId: string;
 }
 
 const ClubProfileCard: React.FC<ProfileCardProps> = ({
-  club,
   currentPage,
   setCurrentPage,
   clubId,
 }) => {
+  const {
+    setUserJoinedClubs,
+    setUserRequestedClubs,
+    currentUserRole,
+    currentClub,
+  } = useClubStore((state) => state);
   const [recaptcha, setRecaptcha] = useState(false);
   const recaptchaRef = useRef(null);
   const [joinStatus, setJoinStatus] = useState<String>("");
   const [cancelRequestTriggered, setCancelRequestTriggered] = useState(false);
-  const { setUserJoinedClubs, setUserRequestedClubs } = useClubStore(
-    (state) => state
-  );
-  const { globalUser } = useTokenStore((state) => state);
 
   const router = useRouter();
-
-  const currentUserRole =
-    club?.members?.find((member) => member?.user?._id === globalUser?._id)
-      ?.role || "";
 
   const isAdmin = () => currentUserRole === "admin";
   const isModeratorOrAdmin = () =>
@@ -143,6 +134,7 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
     Endpoints.fetchClubUserStatus(clubId as string)
       .then((res) => {
         setJoinStatus(res.status);
+        console.log(res.status, "join status");
       })
       .catch((err) => {
         console.log({ err });
@@ -168,37 +160,49 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
   };
   return (
     <div className="sticky top-16 h-fit  w-full overflow-hidden rounded-lg bg-white pb-2 shadow-md">
-      <div className="relative">
-        {club?.club?.coverImage && (
-          <Image
-            src={club?.club?.coverImage?.url}
-            alt="Cover"
-            width={300}
-            height={120}
-            className="max-h-[120px] w-full max-w-[300px] rounded-t-lg object-cover"
-            layout="responsive"
-          />
-        )}
-
-        <div className="absolute -bottom-6 left-4">
-          {club?.club?.profileImage?.url && (
+      {currentClub ? (
+        <div className="relative">
+          {currentClub?.club?.coverImage && (
             <Image
-              src={club?.club.profileImage?.url}
-              alt="Avatar"
-              width={60}
-              height={60}
-              className="max-h-[60px] max-w-[60px] rounded-md border-4 border-white"
+              src={currentClub?.club?.coverImage?.url}
+              alt="Cover"
+              width={300}
+              height={120}
+              className="max-h-[120px] w-full max-w-[300px] rounded-t-lg object-cover"
+              layout="responsive"
             />
           )}
+
+          <div className="absolute -bottom-6 left-4">
+            {currentClub?.club?.profileImage?.url && (
+              <Image
+                src={currentClub?.club.profileImage?.url}
+                alt="Avatar"
+                width={60}
+                height={60}
+                className="max-h-[60px] max-w-[60px] rounded-full  border-4 border-white"
+              />
+            )}
+          </div>
         </div>
-      </div>
+      ) : (
+        <ImageSkeleton />
+      )}
       <div className="mt-6 px-4">
         <div className="flex flex-col justify-center gap-2">
-          <h2 className="text-lg font-bold">{club?.club?.name}</h2>
-          <p className="text-xs text-gray-500">{club?.club?.about}</p>
+          {currentClub ? (
+            <h2 className="text-lg font-bold">{currentClub?.club?.name}</h2>
+          ) : (
+            <Skeleton className="h-4 w-1/2" />
+          )}
+          {currentClub ? (
+            <p className="text-xs text-gray-500">{currentClub?.club?.about}</p>
+          ) : (
+            <Skeleton className="h-8 w-3/4" />
+          )}
           <div className="mt-2 flex text-xs font-medium text-gray-700">
             <span className="flex items-center gap-1">
-              {club?.club?.isPublic ? (
+              {currentClub?.club?.isPublic ? (
                 <>
                   <Globe2 size={"0.8rem"} />
                   Public{" "}
@@ -210,7 +214,7 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
                 </>
               )}{" "}
             </span>{" "}
-            • {club?.members?.length} Members
+            • {currentClub?.members?.length} Members
           </div>
 
           {recaptcha && (
@@ -249,12 +253,20 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
               className="h-8 w-full border border-gray-500 bg-transparent text-gray-800 hover:bg-transparent"
               disabled={joinStatus === "REQUESTED" || joinStatus === "MEMBER"} // Disable when requested or joined
             >
-              {club?.club?.isPublic && joinStatus === "VISITOR" && "Join"}
-              {!club?.club?.isPublic &&
-                joinStatus === "VISITOR" &&
-                "Request to Join"}
-              {joinStatus === "MEMBER" && "Joined"}
-              {joinStatus === "REQUESTED" && "Request Pending"}
+              {!currentClub ? (
+                <Skeleton className="h-4 w-1/2" />
+              ) : (
+                <>
+                  {currentClub?.club?.isPublic &&
+                    joinStatus === "VISITOR" &&
+                    "Join"}
+                  {!currentClub?.club?.isPublic &&
+                    joinStatus === "VISITOR" &&
+                    "Request to Join"}
+                  {joinStatus === "MEMBER" && "Joined"}
+                  {joinStatus === "REQUESTED" && "Request Pending"}
+                </>
+              )}
             </Button>
             {joinStatus === "REQUESTED" && (
               <AlertDialog>
@@ -328,3 +340,17 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
 };
 
 export default ClubProfileCard;
+
+export const ImageSkeleton = () => {
+  return (
+    <div className="relative">
+      {/* Cover image skeleton */}
+      <Skeleton className="h-[120px] w-full max-w-[300px] rounded-t-lg" />
+
+      {/* Profile image skeleton */}
+      <div className="absolute -bottom-6 left-4">
+        <Skeleton className="size-[60px] rounded-full border-4 border-white" />
+      </div>
+    </div>
+  );
+};

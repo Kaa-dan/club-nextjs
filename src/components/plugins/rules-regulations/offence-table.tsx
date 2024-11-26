@@ -32,7 +32,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { mainAxios } from "@/lib/mainAxios";
+import { withTokenAxios } from "@/lib/mainAxios";
 
 // Define the type for your data
 interface ReportData {
@@ -63,7 +63,7 @@ interface ReportData {
 interface DataTableProps {
   columns: ColumnDef<any>[];
   data: any[];
-  nodeorclubId: string;
+  forumId: string;
   plugin: string;
 }
 
@@ -204,15 +204,15 @@ export function DataTable({ data }: DataTableProps) {
 
 interface OffenceTableProps {
   plugin: TPlugins;
-  section: TSections;
-  nodeorclubId: string;
+  forum: TForum;
+  forumId: string;
   data: any[];
 }
 
 export function OffenceTable({
   plugin,
-  section,
-  nodeorclubId,
+  forum,
+  forumId,
   data,
 }: OffenceTableProps) {
   const columns: ColumnDef<any>[] = [
@@ -338,7 +338,7 @@ export function OffenceTable({
             <DropdownMenuContent align="end">
               <DropdownMenuItem>
                 <Link
-                  href={`/${section}/${nodeorclubId}/${plugin}/${row.original._id}/view`}
+                  href={`/${forum}/${forumId}/${plugin}/${row.original._id}/view`}
                   className="w-full"
                 >
                   View Details
@@ -355,7 +355,7 @@ export function OffenceTable({
     <DataTable
       columns={columns}
       data={data}
-      nodeorclubId={nodeorclubId}
+      forumId={forumId}
       plugin={plugin}
     />
   );

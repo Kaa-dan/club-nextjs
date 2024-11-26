@@ -33,7 +33,7 @@ const NodeJoinCard: React.FC<{
 
   const handleDailog = async () => {
     // if (!isDailogOpen) {
-    const response = await Endpoints.getNodeJoinRequestOfUser(node._id);
+    const response = await Endpoints.fetchNodeUserStatus(node._id);
     console.log(response, "response");
     setIsRequested(response?.status === "REQUESTED");
     // }

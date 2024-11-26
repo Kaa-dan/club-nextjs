@@ -6,16 +6,7 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 
-import {
-  Ellipsis,
-  HomeIcon,
-  Icon,
-  LogOut,
-  Pin,
-  Plus,
-  Trash2,
-  X,
-} from "lucide-react";
+import { Ellipsis, HomeIcon, LogOut, Pin, Plus, X } from "lucide-react";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -36,18 +27,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { use, useEffect, useState } from "react";
-import { DialogHeader, DialogFooter } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { boolean } from "zod";
+import { useEffect, useState } from "react";
 import { pinClub } from "@/components/pages/club/endpoint";
 import { toast } from "sonner";
 import { useTokenStore } from "@/store/store";
@@ -58,15 +38,9 @@ import { useNodeStore } from "@/store/nodes-store";
 import { PopoverClose } from "@radix-ui/react-popover";
 import { ClubEndpoints } from "@/utils/endpoints/club";
 import { NodeEndpoints } from "@/utils/endpoints/node";
-import {
-  AlertDialogHeader,
-  AlertDialog,
-  AlertDialogTrigger,
-  AlertDialogContent,
-  AlertDialogTitle,
-  AlertDialogCancel,
-  AlertDialogAction,
-} from "@/components/ui/alert-dialog";
+import CustomAlertDialog from "@/components/ui/custom/custom-alert-dialog";
+import { useClubCalls } from "@/components/pages/club/use-club-calls";
+import { useNodeCalls } from "@/components/pages/node/use-node-calls";
 
 interface MenuProps {
   isOpen: boolean | undefined;
@@ -84,98 +58,17 @@ interface Node {
   name: string;
   image: string;
 }
-const nodes: Node[] = [
-  {
-    id: "1",
-    name: "Gillette",
-    image: "https://picsum.photos/200/200?height=80&width=80",
-  },
-  {
-    id: "2",
-    name: "McDonald's",
-    image: "https://picsum.photos/200/200?height=80&width=80",
-  },
-  {
-    id: "3",
-    name: "General Electric",
-    image: "https://picsum.photos/200/200?height=80&width=80",
-  },
-  {
-    id: "4",
-    name: "Ulysses S. Grant",
-    image: "https://picsum.photos/200/200?height=80&width=80",
-  },
-  {
-    id: "5",
-    name: "Benjamin Harrison",
-    image: "https://picsum.photos/200/200?height=80&width=80",
-  },
-  {
-    id: "6",
-    name: "Abraham Lincoln",
-    image: "https://picsum.photos/200/200?height=80&width=80",
-  },
-  {
-    id: "7",
-    name: "Chester A. Arthur",
-    image: "https://picsum.photos/200/200?height=80&width=80",
-  },
-  {
-    id: "8",
-    name: "Herbert Hoover",
-    image: "https://picsum.photos/200/200?height=80&width=80",
-  },
-  {
-    id: "9",
-    name: "George Washington",
-    image: "https://picsum.photos/200?height=80&width=80",
-  },
-  {
-    id: "10",
-    name: "Franklin D. Roosevelt",
-    image: "https://picsum.photos/200?height=80&width=80",
-  },
-  {
-    id: "11",
-    name: "Franklin D. Roosevelt",
-    image: "https://picsum.photos/200?height=80&width=80",
-  },
-  {
-    id: "12",
-    name: "General Electric",
-    image: "https://picsum.photos/200?height=80&width=80",
-  },
-  {
-    id: "13",
-    name: "Chester A. Arthur",
-    image: "https://picsum.photos/200?height=80&width=80",
-  },
-  {
-    id: "14",
-    name: "Herbert Hoover",
-    image: "https://picsum.photos/200?height=80&width=80",
-  },
-  {
-    id: "15",
-    name: "Benjamin Harrison",
-    image: "https://picsum.photos/200?height=80&width=80",
-  },
-];
 
 export function Menu({ isOpen }: MenuProps) {
+  const { fetchJoinedClubs, fetchRequestedClubs } = useClubCalls();
+  const { fetchJoinedNodes, fetchRequestedNodes } = useNodeCalls();
   const { clearStore } = useTokenStore((state) => state);
-  const {
-    setUserJoinedClubs,
-    userJoinedClubs,
-    userRequestedClubs,
-    setUserRequestedClubs,
-  } = useClubStore((state) => state);
-  const {
-    setUserJoinedNodes,
-    userJoinedNodes,
-    setUserRequestedNodes,
-    userRequestedNodes,
-  } = useNodeStore((state) => state);
+  const { userJoinedClubs, userRequestedClubs } = useClubStore(
+    (state) => state
+  );
+  const { userJoinedNodes, userRequestedNodes } = useNodeStore(
+    (state) => state
+  );
   const togglePinClub = async (clubId: string) => {
     try {
       const response = await pinClub(clubId);
@@ -193,14 +86,10 @@ export function Menu({ isOpen }: MenuProps) {
   const [open, setOpen] = useState<boolean>(false);
 
   async function fetchJoinedClubsAndNodes() {
-    const joinedClubs = await Endpoints.fetchUserJoinedClubs();
-    setUserJoinedClubs(joinedClubs);
-    const joinedNodes = await Endpoints.fetchUserJoinedNodes();
-    setUserJoinedNodes(joinedNodes);
-    const requestedClubs = await ClubEndpoints.fetchUserRequestedClubs();
-    setUserRequestedClubs(requestedClubs);
-    const requestedNodes = await NodeEndpoints.fetchUserRequestedNodes();
-    setUserRequestedNodes(requestedNodes);
+    fetchJoinedNodes();
+    fetchRequestedNodes();
+    fetchJoinedClubs();
+    fetchRequestedClubs();
   }
 
   async function fetchMenuList() {
@@ -246,7 +135,7 @@ export function Menu({ isOpen }: MenuProps) {
     userRequestedNodes,
   ]);
 
-  if (!menuList) return;
+  // if (!menuList) return;
   return (
     <ScrollArea className=" [&>div>div[style]]:!block">
       <nav className="mt-8 size-full">
@@ -341,15 +230,6 @@ export function Menu({ isOpen }: MenuProps) {
                                         variant={active ? "default" : "ghost"}
                                         className="relative mx-1 mb-1 w-full cursor-pointer justify-start   !py-6"
                                         asChild
-                                        onClick={() => {
-                                          const isCreateButton = [
-                                            "createNode",
-                                            "createClub",
-                                          ].includes(key || "");
-                                          if (!isCreateButton) {
-                                            return router.push(href);
-                                          }
-                                        }}
                                       >
                                         <div className="">
                                           <span
@@ -357,50 +237,25 @@ export function Menu({ isOpen }: MenuProps) {
                                               isOpen === false ? "" : "mr-4"
                                             )}
                                           >
-                                            {label === "Home" ? (
-                                              <HomeIcon />
-                                            ) : (
-                                              <div
-                                                className={cn(
-                                                  "rounded-xl  object-cover relative ",
-                                                  isActivePath({
-                                                    groupLabel,
-                                                    isNodePath,
-                                                    isClubPath,
-                                                    nodeId,
-                                                    clubId,
-                                                    _id,
-                                                  })
-                                                    ? "p-[5px] bg-primary/80 -ml-[5px]"
-                                                    : ""
-                                                )}
-                                              >
-                                                <Image
-                                                  src={image}
-                                                  height={50}
-                                                  width={50}
-                                                  className={cn(
-                                                    "size-9 rounded-lg  object-cover",
-                                                    [
-                                                      "createNode",
-                                                      "createClub",
-                                                    ].includes(key || "")
-                                                      ? "brightness-50"
-                                                      : ""
-                                                  )}
-                                                  alt={label}
-                                                />
-                                                {[
-                                                  "createNode",
-                                                  "createClub",
-                                                ].includes(key || "") && (
-                                                  <Plus
-                                                    size={"2rem"}
-                                                    className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2  font-extrabold text-white"
-                                                  />
-                                                )}
-                                              </div>
-                                            )}
+                                            <div
+                                              className={
+                                                "relative  rounded-xl object-cover "
+                                              }
+                                            >
+                                              <Image
+                                                src={image}
+                                                height={50}
+                                                width={50}
+                                                className={
+                                                  "size-9 rounded-lg  object-cover brightness-50"
+                                                }
+                                                alt={label}
+                                              />
+                                              <Plus
+                                                size={"2rem"}
+                                                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2  font-extrabold text-white"
+                                              />
+                                            </div>
                                           </span>
                                           <span
                                             hidden={!isOpen}
@@ -414,7 +269,6 @@ export function Menu({ isOpen }: MenuProps) {
                                             {label}
                                           </span>
                                         </div>
-                                        {/* Active marker */}
                                       </Button>
                                     </PopoverTrigger>
                                     <PopoverContent
@@ -452,11 +306,6 @@ export function Menu({ isOpen }: MenuProps) {
                                               />
                                             </>
                                           )}
-                                          {/* <span
-                                          className="text-xs text-primary hover:underline"
-                                        >
-                                          Create Node {groupLabel}
-                                        </span> */}
                                           <PopoverClose>
                                             <div className="p-2">
                                               <X className="size-4" />
@@ -629,111 +478,106 @@ export function Menu({ isOpen }: MenuProps) {
                                     </PopoverContent>
                                   </Popover>
                                 ) : (
-                                  <Button
-                                    variant={active ? "default" : "ghost"}
-                                    className="relative mx-1 mb-1 w-full cursor-pointer justify-start   !py-6"
-                                    asChild
-                                    onClick={() => {
-                                      const isCreateButton = [
-                                        "createNode",
-                                        "createClub",
-                                      ].includes(key || "");
-                                      if (!isCreateButton) {
-                                        return router.push(href);
-                                      }
-                                    }}
-                                  >
-                                    <div className="flex">
-                                      <span
-                                        className={cn(
-                                          isOpen === false ? "" : "mr-4"
-                                        )}
-                                      >
-                                        {label === "Home" ? (
-                                          <HomeIcon />
-                                        ) : (
-                                          <div
-                                            className={cn(
-                                              "rounded-xl  object-cover relative ",
-                                              isActivePath({
-                                                groupLabel,
-                                                isNodePath,
-                                                isClubPath,
-                                                nodeId,
-                                                clubId,
-                                                _id,
-                                              })
-                                                ? "p-[5px] bg-primary/80 -ml-[5px]"
-                                                : ""
-                                            )}
-                                          >
-                                            <Image
-                                              src={image}
-                                              height={50}
-                                              width={50}
+                                  <Link href={href}>
+                                    <Button
+                                      variant={active ? "default" : "ghost"}
+                                      className="relative mx-1 mb-1 w-full cursor-pointer justify-start    !py-6"
+                                      asChild
+                                    >
+                                      <div className="flex">
+                                        <span
+                                          className={cn(
+                                            isOpen === false ? "" : "mr-4"
+                                          )}
+                                        >
+                                          {label === "Home" ? (
+                                            <HomeIcon />
+                                          ) : (
+                                            <div
                                               className={cn(
-                                                "size-9 rounded-lg  object-cover",
-                                                [
-                                                  "createNode",
-                                                  "createClub",
-                                                ].includes(key || "")
-                                                  ? "brightness-50"
+                                                "rounded-xl  object-cover relative ",
+                                                isActivePath({
+                                                  groupLabel,
+                                                  isNodePath,
+                                                  isClubPath,
+                                                  nodeId,
+                                                  clubId,
+                                                  _id,
+                                                })
+                                                  ? "p-[5px] bg-primary/80 -ml-[5px]"
                                                   : ""
                                               )}
-                                              alt={label}
-                                            />
-                                            {[
-                                              "createNode",
-                                              "createClub",
-                                            ].includes(key || "") && (
-                                              <Plus
-                                                size={"2rem"}
-                                                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2  font-extrabold text-white"
+                                            >
+                                              <Image
+                                                src={image}
+                                                height={50}
+                                                width={50}
+                                                className={cn(
+                                                  "size-9 rounded-lg  object-cover",
+                                                  [
+                                                    "createNode",
+                                                    "createClub",
+                                                  ].includes(key || "")
+                                                    ? "brightness-50"
+                                                    : ""
+                                                )}
+                                                alt={label}
                                               />
-                                            )}
-                                          </div>
-                                        )}
-                                      </span>
-                                      <ContextMenu>
-                                        <ContextMenuTrigger>
-                                          <span
-                                            hidden={!isOpen}
-                                            className={cn(
-                                              "max-w-[200px]  truncate",
-                                              isOpen === false
-                                                ? "-translate-x-96 opacity-0"
-                                                : "translate-x-0 opacity-100 "
-                                            )}
-                                          >
-                                            {label}
-                                          </span>
-                                        </ContextMenuTrigger>
-                                        <ContextMenuContent>
-                                          <ContextMenuItem>
-                                            <div className="flex w-full cursor-pointer items-center justify-between">
-                                              <div>
-                                                <div>Pins</div>
-                                              </div>
-                                              <Pin
-                                                onClick={() => {
-                                                  if (groupLabel === "Clubs") {
-                                                    togglePinClub(_id);
-                                                  } else if (
-                                                    groupLabel === "Nodes"
-                                                  ) {
-                                                    // togglePinNode(_id);
-                                                  }
-                                                }}
-                                                strokeWidth={0.75}
-                                              />
+                                              {[
+                                                "createNode",
+                                                "createClub",
+                                              ].includes(key || "") && (
+                                                <Plus
+                                                  size={"2rem"}
+                                                  className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2  font-extrabold text-white"
+                                                />
+                                              )}
                                             </div>
-                                          </ContextMenuItem>
-                                        </ContextMenuContent>
-                                      </ContextMenu>
-                                    </div>
+                                          )}
+                                        </span>
+                                        <ContextMenu>
+                                          <ContextMenuTrigger>
+                                            <span
+                                              hidden={!isOpen}
+                                              className={cn(
+                                                "max-w-[200px]  truncate",
+                                                isOpen === false
+                                                  ? "-translate-x-96 opacity-0"
+                                                  : "translate-x-0 opacity-100 "
+                                              )}
+                                            >
+                                              {label}
+                                            </span>
+                                          </ContextMenuTrigger>
+                                          <ContextMenuContent>
+                                            <ContextMenuItem>
+                                              <div className="flex w-full cursor-pointer items-center justify-between">
+                                                <div>
+                                                  <div>Pins</div>
+                                                </div>
+                                                <Pin
+                                                  onClick={() => {
+                                                    if (
+                                                      groupLabel === "Clubs"
+                                                    ) {
+                                                      togglePinClub(_id);
+                                                    } else if (
+                                                      groupLabel === "Nodes"
+                                                    ) {
+                                                      // togglePinNode(_id);
+                                                    }
+                                                  }}
+                                                  strokeWidth={0.75}
+                                                />
+                                              </div>
+                                            </ContextMenuItem>
+                                          </ContextMenuContent>
+                                        </ContextMenu>
+                                      </div>
 
-                                    {/* Active marker */}
-                                  </Button>
+                                      {/* Active marker */}
+                                    </Button>
+                                  </Link>
                                 )}
                               </TooltipTrigger>
                               {isOpen === false && (
@@ -775,66 +619,33 @@ export function Menu({ isOpen }: MenuProps) {
             <TooltipProvider disableHoverableContent>
               <Tooltip delayDuration={100}>
                 <TooltipTrigger asChild>
-                  {/* <Button
-                    onClick={() => {
-                      clearStore();
-                      router.replace("/sign-in");
-                    }}
-                    variant="outline"
-                    className="mt-5 h-10 w-full justify-center"
-                  >
-                    <span className={cn(isOpen === false ? "" : "mr-4")}>
-                      <LogOut size={18} />
-                    </span>
-                    <p
-                      className={cn(
-                        "whitespace-nowrap",
-                        isOpen === false ? "opacity-0 hidden" : "opacity-100"
-                      )}
-                    >
-                      Sign out
-                    </p>
-                  </Button> */}
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
+                  <CustomAlertDialog
+                    trigger={
                       <Button
                         variant="outline"
-                        className="mt-5 h-10 w-full justify-center"
+                        className="mt-5 h-12 w-full justify-center  gap-2 hover:bg-red-50 hover:text-red-600"
                       >
-                        <span className={cn(isOpen === false ? "" : "mr-4")}>
-                          <LogOut size={18} />
-                        </span>
+                        <LogOut size={18} />
                         <p
                           className={cn(
                             "whitespace-nowrap",
-                            isOpen === false
-                              ? "opacity-0 hidden"
-                              : "opacity-100"
+                            !isOpen && "hidden"
                           )}
                         >
                           Sign out
                         </p>
                       </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle className="text-center">
-                          Are you absolutely sure?
-                        </AlertDialogTitle>
-                      </AlertDialogHeader>
-                      <div className="flex w-full justify-center gap-4">
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={() => {
-                            clearStore();
-                            router.replace("/sign-in");
-                          }}
-                        >
-                          Continue
-                        </AlertDialogAction>
-                      </div>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                    }
+                    title="Sign Out Confirmation"
+                    description="Are you sure you want to sign out? You'll need to sign in again to access your account."
+                    type="error"
+                    actionText="Sign out"
+                    cancelText="Cancel"
+                    onAction={() => {
+                      clearStore();
+                      router.replace("/sign-in");
+                    }}
+                  />
                 </TooltipTrigger>
                 {isOpen === false && (
                   <TooltipContent side="right">Sign out</TooltipContent>

@@ -1,8 +1,9 @@
-import { type ClassValue, clsx } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
+import moment from "moment";
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
 
 interface FormatterOptions {
@@ -49,7 +50,10 @@ export function formatName(
   // Keep only allowed characters
   if (allowSpecialCharacters) {
     // This regex allows letters, numbers, spaces, and common special characters
-    formatted = formatted.replace(/[^a-zA-Z0-9\s!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?]/g, "");
+    formatted = formatted.replace(
+      /[^a-zA-Z0-9\s!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?]/g,
+      ""
+    );
   } else {
     formatted = formatted.replace(/[^a-zA-Z0-9\s]/g, "");
   }
@@ -69,3 +73,38 @@ export function formatName(
 
   return formatted;
 }
+
+/**
+ * Formats a given date into a specified format.
+ * @param date - The date to format (string, Date, or undefined/null).
+ * @param format - The desired format for the date (default: "MMMM Do, YYYY").
+ * @returns A formatted date string or "Invalid Date" if the input is not a valid date.
+ */
+export const formatDate = (
+  date: string | Date | undefined | null,
+  format = "MMMM Do, YYYY"
+): string => {
+  if (!date) return "No Date Available"; // Fallback for null/undefined dates
+  const formattedDate = moment(date).format(format);
+  return formattedDate === "Invalid date" ? "Invalid Date" : formattedDate;
+};
+
+/**
+ * Returns a human-readable "time ago" string for a given date.
+ * @param date - The date to format (string, Date, or undefined/null).
+ * @returns A string indicating how long ago the date occurred or "No Date Available" if the input is invalid.
+ */
+export const formatTimeAgo = (
+  date: string | Date | undefined | null
+): string => {
+  if (!date) return "No Date Available"; // Handle null/undefined
+  const timeAgo = moment(date).fromNow();
+  return timeAgo === "Invalid date" ? "Invalid Date" : timeAgo;
+};
+
+
+export  const formatCount = (count: number) => {
+    if (count >= 1000000) return `${(count / 1000000).toFixed(0)}M`;
+    if (count >= 1000) return `${(count / 1000).toFixed(2)}k`;
+    return count.toString();
+  };

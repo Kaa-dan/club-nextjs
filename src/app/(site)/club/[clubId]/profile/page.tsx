@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Link, Copy, LogOut, Search, Filter, Mail } from "lucide-react";
+import { Copy, LogOut, Search, Filter, Mail } from "lucide-react";
 import { useParams } from "next/navigation";
 import Invite from "@/components/pages/club/invite/invite";
 import {
@@ -17,9 +17,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-
-import { useEffect, useState } from "react";
-import { fetchSpecificClub } from "@/components/pages/club/endpoint";
+import { useState } from "react";
 import { Endpoints } from "@/utils/endpoint";
 import ClubMembersList from "@/components/pages/club/club-members-list";
 
@@ -28,51 +26,21 @@ import { TClub } from "@/types";
 import { useClubStore } from "@/store/clubs-store";
 import { Dialog, DialogTrigger } from "@radix-ui/react-dialog";
 import { useTokenStore } from "@/store/store";
+import { useClubCalls } from "@/components/pages/club/use-club-calls";
 
 export default function Page() {
-  const { setUserJoinedClubs } = useClubStore((state) => state);
+  const { leaveClub } = useClubCalls();
+  const { currentClub } = useClubStore((state) => state);
   const [invite, setInvite] = useState<boolean>();
-  const [members, setMembers] = useState([]);
   const [clickTrigger, setClickTrigger] = useState(false);
   const params = useParams<{ clubId: string }>();
   const visibleUsers = 5;
-  const totalUsers = members.length;
+  const totalUsers = currentClub?.members?.length || 0;
   const remainingUsers = totalUsers - visibleUsers;
   const displayRemainingCount = remainingUsers > 100 ? "100+" : remainingUsers;
-  const [club, setClub] = useState<TClub>();
   const [sentClub, setSentClub] = useState(params.clubId);
   const { globalUser } = useTokenStore((state) => state);
-  function fetchMem() {
-    Endpoints.fetchClubMembers(params.clubId as string)
-      .then((res) => {
-        setMembers(res);
-      })
-      .catch((err) => {
-        console.log({ err });
-      });
-  }
-  useEffect(() => {
-    fetchMem();
-    fetchSpecificClub(params.clubId)
-      .then((res) => {
-        setClub(res.club);
-      })
-      .catch((err) => {
-        console.log({ err });
-      });
-  }, [params.clubId, clickTrigger]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const leaveMyClub = async (clubId: string) => {
-    try {
-      const response = await Endpoints.leaveClub(clubId);
-      const joinedClubs = await Endpoints.fetchUserJoinedClubs();
-      setUserJoinedClubs(joinedClubs);
-      toast.warning(response.message);
-      setClickTrigger(!clickTrigger);
-    } catch (error) {
-      console.log({ error });
-    }
-  };
   const handleInviteClick = () => {
     setInvite(true); // Open the modal
   };
@@ -86,27 +54,30 @@ export default function Page() {
               <h2 className="flex items-center gap-2 text-lg font-semibold">
                 Members
                 <span className="flex text-sm font-normal  text-muted-foreground">
-                  • {members?.length} Members
+                  • {currentClub?.members?.length}{" "}
+                  {currentClub?.members?.length === 1 ? "Member" : "Members"}
                 </span>
               </h2>
               <div className="flex items-center gap-2">
                 <div className="flex -space-x-2">
-                  {members.slice(0, visibleUsers).map((member: any) => (
-                    <Avatar
-                      key={member._id}
-                      className="border-2 border-background"
-                    >
-                      <AvatarImage
-                        src={
-                          member?.user?.profileImage ||
-                          `/placeholder.svg?height=32&width=32`
-                        } // Replace with dynamic src
-                      />
-                      <AvatarFallback>
-                        {member?.user?.firstName?.charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
-                  ))}
+                  {currentClub?.members
+                    .slice(0, visibleUsers)
+                    .map((member: any) => (
+                      <Avatar
+                        key={member._id}
+                        className="border-2 border-background"
+                      >
+                        <AvatarImage
+                          src={
+                            member?.user?.profileImage ||
+                            `/placeholder.svg?height=32&width=32`
+                          } // Replace with dynamic src
+                        />
+                        <AvatarFallback>
+                          {member?.user?.firstName?.charAt(0)}
+                        </AvatarFallback>
+                      </Avatar>
+                    ))}
 
                   {remainingUsers > 0 && (
                     <div className="flex size-8 items-center justify-center rounded-full bg-muted text-xs">
@@ -135,7 +106,7 @@ export default function Page() {
                 <CopyLink />
               </Dialog> */}
 
-              {members?.some(
+              {currentClub?.members?.some(
                 (member: any) => member?.user?._id == globalUser?._id
               ) && (
                 <>
@@ -164,7 +135,7 @@ export default function Page() {
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
                         <AlertDialogAction
-                          onClick={() => leaveMyClub(params.clubId)}
+                          onClick={() => leaveClub(params.clubId)}
                           className="bg-red-500 text-white hover:bg-red-600"
                         >
                           Leave Club
@@ -179,7 +150,9 @@ export default function Page() {
 
           <div className="space-y-2">
             <h3 className="font-semibold">Description</h3>
-            <p className="text-sm text-muted-foreground">{club?.description}</p>
+            <p className="text-sm text-muted-foreground">
+              {currentClub?.club?.description}
+            </p>
           </div>
 
           <div className="grid grid-cols-4 gap-4 border-t pt-4">
@@ -209,7 +182,9 @@ export default function Page() {
         <CardContent>
           <div className="space-y-2">
             <h3 className="font-semibold">About</h3>
-            <p className="text-sm text-muted-foreground">{club?.about}</p>
+            <p className="text-sm text-muted-foreground">
+              {currentClub?.club?.about}
+            </p>
             <Button variant="link" className="p-0 text-sm">
               see all
             </Button>
@@ -217,11 +192,15 @@ export default function Page() {
         </CardContent>
       </Card>
 
-      <ClubMembersList
-        members={members}
-        isModalOpen={isModalOpen}
-        setIsModalOpen={setIsModalOpen}
-      />
+      {currentClub?.members && (
+        <ClubMembersList
+          members={currentClub?.members!}
+          isModalOpen={isModalOpen}
+          setIsModalOpen={setIsModalOpen}
+          setClickTrigger={setClickTrigger}
+          clickTrigger={clickTrigger}
+        />
+      )}
     </>
   );
 }

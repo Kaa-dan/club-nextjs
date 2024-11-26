@@ -1,9 +1,9 @@
-import { mainAxios } from "@/lib/mainAxios";
+import { withTokenAxios } from "@/lib/mainAxios";
 
 export class ClubEndpoints {
   static async cancelJoinRequest(clubId: string) {
     try {
-      const response = await mainAxios.delete(
+      const response = await withTokenAxios.delete(
         `clubs/cancel-join-request/${clubId}`
       );
       return response.data;
@@ -14,7 +14,7 @@ export class ClubEndpoints {
 
   static async fetchUserRequestedClubs() {
     try {
-      const response = await mainAxios.get("/clubs/user-join-requests");
+      const response = await withTokenAxios.get("/clubs/user-join-requests");
       return response.data;
     } catch (error) {
       throw error;

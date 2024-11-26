@@ -1,49 +1,102 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+"use client";
+
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TIssue } from "@/types";
 import { Search } from "lucide-react";
 import Link from "next/link";
-import React, { ReactNode } from "react";
+import React from "react";
+import IssueTable from "./issues-table";
+import useIssues from "./use-issues";
+import { useClubStore } from "@/store/clubs-store";
 
 interface TabData {
-  label: string;
+  label: TIssuesLabel;
   count: number;
 }
 
-const tabs: TabData[] = [
-  {
-    label: "Live Issues",
-    count: 182,
-  },
-  {
-    label: "All Issues",
-    count: 652,
-  },
-  {
-    label: "Global Library",
-    count: 2000000,
-  },
-  {
-    label: "My Issues",
-    count: 2360,
-  },
-];
+const IssuesLayout = ({
+  plugin,
+  forum,
+  forumId,
+}: {
+  plugin: TPlugins;
+  forum: TForum;
+  forumId: string;
+}) => {
+  const {
+    liveIssues,
+    allIssues,
+    globalIssues,
+    myIssues,
+    setClickTrigger,
+    proposedIssues,
+    clickTrigger,
+    loading,
+  } = useIssues(forum, forumId);
 
-const IssuesLayout = ({ children }: { children: ReactNode }) => {
+  const { currentUserRole } = useClubStore((state) => state);
+
+  const tabs: TabData[] = [
+    {
+      label: "Live Issues",
+      count: liveIssues.length || 0,
+    },
+    {
+      label: "All Issues",
+      count: allIssues.length || 0,
+    },
+    {
+      label: "Global Library",
+      count: globalIssues.length || 0,
+    },
+    {
+      label: "My Issues",
+      count: myIssues.length || 0,
+    },
+  ];
+
+  const getFilteredTabs = (): TabData[] => {
+    const _tabs = tabs;
+    if (currentUserRole === "admin") {
+      _tabs.push({
+        label: "Proposed Issues",
+        count: proposedIssues.length || 0,
+      });
+    }
+    return _tabs;
+  };
+
   const formatCount = (count: number) => {
     if (count >= 1000000) return `${(count / 1000000).toFixed(0)}M`;
     if (count >= 1000) return `${(count / 1000).toFixed(2)}k`;
     return count.toString();
   };
+
+  function getData(tab: TabData): any[] {
+    let data: any[] = [];
+    switch (tab.label) {
+      case "Live Issues":
+        data = liveIssues;
+        break;
+      case "All Issues":
+        data = allIssues;
+        break;
+      case "Global Library":
+        data = globalIssues;
+        break;
+      case "My Issues":
+        data = myIssues;
+        break;
+      case "Proposed Issues":
+        data = proposedIssues;
+        break;
+      default:
+        data = [];
+    }
+
+    return data;
+  }
 
   return (
     <div className="w-full space-y-4  p-4">
@@ -57,7 +110,7 @@ const IssuesLayout = ({ children }: { children: ReactNode }) => {
 
       <Tabs defaultValue="Live Issues" className="w-full space-y-4 ">
         <TabsList className="flex h-auto flex-wrap gap-1 bg-background p-1">
-          {tabs.map((tab) => (
+          {getFilteredTabs()?.map((tab) => (
             <TabsTrigger
               key={tab.label}
               value={tab.label}
@@ -118,8 +171,16 @@ const IssuesLayout = ({ children }: { children: ReactNode }) => {
                 </svg>
               </Button>
             </div>
-            {/* <IssueTable issues={tab.issues} /> */}
-            {children}
+            <IssueTable
+              forumId={forumId}
+              plugin={plugin}
+              forum={forum}
+              data={getData(tab)}
+              tab={tab.label}
+              clickTrigger={clickTrigger}
+              setClickTrigger={setClickTrigger}
+              loading={loading}
+            />
           </TabsContent>
         ))}
       </Tabs>

@@ -1,19 +1,18 @@
-import { axiosInstance } from "@/lib/axios";
-import { mainAxios } from "@/lib/mainAxios";
+import { noTokenAxios } from "@/lib/axios";
+import { withTokenAxios } from "@/lib/mainAxios";
 
 export const postDetails = async (id: string, userData: any) => {
   console.log({ id, userData });
   //api calling and storing response
-  const response = await mainAxios.put(`/onboarding/details`, userData);
+  const response = await withTokenAxios.put(`/onboarding/details`, userData);
   console.log({ response });
   // returning the response
   return response.data;
-
 };
 
 export const postPicture = async (id: string, userData: any) => {
   try {
-    const response = await mainAxios.put(`/onboarding/images`, userData);
+    const response = await withTokenAxios.put(`/onboarding/images`, userData);
     return response.data;
   } catch (error) {
     throw error;
@@ -21,12 +20,12 @@ export const postPicture = async (id: string, userData: any) => {
 };
 
 export const completeOnboarding = async () => {
-  const { data } = await mainAxios.put("/onboarding/complete");
+  const { data } = await withTokenAxios.put("/onboarding/complete");
   return data;
 };
 
 export const postInterest = async (id: string, userData: any) => {
-  const response = await mainAxios.put(`/onboarding/interest`, userData);
+  const response = await withTokenAxios.put(`/onboarding/interest`, userData);
   return response.data;
 };
 
@@ -34,7 +33,7 @@ export const addNode = async (data: any) => {
   try {
     console.log(data, "dsdsd");
 
-    const response = await mainAxios.post("/node", data);
+    const response = await withTokenAxios.post("/node", data);
     return response.data;
   } catch (error) {
     throw error;
@@ -43,13 +42,12 @@ export const addNode = async (data: any) => {
 
 export const getNodes = async () => {
   try {
-    const response = await mainAxios.get("/node");
+    const response = await withTokenAxios.get("/node");
     return response.data;
   } catch (error) {
     throw error;
   }
 };
-
 
 /**
  * Fetches the onboarding data from the server.
@@ -57,6 +55,6 @@ export const getNodes = async () => {
  * @returns The onboarding data from the server.
  */
 export const getOnboarding = async () => {
-  const response = await mainAxios.get("/onboarding");
+  const response = await withTokenAxios.get("/onboarding");
   return response.data;
 };

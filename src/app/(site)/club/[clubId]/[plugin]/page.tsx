@@ -1,8 +1,7 @@
 import RulesLayout from "@/components/plugins/rules-regulations/rules-layout";
 import IssuesLayout from "@/components/plugins/issues/issues-layout";
-import IssueTable from "@/components/plugins/issues/issues-table";
 import React from "react";
-import { RulesTable } from "@/components/plugins/rules-regulations/rules";
+import DebateLayout from "@/components/plugins/debates/debate-layout";
 const PluginPage = async ({
   params,
 }: {
@@ -13,22 +12,11 @@ const PluginPage = async ({
   const renderPluginContent = () => {
     switch (plugin) {
       case "issues":
-        return (
-          <IssuesLayout>
-            <IssueTable />
-          </IssuesLayout>
-        );
+        return <IssuesLayout forum={"club"} forumId={clubId} plugin={plugin} />;
       case "rules":
-        return (
-          <RulesLayout section={"club"} nodeorclubId={clubId} plugin={plugin} />
-          //   <RulesTable
-          //   nodeorclubId={clubId}
-          //   plugin={plugin}
-          //   section={"club"}
-          // />
-          // </RulesLayout>
-        );
-
+        return <RulesLayout forum={"club"} forumId={clubId} plugin={plugin} />;
+      case "debate":
+        return <DebateLayout forumId={clubId} forum="club" plugin={plugin} />;
       default:
         return (
           <div className="flex h-full items-center justify-center">

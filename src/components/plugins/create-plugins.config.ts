@@ -1,9 +1,9 @@
 import CreateIssueForm from "./issues/create-issues";
 import CreateRules from "@/components/plugins/rules-regulations/create.rules";
-
+import DebateForm from "./debates/create-debate";
 interface PluginProps {
-  nodeOrClubId: string;
-  section: TSections;
+  forumId: string;
+  forum: TForum;
 }
 
 export interface PluginConfig {
@@ -12,7 +12,7 @@ export interface PluginConfig {
   component: React.ComponentType<PluginProps>;
 }
 
-export const pluginConfig: Record<TPlugins, PluginConfig> = {
+export const createPluginConfig: Record<TPlugins, PluginConfig> = {
   issues: {
     title: "Issues",
     description: "Create and manage issues",
@@ -26,6 +26,6 @@ export const pluginConfig: Record<TPlugins, PluginConfig> = {
   debate: {
     title: "Debate",
     description: "Manage Debate",
-    component: CreateRules,
+    component: DebateForm,
   },
 };

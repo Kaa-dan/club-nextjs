@@ -13,8 +13,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
-
+import { ArrowUpDown, ChevronDown, MoreHorizontal, View } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -42,147 +41,28 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
-type Member = {
-  _id: string;
-  user: {
-    firstName: string;
-    lastName: string;
-    profileImage: string;
-  };
-  role: string;
-  contributions: number;
-  createdAt: string;
-};
-
-const columns: ColumnDef<Member>[] = [
-  {
-    accessorKey: "user",
-    header: "Member's Name",
-    cell: ({ row }) => {
-      const user = row.original.user;
-      return (
-        <div className="flex items-center">
-          <Avatar className="mr-2 size-8">
-            <AvatarImage
-              src={user?.profileImage}
-              alt={`${user?.firstName} ${user?.lastName}`}
-            />
-            <AvatarFallback>
-              {user?.firstName[0]}
-              {user?.lastName[0]}
-            </AvatarFallback>
-          </Avatar>
-          <div>
-            <div className="font-medium">
-              {user?.firstName} {user?.lastName}
-            </div>
-          </div>
-        </div>
-      );
-    },
-    filterFn: (row, id, value) => {
-      const user = row?.getValue(id) as Member["user"];
-      return (
-        user?.firstName?.toLowerCase()?.includes(value?.toLowerCase()) ||
-        user?.lastName?.toLowerCase()?.includes(value?.toLowerCase())
-      );
-    },
-  },
-  {
-    accessorKey: "role",
-    header: "Level",
-    cell: ({ row }) => {
-      const role = row?.getValue("role") as string;
-      return (
-        <Badge
-          variant="secondary"
-          className={
-            role === "admin"
-              ? "bg-green-100 text-green-800"
-              : role === "moderator"
-                ? "bg-orange-100 text-orange-800"
-                : "bg-gray-100 text-gray-800"
-          }
-        >
-          {role}
-        </Badge>
-      );
-    },
-  },
-  {
-    accessorKey: "contributions",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Contributions
-          <ArrowUpDown className="ml-2 size-4" />
-        </Button>
-      );
-    },
-    cell: ({ row }) => (
-      <div className="text-right">{row.getValue("contributions")}</div>
-    ),
-  },
-  {
-    accessorKey: "createdAt",
-    header: "Join Date",
-    cell: ({ row }) => {
-      return (
-        <div className="text-right font-medium">
-          {new Date(row.getValue("createdAt")).toLocaleDateString("en-US", {
-            month: "long",
-            day: "numeric",
-            year: "numeric",
-          })}
-        </div>
-      );
-    },
-  },
-  {
-    id: "actions",
-    cell: ({ row }) => {
-      const member = row.original;
-
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="size-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="size-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(member._id)}
-            >
-              Copy member ID
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>View Details</DropdownMenuItem>
-            <DropdownMenuItem>Edit Member</DropdownMenuItem>
-            <DropdownMenuItem className="text-red-600">Remove</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
-  },
-];
+import { useTokenStore } from "@/store/store";
+import { toast } from "sonner";
+import { useParams } from "next/navigation";
+import { SharedEndpoints } from "@/utils/endpoints/shared";
+import CustomAlertDialog from "@/components/ui/custom/custom-alert-dialog";
+import { TMembers } from "@/types";
+import { useClubStore } from "@/store/clubs-store";
 
 type ClubMemberListProps = {
   isModalOpen: boolean;
   setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  members: Member[];
+  members: TMembers[];
+  setClickTrigger: React.Dispatch<React.SetStateAction<boolean>>;
+  clickTrigger: boolean;
 };
 
 export default function ClubMembersList({
   isModalOpen,
   members,
   setIsModalOpen,
+  setClickTrigger,
+  clickTrigger,
 }: ClubMemberListProps) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -191,6 +71,255 @@ export default function ClubMembersList({
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
+  const { globalUser } = useTokenStore((state) => state);
+  const { clubId } = useParams<{ clubId: string }>();
+  const [isOpen, setIsOpen] = React.useState(false);
+  const { currentUserRole } = useClubStore();
+
+  const isOwner = () => currentUserRole === "owner";
+
+  const isOWnerOrAdmin = () => ["owner", "admin"].includes(currentUserRole);
+
+  const isModeratorOrAdminOrOwner = () =>
+    ["moderator", "admin", "owner"].includes(currentUserRole);
+
+  type UserRole = "member" | "admin" | "moderator" | "owner";
+
+  const ROLE_ACTIONS = [
+    {
+      title: "Change to admin",
+      description: (member: any) =>
+        `Are you sure you want to make ${member?.user?.firstName} ${member?.user?.lastName} to Admin?`,
+      onClickFunction: async (accessToUserId: string) => {
+        const data = {
+          entityId: clubId,
+          entity: "club",
+          accessToUserId,
+        };
+        try {
+          await SharedEndpoints.makeAdmin(data);
+          setClickTrigger(!clickTrigger);
+        } catch (error) {
+          console.log(error, "error");
+          toast.error("something went wrong when making admin");
+        }
+      },
+      show: (role: UserRole) => {
+        return role !== "admin" && isOwner();
+      },
+    },
+
+    {
+      title: "Change to moderator",
+      description: (member: any) =>
+        `Are you sure you want to make ${member?.user?.firstName} ${member?.user?.lastName} to Moderator?`,
+      onClickFunction: async (accessToUserId: string) => {
+        const data = {
+          entityId: clubId,
+          entity: "club",
+          accessToUserId,
+        };
+        try {
+          await SharedEndpoints.makeModerator(data);
+          setClickTrigger(!clickTrigger);
+        } catch (error) {
+          console.log(error, "error");
+          toast.error("something went wrong when making moderator");
+        }
+      },
+      show: (role: UserRole) => {
+        return role !== "moderator" && isOwner();
+      },
+    },
+
+    {
+      title: "Change to member",
+      description: (member: any) =>
+        `Are you sure you want to make ${member?.user?.firstName} ${member?.user?.lastName} to Member?`,
+      onClickFunction: async (accessToUserId: string) => {
+        const data = {
+          entityId: clubId,
+          entity: "club",
+          accessToUserId,
+        };
+        try {
+          await SharedEndpoints.makeMember(data);
+          setClickTrigger(!clickTrigger);
+        } catch (error) {
+          toast.error("something went wrong when making member");
+          console.log(error, "error");
+        }
+      },
+      show: (role: UserRole) => {
+        return role !== "member" && isOwner();
+      },
+    },
+
+    {
+      title: "Remove user",
+      description: (member: any) =>
+        `Are you sure you want to remove ${member?.user?.firstName} ${member?.user?.lastName}?`,
+      onClickFunction: async (accessToUserId: string) => {
+        const data = {
+          entityId: clubId,
+          entity: "club",
+          accessToUserId,
+        };
+        try {
+          await SharedEndpoints.removeMember(data);
+          setClickTrigger(!clickTrigger);
+        } catch (error) {
+          console.log(error, "error");
+          toast.error("something went wrong when removing member");
+        }
+      },
+      show: isOWnerOrAdmin,
+    },
+  ];
+
+  const columns: ColumnDef<TMembers>[] = [
+    {
+      accessorKey: "user",
+      header: "Member's Name",
+      cell: ({ row }) => {
+        const user = row.original.user;
+        return (
+          <div className="flex items-center">
+            <Avatar className="mr-2 size-8">
+              <AvatarImage
+                src={user?.profileImage}
+                alt={`${user?.firstName} ${user?.lastName}`}
+              />
+              <AvatarFallback>
+                {user?.firstName[0]}
+                {user?.lastName[0]}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <div className="font-medium">
+                {user?.firstName} {user?.lastName}{" "}
+                {user?._id === globalUser?._id && (
+                  <span className="text-sm text-muted-foreground">(You)</span>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      },
+      filterFn: (row, id, value) => {
+        const user = row?.getValue(id) as TMembers["user"];
+        return (
+          user?.firstName?.toLowerCase()?.includes(value?.toLowerCase()) ||
+          user?.lastName?.toLowerCase()?.includes(value?.toLowerCase())
+        );
+      },
+    },
+    {
+      accessorKey: "role",
+      header: "Level",
+      cell: ({ row }) => {
+        const role = row?.getValue("role") as string;
+        return (
+          <Badge
+            variant="secondary"
+            className={
+              role === "owner"
+                ? "bg-red-100 text-red-800 hover:bg-red-200"
+                : role === "admin"
+                  ? "bg-green-100 text-green-800 hover:bg-green-200"
+                  : role === "moderator"
+                    ? "bg-orange-100 text-orange-800 hover:bg-orange-200"
+                    : "bg-gray-100 text-gray-800 hover:bg-gray-200"
+            }
+          >
+            {role}
+          </Badge>
+        );
+      },
+    },
+    {
+      accessorKey: "contributions",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Contributions
+            <ArrowUpDown className="ml-2 size-4" />
+          </Button>
+        );
+      },
+      cell: ({ row }) => (
+        <div className="text-right">{row.getValue("contributions")}</div>
+      ),
+    },
+    {
+      accessorKey: "createdAt",
+      header: "Join Date",
+      cell: ({ row }) => {
+        return (
+          <div className="text-right font-medium">
+            {new Date(row.getValue("createdAt")).toLocaleDateString("en-US", {
+              month: "long",
+              day: "numeric",
+              year: "numeric",
+            })}
+          </div>
+        );
+      },
+    },
+    {
+      id: "actions",
+      cell: ({ row }) => {
+        const member = row.original;
+
+        return isModeratorOrAdminOrOwner() &&
+          isOwner() &&
+          member?.user?._id !== globalUser?._id ? (
+          <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="size-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal className="size-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+
+              {ROLE_ACTIONS?.filter(
+                (section) =>
+                  !section.show || section.show(member?.role as UserRole)
+              )?.map((section) => (
+                <CustomAlertDialog
+                  key={section?.title}
+                  trigger={
+                    <DropdownMenuItem
+                      onSelect={(event) => {
+                        event.preventDefault();
+                        setIsOpen(true);
+                      }}
+                    >
+                      {section?.title}
+                    </DropdownMenuItem>
+                  }
+                  description={section?.description(member)}
+                  onAction={() => {
+                    section?.onClickFunction(member?.user?._id);
+                    setIsOpen(false);
+                  }}
+                  onCancel={() => setIsOpen(false)}
+                  title={section?.title}
+                  type="warning"
+                />
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : null;
+      },
+    },
+  ];
 
   const table = useReactTable({
     data: members,

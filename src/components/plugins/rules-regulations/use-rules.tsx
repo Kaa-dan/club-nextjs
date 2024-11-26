@@ -2,7 +2,7 @@ import { Endpoints } from "@/utils/endpoint";
 import { useCallback, useState, useEffect } from "react";
 import { RulesAndRegulationsEndpoints } from "@/utils/endpoints/plugins/rules-and-regulations";
 
-const useRules = (section: TSections, nodeOrClubId: string) => {
+const useRules = (forum: TForum, forumId: string) => {
   const [activeRules, setActiveRules] = useState([]);
   const [globalRules, setGlobalRules] = useState([]);
   const [offenses, setOffenses] = useState([]);
@@ -14,7 +14,7 @@ const useRules = (section: TSections, nodeOrClubId: string) => {
     setLoading(true);
 
     await Promise.allSettled([
-      Endpoints.getActiveRules(section, nodeOrClubId)
+      Endpoints.getActiveRules(forum, forumId)
         .then((response) => {
           console.log({ rules: response });
           if (response) setActiveRules(response);
@@ -33,7 +33,7 @@ const useRules = (section: TSections, nodeOrClubId: string) => {
         }),
 
       // Offences
-      RulesAndRegulationsEndpoints.fetchOffeses(section, nodeOrClubId)
+      RulesAndRegulationsEndpoints.fetchOffeses(forum, forumId)
         .then((response) => {
           if (response) setOffenses(response);
         })
@@ -41,11 +41,10 @@ const useRules = (section: TSections, nodeOrClubId: string) => {
           console.error("Error fetching offences:", err);
         }),
 
-      RulesAndRegulationsEndpoints.fetchMyRulesOnNodeOrClub(
-        section,
-        nodeOrClubId
-      )
+      RulesAndRegulationsEndpoints.fetchMyRulesOnNodeOrClub(forum, forumId)
         .then((response) => {
+          console.log({ myyyRules: response });
+
           if (response) setMyRules(response);
         })
         .catch((err) => {
@@ -54,11 +53,11 @@ const useRules = (section: TSections, nodeOrClubId: string) => {
     ]);
 
     setLoading(false);
-  }, [section, nodeOrClubId]);
+  }, [forum, forumId]);
 
   useEffect(() => {
     fetchAllData();
-  }, [nodeOrClubId, clickTrigger]);
+  }, [forumId, clickTrigger]);
 
   return {
     activeRules,

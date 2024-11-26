@@ -1,20 +1,29 @@
-import { TClub } from "@/types";
+import { TClub, TMembers } from "@/types";
 import { create } from "zustand";
+
+interface ICurrentClub {
+  club: TClub;
+  members: TMembers[];
+}
 
 interface ClubState {
   userJoinedClubs: TClub[];
   userRequestedClubs: any[];
-  selectedClub: TClub | null;
+  currentClub: ICurrentClub | null;
+  currentUserRole: TUserRole;
   setUserJoinedClubs: (userJoinedClub: TClub[]) => void;
   setUserRequestedClubs: (userRequestedClubs: any[]) => void;
-  setSelectedClub: (selectedClub: TClub) => void;
+  setCurrentClub: (currentClub: ICurrentClub) => void;
+  setCurrentUserRole: (currentUserRole: TUserRole) => void;
 }
 
 export const useClubStore = create<ClubState>()((set) => ({
   userJoinedClubs: [],
   userRequestedClubs: [],
-  selectedClub: null,
+  currentClub: null,
+  currentUserRole: "member",
   setUserJoinedClubs: (userJoinedClubs) => set({ userJoinedClubs }),
   setUserRequestedClubs: (userRequestedClubs) => set({ userRequestedClubs }),
-  setSelectedClub: (selectedClub) => set({ selectedClub }),
+  setCurrentClub: (currentClub) => set({ currentClub }),
+  setCurrentUserRole: (currentUserRole) => set({ currentUserRole }),
 }));

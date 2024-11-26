@@ -1,5 +1,5 @@
 "use client";
-
+import { Badge } from "@/components/ui/badge";
 import { useState, useEffect } from "react";
 import {
   ColumnDef,
@@ -30,6 +30,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Endpoints } from "@/utils/endpoint";
@@ -57,7 +58,6 @@ import plugin from "tailwindcss";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import PhotoInput from "@/components/ui/photo-input";
-import { type } from "os";
 import {
   Select,
   SelectContent,
@@ -78,11 +78,12 @@ import {
 import { ExpandableTableRow } from "./expandable-row";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import Loader1 from "@/components/globals/loaders/loader-1";
 
 type Rule = {
+  _id: string;
   id: number;
   title: string;
-  _id: string;
   description: string;
   publishedDate: string;
   club: string;
@@ -98,21 +99,23 @@ type Rule = {
 interface DataTableProps {
   columns: ColumnDef<any>[];
   data: any[];
-  nodeorclubId: string;
+  forumId: string;
   plugin: TPlugins;
-  section: TSections;
+  forum: TForum;
   clickTrigger: boolean;
   setClickTrigger: React.Dispatch<React.SetStateAction<boolean>>;
+  loading: boolean;
 }
 
 function DataTable({
   columns,
   data,
-  nodeorclubId,
+  forumId,
   plugin,
-  section,
+  forum,
   clickTrigger,
   setClickTrigger,
+  loading,
 }: DataTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
@@ -151,26 +154,10 @@ function DataTable({
         <TableBody>
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
-              // <TableRow
-              //   key={row.id}
-              //   data-state={row.getIsSelected() && "selected"}
-              //   className="group hover:bg-muted/50"
-              // >
-              //   {row.getVisibleCells().map((cell) => (
-              //     <TableCell key={cell.id}>
-              //       {flexRender(cell.column.columnDef.cell, cell.getContext())}
-              //     </TableCell>
-              //   ))}
-              // </TableRow>
               <ExpandableTableRow
                 key={row.id}
                 row={row}
                 expandedContent={
-                  // <div className="flex">
-                  //   <div className="w-1/3 bg-red-500">hai</div>
-                  //   <div className="w-1/3 bg-green-500">hello</div>
-                  //   <div className="w-1/3 bg-blue-500">nice</div>
-                  // </div>
                   <div className="rounded-lg bg-white p-6 shadow-sm">
                     <div className="mb-4 flex items-start justify-between">
                       <div className="">
@@ -195,15 +182,6 @@ function DataTable({
                               {row?.original?.category}
                             </p>
                           </div>
-
-                          {/* <div>
-                            <p className="text-sm text-gray-400">
-                              Applicable for
-                            </p>
-                            <p className="font-medium text-gray-800">
-                              applicableFor
-                            </p>
-                          </div> */}
                         </div>
                       </div>
 
@@ -226,18 +204,6 @@ function DataTable({
                           )}
                         </p>
                         <div className="mt-1 flex items-center justify-end gap-1">
-                          {/* <svg
-                            className="size-4 text-gray-500"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                            <path
-                              fillRule="evenodd"
-                              d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
-                              clipRule="evenodd"
-                            />
-                          </svg> */}
                           <LockKeyhole className="size-4 text-gray-500" />
                           <span className="text-gray-600">Private</span>
                         </div>
@@ -259,25 +225,19 @@ function DataTable({
                       </div>
 
                       <div className="flex items-center gap-3">
-                        {/* <span className="rounded-full bg-orange-50 px-3 py-1 text-sm text-orange-400">
-                          relevantCount of totalCount find it relevant
-                        </span> */}
                         <button className="rounded-lg border border-gray-200 px-4 py-2 text-gray-600 hover:text-gray-800">
                           <Link
-                            href={`/${section}/${nodeorclubId}/${plugin}/${row?.original?._id}/view`}
+                            href={`/${forum}/${forumId}/${plugin}/${row?.original?._id}/view`}
                             className="w-full"
                           >
                             View Original
                           </Link>
                         </button>
-                        {/* <button className="rounded-lg bg-green-500 px-4 py-2 text-white hover:bg-green-600">
-                          Report Offence
-                        </button> */}
                         <ContentDailog
                           plugin={plugin}
                           pluginId={row?.original?._id}
-                          section={section}
-                          sectionId={nodeorclubId}
+                          forum={forum}
+                          forumId={forumId}
                           isBtn={true}
                           setClickTrigger={setClickTrigger}
                           clickTrigger={clickTrigger}
@@ -289,16 +249,32 @@ function DataTable({
               />
             ))
           ) : (
-            <TableRow>
-              <TableCell colSpan={columns.length} className="h-32 text-center">
-                <div className="flex flex-col items-center justify-center space-y-1">
-                  <div className="text-lg font-medium">No rules found</div>
-                  <div className="text-sm text-muted-foreground">
-                    There are no rules available at the moment
-                  </div>
-                </div>
-              </TableCell>
-            </TableRow>
+            <>
+              {loading ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-32 text-center"
+                  >
+                    <Loader1 />
+                  </TableCell>
+                </TableRow>
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-32 text-center"
+                  >
+                    <div className="flex flex-col items-center justify-center space-y-1">
+                      <div className="text-lg font-medium">No rules found</div>
+                      <div className="text-sm text-muted-foreground">
+                        There are no rules available at the moment
+                      </div>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              )}
+            </>
           )}
         </TableBody>
       </Table>
@@ -308,34 +284,25 @@ function DataTable({
 
 export function RulesTable({
   plugin,
-  section,
-  nodeorclubId,
+  forum,
+  forumId,
   data,
   clickTrigger,
   setClickTrigger,
+  loading,
 }: {
   plugin: TPlugins;
-  section: TSections;
-  nodeorclubId: string;
+  forum: TForum;
+  forumId: string;
   data: any;
   clickTrigger: boolean;
   setClickTrigger: React.Dispatch<React.SetStateAction<boolean>>;
+  loading: boolean;
 }) {
-  // const [rules, setRules] = useState<Rule[]>([]);
-  // const [loading, setLoading] = useState(true);
-
-  // if (loading) {
-  //   return (
-  //     <div className="flex h-32 items-center justify-center">
-  //       <div className="size-8 animate-spin rounded-full border-b-2 border-primary"></div>
-  //     </div>
-  //   );
-  // }
-
   const columns: ColumnDef<Rule>[] = [
     {
       accessorKey: "sno",
-      header: "SNO",
+      header: "No.",
       cell: ({ row }) => <div className="font-medium">{row.index + 1}</div>,
     },
     {
@@ -345,7 +312,7 @@ export function RulesTable({
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Details
+          Rules & Regulations
           <ArrowUpDown className="ml-2 size-4" />
         </Button>
       ),
@@ -364,22 +331,48 @@ export function RulesTable({
       ),
     },
     {
-      accessorKey: "publishedDate",
-      /*************  ✨ Codeium Command ⭐  *************/
-      /**
-       * @description
-       * The header cell for the `publishedDate` column.
-       * It displays a button that toggles the sorting of the column when clicked.
-       * The button displays the text "Posted" and an arrow up/down icon that
-       * indicates the direction of the sort.
-       */
-      /******  b94d036e-89dc-42f6-b14c-14391b9c0d6c  *******/
+      accessorKey: "publishedStatus",
       header: ({ column }) => (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Posted
+          Status
+          <ArrowUpDown className="ml-2 size-4" />
+        </Button>
+      ),
+      cell: ({ row }) => (
+        <div className="max-w-[500px] space-y-1">
+          <p className="font-medium leading-none  text-white">
+            <Badge
+              variant={
+                row.getValue("publishedStatus") === "true"
+                  ? "default"
+                  : "outline"
+              }
+            >
+              {row.getValue("publishedStatus") === "true"
+                ? "Published"
+                : "Draft"}
+            </Badge>
+          </p>
+          {/* <p
+            className="line-clamp-2 truncate text-xs text-muted-foreground after:content-['...']"
+            dangerouslySetInnerHTML={{
+              __html: row?.original?.description,
+            }}
+          ></p> */}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "publishedDate",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Posted Date
           <ArrowUpDown className="ml-2 size-4" />
         </Button>
       ),
@@ -398,23 +391,23 @@ export function RulesTable({
     },
     {
       accessorKey: "createdBy",
-      header: "Author",
+      header: "Posted by",
       cell: ({ row }) => {
-        const postedBy = row.getValue("createdBy") as Rule["createdBy"];
+        const postedBy: any = row.getValue("createdBy") as Rule["createdBy"];
         return (
           <div className="flex items-center gap-2">
             <Avatar className="size-8">
               <AvatarImage
                 src={
-                  postedBy?.avatar ||
+                  postedBy?.profileImage ||
                   "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWdu-qOixArQruGnl8wz6iK-ygXGGGOSQytg&s"
                 }
-                alt={postedBy?.name}
+                alt={postedBy?.firstName}
               />
               <AvatarFallback>{postedBy?.name?.[0] || "A"}</AvatarFallback>
             </Avatar>
             <span className="text-sm text-muted-foreground">
-              {postedBy?.name}
+              {postedBy?.firstName}
             </span>
           </div>
         );
@@ -427,7 +420,7 @@ export function RulesTable({
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Engagement
+          Relevance Score
           <ArrowUpDown className="ml-2 size-4" />
         </Button>
       ),
@@ -475,24 +468,15 @@ export function RulesTable({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuItem>
                 <Link
-                  href={`/${section}/${nodeorclubId}/${plugin}/${row.original._id}/view`}
+                  href={`/${forum}/${forumId}/${plugin}/${row?.original?._id}/edit`}
                   className="w-full"
                 >
-                  View Details
+                  Edit Section
                 </Link>
               </DropdownMenuItem>
-              {/* <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                <ContentDailog
-                  plugin={plugin}
-                  pluginId={row?.original?._id}
-                  section={section}
-                  sectionId={nodeorclubId}
-                  setClickTrigger={setClickTrigger}
-                  clickTrigger={clickTrigger}
-                />
-              </DropdownMenuItem> */}
             </DropdownMenuContent>
           </DropdownMenu>
         );
@@ -501,15 +485,18 @@ export function RulesTable({
   ];
 
   return (
-    <DataTable
-      columns={columns}
-      data={data}
-      nodeorclubId={nodeorclubId}
-      plugin={plugin}
-      section={section}
-      setClickTrigger={setClickTrigger}
-      clickTrigger={clickTrigger}
-    />
+    <div>
+      <DataTable
+        columns={columns}
+        data={data}
+        forumId={forumId}
+        plugin={plugin}
+        forum={forum}
+        setClickTrigger={setClickTrigger}
+        clickTrigger={clickTrigger}
+        loading={loading}
+      />
+    </div>
   );
 }
 
@@ -529,16 +516,16 @@ type ReportType = z.infer<typeof reportSchema>;
 const ContentDailog = ({
   plugin,
   pluginId,
-  sectionId,
-  section,
+  forumId,
+  forum,
   clickTrigger,
   setClickTrigger,
   isBtn,
 }: {
   plugin: TPlugins;
   pluginId: string;
-  section: TSections;
-  sectionId: string;
+  forum: TForum;
+  forumId: string;
   clickTrigger: boolean;
   setClickTrigger: React.Dispatch<React.SetStateAction<boolean>>;
   isBtn?: boolean;
@@ -559,12 +546,12 @@ const ContentDailog = ({
   const fetchUserNodesOrClubs = async () => {
     console.log("fetchUserNodesOrClubs");
     try {
-      if (section === "node") {
-        const response = await NodeEndpoints.fetchUsersOfNode(sectionId);
+      if (forum === "node") {
+        const response = await NodeEndpoints.fetchUsersOfNode(forumId);
         console.log("users node", response);
         setUsers(response);
-      } else if (section === "club") {
-        const response = await Endpoints.fetchClubMembers(sectionId);
+      } else if (forum === "club") {
+        const response = await Endpoints.fetchClubMembers(forumId);
         console.log("users club", response);
         setUsers(response);
       }
@@ -584,8 +571,8 @@ const ContentDailog = ({
     console.log(values, "values");
 
     const formData = new FormData();
-    formData.append("type", section);
-    formData.append("typeId", sectionId);
+    formData.append("type", forum);
+    formData.append("typeId", forumId);
     formData.append("reason", values.description);
     formData.append("rulesID", pluginId);
     formData.append("offenderID", values.offenderName);

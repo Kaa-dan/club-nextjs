@@ -167,6 +167,7 @@ const DetailsForm: React.FC<DetailsFormProps> = ({ setStep }) => {
                     onChange={(e) => {
                       const value = e.target.value;
                       const formattedName = formatName(value, {
+                        makeFirstLetterUppercase: false,
                         allowUppercaseInBetween: true,
                         allowNumbers: true,
                       });

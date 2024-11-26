@@ -59,6 +59,7 @@ import { IssuesEndpoints } from "@/utils/endpoints/issues";
 import { toast } from "sonner";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useNodeStore } from "@/store/nodes-store";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const MAX_FILES = 5;
@@ -113,13 +114,14 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 export default function CreateIssueForm({
-  nodeOrClubId,
-  section,
+  forumId,
+  forum,
 }: {
-  nodeOrClubId: string;
-  section: TSections;
+  forumId: string;
+  forum: TForum;
 }) {
-  const { selectedClub, userJoinedClubs } = useClubStore((state) => state);
+  const { currentClub, userJoinedClubs } = useClubStore((state) => state);
+  const { currentNode } = useNodeStore((state) => state);
   const [showPublishDialog, setShowPublishDialog] = React.useState(false);
   const [uploadedFiles, setUploadedFiles] = React.useState<File[]>([]);
   const imageRef = React.useRef<HTMLInputElement>(null);
@@ -200,13 +202,13 @@ export default function CreateIssueForm({
       values.files?.forEach((fileObj: any) => {
         formData.append("files", fileObj.file);
       });
-      formData.append(section, nodeOrClubId);
+      formData.append(forum, forumId);
       formData.append("publishedStatus", issueStatus);
 
       await IssuesEndpoints.createIssue(formData);
 
       toast.success("Issue created successfully");
-      router.push(`/${section}/${nodeOrClubId}/issues`);
+      router.push(`/${forum}/${forumId}/issues`);
       setUploadedFiles([]);
       setShowPublishDialog(false);
       form.reset();
@@ -304,7 +306,7 @@ export default function CreateIssueForm({
                         <FormControl>
                           <Button
                             variant="outline"
-                            className={`w-full pl-3 text-left font-normal ${
+                            className={`w-full border-slate-700 pl-3 text-left font-normal text-slate-700 ${
                               !field.value && "text-muted-foreground"
                             }`}
                           >
@@ -383,12 +385,15 @@ export default function CreateIssueForm({
                   <FormControl>
                     <MultiSelect
                       options={
-                        selectedClub?.members
-                          ? selectedClub?.members?.map((member: any) => ({
+                        forum === "club"
+                          ? currentClub?.members?.map((member: any) => ({
                               title: member?.user?.userName,
                               value: member?.user?._id,
-                            }))
-                          : []
+                            })) || []
+                          : currentNode?.members?.map((member: any) => ({
+                              title: member?.user?.userName,
+                              value: member?.user?._id,
+                            })) || []
                       }
                       defaultValue={field.value || []}
                       onValueChange={(selectedValues) => {
