@@ -27,10 +27,11 @@ import { useClubStore } from "@/store/clubs-store";
 import { Dialog, DialogTrigger } from "@radix-ui/react-dialog";
 import { useTokenStore } from "@/store/store";
 import { useClubCalls } from "@/hooks/apis/use-club-calls";
+import CustomAlertDialog from "@/components/ui/custom/custom-alert-dialog";
 
 export default function Page() {
   const { leaveClub } = useClubCalls();
-  const { currentClub } = useClubStore((state) => state);
+  const { currentClub, clubJoinStatus } = useClubStore((state) => state);
   const [invite, setInvite] = useState<boolean>();
   const [clickTrigger, setClickTrigger] = useState(false);
   const params = useParams<{ clubId: string }>();
@@ -106,13 +107,11 @@ export default function Page() {
                 <CopyLink />
               </Dialog> */}
 
-              {currentClub?.members?.some(
-                (member: any) => member?.user?._id == globalUser?._id
-              ) && (
+              {clubJoinStatus === "MEMBER" && (
                 <>
                   <Invite clubId={sentClub} />
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
+                  <CustomAlertDialog
+                    trigger={
                       <Button
                         variant="outline"
                         className="gap-2 text-red-500 hover:text-red-600"
@@ -120,29 +119,17 @@ export default function Page() {
                         <LogOut className="size-4" />
                         <span>Leave Club</span>
                       </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>
-                          Are you sure you want to leave the club?
-                        </AlertDialogTitle>
-                        <AlertDialogDescription>
-                          This action cannot be undone. Leaving the club will
+                    }
+                    title="Are you sure you want to leave the club?"
+                    actionText="Leave Club"
+                    cancelText="Cancel"
+                    description={`This action cannot be undone. Leaving the club will
                           remove you from the members list and you will lose
-                          access to all club activities and resources.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={() => leaveClub(params.clubId)}
-                          className="bg-red-500 text-white hover:bg-red-600"
-                        >
-                          Leave Club
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                          access to all club activities and resources.`}
+                    onAction={() => leaveClub(params.clubId)}
+                    type="error"
+                    showIcon={true}
+                  />
                 </>
               )}
             </div>
