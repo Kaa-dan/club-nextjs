@@ -55,11 +55,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SharedEndpoints } from "@/utils/endpoints/shared";
-import { useNodeCalls } from "@/components/pages/node/use-node-calls";
+import { useNodeCalls } from "@/hooks/apis/use-node-calls";
 import Invite from "@/components/pages/club/invite/invite";
 
 export default function Page() {
-  const { leaveNode } = useNodeCalls();
+  const { leaveNode, fetchNodeDetails } = useNodeCalls();
   const { globalUser } = useTokenStore((state) => state);
   const { currentNode, currentUserRole } = useNodeStore((state) => state);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -74,7 +74,16 @@ export default function Page() {
 
   const isOwner = () => currentUserRole === "owner";
 
+  const isAdmin = () => currentUserRole === "admin";
+
+  const isModerator = () => currentUserRole === "moderator";
+
+  const isAdminOrModerator = () =>
+    ["admin", "moderator"].includes(currentUserRole);
+
   const isOWnerOrAdmin = () => ["owner", "admin"].includes(currentUserRole);
+
+  type UserRole = "member" | "admin" | "moderator" | "owner";
 
   const isModeratorOrAdminOrOwner = () =>
     ["moderator", "admin", "owner"].includes(currentUserRole);
@@ -92,13 +101,13 @@ export default function Page() {
         };
         try {
           await SharedEndpoints.makeAdmin(data);
-          setClickTrigger(!clickTrigger);
+          fetchNodeDetails(nodeId);
         } catch (error) {
           console.log(error, "error");
           toast.error("something went wrong when making admin");
         }
       },
-      show: (role: "member" | "admin" | "moderator") => {
+      show: (role: UserRole) => {
         return role !== "admin" && isOwner();
       },
     },
@@ -115,13 +124,13 @@ export default function Page() {
         };
         try {
           await SharedEndpoints.makeModerator(data);
-          setClickTrigger(!clickTrigger);
+          fetchNodeDetails(nodeId);
         } catch (error) {
           console.log(error, "error");
           toast.error("something went wrong when making moderator");
         }
       },
-      show: (role: "member" | "admin" | "moderator") => {
+      show: (role: UserRole) => {
         return role !== "moderator" && isOwner();
       },
     },
@@ -138,13 +147,13 @@ export default function Page() {
         };
         try {
           await SharedEndpoints.makeMember(data);
-          setClickTrigger(!clickTrigger);
+          fetchNodeDetails(nodeId);
         } catch (error) {
           toast.error("something went wrong when making member");
           console.log(error, "error");
         }
       },
-      show: (role: "member" | "admin" | "moderator") => {
+      show: (role: UserRole) => {
         return role !== "member" && isOwner();
       },
     },
@@ -161,13 +170,15 @@ export default function Page() {
         };
         try {
           await SharedEndpoints.removeMember(data);
-          setClickTrigger(!clickTrigger);
+          fetchNodeDetails(nodeId);
         } catch (error) {
           console.log(error, "error");
           toast.error("something went wrong when removing member");
         }
       },
-      show: isOWnerOrAdmin,
+      show: (role: UserRole) => {
+        return role !== "owner" && isOWnerOrAdmin();
+      },
     },
   ];
 
@@ -381,8 +392,8 @@ export default function Page() {
                     {new Date(member?.createdAt).toLocaleDateString()}
                   </TableCell>
                   {isModeratorOrAdminOrOwner() &&
-                    isOwner() &&
-                    member?.user?._id !== globalUser?._id && (
+                    member?.user?._id !== globalUser?._id &&
+                    member?.role !== "owner" && (
                       <TableCell>
                         <DropdownMenu
                           open={dropdownOpen === member?.user?._id}

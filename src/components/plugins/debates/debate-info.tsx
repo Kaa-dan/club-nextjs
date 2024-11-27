@@ -23,6 +23,7 @@ import { Check, Building2, Network } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Endpoints } from "@/utils/endpoint";
 import { useParams } from "next/navigation";
+import { toast } from "sonner";
 type AdoptionOption = {
   nonAdoptedClubs: {
     clubId: string;
@@ -76,9 +77,9 @@ function DebateInfo() {
     });
   }, []);
   return (
-    <Card className="max-w-2xl mx-auto border">
+    <Card className="mx-auto border">
       <CardHeader>
-        <div className="flex justify-between items-start">
+        <div className="flex items-start justify-between">
           <div>
             <CardTitle className="text-xl font-bold">
               {debate?.topic}
@@ -92,7 +93,7 @@ function DebateInfo() {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="flex items-center mt-4">
+        <div className="mt-4 flex items-center">
           <Avatar className="mr-3">
             <AvatarImage src="/api/placeholder/40/40" alt="Author" />
             <AvatarFallback>LA</AvatarFallback>
@@ -105,13 +106,13 @@ function DebateInfo() {
           </div>
           <Badge variant="outline">Environmental Advocacy Group</Badge>
         </div>
-        <div className="flex flex-wrap gap-2 mt-4">
+        <div className="mt-4 flex flex-wrap gap-2">
           {debate &&
             debate?.tags?.map((tag: any, index: number) => (
               <Badge key={index}>{tag}</Badge>
             ))}
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-4 text-sm">
+        <div className="mt-4 grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
           <div>
             <div className="text-muted-foreground">Date Started</div>
             <div>{moment(debate?.createdAt).format("DD/MM/YYYY")}</div>
@@ -133,7 +134,7 @@ function DebateInfo() {
             <div>2.3k</div>
           </div>
         </div>
-        <div className="flex justify-end mt-6">
+        <div className="mt-6 flex justify-end">
           <Dialog>
             <DialogTrigger asChild>
               <Button className="bg-green-500 text-white hover:bg-green-600">
@@ -147,19 +148,19 @@ function DebateInfo() {
                   Select a club or node to adopt this debate
                 </DialogDescription>
               </DialogHeader>
-              <div className="space-y-2 mt-2 overflow-y-auto max-h-60">
+              <div className="mt-2 max-h-60 space-y-2 overflow-y-auto">
                 {adoptionOptions?.map((option: any, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between p-2 rounded-lg border hover:bg-slate-50 transition-colors"
+                    className="flex items-center justify-between rounded-lg border p-2 transition-colors hover:bg-slate-50"
                   >
                     <div className="flex items-center gap-2">
                       {option.type === "club" ? (
-                        <Building2 className="text-blue-500 size-4" />
+                        <Building2 className="size-4 text-blue-500" />
                       ) : (
-                        <Network className="text-purple-500 size-4" />
+                        <Network className="size-4 text-purple-500" />
                       )}
-                      <div className="font-medium text-sm">{option.name}</div>
+                      <div className="text-sm font-medium">{option.name}</div>
                     </div>
                     <div className="flex items-center gap-2">
                       <Badge variant="outline" className="text-xs">
@@ -177,6 +178,7 @@ function DebateInfo() {
                             option.type === "node" ? option.nodeId : undefined
                           )
                             .then((response) => {
+                              toast.success(response.message);
                               Endpoints.notAdoptedClubs(postId).then((res) => {
                                 setAdoptionOption(res);
                               });
@@ -187,9 +189,12 @@ function DebateInfo() {
                             });
                         }}
                       >
-                        <Check className="size-3 mr-1" />
+                        <Check className="mr-1 size-3" />
                         <span className="text-xs">
-                          {(option.role == "admin" && "Adopt") || "Propose"}
+                          {option.role === "admin" ||
+                          option.role === "moderator"
+                            ? "Adopt"
+                            : "Propose"}
                         </span>
                       </Button>
                     </div>

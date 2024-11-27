@@ -1,22 +1,22 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { TClub, TMembers } from "@/types";
 import { useParams } from "next/navigation";
 import ClubProfileCard from "@/components/pages/club/club-profile-card";
-import ModulesBar from "@/components/pages/forum-common/module-bar";
-import { fetchSpecificClub } from "@/components/pages/club/endpoint";
+
 import TeamsSidePopover from "@/components/pages/club/club-teams";
-import { useClubStore } from "@/store/clubs-store";
-import { useTokenStore } from "@/store/store";
-import { useClubCalls } from "@/components/pages/club/use-club-calls";
+import { useClubCalls } from "@/hooks/apis/use-club-calls";
+import ModulesBar from "@/components/pages/forum-common/module-bar";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
-  const { fetchClubDetails } = useClubCalls();
+  const { fetchClubDetails, fetchClubJoinStatus } = useClubCalls();
   const [currentPage, setCurrentPage] = useState("modules");
   const params = useParams<{ clubId: string; plugin?: TPlugins }>();
 
   useEffect(() => {
-    fetchClubDetails(params?.clubId);
+    if (params?.clubId) {
+      fetchClubDetails(params?.clubId);
+      fetchClubJoinStatus(params?.clubId);
+    }
   }, [params.clubId]);
 
   return (
@@ -30,7 +30,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               clubId={params.clubId}
             />
           </div>
-          <div className="flex w-3/4 flex-col ">
+          <div className="flex w-3/4 flex-col items-start ">
             <ModulesBar
               plugin={params?.plugin}
               forum={"club"}

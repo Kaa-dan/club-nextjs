@@ -18,9 +18,11 @@ import {
 } from "@/components/ui/alert-dialog";
 import { NodeEndpoints } from "@/utils/endpoints/node";
 import { toast } from "sonner";
-import { DialogHeader } from "@/components/ui/dialog";
+import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { ImageSkeleton } from "../club/club-profile-card";
+import env from "@/lib/env.config";
+import { useNodeCalls } from "@/hooks/apis/use-node-calls";
 
 interface ProfileCardProps {
   currentPage: string;
@@ -32,6 +34,7 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
   setCurrentPage,
 }) => {
   const { currentNode, currentUserRole } = useNodeStore((state) => state);
+  const { fetchNodeJoinStatus } = useNodeCalls();
   const [joinStatus, setJoinStatus] = useState<String>("");
   const [cancelRequestTriggered, setCancelRequestTriggered] = useState(false);
   const recaptchaRef = useRef(null);
@@ -112,26 +115,12 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
       setUserRequestedNodes(requestedNodes);
       console.log(response);
       toast.success("Request Cancelled");
-      // Toggle the cancel request flag to allow the user to re-request
-      setCancelRequestTriggered(!cancelRequestTriggered);
+      fetchNodeJoinStatus(nodeId);
     } catch (error) {
       console.log(error);
       toast.error("Error while cancelling request");
     }
   };
-
-  useEffect(() => {
-    if (currentNode?.node?._id) {
-      Endpoints.fetchNodeUserStatus(currentNode?.node?._id as string)
-        .then((res) => {
-          setJoinStatus(res.status);
-          console.log("user status", res.status);
-        })
-        .catch((err) => {
-          console.log({ err });
-        });
-    }
-  }, [currentNode?.node?._id, cancelRequestTriggered]);
 
   const onRecaptchaChange = (token: any) => {
     if (!token) {
@@ -194,6 +183,7 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
         {recaptcha && (
           <div>
             <Dialog open={recaptcha} onOpenChange={setRecaptcha}>
+              <DialogTitle></DialogTitle>
               <DialogContent
                 className="pointer-events-auto"
                 onInteractOutside={(e) => {
@@ -205,9 +195,7 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
                     <ReCAPTCHA
                       className="z-50 flex justify-center"
                       ref={recaptchaRef}
-                      sitekey={
-                        process.env.NEXT_PUBLIC_RECAPTCHA_CLIENT as string
-                      }
+                      sitekey={env.RECAPTCHA_CLIENT as string}
                       onChange={onRecaptchaChange}
                     />
                   ) : (

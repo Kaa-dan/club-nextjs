@@ -1,7 +1,6 @@
-import { withTokenAxios } from "@/lib/mainAxios";
 import { error } from "console";
 import { type } from "os";
-
+import { withTokenAxios } from "@/lib/mainAxios";
 export class Endpoints {
   static async fetchNodeDetails(nodeId: string) {
     const { data } = await withTokenAxios.get("/node/" + nodeId);
@@ -80,11 +79,9 @@ export class Endpoints {
       throw error;
     }
   }
-  static async fetchClubUserStatus(clubdId: string) {
+  static async fetchClubUserStatus(clubId: string) {
     try {
-      const response = await withTokenAxios.get(
-        `clubs/check-status/${clubdId}`
-      );
+      const response = await withTokenAxios.get(`clubs/check-status/${clubId}`);
       return response.data;
     } catch (error) {
       throw error;
@@ -405,8 +402,6 @@ export class Endpoints {
     clubId?: string,
     nodeId?: string
   ) {
-    console.log({ debateId });
-
     try {
       const response = await withTokenAxios.post("debate/adopt", {
         debateId,
@@ -414,6 +409,120 @@ export class Endpoints {
         clubId,
         nodeId,
       });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+  static async fetchDebateArgs(debateId: string) {
+    try {
+      const response = await withTokenAxios.get(`debate/argument/${debateId}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+  static async postArgument(data: any) {
+    const response = await withTokenAxios.post("debate/create-argument", data);
+    return response.data;
+  }
+
+  static async toggleVote(
+    debateId: string,
+    voteType: "relevant" | "irrelevant"
+  ) {
+    try {
+      const response = await withTokenAxios.post(`debate/vote/${debateId}`, {
+        voteType,
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+  static async fetchProposedDebate(entityId: string, forum: TForum) {
+    try {
+      const response = await withTokenAxios.get(
+        `/debate/proposed/${entityId}/${forum}`
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+  static async acceptDebate(debateId: string) {
+    try {
+      const response = await withTokenAxios.put(`/debate/accept/${debateId}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async rejectDebate(debateId: string) {
+    try {
+      const response = await withTokenAxios.put(`debate/reject/${debateId}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async checkParticipationStatus(
+    debateId: string,
+    entityType: TForum,
+    entity: string
+  ) {
+    try {
+      const response = await withTokenAxios.post("debate/check-status", {
+        debateId,
+        entityType,
+        entity,
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async replyToDebateArgument(parentId: string, content: string) {
+    try {
+      const response = await withTokenAxios.post(
+        "debate/" + parentId + "/reply",
+        {
+          content,
+        }
+      );
+      console.log("Reply successful:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Error posting reply:", error);
+      throw error;
+    }
+  }
+  static async getRepliesForDebateArgument(parentId: string) {
+    try {
+      const response = await withTokenAxios.get(`debate/replies/${parentId}`);
+
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching replies:", error);
+      throw error;
+    }
+  }
+
+  static async pin(id: string) {
+    try {
+      const response = await withTokenAxios.post(`debate/pin/${id}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async unpin(id: string) {
+    try {
+      const response = await withTokenAxios.post(`debate/unpin/${id}`);
       return response.data;
     } catch (error) {
       throw error;

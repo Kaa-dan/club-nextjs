@@ -10,6 +10,7 @@ interface UseNodeDataReturn {
   fetchNodeDetails: (nodeId: string) => Promise<void>;
   fetchJoinedNodes: () => Promise<void>;
   fetchRequestedNodes: () => Promise<void>;
+  fetchNodeJoinStatus: (nodeId: string) => Promise<void>;
 
   // operations
   leaveNode: (nodeId: string) => Promise<void>;
@@ -25,7 +26,7 @@ export const useNodeCalls = (): UseNodeDataReturn => {
     setCurrentUserRole,
     setUserJoinedNodes,
     setUserRequestedNodes,
-    userJoinedNodes,
+    setNodeJoinStatus,
   } = useNodeStore();
 
   const fetchNodeDetails = useCallback(
@@ -86,11 +87,29 @@ export const useNodeCalls = (): UseNodeDataReturn => {
     }
   }, [setUserRequestedNodes]);
 
+  const fetchNodeJoinStatus = useCallback(
+    async (nodeId: string) => {
+      if (!nodeId) return;
+
+      try {
+        const response = await Endpoints.fetchNodeUserStatus(nodeId);
+
+        setNodeJoinStatus(response?.status || "VISITOR");
+        return response?.status;
+      } catch (error) {
+        console.error("Error fetching club details:", error);
+        throw error;
+      }
+    },
+    [setNodeJoinStatus]
+  );
+
   // CRUD Operations
   const leaveNode = useCallback(
     async (nodeId: string) => {
       try {
         await Endpoints.leaveNode(nodeId);
+        await fetchNodeJoinStatus(nodeId);
         await fetchUserNodes();
         await fetchNodeDetails(nodeId);
       } catch (error) {
@@ -105,6 +124,7 @@ export const useNodeCalls = (): UseNodeDataReturn => {
     fetchNodeDetails,
     fetchJoinedNodes,
     fetchRequestedNodes,
+    fetchNodeJoinStatus,
     // createNode,
     // updateNode,
     // deleteNode,

@@ -29,6 +29,8 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import env from "@/lib/env.config";
+import { useClubCalls } from "@/hooks/apis/use-club-calls";
 
 interface ProfileCardProps {
   currentPage: string;
@@ -46,10 +48,11 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
     setUserRequestedClubs,
     currentUserRole,
     currentClub,
+    clubJoinStatus,
   } = useClubStore((state) => state);
+  const { fetchClubJoinStatus } = useClubCalls();
   const [recaptcha, setRecaptcha] = useState(false);
   const recaptchaRef = useRef(null);
-  const [joinStatus, setJoinStatus] = useState<String>("");
   const [cancelRequestTriggered, setCancelRequestTriggered] = useState(false);
 
   const router = useRouter();
@@ -110,8 +113,8 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
       const requestedClubs = await ClubEndpoints.fetchUserRequestedClubs();
       setUserJoinedClubs(joinedClubs);
       setUserRequestedClubs(requestedClubs);
-      console.log("response.status", response.status);
-      setJoinStatus(response.status);
+      // setJoinStatus(response.status);
+      fetchClubJoinStatus(clubId);
     } catch (error) {
       console.log({ error });
     }
@@ -122,6 +125,7 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
       const response = await ClubEndpoints.cancelJoinRequest(clubId);
       const requestedClubs = await ClubEndpoints.fetchUserRequestedClubs();
       setUserRequestedClubs(requestedClubs);
+      fetchClubJoinStatus(clubId);
       console.log(response);
       toast.success("Request Cancelled");
       setCancelRequestTriggered(!cancelRequestTriggered);
@@ -131,16 +135,6 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
     }
   };
 
-  useEffect(() => {
-    Endpoints.fetchClubUserStatus(clubId as string)
-      .then((res) => {
-        setJoinStatus(res.status);
-        console.log(res.status, "join status");
-      })
-      .catch((err) => {
-        console.log({ err });
-      });
-  }, [clubId, cancelRequestTriggered]);
   const onRecaptchaChange = (token: any) => {
     if (!token) {
       toast.error("Please complete the reCAPTCHA to proceed.");
@@ -218,31 +212,15 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
             • {currentClub?.members?.length} Members
           </div>
 
-          {recaptcha && (
-            <Dialog open={recaptcha} onOpenChange={setRecaptcha}>
-              <DialogTitle>Recaptcha</DialogTitle>
-              <DialogContent
-                className="pointer-events-auto"
-                onInteractOutside={(e) => {
-                  e.preventDefault();
-                }}
-              >
-                <DialogHeader>
-                  {recaptcha ? (
-                    <ReCAPTCHA
-                      className="z-50 flex justify-center"
-                      ref={recaptchaRef}
-                      sitekey={
-                        process.env.NEXT_PUBLIC_RECAPTCHA_CLIENT as string
-                      }
-                      onChange={onRecaptchaChange}
-                    />
-                  ) : (
-                    "Loading..."
-                  )}
-                </DialogHeader>
-              </DialogContent>
-            </Dialog>
+          {recaptcha ? (
+            <ReCAPTCHA
+              className="z-50 flex justify-center"
+              ref={recaptchaRef}
+              sitekey={env.RECAPTCHA_CLIENT as string}
+              onChange={onRecaptchaChange}
+            />
+          ) : (
+            <></>
           )}
 
           <div className="flex flex-col gap-2">
@@ -252,24 +230,26 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
                 setRecaptcha(true);
               }}
               className="h-8 w-full border border-gray-500 bg-transparent text-gray-800 hover:bg-transparent"
-              disabled={joinStatus === "REQUESTED" || joinStatus === "MEMBER"} // Disable when requested or joined
+              disabled={
+                clubJoinStatus === "REQUESTED" || clubJoinStatus === "MEMBER"
+              } // Disable when requested or joined
             >
               {!currentClub ? (
                 <Skeleton className="h-4 w-1/2" />
               ) : (
                 <>
                   {currentClub?.club?.isPublic &&
-                    joinStatus === "VISITOR" &&
+                    clubJoinStatus === "VISITOR" &&
                     "Join"}
                   {!currentClub?.club?.isPublic &&
-                    joinStatus === "VISITOR" &&
+                    clubJoinStatus === "VISITOR" &&
                     "Request to Join"}
-                  {joinStatus === "MEMBER" && "Joined"}
-                  {joinStatus === "REQUESTED" && "Request Pending"}
+                  {clubJoinStatus === "MEMBER" && "Joined"}
+                  {clubJoinStatus === "REQUESTED" && "Request Pending"}
                 </>
               )}
             </Button>
-            {joinStatus === "REQUESTED" && (
+            {clubJoinStatus === "REQUESTED" && (
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button className="h-8 w-full border border-white bg-red-500 text-white hover:bg-red-500">

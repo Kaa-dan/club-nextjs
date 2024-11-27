@@ -110,7 +110,7 @@ const DebateForm = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
       router.push(`/${forum}/${forumId}/debate`);
     } catch (error) {
       console.error("Error submitting form:", error);
-      toast.error("Failed to submit rule. Please try again.");
+      toast.error("Failed to submit debate. Please try again.");
     } finally {
       setOpen(false);
       form.reset();
@@ -449,9 +449,7 @@ const DebateForm = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
                   disabled={form.formState.isSubmitting}
                   type="button"
                   variant="outline"
-                  onClick={() => {
-                    // Handle save draft logic
-                  }}
+                  onClick={() => {}}
                 >
                   Save draft
                 </Button>
