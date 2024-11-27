@@ -131,11 +131,14 @@ export default function Invite({ clubId }: InviteProps): JSX.Element {
           <hr />
           <div className="rounded-md">
             <Select>
-              <SelectTrigger className="w-full">
+              {/* country select  */}
+              <SelectTrigger className="w-1/2">
                 <SelectValue placeholder="Select Location" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="new-york">New York</SelectItem>
+              <SelectContent className="bg-white ">
+                <SelectItem className="w-full" value="new-york">
+                  New York
+                </SelectItem>
                 <SelectItem value="los-angeles">Los Angeles</SelectItem>
                 <SelectItem value="chicago">Chicago</SelectItem>
                 <SelectItem value="houston">Houston</SelectItem>

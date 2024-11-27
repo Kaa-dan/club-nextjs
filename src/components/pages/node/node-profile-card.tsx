@@ -98,13 +98,21 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
   };
   const [recaptcha, setRecaptcha] = useState(false);
 
+  /**
+   * Cancels a join request to a node
+   * @param nodeId The id of the node to cancel the request for
+   * @returns A promise that resolves when the request has been cancelled
+   */
+
   const cancelJoinRequest = async (nodeId: string) => {
     try {
       const response = await NodeEndpoints.cancelJoinRequest(nodeId);
+      // Fetch the user's requested nodes again to update the state
       const requestedNodes = await NodeEndpoints.fetchUserRequestedNodes();
       setUserRequestedNodes(requestedNodes);
       console.log(response);
       toast.success("Request Cancelled");
+      // Toggle the cancel request flag to allow the user to re-request
       setCancelRequestTriggered(!cancelRequestTriggered);
     } catch (error) {
       console.log(error);
@@ -187,7 +195,7 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
           <div>
             <Dialog open={recaptcha} onOpenChange={setRecaptcha}>
               <DialogContent
-                className="pointer-events-auto z-40"
+                className="pointer-events-auto"
                 onInteractOutside={(e) => {
                   e.preventDefault();
                 }}
