@@ -2,7 +2,14 @@
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { ThumbsUp, ThumbsDown, MessageCircle, ChevronDown } from "lucide-react";
+import {
+  ThumbsUp,
+  ThumbsDown,
+  MessageCircle,
+  ChevronDown,
+  MoreVertical,
+  Pin,
+} from "lucide-react";
 import { ReplySection } from "./reply-section";
 import Image from "next/image";
 import UserHoverCard from "@/components/globals/user-hover-card";
@@ -12,8 +19,15 @@ import { AddPointDialog } from "./Add-point-dialog";
 import { FilterComponent } from "./filter-component";
 import { Endpoints } from "@/utils/endpoint";
 import sanitizeHtmlContent from "@/utils/sanitize";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 
 interface DebateCardProps {
+  isPinned: boolean;
   content: string;
   author: string;
   date: string;
@@ -24,6 +38,8 @@ interface DebateCardProps {
   userId: string;
   commentId: string;
   imageUrl?: string;
+  authorId: string;
+  fetchArgs: () => void;
 }
 interface Reply {
   _id: string;
@@ -50,15 +66,17 @@ export const DebateCard: React.FC<DebateCardProps> = ({
   userId,
   commentId,
   imageUrl,
+  authorId,
+  isPinned,
+  fetchArgs,
 }) => {
-  console.log({ imageUrl });
-
   const [relevant, setRelevant] = useState(initialRelevant);
   const [irrelevant, setIrrelevant] = useState(initialIrrelevant);
   const [showComments, setShowComments] = useState(false);
   const [replies, setReplies] = useState<Reply[]>([]);
   const [showFullImage, setShowFullImage] = useState(false);
-
+  const { globalUser } = useTokenStore((state) => state);
+  const currentUserId = globalUser?._id;
   const handleVote = async (type: "relevant" | "irrelevant") => {
     const previousRelevant = [...relevant];
     const previousIrrelevant = [...irrelevant];
@@ -193,10 +211,68 @@ export const DebateCard: React.FC<DebateCardProps> = ({
 
   const isRelevant = relevant.includes(userId);
   const isIrrelevant = irrelevant.includes(userId);
+  const isCurrentUserAuthor = currentUserId === authorId;
 
   return (
     <Card className="overflow-hidden rounded-lg bg-white shadow-md">
       <div className="space-y-4 p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Avatar className="size-10">
+              <UserHoverCard username={author}>
+                <AvatarImage
+                  src={profileImage || "/placeholder.svg?height=32&width=32"}
+                  alt={author}
+                />
+              </UserHoverCard>
+              <AvatarFallback className="bg-gray-200 text-lg text-gray-500">
+                {author[0]}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex flex-col">
+              <span className="font-semibold text-gray-900">{author}</span>
+              <span className="text-sm text-gray-500">
+                Last updated: {date}
+              </span>
+            </div>
+          </div>
+          {isCurrentUserAuthor && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="rounded-full p-2 hover:bg-gray-100">
+                  <MoreVertical className="size-5 text-gray-500" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  onClick={() => {
+                    if (!isPinned) {
+                      Endpoints.pin(debateId)
+                        .then((res) => {
+                          fetchArgs();
+                          console.log({ success: res });
+                          // Optionally update state here
+                        })
+                        .catch((err) => console.error("Error pinning:", err));
+                    } else {
+                      Endpoints.unpin(debateId)
+                        .then((res) => {
+                          fetchArgs();
+                          console.log({ success: res });
+                          // Optionally update state here
+                        })
+                        .catch((err) => console.error("Error unpinning:", err));
+                    }
+                  }}
+                >
+                  <Pin className="mr-2 size-4" />
+                  <span>{!isPinned ? "Pin" : "Unpin"}</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
+
         {imageUrl && (
           <div className="relative mb-4">
             <Image
@@ -217,7 +293,7 @@ export const DebateCard: React.FC<DebateCardProps> = ({
                   alt="Full size debate image"
                   width={1000}
                   height={1000}
-                  className="max-h-screen max-w-full object-contain"
+                  className="h-screen max-h-screen w-screen max-w-full object-contain"
                 />
               </div>
             )}
@@ -228,24 +304,6 @@ export const DebateCard: React.FC<DebateCardProps> = ({
           className="mb-4 text-lg leading-relaxed text-gray-800"
           dangerouslySetInnerHTML={{ __html: sanitizeHtmlContent(content) }}
         ></p>
-
-        <div className="flex items-center gap-3">
-          <Avatar className="size-10">
-            <UserHoverCard username={author}>
-              <AvatarImage
-                src={profileImage || "/placeholder.svg?height=32&width=32"}
-                alt={author}
-              />
-            </UserHoverCard>
-            <AvatarFallback className="bg-gray-200 text-lg text-gray-500">
-              {author[0]}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex flex-col">
-            <span className="font-semibold text-gray-900">{author}</span>
-            <span className="text-sm text-gray-500">Last updated: {date}</span>
-          </div>
-        </div>
 
         <div className="flex items-center gap-4">
           <button
@@ -313,8 +371,13 @@ export function DebateSection({ forum }: { forum: TForum }) {
   const [sortOption, setSortOption] = useState<string>("relevantDesc");
   const { globalUser } = useTokenStore((state) => state);
   const userId = globalUser?._id;
+  const [author, setAuthor] = useState("");
 
   const fetchArgs = () => {
+    Endpoints.viewDebate(postId).then((res) => {
+      setAuthor(res.createdBy._id);
+    });
+
     Endpoints.fetchDebateArgs(postId).then((res) => {
       const support = res.filter(
         (arg: Argument) => arg.participant.side === "support"
@@ -377,16 +440,24 @@ export function DebateSection({ forum }: { forum: TForum }) {
           <div className="space-y-4">
             {sortedSupportArgs.map((arg: Argument) => (
               <DebateCard
-                key={arg._id}
-                debateId={arg._id}
-                content={arg.content}
-                author={arg.participant.user.userName}
-                date={new Date(arg.timestamp).toLocaleDateString()}
-                profileImage={arg.participant.user.profileImage}
-                initialRelevant={arg.relevant}
-                initialIrrelevant={arg.irrelevant}
+                fetchArgs={fetchArgs}
+                authorId={author}
+                key={arg?._id}
+                debateId={arg?._id}
+                content={arg?.content}
+                author={arg?.participant?.user?.userName}
+                date={
+                  arg?.timestamp
+                    ? new Date(arg.timestamp).toLocaleDateString()
+                    : ""
+                }
+                profileImage={arg?.participant?.user?.profileImage}
+                initialRelevant={arg?.relevant}
+                initialIrrelevant={arg?.irrelevant}
                 userId={userId as string}
-                commentId={arg._id}
+                commentId={arg?._id}
+                imageUrl={arg?.image?.[0]?.url}
+                isPinned={arg?.isPinned}
               />
             ))}
           </div>
@@ -409,17 +480,24 @@ export function DebateSection({ forum }: { forum: TForum }) {
           <div className="space-y-4">
             {sortedAgainstArgs.map((arg: Argument) => (
               <DebateCard
-                key={arg._id}
-                debateId={arg._id}
-                content={arg.content}
-                author={arg.participant.user.userName}
-                date={new Date(arg.timestamp).toLocaleDateString()}
-                profileImage={arg.participant.user.profileImage}
-                initialRelevant={arg.relevant}
-                initialIrrelevant={arg.irrelevant}
+                fetchArgs={fetchArgs}
+                authorId={author}
+                key={arg?._id}
+                debateId={arg?._id}
+                content={arg?.content}
+                author={arg?.participant?.user?.userName}
+                date={
+                  arg?.timestamp
+                    ? new Date(arg.timestamp).toLocaleDateString()
+                    : ""
+                }
+                profileImage={arg?.participant?.user?.profileImage}
+                initialRelevant={arg?.relevant}
+                initialIrrelevant={arg?.irrelevant}
                 userId={userId as string}
-                commentId={arg._id}
-                imageUrl={arg?.image[0]?.url}
+                commentId={arg?._id}
+                imageUrl={arg?.image?.[0]?.url}
+                isPinned={arg?.isPinned}
               />
             ))}
           </div>

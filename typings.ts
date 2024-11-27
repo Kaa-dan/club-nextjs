@@ -182,6 +182,12 @@ type Argument = {
       profileImage: string;
     };
   };
+  image: [
+    {
+      mimetype: string;
+      url: string;
+    },
+  ];
   timestamp: string;
   relevant: number;
   irrelevant: number;

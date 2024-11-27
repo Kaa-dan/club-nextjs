@@ -449,9 +449,7 @@ const DebateForm = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
                   disabled={form.formState.isSubmitting}
                   type="button"
                   variant="outline"
-                  onClick={() => {
-                    // Handle save draft logic
-                  }}
+                  onClick={() => {}}
                 >
                   Save draft
                 </Button>

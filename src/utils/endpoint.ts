@@ -504,17 +504,29 @@ export class Endpoints {
   }
   static async getRepliesForDebateArgument(parentId: string) {
     try {
-      // Send GET request to fetch replies for the given parentId
       const response = await withTokenAxios.get(`debate/replies/${parentId}`);
 
-      // Log the successful response
-      console.log("Replies fetched successfully:", response.data);
-
-      // Return the replies data
       return response.data;
     } catch (error) {
-      // Log the error if the request fails
       console.error("Error fetching replies:", error);
+      throw error;
+    }
+  }
+
+  static async pin(id: string) {
+    try {
+      const response = await withTokenAxios.post(`debate/pin/${id}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async unpin(id: string) {
+    try {
+      const response = await withTokenAxios.post(`debate/unpin/${id}`);
+      return response.data;
+    } catch (error) {
       throw error;
     }
   }
