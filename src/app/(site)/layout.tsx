@@ -1,13 +1,7 @@
 import LayoutPanel from "@/components/globals/layout-panel/layout-panel";
-import React from "react";
-
-const SiteLayout = ({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) => {
+const SiteLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <section>
+    <section className="">
       <LayoutPanel>{children}</LayoutPanel>
     </section>
   );

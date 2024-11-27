@@ -14,8 +14,11 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
-import IMG from "@/lib/constants";
+import { IMGS } from "@/lib/constants";
 import Link from "next/link";
+import { forgotPassword } from "./endpoint";
+import { log } from "console";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -29,8 +32,17 @@ export function ForgotForm() {
     },
   });
 
-  const onSubmit = (values: any) => {
-    console.log(values);
+  const onSubmit = async (values: any) => {
+    try {
+      const { email } = values;
+
+      const response = await forgotPassword(email);
+      console.log(response, "resss");
+      toast.success(response.message);
+    } catch (error: any) {
+      console.log(error?.response?.data);
+      toast.error(error?.response?.data?.message || "something went wrong");
+    }
   };
 
   return (
@@ -38,14 +50,14 @@ export function ForgotForm() {
       <div className="w-full max-w-md ">
         <div className="mb-6 flex flex-col items-center text-center">
           <Image
-            src={IMG?.Logo}
+            src={IMGS?.Logo}
             width={40}
             height={40}
             alt="logo"
             className="py-2"
           />
           <h2 className=" text-2xl font-bold">Forgot password 🔓</h2>
-          <p className="text-xs">
+          <p className="text-xs text-gray-600">
             {`No Worries, we'll send you reset instructions.`}
           </p>
         </div>
@@ -74,6 +86,7 @@ export function ForgotForm() {
 
             <div className="pt-16">
               <Button
+                disabled={form.formState.isSubmitting}
                 type="submit"
                 className="w-full rounded-lg bg-primary p-2 text-white"
               >

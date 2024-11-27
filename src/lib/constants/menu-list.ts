@@ -1,22 +1,7 @@
-import { TokensIcon } from "@radix-ui/react-icons";
-import {
-  Tag,
-  Users,
-  Settings,
-  Bookmark,
-  SquarePen,
-  LayoutGrid,
-  Link,
-  Album,
-  Contact,
-  PanelRightClose,
-  User,
-  Contact2,
-  Newspaper,
-  Key,
-  Home,
-  HomeIcon,
-} from "lucide-react";
+"use client";
+import { useClubStore } from "@/store/clubs-store";
+import { TClub, TNodeData } from "@/types";
+import { Endpoints } from "@/utils/endpoint";
 
 type Submenu = {
   href: string;
@@ -25,59 +10,109 @@ type Submenu = {
 };
 
 type Menu = {
-  href: string;
+  _id?: string;
   label: string;
   active: boolean;
-  icon: any;
+  image: string;
   submenus: Submenu[];
+  key?: string;
+  href: string;
 };
 
 type Group = {
   groupLabel: string;
   menus: Menu[];
+  menuItems?: Menu[];
+  requestedMenuItems?: Menu[];
 };
 
-export function getMenuList(pathname: string): Group[] {
+export async function getMenuList(
+  pathname: string,
+  joinedClubs: TClub[],
+  joinedNodes: TNodeData[],
+  requestedClubs: any[],
+  requestedNodes: any[]
+): Promise<Group[]> {
+  // const response = await Endpoints.fetchAllNodes();
+
+  const clubMenus: Menu[] = joinedClubs?.map((club: any) => ({
+    _id: club?.club?._id, // Store the _id directly
+    label: club.club.name, // Assuming clubs have a `name`
+    active: pathname.includes(`/club/${club?.club?._d}`),
+    image: club?.club?.profileImage?.url || "https://picsum.photos/200", // Use the club's image if available
+    submenus: [],
+    href: `/club/${club?.club?._id}`,
+  }));
+
+  const nodeMenus: Menu[] = joinedNodes?.map(({ node }: any) => ({
+    _id: node?._id, // Store the _id directly
+    label: node?.name, // Assuming clubs have a `name`
+    active: pathname?.includes(`/node/${node?._d}`),
+    image: node?.profileImage?.url || "https://picsum.photos/200", // Use the node's image if available
+    submenus: [],
+    href: `/node/${node?._id}`,
+  }));
+  const requestedClubsMenus: Menu[] = requestedClubs?.map((club: any) => ({
+    _id: club.club?._id, // Store the _id directly
+    label: club?.club?.name, // Assuming clubs have a `name`
+    active: pathname?.includes(`/club/${club?.club?._d}`),
+    image: club?.club?.profileImage.url || "https://picsum.photos/200", // Use the club's image if available
+    submenus: [],
+    href: `/club/${club?.club?._id}`,
+  }));
+  const requestedNodesMenus: Menu[] = requestedNodes?.map(({ node }: any) => ({
+    _id: node?._id, // Store the _id directly
+    label: node?.name, // Assuming clubs have a `name`
+    active: pathname?.includes(`/node/${node?._d}`),
+    image: node?.profileImage?.url || "https://picsum.photos/200", // Use the node's image if available
+    submenus: [],
+    href: `/node/${node?._id}`,
+  }));
+  const top3Clubs = clubMenus?.slice(0, 3);
+  const top3Nodes = nodeMenus?.slice(0, 3);
+  console.log("pathname", pathname);
   return [
     {
       groupLabel: "",
       menus: [
         {
-          href: "/home",
+          href: "/",
           label: "Home",
-          active: pathname.includes("/home"),
-          icon: HomeIcon,
+          active: false,
+          image: "https://picsum.photos/200",
           submenus: [],
         },
       ],
     },
     {
-      groupLabel: "Node",
+      groupLabel: "Nodes",
+      menuItems: nodeMenus,
+      requestedMenuItems: requestedNodesMenus,
       menus: [
+        ...top3Nodes,
         {
-          href: "/my-account",
-          label: "My Account",
-          active: pathname.includes("/my-account"),
-          icon: User,
-          submenus: [],
-        },
-        {
-          href: "/my-account",
-          label: "My Account",
-          active: pathname.includes("/my-account"),
-          icon: User,
+          href: "",
+          key: "createNode",
+          label: "See more",
+          active: pathname?.includes("/my-account"),
+          image: "https://picsum.photos/200",
           submenus: [],
         },
       ],
     },
     {
-      groupLabel: "Club",
+      groupLabel: "Clubs",
+      menuItems: clubMenus,
+      requestedMenuItems: requestedClubsMenus,
       menus: [
+        ...top3Clubs, // Insert fetched club data here without `href`
         {
-          href: "/my-account",
-          label: "My Account",
-          active: pathname.includes("/my-account"),
-          icon: User,
+          key: "createClub",
+          label: "See more",
+          active: pathname?.includes("/my-account"),
+          image: "https://picsum.photos/200",
+          href: "",
+          _id: "",
           submenus: [],
         },
       ],

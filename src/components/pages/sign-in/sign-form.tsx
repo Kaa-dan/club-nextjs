@@ -4,6 +4,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
+import GoogleSignIn from "./google-signin-button";
+import FacebookSignIn from "./facebook-signin-button";
+
 import {
   Form,
   FormControl,
@@ -14,10 +17,14 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
-import IMG from "@/lib/constants";
+import { IMGS } from "@/lib/constants";
 import Link from "next/link";
 import { Checkbox } from "@/components/ui/checkbox";
 import { PasswordInput } from "@/components/ui/password-input";
+import { login } from "./endpoint";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { useTokenStore } from "@/store/store";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -28,6 +35,18 @@ const formSchema = z.object({
 });
 
 export function SignInForm() {
+  const { globalUser, setGlobalUser, setAccessToken } = useTokenStore(
+    (state) => ({
+      verifyToken: state.verifyToken,
+      setVerifyToken: state.setVerifyToken,
+      clearVerifyToken: state.clearVerifyToken,
+      globalUser: state.globalUser,
+      setGlobalUser: state.setGlobalUser,
+      setAccessToken: state.setAccessToken,
+    })
+  );
+
+  const router = useRouter();
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -37,8 +56,20 @@ export function SignInForm() {
     },
   });
 
-  const onSubmit = (values: any) => {
-    console.log(values);
+  const onSubmit = async (data: any) => {
+    try {
+      const response = await login(data);
+      console.log(response);
+      setGlobalUser(response?.data || null);
+      setAccessToken(response?.token);
+      toast.success(response?.message || "Successfully signed in!");
+      response?.data?.isOnBoarded
+        ? router.replace("/")
+        : router.replace("/onboarding");
+    } catch (error: any) {
+      console.log(error.message);
+      toast.error(error?.response?.data?.message || "Something went wrong!");
+    }
   };
 
   return (
@@ -46,28 +77,22 @@ export function SignInForm() {
       <div className="w-full max-w-md ">
         <div className="mb-6 flex flex-col items-center text-center">
           <Image
-            src={IMG?.Logo}
+            src={IMGS?.Logo}
             width={40}
             height={40}
             alt="logo"
             className="py-2"
           />
           <h2 className=" text-2xl font-bold">Hey, Welcome Back 👋</h2>
-          <p className="text-xs">
+          <p className="text-xs text-gray-600">
             Login to an account and take advantage of exclusive benefits.
           </p>
         </div>
         <div className="mb-4 flex justify-between">
-          <button className="mr-2 flex w-full items-center justify-center rounded-lg border p-2">
-            <Image src={IMG?.Google} alt="Google" className="mr-2 h-6" />
-            Google
-          </button>
-          <button className="mr-2 flex w-full items-center justify-center rounded-lg border p-2">
-            <Image src={IMG?.Facebook} alt="Facebook" className="mr-2 h-6" />
-            Facebook
-          </button>
+          <GoogleSignIn />
+          <FacebookSignIn />
           <button className="flex w-full items-center justify-center rounded-lg border p-2">
-            <Image src={IMG?.Apple} alt="Apple" className="mr-2 h-6" />
+            <Image src={IMGS?.Apple} alt="Apple" className="mr-2 h-6" />
             Apple
           </button>
         </div>
@@ -135,6 +160,7 @@ export function SignInForm() {
             </div>
             <div className="pt-8">
               <Button
+                disabled={form.formState.isSubmitting}
                 type="submit"
                 className="w-full rounded-lg bg-primary p-2 text-white"
               >

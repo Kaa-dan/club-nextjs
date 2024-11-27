@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
-import IMG from "@/lib/constants";
+import { IMGS } from "@/lib/constants";
 import { PasswordInput } from "@/components/ui/password-input";
 import Link from "next/link";
 
@@ -55,14 +55,14 @@ export function ResetPasswordForm() {
       <div className="w-full max-w-md ">
         <div className="mb-6 flex flex-col items-center text-center">
           <Image
-            src={IMG?.Logo}
+            src={IMGS?.Logo}
             width={40}
             height={40}
             alt="logo"
             className="py-2"
           />
           <h2 className=" text-2xl font-bold">Reset password 🔑</h2>
-          <p className="text-xs">
+          <p className="text-xs text-gray-600">
             Your new password must be different to previously used passwords.
           </p>
         </div>
@@ -75,7 +75,7 @@ export function ResetPasswordForm() {
                 <FormItem>
                   <FormLabel>Current Password</FormLabel>
                   <FormControl>
-                    <PasswordInput placeholder="********" {...field} />
+                    <PasswordInput placeholder="Enter Password" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -88,7 +88,7 @@ export function ResetPasswordForm() {
                 <FormItem>
                   <FormLabel>New Password</FormLabel>
                   <FormControl>
-                    <PasswordInput placeholder="********" {...field} />
+                    <PasswordInput placeholder="Enter Password" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -101,13 +101,14 @@ export function ResetPasswordForm() {
                 <FormItem>
                   <FormLabel>Confirm Password</FormLabel>
                   <FormControl>
-                    <PasswordInput placeholder="********" {...field} />
+                    <PasswordInput placeholder="Enter Password" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <Button
+              disabled={form.formState.isSubmitting}
               type="submit"
               className="w-full rounded-lg bg-primary py-2 text-white"
             >
