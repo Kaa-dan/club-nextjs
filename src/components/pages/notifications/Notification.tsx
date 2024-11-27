@@ -147,7 +147,7 @@ const Notification: React.FC<NotificationProps> = ({ ICON }) => {
                 >
                   <div>
                     <Image
-                      src={invitation?.node?.coverImage?.url}
+                      src={invitation?.node?.coverImage?.url!}
                       alt={`${invitation?.node?.name} avatar`}
                       width={50}
                       height={50}

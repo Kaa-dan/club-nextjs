@@ -32,7 +32,7 @@ interface User {
 // Component props interface
 interface InviteProps {
   entityId: string;
-  type: string;
+  type: "node" | "club";
 }
 
 // API response interfaces
@@ -58,7 +58,8 @@ export default function Invite({ entityId, type }: InviteProps): JSX.Element {
   // Get or search users
   const getUsersHandler = async (search: string): Promise<void> => {
     try {
-      const response: User[] = await searchUser(search);
+      const response: User[] = await searchUser(search, type, entityId);
+      console.log({ allUsersNotInTheEntity: response });
       setAllUsers(response);
     } catch (error) {
       console.log({ error });
@@ -83,6 +84,7 @@ export default function Invite({ entityId, type }: InviteProps): JSX.Element {
       if (response.success === true) {
         toast.success(response.message);
       }
+      getUsersHandler(search);
     } catch (error: unknown) {
       console.log({ error });
       const apiError = error as ApiError;
@@ -155,8 +157,8 @@ export default function Invite({ entityId, type }: InviteProps): JSX.Element {
             </Select>
           </div>
           <div className="max-h-[200px] space-y-4 overflow-y-auto">
-            {allUsers?.map((user: User) => (
-              <div key={user._id} className="flex items-center justify-between">
+            {allUsers?.map((user, idx) => (
+              <div key={idx} className="flex items-center justify-between">
                 <div className="flex gap-4">
                   <div className="size-16">
                     <Avatar>
@@ -185,7 +187,7 @@ export default function Invite({ entityId, type }: InviteProps): JSX.Element {
                 </div>
                 <button
                   onClick={() =>
-                    sentInvitationHandler(entityId, user._id, type)
+                    sentInvitationHandler(entityId, user?._id, type)
                   }
                   className="rounded-md bg-green-500 px-2 py-1 text-white"
                 >
