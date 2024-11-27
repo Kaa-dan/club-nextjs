@@ -98,8 +98,9 @@ export const useClubCalls = (): UseClubCallsReturn => {
     async (clubId: string) => {
       try {
         const response = await Endpoints.leaveClub(clubId);
-        await fetchClubJoinStatus(clubId);
         await fetchJoinedClubs();
+        await fetchClubJoinStatus(clubId);
+        await fetchClubDetails(clubId);
         toast.warning(response.message);
       } catch (error) {
         toast.error("Failed to leave club");

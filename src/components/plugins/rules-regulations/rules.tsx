@@ -88,8 +88,10 @@ type Rule = {
   publishedDate: string;
   club: string;
   createdBy: {
-    name: string;
-    avatar: string;
+    _id: string;
+    firstName: string;
+    lastName: string;
+    profileImage: string;
   };
   relevant: any[];
   irrelevant: any[];
@@ -394,6 +396,7 @@ export function RulesTable({
       header: "Posted by",
       cell: ({ row }) => {
         const postedBy: any = row.getValue("createdBy") as Rule["createdBy"];
+        console.log("postedBy", row.original);
         return (
           <div className="flex items-center gap-2">
             <Avatar className="size-8">
@@ -402,12 +405,15 @@ export function RulesTable({
                   postedBy?.profileImage ||
                   "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWdu-qOixArQruGnl8wz6iK-ygXGGGOSQytg&s"
                 }
-                alt={postedBy?.firstName}
+                alt="Avatar"
               />
-              <AvatarFallback>{postedBy?.name?.[0] || "A"}</AvatarFallback>
+              <AvatarFallback>
+                {postedBy?.firstName?.trim()?.[0] || "U"}
+              </AvatarFallback>
             </Avatar>
             <span className="text-sm text-muted-foreground">
-              {postedBy?.firstName}
+              {postedBy?.firstName || ""}
+              {postedBy?.lastName || ""}
             </span>
           </div>
         );

@@ -11,10 +11,12 @@ interface NodeState {
   userRequestedNodes: any[];
   currentNode: ICurrentNode | null;
   currentUserRole: TUserRole;
-  setUserJoinedNodes: (userJoinedClub: TNodeData[]) => void;
+  nodeJoinStatus: TJoinStatus | null;
+  setUserJoinedNodes: (userJoinedNodes: TNodeData[]) => void;
   setUserRequestedNodes: (userRequestedNodes: any[]) => void;
   setCurrentNode: (currentNode: ICurrentNode) => void;
   setCurrentUserRole: (currentUserRole: TUserRole) => void;
+  setNodeJoinStatus: (nodeJoinStatus: TJoinStatus) => void;
 }
 
 export const useNodeStore = create<NodeState>()((set) => ({
@@ -22,10 +24,11 @@ export const useNodeStore = create<NodeState>()((set) => ({
   userRequestedNodes: [],
   currentNode: null,
   currentUserRole: "member",
+  nodeJoinStatus: null,
   setCurrentUserRole: (currentUserRole) => set({ currentUserRole }),
-  setUserJoinedNodes: (userJoinedClubs) =>
-    set({ userJoinedNodes: userJoinedClubs }),
+  setUserJoinedNodes: (userJoinedNodes) => set({ userJoinedNodes }),
   setUserRequestedNodes: (userRequestedNodes) =>
     set({ userRequestedNodes: userRequestedNodes }),
   setCurrentNode: (currentNode) => set({ currentNode }),
+  setNodeJoinStatus: (nodeJoinStatus) => set({ nodeJoinStatus }),
 }));
