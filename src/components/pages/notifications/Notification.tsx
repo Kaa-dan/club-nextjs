@@ -222,7 +222,7 @@ const Notification: React.FC<NotificationProps> = ({ ICON }) => {
           <div className="space-y-2">
             {invite.map((invitation) => (
               <div
-                key={invitation?.id}
+                key={invitation?._id}
                 className="flex items-center space-x-3 rounded-lg p-2 hover:bg-gray-100"
               >
                 <Image

@@ -187,7 +187,7 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
           <div>
             <Dialog open={recaptcha} onOpenChange={setRecaptcha}>
               <DialogContent
-                className="pointer-events-auto z-40"
+                className="pointer-events-auto"
                 onInteractOutside={(e) => {
                   e.preventDefault();
                 }}
