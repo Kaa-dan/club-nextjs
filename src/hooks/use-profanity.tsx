@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import axios from "axios";
 import debounce from "lodash/debounce";
+import env from "@/lib/env.config";
 
 interface ProfanityResponse {
   isProfanity: boolean;
@@ -74,12 +75,9 @@ export const useProfanity = ({
       console.log("Checking text:", text);
       console.log("Cleaned text:", cleanedText);
 
-      const response = await axios.post<ProfanityResponse>(
-        process.env.NEXT_PUBLIC_PROFANITY_URL!,
-        {
-          message: cleanedText,
-        }
-      );
+      const response = await axios.post<ProfanityResponse>(env.PROFANITY_URL!, {
+        message: cleanedText,
+      });
 
       const result = response.data;
 

@@ -76,7 +76,7 @@ export interface TMembers {
   _id: string;
   club: TClub;
   user: TUser;
-  role: "member" | "admin" | "moderator";
+  role: "member" | "admin" | "moderator" | "owner";
   status: "REQUESTED" | "APPROVED" | "REJECTED";
   createdAt: Date;
 }
