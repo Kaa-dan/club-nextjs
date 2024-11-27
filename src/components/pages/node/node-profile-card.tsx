@@ -18,9 +18,10 @@ import {
 } from "@/components/ui/alert-dialog";
 import { NodeEndpoints } from "@/utils/endpoints/node";
 import { toast } from "sonner";
-import { DialogHeader } from "@/components/ui/dialog";
+import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { ImageSkeleton } from "../club/club-profile-card";
+import env from "@/lib/env.config";
 
 interface ProfileCardProps {
   currentPage: string;
@@ -183,18 +184,32 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
             </span>
           </p>
         </div>
-        <div>
-          {recaptcha ? (
-            <ReCAPTCHA
-              className="z-50 flex justify-center"
-              ref={recaptchaRef}
-              sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_CLIENT as string}
-              onChange={onRecaptchaChange}
-            />
-          ) : (
-            "Loading..."
-          )}
-        </div>
+        {recaptcha && (
+          <div>
+            <Dialog open={recaptcha} onOpenChange={setRecaptcha}>
+              <DialogTitle></DialogTitle>
+              <DialogContent
+                className="pointer-events-auto"
+                onInteractOutside={(e) => {
+                  e.preventDefault();
+                }}
+              >
+                <DialogHeader>
+                  {recaptcha ? (
+                    <ReCAPTCHA
+                      className="z-50 flex justify-center"
+                      ref={recaptchaRef}
+                      sitekey={env.RECAPTCHA_CLIENT as string}
+                      onChange={onRecaptchaChange}
+                    />
+                  ) : (
+                    "Loading..."
+                  )}
+                </DialogHeader>
+              </DialogContent>
+            </Dialog>
+          </div>
+        )}
 
         <div className="flex flex-col gap-2">
           <Button
