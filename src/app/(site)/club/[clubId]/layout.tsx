@@ -1,13 +1,9 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { TClub, TMembers } from "@/types";
 import { useParams } from "next/navigation";
 import ClubProfileCard from "@/components/pages/club/club-profile-card";
 import ModulesBar from "@/components/pages/forum-common/module-bar";
-import { fetchSpecificClub } from "@/components/pages/club/endpoint";
 import TeamsSidePopover from "@/components/pages/club/club-teams";
-import { useClubStore } from "@/store/clubs-store";
-import { useTokenStore } from "@/store/store";
 import { useClubCalls } from "@/components/pages/club/use-club-calls";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {

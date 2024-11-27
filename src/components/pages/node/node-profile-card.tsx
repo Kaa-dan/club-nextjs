@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { NodeEndpoints } from "@/utils/endpoints/node";
 import { toast } from "sonner";
-import { DialogHeader } from "@/components/ui/dialog";
+import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { ImageSkeleton } from "../club/club-profile-card";
 
@@ -186,8 +186,9 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
         {recaptcha && (
           <div>
             <Dialog open={recaptcha} onOpenChange={setRecaptcha}>
+              <DialogTitle></DialogTitle>
               <DialogContent
-                className="pointer-events-auto z-40"
+                className="pointer-events-auto"
                 onInteractOutside={(e) => {
                   e.preventDefault();
                 }}
