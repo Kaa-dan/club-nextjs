@@ -217,31 +217,15 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
             • {currentClub?.members?.length} Members
           </div>
 
-          {recaptcha && (
-            <Dialog open={recaptcha} onOpenChange={setRecaptcha}>
-              <DialogTitle>Recaptcha</DialogTitle>
-              <DialogContent
-                className="pointer-events-auto"
-                onInteractOutside={(e) => {
-                  e.preventDefault();
-                }}
-              >
-                <DialogHeader>
-                  {recaptcha ? (
-                    <ReCAPTCHA
-                      className="z-50 flex justify-center"
-                      ref={recaptchaRef}
-                      sitekey={
-                        process.env.NEXT_PUBLIC_RECAPTCHA_CLIENT as string
-                      }
-                      onChange={onRecaptchaChange}
-                    />
-                  ) : (
-                    "Loading..."
-                  )}
-                </DialogHeader>
-              </DialogContent>
-            </Dialog>
+          {recaptcha ? (
+            <ReCAPTCHA
+              className="z-50 flex justify-center"
+              ref={recaptchaRef}
+              sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_CLIENT as string}
+              onChange={onRecaptchaChange}
+            />
+          ) : (
+            "Loading..."
           )}
 
           <div className="flex flex-col gap-2">

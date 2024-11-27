@@ -1,3 +1,4 @@
+import DebateLayout from "@/components/plugins/debates/debate-layout";
 import IssuesLayout from "@/components/plugins/issues/issues-layout";
 import IssueTable from "@/components/plugins/issues/issues-table";
 import RulesLayout from "@/components/plugins/rules-regulations/rules-layout";
@@ -23,6 +24,9 @@ const PluginPage = async ({
             <span className="text-muted-foreground">Module not found</span>
           </div>
         );
+
+      case "debate":
+        return <DebateLayout forumId={nodeId} forum="node" plugin={plugin} />;
     }
   };
 

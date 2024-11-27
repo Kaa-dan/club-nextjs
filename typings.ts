@@ -171,3 +171,24 @@ type TIssue = {
 
   __v: number;
 };
+
+type Argument = {
+  _id: string;
+  content: string;
+  participant: {
+    side: "support" | "against";
+    user: {
+      userName: string;
+      profileImage: string;
+    };
+  };
+  image: [
+    {
+      mimetype: string;
+      url: string;
+    },
+  ];
+  timestamp: string;
+  relevant: number;
+  irrelevant: number;
+};
