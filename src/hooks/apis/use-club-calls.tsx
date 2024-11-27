@@ -3,7 +3,7 @@ import { TMembers } from "@/types";
 import { useClubStore } from "@/store/clubs-store";
 import { Endpoints } from "@/utils/endpoint";
 import { ClubEndpoints } from "@/utils/endpoints/club";
-import { fetchSpecificClub } from "./endpoint";
+import { fetchSpecificClub } from "../../components/pages/club/endpoint";
 import { toast } from "sonner";
 import { useTokenStore } from "@/store/store";
 

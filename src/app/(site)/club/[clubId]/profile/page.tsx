@@ -26,7 +26,7 @@ import { TClub } from "@/types";
 import { useClubStore } from "@/store/clubs-store";
 import { Dialog, DialogTrigger } from "@radix-ui/react-dialog";
 import { useTokenStore } from "@/store/store";
-import { useClubCalls } from "@/components/pages/club/use-club-calls";
+import { useClubCalls } from "@/hooks/apis/use-club-calls";
 
 export default function Page() {
   const { leaveClub } = useClubCalls();
