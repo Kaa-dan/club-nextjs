@@ -10,7 +10,6 @@ import {
 import { useTokenStore } from "@/store/store";
 import { TNodeData } from "@/types";
 import { Endpoints } from "@/utils/endpoint";
-import { request } from "http";
 import { Loader2, MapPin, Users } from "lucide-react";
 import Image from "next/image";
 import React, { useEffect } from "react";

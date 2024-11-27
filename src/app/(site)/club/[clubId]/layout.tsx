@@ -4,7 +4,7 @@ import { useParams } from "next/navigation";
 import ClubProfileCard from "@/components/pages/club/club-profile-card";
 import ModulesBar from "@/components/pages/forum-common/module-bar";
 import TeamsSidePopover from "@/components/pages/club/club-teams";
-import { useClubCalls } from "@/components/pages/club/use-club-calls";
+import { useClubCalls } from "@/hooks/apis/use-club-calls";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const { fetchClubDetails } = useClubCalls();

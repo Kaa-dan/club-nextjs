@@ -55,7 +55,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SharedEndpoints } from "@/utils/endpoints/shared";
-import { useNodeCalls } from "@/components/pages/node/use-node-calls";
+import { useNodeCalls } from "@/hooks/apis/use-node-calls";
 
 export default function Page() {
   const { leaveNode, fetchNodeDetails } = useNodeCalls();
