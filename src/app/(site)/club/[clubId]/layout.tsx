@@ -13,8 +13,10 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const params = useParams<{ clubId: string; plugin?: TPlugins }>();
 
   useEffect(() => {
-    fetchClubDetails(params?.clubId);
-    fetchClubJoinStatus(params?.clubId);
+    if (params?.clubId) {
+      fetchClubDetails(params?.clubId);
+      fetchClubJoinStatus(params?.clubId);
+    }
   }, [params.clubId]);
 
   return (
@@ -28,7 +30,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               clubId={params.clubId}
             />
           </div>
-          <div className="flex w-3/4 flex-col ">
+          <div className="flex w-3/4 flex-col items-start ">
             <ModulesBar
               plugin={params?.plugin}
               forum={"club"}
