@@ -9,6 +9,7 @@ import {
   ChevronDown,
   MoreVertical,
   Pin,
+  Trash2,
 } from "lucide-react";
 import { ReplySection } from "./reply-section";
 import Image from "next/image";
@@ -39,6 +40,7 @@ interface DebateCardProps {
   commentId: string;
   imageUrl?: string;
   authorId: string;
+  argumentAuthorId: string;
   fetchArgs: () => void;
 }
 interface Reply {
@@ -68,8 +70,11 @@ export const DebateCard: React.FC<DebateCardProps> = ({
   imageUrl,
   authorId,
   isPinned,
+  argumentAuthorId,
   fetchArgs,
 }) => {
+  console.log({ argumentAuthorId });
+
   const [relevant, setRelevant] = useState(initialRelevant);
   const [irrelevant, setIrrelevant] = useState(initialIrrelevant);
   const [showComments, setShowComments] = useState(false);
@@ -212,6 +217,7 @@ export const DebateCard: React.FC<DebateCardProps> = ({
   const isRelevant = relevant.includes(userId);
   const isIrrelevant = irrelevant.includes(userId);
   const isCurrentUserAuthor = currentUserId === authorId;
+  const userCanDelete = currentUserId === argumentAuthorId;
 
   return (
     <Card className="overflow-hidden rounded-lg bg-white shadow-md">
@@ -236,7 +242,7 @@ export const DebateCard: React.FC<DebateCardProps> = ({
               </span>
             </div>
           </div>
-          {isCurrentUserAuthor && (
+          {(isCurrentUserAuthor || userCanDelete) && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="rounded-full p-2 hover:bg-gray-100">
@@ -244,30 +250,50 @@ export const DebateCard: React.FC<DebateCardProps> = ({
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem
-                  onClick={() => {
-                    if (!isPinned) {
-                      Endpoints.pin(debateId)
+                {/* Pin/Unpin option - only for original author */}
+                {isCurrentUserAuthor && (
+                  <DropdownMenuItem
+                    onClick={() => {
+                      if (!isPinned) {
+                        Endpoints.pin(debateId)
+                          .then((res) => {
+                            fetchArgs();
+                            console.log({ success: res });
+                          })
+                          .catch((err) => console.error("Error pinning:", err));
+                      } else {
+                        Endpoints.unpin(debateId)
+                          .then((res) => {
+                            fetchArgs();
+                            console.log({ success: res });
+                          })
+                          .catch((err) =>
+                            console.error("Error unpinning:", err)
+                          );
+                      }
+                    }}
+                  >
+                    <Pin className="mr-2 size-4" />
+                    <span>{!isPinned ? "Pin" : "Unpin"}</span>
+                  </DropdownMenuItem>
+                )}
+
+                {/* Delete option - original author can delete any, others can delete only their own */}
+                {(isCurrentUserAuthor || userCanDelete) && (
+                  <DropdownMenuItem
+                    onClick={() => {
+                      Endpoints.deleteDebateArgument(debateId) // Using argumentId instead of debateId
                         .then((res) => {
                           fetchArgs();
                           console.log({ success: res });
-                          // Optionally update state here
                         })
-                        .catch((err) => console.error("Error pinning:", err));
-                    } else {
-                      Endpoints.unpin(debateId)
-                        .then((res) => {
-                          fetchArgs();
-                          console.log({ success: res });
-                          // Optionally update state here
-                        })
-                        .catch((err) => console.error("Error unpinning:", err));
-                    }
-                  }}
-                >
-                  <Pin className="mr-2 size-4" />
-                  <span>{!isPinned ? "Pin" : "Unpin"}</span>
-                </DropdownMenuItem>
+                        .catch((err) => console.error("Error deleting:", err));
+                    }}
+                  >
+                    <Trash2 className="mr-2 size-4" />
+                    <span>Delete</span>
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           )}
@@ -458,6 +484,7 @@ export function DebateSection({ forum }: { forum: TForum }) {
                 commentId={arg?._id}
                 imageUrl={arg?.image?.[0]?.url}
                 isPinned={arg?.isPinned}
+                argumentAuthorId={arg.participant.user._id}
               />
             ))}
           </div>
@@ -482,6 +509,7 @@ export function DebateSection({ forum }: { forum: TForum }) {
               <DebateCard
                 fetchArgs={fetchArgs}
                 authorId={author}
+                argumentAuthorId={arg.participant.user._id}
                 key={arg?._id}
                 debateId={arg?._id}
                 content={arg?.content}

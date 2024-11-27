@@ -528,4 +528,14 @@ export class Endpoints {
       throw error;
     }
   }
+  static async deleteDebateArgument(argumentId: string) {
+    try {
+      const response = await withTokenAxios.delete(
+        `debate/argument/${argumentId}`
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
 }

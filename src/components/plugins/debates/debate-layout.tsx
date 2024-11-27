@@ -15,6 +15,7 @@ import React, { ReactNode } from "react";
 import DebateTable from "./debate-table";
 import useDebates from "./use-debate";
 import { useClubStore } from "@/store/clubs-store";
+import { useNodeStore } from "@/store/nodes-store";
 
 interface TabData {
   label: string;
@@ -30,9 +31,13 @@ const DebateLayout = ({
   forum: TForum;
   forumId: string;
 }) => {
-  const { currentUserRole } = useClubStore((state) => state);
-  console.log({ currentUserRole });
+  const { currentUserRole: currentUserClubRole } = useClubStore(
+    (state) => state
+  );
 
+  const { currentUserRole: currentUserNodeRole } = useNodeStore(
+    (state) => state
+  );
   const {
     allDebates,
     ongoingDebates,
@@ -62,8 +67,11 @@ const DebateLayout = ({
       label: "My Debates",
       count: myDebates?.length || 0,
     },
-    // Include Proposed Debates only if the user is an admin
-    ...(currentUserRole === "admin"
+
+    ...(currentUserClubRole === "admin" ||
+    currentUserClubRole === "moderator" ||
+    currentUserNodeRole === "admin" ||
+    currentUserNodeRole === "moderator"
       ? [
           {
             label: "Proposed Debates",
