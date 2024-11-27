@@ -205,7 +205,9 @@ function DataTable({
                         </p>
                         <div className="mt-1 flex items-center justify-end gap-1">
                           <LockKeyhole className="size-4 text-gray-500" />
-                          <span className="text-gray-600">Private</span>
+                          <span className="text-gray-600">
+                            {row?.original?.isPublic ? "Public" : "Private"}
+                          </span>
                         </div>
                       </div>
                     </div>

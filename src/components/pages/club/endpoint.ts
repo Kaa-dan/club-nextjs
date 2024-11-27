@@ -50,11 +50,16 @@ export const searchUser = async (search: string) => {
   }
 };
 
-export const sentInvitation = async (clubId: string, userId: string) => {
+export const sentInvitation = async (
+  entityId: string,
+  userId: string,
+  type: string
+) => {
   try {
     const response = await withTokenAxios.post(`/invitation`, {
-      clubId,
+      entityId,
       userId,
+      type,
     });
     return response.data;
   } catch (error) {

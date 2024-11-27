@@ -31,7 +31,8 @@ interface User {
 
 // Component props interface
 interface InviteProps {
-  clubId: string;
+  entityId: string;
+  type: string;
 }
 
 // API response interfaces
@@ -49,7 +50,7 @@ interface ApiError {
   message?: string;
 }
 
-export default function Invite({ clubId }: InviteProps): JSX.Element {
+export default function Invite({ entityId, type }: InviteProps): JSX.Element {
   const [inviteOpen, setInviteOpen] = useState<boolean>(false);
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [search, setSearch] = useState<string>("");
@@ -67,13 +68,17 @@ export default function Invite({ clubId }: InviteProps): JSX.Element {
 
   // Send invitation handler
   const sentInvitationHandler = async (
-    clubId: string,
-    inviteId: string
+    entityId: string,
+    inviteId: string,
+    type: string
   ): Promise<void> => {
+    console.log({ entityId, inviteId, type });
+
     try {
       const response: InvitationResponse = await sentInvitation(
-        clubId,
-        inviteId
+        entityId,
+        inviteId,
+        type
       );
       if (response.success === true) {
         toast.success(response.message);
@@ -98,8 +103,8 @@ export default function Invite({ clubId }: InviteProps): JSX.Element {
   return (
     <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
       <DialogTrigger asChild>
-        <Button className="gap-2">
-          <span>+ Invite</span>
+        <Button className="gap-2 ">
+          <span>+ Invite </span>
         </Button>
       </DialogTrigger>
       <DialogContent
@@ -179,8 +184,10 @@ export default function Invite({ clubId }: InviteProps): JSX.Element {
                   </div>
                 </div>
                 <button
-                  onClick={() => sentInvitationHandler(clubId, user._id)}
-                  className="rounded-md bg-green-300 px-2 py-1 text-white"
+                  onClick={() =>
+                    sentInvitationHandler(entityId, user._id, type)
+                  }
+                  className="rounded-md bg-green-500 px-2 py-1 text-white"
                 >
                   Invite
                 </button>

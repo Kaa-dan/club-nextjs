@@ -110,7 +110,7 @@ export default function Page() {
                 (member: any) => member?.user?._id == globalUser?._id
               ) && (
                 <>
-                  <Invite clubId={sentClub} />
+                  <Invite entityId={sentClub} type={"club"} />
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button

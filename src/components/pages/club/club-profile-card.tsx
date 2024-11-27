@@ -110,6 +110,7 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
       const requestedClubs = await ClubEndpoints.fetchUserRequestedClubs();
       setUserJoinedClubs(joinedClubs);
       setUserRequestedClubs(requestedClubs);
+      console.log("response.status", response.status);
       setJoinStatus(response.status);
     } catch (error) {
       console.log({ error });
