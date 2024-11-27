@@ -8,7 +8,7 @@ import { fetchSpecificClub } from "@/components/pages/club/endpoint";
 import TeamsSidePopover from "@/components/pages/club/club-teams";
 import { useClubStore } from "@/store/clubs-store";
 import { useTokenStore } from "@/store/store";
-import { useClubCalls } from "@/components/pages/club/use-club-calls";
+import { useClubCalls } from "@/hooks/apis/use-club-calls";
 import ModulesBar from "@/components/pages/forum-common/module-bar";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {

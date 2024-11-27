@@ -31,16 +31,13 @@ import { useEffect, useState } from "react";
 import { pinClub } from "@/components/pages/club/endpoint";
 import { toast } from "sonner";
 import { useTokenStore } from "@/store/store";
-import { Endpoints } from "@/utils/endpoint";
 import { useClubStore } from "@/store/clubs-store";
 import Link from "next/link";
 import { useNodeStore } from "@/store/nodes-store";
 import { PopoverClose } from "@radix-ui/react-popover";
-import { ClubEndpoints } from "@/utils/endpoints/club";
-import { NodeEndpoints } from "@/utils/endpoints/node";
 import CustomAlertDialog from "@/components/ui/custom/custom-alert-dialog";
-import { useClubCalls } from "@/components/pages/club/use-club-calls";
-import { useNodeCalls } from "@/components/pages/node/use-node-calls";
+import { useClubCalls } from "@/hooks/apis/use-club-calls";
+import { useNodeCalls } from "@/hooks/apis/use-node-calls";
 
 interface MenuProps {
   isOpen: boolean | undefined;

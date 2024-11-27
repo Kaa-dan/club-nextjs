@@ -79,11 +79,9 @@ export class Endpoints {
       throw error;
     }
   }
-  static async fetchClubUserStatus(clubdId: string) {
+  static async fetchClubUserStatus(clubId: string) {
     try {
-      const response = await withTokenAxios.get(
-        `clubs/check-status/${clubdId}`
-      );
+      const response = await withTokenAxios.get(`clubs/check-status/${clubId}`);
       return response.data;
     } catch (error) {
       throw error;
