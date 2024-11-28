@@ -56,6 +56,7 @@ interface ClubAndNodesData {
   nodes: Item[];
 }
 const IssueView = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
+  console.log("hehehe ");
   const { currentUserRole } = useClubStore((state) => state);
   const { globalUser } = useTokenStore((state) => state);
   const router = useRouter();
@@ -145,6 +146,8 @@ const IssueView = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
         !file.mimetype.includes("image") && file.mimetype !== "application/pdf"
     ) || [];
 
+  console.log({ issue });
+
   return (
     <>
       <div className="max-w-full bg-white p-4">
@@ -155,8 +158,10 @@ const IssueView = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
             {/* <span className="text-sm text-gray-500">9545/35</span> */}
             <LockKeyhole className="size-4 text-gray-600" />
             <div className="flex items-center gap-1">
-              <span className="text-sm text-gray-600">Private</span>
-              <MoreVertical className="size-4 text-gray-500" />
+              <span className="text-sm text-gray-600">
+                {issue?.isPublic ? "Public" : "Private"}
+              </span>
+              {/* <MoreVertical className="size-4 text-gray-500" /> */}
             </div>
           </div>
         </div>

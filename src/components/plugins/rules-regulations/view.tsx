@@ -139,7 +139,9 @@ const View = ({ forum }: { forum: TForum }) => {
         <div className="flex items-center gap-2">
           <span className="text-sm text-gray-500">9545/35</span>
           <div className="flex items-center gap-1">
-            <span className="text-sm text-gray-500">Private</span>
+            <span className="text-sm text-gray-500">
+              {rule?.isPublic ? "Public" : "Private"}
+            </span>
             <MoreVertical className="size-4 text-gray-500" />
           </div>
         </div>
