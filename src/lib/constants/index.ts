@@ -18,6 +18,7 @@ import DebateIcon from "@public/icons/modules/debate.icon.svg";
 import EventsAndNewsIcon from "@public/icons/modules/events-and-news.svg";
 import RulesAndRegulationsIcon from "@public/icons/modules/rules-and-regulations.icon.svg";
 import BarDebateIcon from "@public/icons/modules/bar/debate.icon.svg";
+import BarDebateIconGreen from "@public/icons/modules/bar/debate-green.icon.svg";
 import BarEventsIcon from "@public/icons/modules/bar/events-and-news.icon.svg";
 import BarFunnyIcon from "@public/icons/modules/bar/funny.icon.svg";
 import BarMarketPlaceIcon from "@public/icons/modules/bar/market-place.icon.svg";
@@ -86,6 +87,7 @@ const ICONS = {
   BarRulesIcon,
   BarRulesIconGreen,
   BarDebateIcon,
+  BarDebateIconGreen,
   GreenCheckMark,
   BarIssuesIconGreen,
   BarIssuesIcon,

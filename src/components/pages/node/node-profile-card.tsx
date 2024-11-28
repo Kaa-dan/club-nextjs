@@ -33,10 +33,9 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
   currentPage,
   setCurrentPage,
 }) => {
-  const { currentNode, currentUserRole } = useNodeStore((state) => state);
+  const { currentNode, currentUserRole, nodeJoinStatus, setNodeJoinStatus } =
+    useNodeStore((state) => state);
   const { fetchNodeJoinStatus } = useNodeCalls();
-  const [joinStatus, setJoinStatus] = useState<String>("");
-  const [cancelRequestTriggered, setCancelRequestTriggered] = useState(false);
   const recaptchaRef = useRef(null);
 
   const { setUserRequestedNodes } = useNodeStore((state) => state);
@@ -94,16 +93,23 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
       const response = await Endpoints.requestToJoinNode(nodeId);
       const requestedNodes = await NodeEndpoints.fetchUserRequestedNodes();
       setUserRequestedNodes(requestedNodes);
-      setJoinStatus(response.status);
+      setNodeJoinStatus(response.status);
     } catch (error) {
       console.log({ error });
     }
   };
   const [recaptcha, setRecaptcha] = useState(false);
 
+  /**
+   * Cancels a join request to a node
+   * @param nodeId The id of the node to cancel the request for
+   * @returns A promise that resolves when the request has been cancelled
+   */
+
   const cancelJoinRequest = async (nodeId: string) => {
     try {
       const response = await NodeEndpoints.cancelJoinRequest(nodeId);
+      // Fetch the user's requested nodes again to update the state
       const requestedNodes = await NodeEndpoints.fetchUserRequestedNodes();
       setUserRequestedNodes(requestedNodes);
       console.log(response);
@@ -128,7 +134,6 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
       })
       .catch((err) => {
         console.log({ err });
-
         toast.error("something went wrong!!");
       })
       .finally(() => {
@@ -204,13 +209,15 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
           <Button
             onClick={() => setRecaptcha(true)}
             className="h-8 w-full border border-gray-500 bg-transparent text-gray-800 hover:bg-transparent"
-            disabled={joinStatus === "REQUESTED" || joinStatus === "MEMBER"} // Disable when requested or joined
+            disabled={
+              nodeJoinStatus === "REQUESTED" || nodeJoinStatus === "MEMBER"
+            } // Disable when requested or joined
           >
-            {joinStatus === "VISITOR" && "Request to Join"}
-            {joinStatus === "MEMBER" && "Joined"}
-            {joinStatus === "REQUESTED" && "Request Pending"}
+            {nodeJoinStatus === "VISITOR" && "Request to Join"}
+            {nodeJoinStatus === "MEMBER" && "Joined"}
+            {nodeJoinStatus === "REQUESTED" && "Request Pending"}
           </Button>
-          {joinStatus === "REQUESTED" && (
+          {nodeJoinStatus === "REQUESTED" && (
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button className="h-8 w-full border border-white bg-red-500 text-white hover:bg-red-500">

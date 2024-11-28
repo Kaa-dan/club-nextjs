@@ -58,7 +58,7 @@ const IssuesLayout = ({
 
   const getFilteredTabs = (): TabData[] => {
     const _tabs = tabs;
-    if (currentUserRole === "admin") {
+    if (["admin", "moderator", "owner"]?.includes(currentUserRole)) {
       _tabs.push({
         label: "Proposed Issues",
         count: proposedIssues.length || 0,
