@@ -31,13 +31,16 @@ const DebateLayout = ({
   forum: TForum;
   forumId: string;
 }) => {
-  const { currentUserRole: currentUserClubRole } = useClubStore(
+  const { currentUserRole: currentUserClubRole, clubJoinStatus } = useClubStore(
     (state) => state
   );
 
   const { currentUserRole: currentUserNodeRole } = useNodeStore(
     (state) => state
   );
+  console.log({ club: currentUserClubRole });
+  console.log({ node: currentUserNodeRole });
+
   const {
     allDebates,
     ongoingDebates,
@@ -67,11 +70,12 @@ const DebateLayout = ({
       label: "My Debates",
       count: myDebates?.length || 0,
     },
-
-    ...(currentUserClubRole === "admin" ||
+    ...(currentUserClubRole === "owner" ||
     currentUserClubRole === "moderator" ||
-    currentUserNodeRole === "admin" ||
-    currentUserNodeRole === "moderator"
+    currentUserClubRole === "admin" ||
+    currentUserNodeRole === "owner" ||
+    currentUserNodeRole === "moderator" ||
+    currentUserNodeRole === "admin"
       ? [
           {
             label: "Proposed Debates",
@@ -136,11 +140,14 @@ const DebateLayout = ({
         {tabs.map((tab) => (
           <TabsContent key={tab.label} value={tab.label} className="space-y-4">
             <div className="flex items-center gap-4">
-              <Link href="debate/create">
-                <Button className="bg-primary hover:bg-emerald-600">
-                  Add a new Debate
-                </Button>
-              </Link>
+              {clubJoinStatus === "MEMBER" && (
+                <Link href="debate/create">
+                  <Button className="bg-primary hover:bg-emerald-600">
+                    Add a new Debate
+                  </Button>
+                </Link>
+              )}
+
               <div className="relative flex-1">
                 <Search className="absolute left-2 top-2.5 size-4 text-muted-foreground" />
                 <Input placeholder="Search for rules..." className="pl-8" />
