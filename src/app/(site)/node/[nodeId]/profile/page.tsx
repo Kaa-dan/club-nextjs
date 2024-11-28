@@ -56,6 +56,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { SharedEndpoints } from "@/utils/endpoints/shared";
 import { useNodeCalls } from "@/hooks/apis/use-node-calls";
+import Invite from "@/components/pages/club/invite/invite";
 
 export default function Page() {
   const { leaveNode, fetchNodeDetails } = useNodeCalls();
@@ -236,9 +237,10 @@ export default function Page() {
             <div className="flex items-center gap-2">
               {nodeJoinStatus === "MEMBER" && currentUserRole !== "owner" && (
                 <>
-                  <Button className="gap-2">
+                  {/* <Button className="gap-2">
                     <span>+ Invite</span>
-                  </Button>
+                  </Button> */}
+                  <Invite entityId={nodeId} type={"node"} />
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button

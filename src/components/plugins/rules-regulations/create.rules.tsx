@@ -234,6 +234,7 @@ export default function RuleForm({
   // Form submission
   const onSubmit = async (data: FormData) => {
     try {
+      console.log(data, "data fund");
       const formDataToSend = new FormData();
 
       Object.entries(data).forEach(([key, value]) => {
