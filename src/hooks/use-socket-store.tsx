@@ -3,9 +3,7 @@ import { io, Socket } from "socket.io-client";
 
 interface CommentPayload {
   content: string;
-  postId: string;
-  userId: string;
-  createdAt?: Date;
+  assetId: string;
 }
 
 interface ServerToClientEvents {

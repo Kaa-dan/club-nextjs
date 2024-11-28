@@ -23,7 +23,7 @@ import FilePreview from "./file-preview";
 import { useCommentsStore } from "@/store/comments-store";
 import { useProfanity } from "@/hooks/use-profanity";
 import CustomAlertDialog from "@/components/ui/custom/custom-alert-dialog";
-import { useSocketStore } from "@/hooks/use-soket-store";
+import { useSocketStore } from "@/hooks/use-socket-store";
 const CommentInput = () => {
   const { socket, isConnected, connect, disconnect, sendComment } =
     useSocketStore();
@@ -100,7 +100,11 @@ const CommentInput = () => {
         });
         setComments(res.data);
       }
-      sendComment(comment);
+      sendComment({
+        content: comment,
+        assetId: postId,
+      });
+
       setComment("");
       checkProfanity("");
       removeFile();
