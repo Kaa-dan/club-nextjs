@@ -19,6 +19,7 @@ export class Endpoints {
   static async fetchUserJoinedNodes() {
     try {
       const { data } = await withTokenAxios.get("/node/user-nodes");
+      console.log({ joindedNodess: data });
       return data;
     } catch (error) {
       console.log({ error });

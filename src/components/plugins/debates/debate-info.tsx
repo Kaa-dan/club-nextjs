@@ -101,8 +101,9 @@ function DebateInfo() {
               </div>
             )}
           </div>
-
-          <div className="text-sm text-muted-foreground">Private</div>
+          <div className="text-sm text-muted-foreground">
+            {debate?.isPublic ? "Public" : "Public"}
+          </div>
         </div>
       </CardHeader>
       <CardContent>

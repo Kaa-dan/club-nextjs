@@ -32,7 +32,12 @@ const ModulesBar: React.FC<{
         plugin === "issues" ? ICONS.BarIssuesIconGreen : ICONS.BarIssuesIcon,
     },
     { link: "market", name: "Market Place", icon: ICONS.BarMarketPlaceIcon },
-    { link: "debate", name: "Debate", icon: ICONS.BarDebateIcon },
+    {
+      link: "debate",
+      name: "Debate",
+      icon:
+        plugin === "debate" ? ICONS.BarDebateIconGreen : ICONS.BarDebateIcon,
+    },
     {
       link: "events",
       name: "Events News",
@@ -42,7 +47,7 @@ const ModulesBar: React.FC<{
   ];
   const router = useRouter();
   return (
-    <div className="mx-auto mb-2 flex w-fit max-w-screen-lg items-center overflow-x-auto rounded-lg  bg-white p-4  text-xs shadow-md">
+    <div className=" mb-2 ml-5 flex w-fit max-w-screen-lg items-center overflow-x-auto rounded-lg bg-white   p-4  text-xs shadow-md">
       {modules.map((module, index) => (
         <Link key={index} href={`/${forum}/${forumId}/${module.link}`}>
           <div

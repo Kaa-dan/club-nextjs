@@ -39,10 +39,15 @@ export const joinClub = async (clubId: string) => {
   }
 };
 
-export const searchUser = async (search: string) => {
+export const searchUser = async (
+  search: string,
+  type: "node" | "club",
+  entityId: string
+) => {
+  console.log({ search, type, entityId });
   try {
     const response = await withTokenAxios.get(
-      `/users/search?keyword=${search}`
+      `/users/search?type=${type}&entityId=${entityId}&keyword=${search}`
     );
     return response.data;
   } catch (error) {
@@ -50,11 +55,16 @@ export const searchUser = async (search: string) => {
   }
 };
 
-export const sentInvitation = async (clubId: string, userId: string) => {
+export const sentInvitation = async (
+  entityId: string,
+  userId: string,
+  type: string
+) => {
   try {
     const response = await withTokenAxios.post(`/invitation`, {
-      clubId,
+      entityId,
       userId,
+      type,
     });
     return response.data;
   } catch (error) {

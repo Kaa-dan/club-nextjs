@@ -37,14 +37,14 @@ export async function getMenuList(
 
   const clubMenus: Menu[] = joinedClubs?.map((club: any) => ({
     _id: club?.club?._id, // Store the _id directly
-    label: club?.club?.name, // Assuming clubs have a `name`
-    active: pathname.includes(`/club/${club?.club?._d}`),
+    label: club??.club??.name, // Assuming clubs have a `name`
+    active: pathname?.includes(`/club/${club?.club?._d}`),
     image: club?.club?.profileImage?.url || "https://picsum.photos/200", // Use the club's image if available
     submenus: [],
     href: `/club/${club?.club?._id}`,
   }));
 
-  const nodeMenus: Menu[] = joinedNodes.map(({ node }: any) => ({
+  const nodeMenus: Menu[] = joinedNodes?.map(({ node }: any) => ({
     _id: node?._id, // Store the _id directly
     label: node?.name, // Assuming clubs have a `name`
     active: pathname?.includes(`/node/${node?._d}`),
@@ -52,7 +52,7 @@ export async function getMenuList(
     submenus: [],
     href: `/node/${node?._id}`,
   }));
-  const requestedClubsMenus: Menu[] = requestedClubs.map((club: any) => ({
+  const requestedClubsMenus: Menu[] = requestedClubs?.map((club: any) => ({
     _id: club.club?._id, // Store the _id directly
     label: club?.club?.name, // Assuming clubs have a `name`
     active: pathname?.includes(`/club/${club?.club?._d}`),
@@ -60,7 +60,7 @@ export async function getMenuList(
     submenus: [],
     href: `/club/${club?.club?._id}`,
   }));
-  const requestedNodesMenus: Menu[] = requestedNodes.map(({ node }: any) => ({
+  const requestedNodesMenus: Menu[] = requestedNodes?.map(({ node }: any) => ({
     _id: node?._id, // Store the _id directly
     label: node?.name, // Assuming clubs have a `name`
     active: pathname?.includes(`/node/${node?._d}`),

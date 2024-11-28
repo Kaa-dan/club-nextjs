@@ -31,7 +31,8 @@ interface User {
 
 // Component props interface
 interface InviteProps {
-  clubId: string;
+  entityId: string;
+  type: "node" | "club";
 }
 
 // API response interfaces
@@ -49,7 +50,7 @@ interface ApiError {
   message?: string;
 }
 
-export default function Invite({ clubId }: InviteProps): JSX.Element {
+export default function Invite({ entityId, type }: InviteProps): JSX.Element {
   const [inviteOpen, setInviteOpen] = useState<boolean>(false);
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [search, setSearch] = useState<string>("");
@@ -57,7 +58,8 @@ export default function Invite({ clubId }: InviteProps): JSX.Element {
   // Get or search users
   const getUsersHandler = async (search: string): Promise<void> => {
     try {
-      const response: User[] = await searchUser(search);
+      const response: User[] = await searchUser(search, type, entityId);
+      console.log({ allUsersNotInTheEntity: response });
       setAllUsers(response);
     } catch (error) {
       console.log({ error });
@@ -67,17 +69,22 @@ export default function Invite({ clubId }: InviteProps): JSX.Element {
 
   // Send invitation handler
   const sentInvitationHandler = async (
-    clubId: string,
-    inviteId: string
+    entityId: string,
+    inviteId: string,
+    type: string
   ): Promise<void> => {
+    console.log({ entityId, inviteId, type });
+
     try {
       const response: InvitationResponse = await sentInvitation(
-        clubId,
-        inviteId
+        entityId,
+        inviteId,
+        type
       );
       if (response.success === true) {
         toast.success(response.message);
       }
+      getUsersHandler(search);
     } catch (error: unknown) {
       console.log({ error });
       const apiError = error as ApiError;
@@ -98,8 +105,8 @@ export default function Invite({ clubId }: InviteProps): JSX.Element {
   return (
     <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
       <DialogTrigger asChild>
-        <Button className="gap-2">
-          <span>+ Invite</span>
+        <Button className="gap-2 ">
+          <span>+ Invite </span>
         </Button>
       </DialogTrigger>
       <DialogContent
@@ -131,11 +138,14 @@ export default function Invite({ clubId }: InviteProps): JSX.Element {
           <hr />
           <div className="rounded-md">
             <Select>
-              <SelectTrigger className="w-full">
+              {/* country select  */}
+              <SelectTrigger className="w-1/2">
                 <SelectValue placeholder="Select Location" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="new-york">New York</SelectItem>
+              <SelectContent className="bg-white ">
+                <SelectItem className="w-full" value="new-york">
+                  New York
+                </SelectItem>
                 <SelectItem value="los-angeles">Los Angeles</SelectItem>
                 <SelectItem value="chicago">Chicago</SelectItem>
                 <SelectItem value="houston">Houston</SelectItem>
@@ -147,8 +157,8 @@ export default function Invite({ clubId }: InviteProps): JSX.Element {
             </Select>
           </div>
           <div className="max-h-[200px] space-y-4 overflow-y-auto">
-            {allUsers?.map((user: User) => (
-              <div key={user._id} className="flex items-center justify-between">
+            {allUsers?.map((user, idx) => (
+              <div key={idx} className="flex items-center justify-between">
                 <div className="flex gap-4">
                   <div className="size-16">
                     <Avatar>
@@ -176,8 +186,10 @@ export default function Invite({ clubId }: InviteProps): JSX.Element {
                   </div>
                 </div>
                 <button
-                  onClick={() => sentInvitationHandler(clubId, user._id)}
-                  className="rounded-md bg-green-300 px-2 py-1 text-white"
+                  onClick={() =>
+                    sentInvitationHandler(entityId, user?._id, type)
+                  }
+                  className="rounded-md bg-green-500 px-2 py-1 text-white"
                 >
                   Invite
                 </button>
