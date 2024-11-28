@@ -1,4 +1,5 @@
-import React, { useState, useRef } from "react";
+"use client";
+import React, { useState, useRef, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,7 +23,25 @@ import FilePreview from "./file-preview";
 import { useCommentsStore } from "@/store/comments-store";
 import { useProfanity } from "@/hooks/use-profanity";
 import CustomAlertDialog from "@/components/ui/custom/custom-alert-dialog";
+import { useSocketStore } from "@/hooks/use-soket-store";
 const CommentInput = () => {
+  const { socket, isConnected, connect, disconnect, sendComment } =
+    useSocketStore();
+  useEffect(() => {
+    connect();
+
+    socket.on("commentAdded", (comment) => {
+      // setComments((prev) => [...prev, comment]);
+      console.log({ comment });
+    });
+
+    // Cleanup
+    return () => {
+      socket.off("commentAdded");
+      disconnect();
+    };
+  }, [socket, connect, disconnect]);
+
   const { postId, plugin } = useParams<{ postId: string; plugin: TPlugins }>();
   const { setComments } = useCommentsStore((state) => state);
   const { checkProfanity, hasProfanity, profanityScore } = useProfanity({
@@ -81,7 +100,7 @@ const CommentInput = () => {
         });
         setComments(res.data);
       }
-
+      sendComment(comment);
       setComment("");
       checkProfanity("");
       removeFile();
