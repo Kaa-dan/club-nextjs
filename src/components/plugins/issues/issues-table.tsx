@@ -318,13 +318,11 @@ export default function IssueTable({
         );
       },
       cell: ({ row }) => {
-        // const relevanceScore = parseFloat(row.getValue("relevant"));
         return (
           console.log(row, "relevanceScore"),
           (
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
               <div className="flex items-center gap-1">
-                {/* <ThumbsUp className="size-4" /> */}
                 <ThumbsUp
                   className={cn("size-4  cursor-pointer text-primary")}
                 />
@@ -337,7 +335,6 @@ export default function IssueTable({
                   )}
                 />
                 <span>{row?.original?.irrelevant?.length}</span>
-                {/* <MessageCircle className="size-4" /> */}
               </div>
             </div>
           )
