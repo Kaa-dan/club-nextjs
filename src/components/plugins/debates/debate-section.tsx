@@ -47,6 +47,9 @@ interface DebateCardProps {
   pinnedAgainstCount?: number;
   pinnedSupportCount?: number;
   argumentType: "support" | "against";
+  postId: string;
+  forum: TForum;
+  entityId: string;
 }
 interface Reply {
   _id: string;
@@ -80,16 +83,17 @@ export const DebateCard: React.FC<DebateCardProps> = ({
   pinnedAgainstCount,
   pinnedSupportCount,
   argumentType,
+  postId,
+  forum,
+  entityId,
 }) => {
-  console.log({ argumentAuthorId });
-  console.log({ commentId });
-
   const [relevant, setRelevant] = useState(initialRelevant);
   const [irrelevant, setIrrelevant] = useState(initialIrrelevant);
   const [showComments, setShowComments] = useState(false);
   const [replies, setReplies] = useState<Reply[]>([]);
   const [showFullImage, setShowFullImage] = useState(false);
   const { globalUser } = useTokenStore((state) => state);
+  const [participant, setParticipant] = useState();
   const currentUserId = globalUser?._id;
   const handleVote = async (type: "relevant" | "irrelevant") => {
     const previousRelevant = [...relevant];
@@ -218,6 +222,11 @@ export const DebateCard: React.FC<DebateCardProps> = ({
       console.error("Error posting reply:", error);
     }
   };
+  useEffect(() => {
+    Endpoints.checkParticipationStatus(postId, forum, entityId).then((res) => {
+      setParticipant(res.isAllowed);
+    });
+  }, []);
 
   useEffect(() => {
     fetchRepliesForComment();
@@ -254,7 +263,8 @@ export const DebateCard: React.FC<DebateCardProps> = ({
           {isPinned && (
             <Badge className="text-white">{isPinned && "Marquee"}</Badge>
           )}
-          {(isCurrentUserAuthor || userCanDelete) && (
+
+          {participant && (isCurrentUserAuthor || userCanDelete) && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="rounded-full p-2 hover:bg-gray-100">
@@ -420,12 +430,16 @@ export function DebateSection({ forum }: { forum: TForum }) {
   const [author, setAuthor] = useState("");
   const [pinnedAgainstCount, setPinnedAgainstCount] = useState(0);
   const [pinnedSupportCount, setPinnedSupportCount] = useState(0);
+  const [endingDate, setEndingDate] = useState<Date>();
 
   const fetchArgs = () => {
     Endpoints.viewDebate(postId).then((res) => {
+      console.log({ arrrrrr: res.closingDate });
+
       setAuthor(res.createdBy._id);
       setPinnedAgainstCount(res.pinnedAgainstCount);
       setPinnedSupportCount(res.pinnedSupportCount);
+      setEndingDate(res.closingDate as Date);
     });
 
     Endpoints.fetchDebateArgs(postId)
@@ -491,6 +505,7 @@ export function DebateSection({ forum }: { forum: TForum }) {
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-bold">For ({supportArgs.length})</h2>
             <AddPointDialog
+              endingDate={endingDate as Date}
               entity={entityId}
               entityType={forum}
               fetchArg={fetchArgs}
@@ -522,6 +537,9 @@ export function DebateSection({ forum }: { forum: TForum }) {
                 imageUrl={arg?.image?.[0]?.url}
                 isPinned={arg?.isPinned}
                 argumentAuthorId={arg.participant.user._id}
+                postId={postId}
+                forum={forum}
+                entityId={entityId}
               />
             ))}
           </div>
@@ -539,11 +557,13 @@ export function DebateSection({ forum }: { forum: TForum }) {
               fetchArg={fetchArgs}
               side="against"
               debateId={postId}
+              endingDate={endingDate as Date}
             />
           </div>
           <div className="space-y-4">
             {sortedAgainstArgs.map((arg: Argument) => (
               <DebateCard
+                forum={forum}
                 argumentType="against"
                 pinnedAgainstCount={pinnedAgainstCount}
                 fetchArgs={fetchArgs}
@@ -565,6 +585,8 @@ export function DebateSection({ forum }: { forum: TForum }) {
                 commentId={arg?._id}
                 imageUrl={arg?.image?.[0]?.url}
                 isPinned={arg?.isPinned}
+                postId={postId}
+                entityId={entityId}
               />
             ))}
           </div>
