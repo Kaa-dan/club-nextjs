@@ -40,6 +40,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+
+//importing images
+import ClubIcon from "@public/icons/club-grey.icon.svg";
+import NodeIcon from "@public/icons/node-grey.icon.svg";
 interface Item {
   _id: string;
   name: string;
@@ -249,14 +253,17 @@ const View = ({ forum }: { forum: TForum }) => {
               <TooltipContent className="bg-white border text-black w-[200px] flex justify-between items-center  ">
                 <div>
                   <span className="flex justify-between">
-                    {" "}
-                    {rule?.adoptedClubs.length} <span>Clubs </span>
+                    <Image src={ClubIcon} alt="club" className="mr-2" />
+                    {rule?.adoptedClubs.length}{" "}
+                    <span className="ml-2">Clubs </span>
                   </span>
                 </div>
                 <div className="h-[5px] w-[5px] rounded-full bg-gray-500"></div>
                 <div>
                   <span className="flex justify-between">
-                    {rule?.adoptedNodes.length} <span>Nodes</span>
+                    <Image src={NodeIcon} alt="node" className="mr-2" />
+                    {rule?.adoptedNodes.length}{" "}
+                    <span className="ml-2">Nodes</span>
                   </span>
                 </div>
               </TooltipContent>
