@@ -398,6 +398,13 @@ export default function DebateTable({
           };
 
           const handleReject = () => {
+            Endpoints.rejectDebate(row.original._id)
+              .then((res) => {
+                setClickTrigger(!clickTrigger);
+              })
+              .catch((err) => {
+                console.log({ err });
+              });
             console.log(`Rejecting debate ID: ${row.original._id}`);
           };
 

@@ -9,6 +9,7 @@ import {
   ChevronDown,
   MoreVertical,
   Pin,
+  Trash2,
 } from "lucide-react";
 import { ReplySection } from "./reply-section";
 import Image from "next/image";
@@ -25,6 +26,8 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
+import { type } from "os";
 
 interface DebateCardProps {
   isPinned: boolean;
@@ -39,7 +42,11 @@ interface DebateCardProps {
   commentId: string;
   imageUrl?: string;
   authorId: string;
+  argumentAuthorId: string;
   fetchArgs: () => void;
+  pinnedAgainstCount?: number;
+  pinnedSupportCount?: number;
+  argumentType: "support" | "against";
 }
 interface Reply {
   _id: string;
@@ -68,8 +75,15 @@ export const DebateCard: React.FC<DebateCardProps> = ({
   imageUrl,
   authorId,
   isPinned,
+  argumentAuthorId,
   fetchArgs,
+  pinnedAgainstCount,
+  pinnedSupportCount,
+  argumentType,
 }) => {
+  console.log({ argumentAuthorId });
+  console.log({ commentId });
+
   const [relevant, setRelevant] = useState(initialRelevant);
   const [irrelevant, setIrrelevant] = useState(initialIrrelevant);
   const [showComments, setShowComments] = useState(false);
@@ -178,6 +192,8 @@ export const DebateCard: React.FC<DebateCardProps> = ({
     try {
       const fetchedReplies =
         await Endpoints.getRepliesForDebateArgument(commentId);
+      console.log(fetchedReplies, "iheeuhre");
+
       setReplies(fetchedReplies);
     } catch (error) {
       console.error("Error fetching replies:", error);
@@ -204,14 +220,13 @@ export const DebateCard: React.FC<DebateCardProps> = ({
   };
 
   useEffect(() => {
-    if (showComments) {
-      fetchRepliesForComment();
-    }
+    fetchRepliesForComment();
   }, [showComments]);
 
   const isRelevant = relevant.includes(userId);
   const isIrrelevant = irrelevant.includes(userId);
   const isCurrentUserAuthor = currentUserId === authorId;
+  const userCanDelete = currentUserId === argumentAuthorId;
 
   return (
     <Card className="overflow-hidden rounded-lg bg-white shadow-md">
@@ -236,7 +251,10 @@ export const DebateCard: React.FC<DebateCardProps> = ({
               </span>
             </div>
           </div>
-          {isCurrentUserAuthor && (
+          {isPinned && (
+            <Badge className="text-white">{isPinned && "Marquee"}</Badge>
+          )}
+          {(isCurrentUserAuthor || userCanDelete) && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="rounded-full p-2 hover:bg-gray-100">
@@ -244,30 +262,58 @@ export const DebateCard: React.FC<DebateCardProps> = ({
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem
-                  onClick={() => {
-                    if (!isPinned) {
-                      Endpoints.pin(debateId)
+                {/* Pin/Unpin option - only for original author */}
+                {isCurrentUserAuthor &&
+                  ((!isPinned &&
+                    ((argumentType === "support" &&
+                      (pinnedSupportCount as number) < 5) ||
+                      (argumentType === "against" &&
+                        (pinnedAgainstCount as number) < 5))) ||
+                    isPinned) && (
+                    <DropdownMenuItem
+                      onClick={() => {
+                        if (!isPinned) {
+                          Endpoints.pin(debateId)
+                            .then((res) => {
+                              fetchArgs();
+                              console.log({ success: res });
+                            })
+                            .catch((err) =>
+                              console.error("Error pinning:", err)
+                            );
+                        } else {
+                          Endpoints.unpin(debateId)
+                            .then((res) => {
+                              fetchArgs();
+                              console.log({ success: res });
+                            })
+                            .catch((err) =>
+                              console.error("Error unpinning:", err)
+                            );
+                        }
+                      }}
+                    >
+                      <Pin className="mr-2 size-4" />
+                      <span>{!isPinned ? "Pin" : "Unpin"}</span>
+                    </DropdownMenuItem>
+                  )}
+
+                {/* Delete option - original author can delete any, others can delete only their own */}
+                {(isCurrentUserAuthor || userCanDelete) && (
+                  <DropdownMenuItem
+                    onClick={() => {
+                      Endpoints.deleteDebateArgument(debateId) // Using argumentId instead of debateId
                         .then((res) => {
                           fetchArgs();
                           console.log({ success: res });
-                          // Optionally update state here
                         })
-                        .catch((err) => console.error("Error pinning:", err));
-                    } else {
-                      Endpoints.unpin(debateId)
-                        .then((res) => {
-                          fetchArgs();
-                          console.log({ success: res });
-                          // Optionally update state here
-                        })
-                        .catch((err) => console.error("Error unpinning:", err));
-                    }
-                  }}
-                >
-                  <Pin className="mr-2 size-4" />
-                  <span>{!isPinned ? "Pin" : "Unpin"}</span>
-                </DropdownMenuItem>
+                        .catch((err) => console.error("Error deleting:", err));
+                    }}
+                  >
+                    <Trash2 className="mr-2 size-4" />
+                    <span>Delete</span>
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           )}
@@ -334,11 +380,11 @@ export const DebateCard: React.FC<DebateCardProps> = ({
             <span>{irrelevant?.length}</span>
           </button>
 
-          <button
-            className="flex items-center gap-2 rounded-md px-3 py-2 text-gray-500"
-            onClick={() => setShowComments(!showComments)}
-          >
-            <MessageCircle className="size-5" />
+          <button className="flex items-center gap-2 rounded-md px-3 py-2 text-gray-500">
+            <MessageCircle
+              onClick={() => setShowComments(!showComments)}
+              className="size-5"
+            />
             {replies.length}
             <ChevronDown
               className={`size-4 transition-transform ${showComments ? "rotate-180" : ""}`}
@@ -372,30 +418,44 @@ export function DebateSection({ forum }: { forum: TForum }) {
   const { globalUser } = useTokenStore((state) => state);
   const userId = globalUser?._id;
   const [author, setAuthor] = useState("");
+  const [pinnedAgainstCount, setPinnedAgainstCount] = useState(0);
+  const [pinnedSupportCount, setPinnedSupportCount] = useState(0);
 
   const fetchArgs = () => {
     Endpoints.viewDebate(postId).then((res) => {
       setAuthor(res.createdBy._id);
+      setPinnedAgainstCount(res.pinnedAgainstCount);
+      setPinnedSupportCount(res.pinnedSupportCount);
     });
 
-    Endpoints.fetchDebateArgs(postId).then((res) => {
-      const support = res.filter(
-        (arg: Argument) => arg.participant.side === "support"
-      );
-      const against = res.filter(
-        (arg: Argument) => arg.participant.side === "against"
-      );
-      setSupportArgs(support);
-      setAgainstArgs(against);
-    });
+    Endpoints.fetchDebateArgs(postId)
+      .then((res) => {
+        const support = res.filter(
+          (arg: Argument) => arg.participant.side === "support"
+        );
+        const against = res.filter(
+          (arg: Argument) => arg.participant.side === "against"
+        );
+        setSupportArgs(support);
+        setAgainstArgs(against);
+      })
+      .catch((err) => {
+        console.log("err", err);
+        setSupportArgs([]);
+        setAgainstArgs([]);
+      });
   };
 
   useEffect(() => {
     fetchArgs();
   }, [postId]);
-
   const sortArguments = (args: Argument[]) => {
     return [...args].sort((a, b) => {
+      // Handle pinned arguments: pinned arguments come first
+      if (a.isPinned && !b.isPinned) return -1; // `a` is pinned, `b` is not
+      if (!a.isPinned && b.isPinned) return 1; // `b` is pinned, `a` is not
+
+      // Apply the selected sorting option for non-pinned arguments
       switch (sortOption) {
         case "relevantDesc":
           return b.relevant - b.irrelevant - (a.relevant - a.irrelevant);
@@ -409,12 +469,13 @@ export function DebateSection({ forum }: { forum: TForum }) {
           return (
             new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
           );
+        case "reset": // No sorting, return array as is
+          return 0;
         default:
           return 0;
       }
     });
   };
-
   const sortedSupportArgs = sortArguments(supportArgs);
   const sortedAgainstArgs = sortArguments(againstArgs);
   console.log({ sortedSupportArgs });
@@ -440,6 +501,8 @@ export function DebateSection({ forum }: { forum: TForum }) {
           <div className="space-y-4">
             {sortedSupportArgs.map((arg: Argument) => (
               <DebateCard
+                argumentType="support"
+                pinnedSupportCount={pinnedSupportCount}
                 fetchArgs={fetchArgs}
                 authorId={author}
                 key={arg?._id}
@@ -458,6 +521,7 @@ export function DebateSection({ forum }: { forum: TForum }) {
                 commentId={arg?._id}
                 imageUrl={arg?.image?.[0]?.url}
                 isPinned={arg?.isPinned}
+                argumentAuthorId={arg.participant.user._id}
               />
             ))}
           </div>
@@ -480,8 +544,11 @@ export function DebateSection({ forum }: { forum: TForum }) {
           <div className="space-y-4">
             {sortedAgainstArgs.map((arg: Argument) => (
               <DebateCard
+                argumentType="against"
+                pinnedAgainstCount={pinnedAgainstCount}
                 fetchArgs={fetchArgs}
                 authorId={author}
+                argumentAuthorId={arg.participant.user._id}
                 key={arg?._id}
                 debateId={arg?._id}
                 content={arg?.content}
