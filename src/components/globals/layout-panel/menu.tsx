@@ -326,7 +326,7 @@ export function Menu({ isOpen }: MenuProps) {
                                                     ? "node"
                                                     : "club"
                                                 }/${node?._id}`}
-                                                key={node._id}
+                                                key={node?._id}
                                                 className="flex flex-col items-center gap-1 rounded-lg  p-1 text-center hover:bg-muted"
                                               >
                                                 <PopoverClose>
