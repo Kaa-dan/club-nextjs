@@ -217,7 +217,7 @@ export default function IssueWhoShouldAddresList({
     <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
       <DialogContent className="max-w-4xl gap-0 p-0">
         <DialogHeader className="p-6 pb-0">
-          <DialogTitle className="text-xl">All Members</DialogTitle>
+          <DialogTitle className="text-xl">Who should Address</DialogTitle>
         </DialogHeader>
         <div className="p-6">
           <div className="flex items-center justify-between gap-4 py-4">
