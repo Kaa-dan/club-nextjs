@@ -61,7 +61,9 @@ import Invite from "@/components/pages/club/invite/invite";
 export default function Page() {
   const { leaveNode, fetchNodeDetails } = useNodeCalls();
   const { globalUser } = useTokenStore((state) => state);
-  const { currentNode, currentUserRole } = useNodeStore((state) => state);
+  const { currentNode, currentUserRole, nodeJoinStatus } = useNodeStore(
+    (state) => state
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { nodeId } = useParams<{ nodeId: string }>();
   const [clickTrigger, setClickTrigger] = useState<boolean>(false);
@@ -233,9 +235,7 @@ export default function Page() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              {currentNode?.members?.some(
-                (member: any) => member?.user?._id == globalUser?._id
-              ) && (
+              {nodeJoinStatus === "MEMBER" && currentUserRole !== "owner" && (
                 <>
                   {/* <Button className="gap-2">
                     <span>+ Invite</span>
@@ -336,7 +336,7 @@ export default function Page() {
           <DialogHeader>
             <DialogTitle>All Members</DialogTitle>
           </DialogHeader>
-          <div className="my-4 flex items-center justify-between gap-4">
+          <div className="my-1 flex items-center justify-between gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-2 top-2.5 size-4 text-muted-foreground" />
               <Input placeholder="Search for Members..." className="pl-8" />
@@ -431,7 +431,7 @@ export default function Page() {
           </Table>
           <div className="mt-4 flex items-center justify-between">
             <div className="text-sm text-muted-foreground">
-              Total 85 Members
+              Total {currentNode?.members?.length} Members
             </div>
             <div className="flex items-center gap-2">
               <Button variant="outline" size="sm" disabled>
