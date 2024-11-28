@@ -35,7 +35,7 @@ const DebateLayout = ({
     (state) => state
   );
 
-  const { currentUserRole: currentUserNodeRole } = useNodeStore(
+  const { currentUserRole: currentUserNodeRole, nodeJoinStatus } = useNodeStore(
     (state) => state
   );
   console.log({ club: currentUserClubRole });
@@ -140,7 +140,7 @@ const DebateLayout = ({
         {tabs.map((tab) => (
           <TabsContent key={tab.label} value={tab.label} className="space-y-4">
             <div className="flex items-center gap-4">
-              {clubJoinStatus === "MEMBER" && (
+              {(clubJoinStatus === "MEMBER" || nodeJoinStatus === "MEMBER") && (
                 <Link href="debate/create">
                   <Button className="bg-primary hover:bg-emerald-600">
                     Add a new Debate

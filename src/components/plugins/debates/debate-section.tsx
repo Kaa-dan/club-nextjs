@@ -28,6 +28,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { type } from "os";
+import { useClubStore } from "@/store/clubs-store";
+import { useNodeStore } from "@/store/nodes-store";
 
 interface DebateCardProps {
   isPinned: boolean;
@@ -95,6 +97,8 @@ export const DebateCard: React.FC<DebateCardProps> = ({
   const { globalUser } = useTokenStore((state) => state);
   const [participant, setParticipant] = useState();
   const currentUserId = globalUser?._id;
+  const { currentUserRole: userClubRole } = useClubStore((state) => state);
+  const { currentUserRole: userNodeRole } = useNodeStore((state) => state);
   const handleVote = async (type: "relevant" | "irrelevant") => {
     const previousRelevant = [...relevant];
     const previousIrrelevant = [...irrelevant];
@@ -234,8 +238,13 @@ export const DebateCard: React.FC<DebateCardProps> = ({
 
   const isRelevant = relevant.includes(userId);
   const isIrrelevant = irrelevant.includes(userId);
-  const isCurrentUserAuthor = currentUserId === authorId;
-  const userCanDelete = currentUserId === argumentAuthorId;
+  const isCurrentUserAuthor = currentUserId === authorId; // Current user authored the argument
+  const userCanDelete = currentUserId === argumentAuthorId; // User is the commenter
+  console.log({ userClubRole });
+
+  const hasRolePermission = ["admin", "moderator", "owner"].includes(
+    userClubRole || userNodeRole
+  ); // User has a role that permits deletion
 
   return (
     <Card className="overflow-hidden rounded-lg bg-white shadow-md">
@@ -264,7 +273,7 @@ export const DebateCard: React.FC<DebateCardProps> = ({
             <Badge className="text-white">{isPinned && "Marquee"}</Badge>
           )}
 
-          {participant && (isCurrentUserAuthor || userCanDelete) && (
+          {participant && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="rounded-full p-2 hover:bg-gray-100">
@@ -276,9 +285,9 @@ export const DebateCard: React.FC<DebateCardProps> = ({
                 {isCurrentUserAuthor &&
                   ((!isPinned &&
                     ((argumentType === "support" &&
-                      (pinnedSupportCount as number) < 5) ||
+                      (pinnedSupportCount || 0) < 5) ||
                       (argumentType === "against" &&
-                        (pinnedAgainstCount as number) < 5))) ||
+                        (pinnedAgainstCount || 0) < 5))) ||
                     isPinned) && (
                     <DropdownMenuItem
                       onClick={() => {
@@ -308,13 +317,15 @@ export const DebateCard: React.FC<DebateCardProps> = ({
                     </DropdownMenuItem>
                   )}
 
-                {/* Delete option - original author can delete any, others can delete only their own */}
-                {(isCurrentUserAuthor || userCanDelete) && (
+                {/* Delete option - logic for multiple cases */}
+                {(isCurrentUserAuthor ||
+                  userCanDelete ||
+                  hasRolePermission) && (
                   <DropdownMenuItem
                     onClick={() => {
-                      Endpoints.deleteDebateArgument(debateId) // Using argumentId instead of debateId
+                      Endpoints.deleteDebateArgument(commentId) // Ensure the correct ID is used
                         .then((res) => {
-                          fetchArgs();
+                          fetchArgs(); // Refresh the list
                           console.log({ success: res });
                         })
                         .catch((err) => console.error("Error deleting:", err));
