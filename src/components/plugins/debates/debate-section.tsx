@@ -28,6 +28,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { type } from "os";
+import { useClubStore } from "@/store/clubs-store";
+import { useNodeStore } from "@/store/nodes-store";
 
 interface DebateCardProps {
   isPinned: boolean;
@@ -47,6 +49,9 @@ interface DebateCardProps {
   pinnedAgainstCount?: number;
   pinnedSupportCount?: number;
   argumentType: "support" | "against";
+  postId: string;
+  forum: TForum;
+  entityId: string;
 }
 interface Reply {
   _id: string;
@@ -80,17 +85,20 @@ export const DebateCard: React.FC<DebateCardProps> = ({
   pinnedAgainstCount,
   pinnedSupportCount,
   argumentType,
+  postId,
+  forum,
+  entityId,
 }) => {
-  console.log({ argumentAuthorId });
-  console.log({ commentId });
-
   const [relevant, setRelevant] = useState(initialRelevant);
   const [irrelevant, setIrrelevant] = useState(initialIrrelevant);
   const [showComments, setShowComments] = useState(false);
   const [replies, setReplies] = useState<Reply[]>([]);
   const [showFullImage, setShowFullImage] = useState(false);
   const { globalUser } = useTokenStore((state) => state);
+  const [participant, setParticipant] = useState();
   const currentUserId = globalUser?._id;
+  const { currentUserRole: userClubRole } = useClubStore((state) => state);
+  const { currentUserRole: userNodeRole } = useNodeStore((state) => state);
   const handleVote = async (type: "relevant" | "irrelevant") => {
     const previousRelevant = [...relevant];
     const previousIrrelevant = [...irrelevant];
@@ -218,6 +226,11 @@ export const DebateCard: React.FC<DebateCardProps> = ({
       console.error("Error posting reply:", error);
     }
   };
+  useEffect(() => {
+    Endpoints.checkParticipationStatus(postId, forum, entityId).then((res) => {
+      setParticipant(res.isAllowed);
+    });
+  }, []);
 
   useEffect(() => {
     fetchRepliesForComment();
@@ -225,8 +238,13 @@ export const DebateCard: React.FC<DebateCardProps> = ({
 
   const isRelevant = relevant.includes(userId);
   const isIrrelevant = irrelevant.includes(userId);
-  const isCurrentUserAuthor = currentUserId === authorId;
-  const userCanDelete = currentUserId === argumentAuthorId;
+  const isCurrentUserAuthor = currentUserId === authorId; // Current user authored the argument
+  const userCanDelete = currentUserId === argumentAuthorId; // User is the commenter
+  console.log({ userClubRole });
+
+  const hasRolePermission = ["admin", "moderator", "owner"].includes(
+    userClubRole || userNodeRole
+  ); // User has a role that permits deletion
 
   return (
     <Card className="overflow-hidden rounded-lg bg-white shadow-md">
@@ -254,7 +272,8 @@ export const DebateCard: React.FC<DebateCardProps> = ({
           {isPinned && (
             <Badge className="text-white">{isPinned && "Marquee"}</Badge>
           )}
-          {(isCurrentUserAuthor || userCanDelete) && (
+
+          {participant && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="rounded-full p-2 hover:bg-gray-100">
@@ -266,9 +285,9 @@ export const DebateCard: React.FC<DebateCardProps> = ({
                 {isCurrentUserAuthor &&
                   ((!isPinned &&
                     ((argumentType === "support" &&
-                      (pinnedSupportCount as number) < 5) ||
+                      (pinnedSupportCount || 0) < 5) ||
                       (argumentType === "against" &&
-                        (pinnedAgainstCount as number) < 5))) ||
+                        (pinnedAgainstCount || 0) < 5))) ||
                     isPinned) && (
                     <DropdownMenuItem
                       onClick={() => {
@@ -298,13 +317,15 @@ export const DebateCard: React.FC<DebateCardProps> = ({
                     </DropdownMenuItem>
                   )}
 
-                {/* Delete option - original author can delete any, others can delete only their own */}
-                {(isCurrentUserAuthor || userCanDelete) && (
+                {/* Delete option - logic for multiple cases */}
+                {(isCurrentUserAuthor ||
+                  userCanDelete ||
+                  hasRolePermission) && (
                   <DropdownMenuItem
                     onClick={() => {
-                      Endpoints.deleteDebateArgument(debateId) // Using argumentId instead of debateId
+                      Endpoints.deleteDebateArgument(commentId) // Ensure the correct ID is used
                         .then((res) => {
-                          fetchArgs();
+                          fetchArgs(); // Refresh the list
                           console.log({ success: res });
                         })
                         .catch((err) => console.error("Error deleting:", err));
@@ -420,12 +441,16 @@ export function DebateSection({ forum }: { forum: TForum }) {
   const [author, setAuthor] = useState("");
   const [pinnedAgainstCount, setPinnedAgainstCount] = useState(0);
   const [pinnedSupportCount, setPinnedSupportCount] = useState(0);
+  const [endingDate, setEndingDate] = useState<Date>();
 
   const fetchArgs = () => {
     Endpoints.viewDebate(postId).then((res) => {
+      console.log({ arrrrrr: res.closingDate });
+
       setAuthor(res.createdBy._id);
       setPinnedAgainstCount(res.pinnedAgainstCount);
       setPinnedSupportCount(res.pinnedSupportCount);
+      setEndingDate(res.closingDate as Date);
     });
 
     Endpoints.fetchDebateArgs(postId)
@@ -491,6 +516,7 @@ export function DebateSection({ forum }: { forum: TForum }) {
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-bold">For ({supportArgs.length})</h2>
             <AddPointDialog
+              endingDate={endingDate as Date}
               entity={entityId}
               entityType={forum}
               fetchArg={fetchArgs}
@@ -522,6 +548,9 @@ export function DebateSection({ forum }: { forum: TForum }) {
                 imageUrl={arg?.image?.[0]?.url}
                 isPinned={arg?.isPinned}
                 argumentAuthorId={arg.participant.user._id}
+                postId={postId}
+                forum={forum}
+                entityId={entityId}
               />
             ))}
           </div>
@@ -539,11 +568,13 @@ export function DebateSection({ forum }: { forum: TForum }) {
               fetchArg={fetchArgs}
               side="against"
               debateId={postId}
+              endingDate={endingDate as Date}
             />
           </div>
           <div className="space-y-4">
             {sortedAgainstArgs.map((arg: Argument) => (
               <DebateCard
+                forum={forum}
                 argumentType="against"
                 pinnedAgainstCount={pinnedAgainstCount}
                 fetchArgs={fetchArgs}
@@ -565,6 +596,8 @@ export function DebateSection({ forum }: { forum: TForum }) {
                 commentId={arg?._id}
                 imageUrl={arg?.image?.[0]?.url}
                 isPinned={arg?.isPinned}
+                postId={postId}
+                entityId={entityId}
               />
             ))}
           </div>
