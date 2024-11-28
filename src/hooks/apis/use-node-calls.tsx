@@ -55,6 +55,7 @@ export const useNodeCalls = (): UseNodeDataReturn => {
     try {
       // Fetch joined nodes
       const joinedNodes = await Endpoints.fetchUserJoinedNodes();
+      console.log("joinedNodes", joinedNodes);
       setUserJoinedNodes(joinedNodes);
 
       // Fetch requested nodes
