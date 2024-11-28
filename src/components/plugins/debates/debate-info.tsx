@@ -83,7 +83,7 @@ function DebateInfo() {
           <div>
             <CardTitle className="text-xl font-bold">
               {debate?.topic}
-              <Badge className="ml-2">BG3035</Badge>
+              {/* <Badge className="ml-2">BG3035</Badge> */}
             </CardTitle>
             <CardDescription className="mt-2">
               {debate?.significance}
@@ -95,18 +95,18 @@ function DebateInfo() {
       <CardContent>
         <div className="mt-4 flex items-center">
           <Avatar className="mr-3">
-            <AvatarImage src="/api/placeholder/40/40" alt="Author" />
+            <AvatarImage src={debate?.createdBy?.profileImage} alt="Author" />
             <AvatarFallback>LA</AvatarFallback>
           </Avatar>
           <div className="flex-1">
             <div className="font-medium">{debate?.createdBy?.firstName}</div>
             <div className="text-xs text-muted-foreground">
-              {moment(debate?.createdAt).fromNow()}\{" "}
+              {moment(debate?.createdAt).fromNow()}{" "}
             </div>
           </div>
           <Badge variant="outline">Environmental Advocacy Group</Badge>
         </div>
-        <div className="mt-4 flex flex-wrap gap-2">
+        <div className="mt-4 flex flex-wrap gap-2 text-white">
           {debate &&
             debate?.tags?.map((tag: any, index: number) => (
               <Badge key={index}>{tag}</Badge>
@@ -191,8 +191,7 @@ function DebateInfo() {
                       >
                         <Check className="mr-1 size-3" />
                         <span className="text-xs">
-                          {option.role === "admin" ||
-                          option.role === "moderator"
+                          {["admin", "moderator", "owner"].includes(option.role)
                             ? "Adopt"
                             : "Propose"}
                         </span>

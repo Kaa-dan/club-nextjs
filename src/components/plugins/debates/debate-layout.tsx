@@ -15,6 +15,7 @@ import React, { ReactNode } from "react";
 import DebateTable from "./debate-table";
 import useDebates from "./use-debate";
 import { useClubStore } from "@/store/clubs-store";
+import { useNodeStore } from "@/store/nodes-store";
 
 interface TabData {
   label: string;
@@ -30,8 +31,15 @@ const DebateLayout = ({
   forum: TForum;
   forumId: string;
 }) => {
-  const { currentUserRole } = useClubStore((state) => state);
-  console.log({ currentUserRole });
+  const { currentUserRole: currentUserClubRole, clubJoinStatus } = useClubStore(
+    (state) => state
+  );
+
+  const { currentUserRole: currentUserNodeRole } = useNodeStore(
+    (state) => state
+  );
+  console.log({ club: currentUserClubRole });
+  console.log({ node: currentUserNodeRole });
 
   const {
     allDebates,
@@ -62,8 +70,12 @@ const DebateLayout = ({
       label: "My Debates",
       count: myDebates?.length || 0,
     },
-    // Include Proposed Debates only if the user is an admin
-    ...(currentUserRole === "admin"
+    ...(currentUserClubRole === "owner" ||
+    currentUserClubRole === "moderator" ||
+    currentUserClubRole === "admin" ||
+    currentUserNodeRole === "owner" ||
+    currentUserNodeRole === "moderator" ||
+    currentUserNodeRole === "admin"
       ? [
           {
             label: "Proposed Debates",
@@ -128,11 +140,14 @@ const DebateLayout = ({
         {tabs.map((tab) => (
           <TabsContent key={tab.label} value={tab.label} className="space-y-4">
             <div className="flex items-center gap-4">
-              <Link href="debate/create">
-                <Button className="bg-primary hover:bg-emerald-600">
-                  Add a new Debate
-                </Button>
-              </Link>
+              {clubJoinStatus === "MEMBER" && (
+                <Link href="debate/create">
+                  <Button className="bg-primary hover:bg-emerald-600">
+                    Add a new Debate
+                  </Button>
+                </Link>
+              )}
+
               <div className="relative flex-1">
                 <Search className="absolute left-2 top-2.5 size-4 text-muted-foreground" />
                 <Input placeholder="Search for rules..." className="pl-8" />

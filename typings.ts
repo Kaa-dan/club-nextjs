@@ -181,6 +181,7 @@ type Argument = {
     user: {
       userName: string;
       profileImage: string;
+      _id: string;
     };
   };
   image: [
@@ -192,4 +193,5 @@ type Argument = {
   timestamp: string;
   relevant: number;
   irrelevant: number;
+  isPinned: boolean;
 };

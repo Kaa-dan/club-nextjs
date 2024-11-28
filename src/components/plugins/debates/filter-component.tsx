@@ -22,6 +22,7 @@ export function FilterComponent({ onSortChange }: FilterComponentProps) {
         <SelectItem value="relevantAsc">Least Relevant</SelectItem>
         <SelectItem value="timeDesc">Newest</SelectItem>
         <SelectItem value="timeAsc">Oldest</SelectItem>
+        <SelectItem value="reset">Reset</SelectItem> {/* Reset option */}
       </SelectContent>
     </Select>
   );
