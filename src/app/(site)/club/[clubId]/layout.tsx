@@ -1,36 +1,22 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { TClub, TMembers } from "@/types";
 import { useParams } from "next/navigation";
 import ClubProfileCard from "@/components/pages/club/club-profile-card";
-import ModulesBar from "@/components/pages/club/module-bar";
-import { fetchSpecificClub } from "@/components/pages/club/endpoint";
+
 import TeamsSidePopover from "@/components/pages/club/club-teams";
-import { useClubStore } from "@/store/clubs-store";
+import { useClubCalls } from "@/hooks/apis/use-club-calls";
+import ModulesBar from "@/components/pages/forum-common/module-bar";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
+  const { fetchClubDetails, fetchClubJoinStatus } = useClubCalls();
   const [currentPage, setCurrentPage] = useState("modules");
-  const [club, setClub] = useState<{
-    club: TClub;
-    members: TMembers[];
-  } | null>(null);
   const params = useParams<{ clubId: string; plugin?: TPlugins }>();
-  const { setCurrentClub } = useClubStore((state) => state);
 
-  const fetchClubDetails = async () => {
-    console.log("fetching new club details");
-    if (!params.clubId) return;
-    try {
-      const res = await fetchSpecificClub(params.clubId);
-      setCurrentClub(res);
-
-      setClub(res);
-    } catch (error) {
-      console.log(error);
-    }
-  };
   useEffect(() => {
-    fetchClubDetails();
+    if (params?.clubId) {
+      fetchClubDetails(params?.clubId);
+      fetchClubJoinStatus(params?.clubId);
+    }
   }, [params.clubId]);
 
   return (
@@ -42,11 +28,14 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               currentPage={currentPage}
               setCurrentPage={setCurrentPage}
               clubId={params.clubId}
-              club={club!}
             />
           </div>
-          <div className="flex w-3/4 flex-col ">
-            <ModulesBar plugin={params?.plugin} clubId={params.clubId} />
+          <div className="flex w-3/4 flex-col items-start ">
+            <ModulesBar
+              plugin={params?.plugin}
+              forum={"club"}
+              forumId={params.clubId}
+            />
             {children}
           </div>
         </div>

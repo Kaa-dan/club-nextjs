@@ -110,16 +110,16 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 export default function RuleForm({
-  nodeOrClubId,
+  forumId,
   forum,
 }: {
-  nodeOrClubId: string;
+  forumId: string;
   forum: TForum;
 }) {
   const breadcrumbItems: BreadcrumbItemType[] = [
     {
       label: "Rules",
-      href: `/${forum}/${nodeOrClubId}/issues`,
+      href: `/${forum}/${forumId}/issues`,
     },
     {
       label: "Create",
@@ -246,7 +246,7 @@ export default function RuleForm({
         formDataToSend.append("file", fileObj.file);
       });
 
-      formDataToSend.append(forum, nodeOrClubId);
+      formDataToSend.append(forum, forumId);
 
       const response = await Endpoints.addRulesAndRegulations(formDataToSend);
       toast.success(response.message || "Rules successfully created");
@@ -257,7 +257,7 @@ export default function RuleForm({
           URL.revokeObjectURL(fileObj.preview);
         }
       });
-      router.push(`/${forum}/${nodeOrClubId}/rules`);
+      router.push(`/${forum}/${forumId}/rules`);
     } catch (error) {
       console.error("Error submitting form:", error);
       toast.error("Failed to submit rule. Please try again.");
@@ -693,7 +693,7 @@ export default function RuleForm({
                   formDataToSend.append("file", fileObj.file);
                 });
 
-                formDataToSend.append(forum, nodeOrClubId);
+                formDataToSend.append(forum, forumId);
                 formDataToSend.append("publishedStatus", "draft");
                 Endpoints.saveDraft(formDataToSend).then((res) => {
                   if (!res.isActive) {

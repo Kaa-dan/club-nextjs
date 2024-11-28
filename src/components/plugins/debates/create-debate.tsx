@@ -58,13 +58,7 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-const DebateForm = ({
-  forum,
-  nodeOrClubId,
-}: {
-  forum: TForum;
-  nodeOrClubId: string;
-}) => {
+const DebateForm = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
   const [files, setFiles] = React.useState<File[]>([]);
   const router = useRouter();
   const form = useForm<FormValues>({
@@ -107,16 +101,16 @@ const DebateForm = ({
         formDataToSend.append("files", fileObj);
       });
 
-      formDataToSend.append(forum, nodeOrClubId);
+      formDataToSend.append(forum, forumId);
 
       // Uncomment to send the data
       const response = await Endpoints.postDebate(formDataToSend);
       toast.success(response.message || "Debate successfully created");
 
-      router.push(`/${forum}/${nodeOrClubId}/debate`);
+      router.push(`/${forum}/${forumId}/debate`);
     } catch (error) {
       console.error("Error submitting form:", error);
-      toast.error("Failed to submit rule. Please try again.");
+      toast.error("Failed to submit debate. Please try again.");
     } finally {
       setOpen(false);
       form.reset();
@@ -455,9 +449,7 @@ const DebateForm = ({
                   disabled={form.formState.isSubmitting}
                   type="button"
                   variant="outline"
-                  onClick={() => {
-                    // Handle save draft logic
-                  }}
+                  onClick={() => {}}
                 >
                   Save draft
                 </Button>

@@ -46,7 +46,7 @@ const Page = async ({
 
         <div className="w-full">
           {}
-          <EditRuleForm nodeOrClubId={clubId} forum="club" postId={postId} />
+          <EditRuleForm forumId={clubId} forum="club" postId={postId} />
         </div>
       </div>
     </div>

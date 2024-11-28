@@ -1,9 +1,9 @@
-import { mainAxios } from "@/lib/mainAxios";
+import { withTokenAxios } from "@/lib/mainAxios";
 
 export class Endpoints {
   static async getRulesComments(entityType: string, entityId: string) {
     try {
-      const { data } = await mainAxios.get(
+      const { data } = await withTokenAxios.get(
         `/comments/${entityType}/${entityId}`
       );
       return data;
@@ -14,7 +14,7 @@ export class Endpoints {
 
   static async postRulesComment(formData: FormData) {
     try {
-      const res = await mainAxios.post(`/comments`, formData, {
+      const res = await withTokenAxios.post(`/comments`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -28,9 +28,7 @@ export class Endpoints {
 
   static async putLikeComment(commentId: string) {
     try {
-      const res = await mainAxios.put(
-        `/comments/like/${commentId}`
-      );
+      const res = await withTokenAxios.put(`/comments/like/${commentId}`);
       return res;
     } catch (error) {
       console.log({ error });
@@ -39,9 +37,7 @@ export class Endpoints {
   }
   static async putDislikeComment(commentId: string) {
     try {
-      const res = await mainAxios.put(
-        `/comments/dislike/${commentId}`
-      );
+      const res = await withTokenAxios.put(`/comments/dislike/${commentId}`);
       return res;
     } catch (error) {
       console.log({ error });

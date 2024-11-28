@@ -39,6 +39,7 @@ import { ExpandableTableRow } from "../rules-regulations/expandable-row";
 import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import Loader1 from "@/components/globals/loaders/loader-1";
 
 export type Issue = {
   _id: string;
@@ -48,8 +49,10 @@ export type Issue = {
   publishedStatus: string;
   createdAt: string;
   createdBy: {
-    name: string;
-    avatar: string;
+    _id: string;
+    firstName: string;
+    lastName: string;
+    profileImage: string;
   };
   relevant: any[];
   irrelevant: any[];
@@ -58,21 +61,23 @@ export type Issue = {
 interface DataTableProps {
   columns: ColumnDef<any>[];
   data: any[];
-  nodeorclubId: string;
+  forumId: string;
   plugin: TPlugins;
   forum: TForum;
   clickTrigger: boolean;
   setClickTrigger: React.Dispatch<React.SetStateAction<boolean>>;
+  loading: boolean;
 }
 
 function DataTable({
   columns,
   data,
-  nodeorclubId,
+  forumId,
   plugin,
   forum,
   clickTrigger,
   setClickTrigger,
+  loading,
 }: DataTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
@@ -124,16 +129,32 @@ function DataTable({
               </TableRow>
             ))
           ) : (
-            <TableRow>
-              <TableCell colSpan={columns.length} className="h-32 text-center">
-                <div className="flex flex-col items-center justify-center space-y-1">
-                  <div className="text-lg font-medium">No rules found</div>
-                  <div className="text-sm text-muted-foreground">
-                    There are no rules available at the moment
-                  </div>
-                </div>
-              </TableCell>
-            </TableRow>
+            <>
+              {loading ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-32 text-center"
+                  >
+                    <Loader1 />
+                  </TableCell>
+                </TableRow>
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-32 text-center"
+                  >
+                    <div className="flex flex-col items-center justify-center space-y-1">
+                      <div className="text-lg font-medium">No Issues found</div>
+                      <div className="text-sm text-muted-foreground">
+                        There are no issues available at the moment
+                      </div>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              )}
+            </>
           )}
         </TableBody>
       </Table>
@@ -144,19 +165,21 @@ function DataTable({
 export default function IssueTable({
   plugin,
   forum,
-  nodeorclubId,
+  forumId,
   data,
   clickTrigger,
   setClickTrigger,
   tab,
+  loading,
 }: {
   plugin: TPlugins;
   forum: TForum;
-  nodeorclubId: string;
+  forumId: string;
   data: any[];
   clickTrigger: boolean;
   setClickTrigger: React.Dispatch<React.SetStateAction<boolean>>;
   tab: TIssuesLabel;
+  loading: boolean;
 }) {
   // const [sorting, setSorting] = useState<SortingState>([]);
 
@@ -264,15 +287,18 @@ export default function IssueTable({
             <Avatar className="size-8">
               <AvatarImage
                 src={
-                  postedBy?.avatar ||
+                  postedBy?.profileImage ||
                   "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWdu-qOixArQruGnl8wz6iK-ygXGGGOSQytg&s"
                 }
                 alt="Avatar"
               />
-              <AvatarFallback>{postedBy?.name?.[0] || "U"}</AvatarFallback>
+              <AvatarFallback>
+                {postedBy?.firstName?.trim()?.[0] || "U"}
+              </AvatarFallback>
             </Avatar>
             <span className="text-sm text-muted-foreground">
-              {postedBy?.name}
+              {postedBy?.firstName || ""}
+              {postedBy?.lastName || ""}
             </span>
           </div>
         );
@@ -292,13 +318,11 @@ export default function IssueTable({
         );
       },
       cell: ({ row }) => {
-        // const relevanceScore = parseFloat(row.getValue("relevant"));
         return (
           console.log(row, "relevanceScore"),
           (
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
               <div className="flex items-center gap-1">
-                {/* <ThumbsUp className="size-4" /> */}
                 <ThumbsUp
                   className={cn("size-4  cursor-pointer text-primary")}
                 />
@@ -311,7 +335,6 @@ export default function IssueTable({
                   )}
                 />
                 <span>{row?.original?.irrelevant?.length}</span>
-                {/* <MessageCircle className="size-4" /> */}
               </div>
             </div>
           )
@@ -336,7 +359,7 @@ export default function IssueTable({
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuItem>
                 <Link
-                  href={`/${forum}/${nodeorclubId}/${plugin}/${row.original._id}/view`}
+                  href={`/${forum}/${forumId}/${plugin}/${row.original._id}/view`}
                   className="w-full"
                 >
                   View Details
@@ -363,11 +386,12 @@ export default function IssueTable({
     <DataTable
       columns={getFilteredColumns()}
       data={data}
-      nodeorclubId={nodeorclubId}
+      forumId={forumId}
       plugin={plugin}
       forum={forum}
       clickTrigger={clickTrigger}
       setClickTrigger={setClickTrigger}
+      loading={loading}
     />
   );
 }

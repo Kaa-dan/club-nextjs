@@ -114,10 +114,10 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 export default function CreateIssueForm({
-  nodeOrClubId,
+  forumId,
   forum,
 }: {
-  nodeOrClubId: string;
+  forumId: string;
   forum: TForum;
 }) {
   const { currentClub, userJoinedClubs } = useClubStore((state) => state);
@@ -202,13 +202,13 @@ export default function CreateIssueForm({
       values.files?.forEach((fileObj: any) => {
         formData.append("files", fileObj.file);
       });
-      formData.append(forum, nodeOrClubId);
+      formData.append(forum, forumId);
       formData.append("publishedStatus", issueStatus);
 
       await IssuesEndpoints.createIssue(formData);
 
       toast.success("Issue created successfully");
-      router.push(`/${forum}/${nodeOrClubId}/issues`);
+      router.push(`/${forum}/${forumId}/issues`);
       setUploadedFiles([]);
       setShowPublishDialog(false);
       form.reset();

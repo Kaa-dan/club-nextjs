@@ -1,5 +1,4 @@
 "use client";
-// src/api/axiosInstance.ts
 import axios from "axios";
 import env from "./env.config";
 import { useTokenStore } from "@/store/store";
@@ -43,4 +42,4 @@ const createAxiosInstance = () => {
   return axiosInstance;
 };
 
-export const mainAxios = createAxiosInstance();
+export const withTokenAxios = createAxiosInstance();

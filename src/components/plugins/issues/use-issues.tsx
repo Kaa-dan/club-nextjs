@@ -2,7 +2,7 @@
 import { IssuesEndpoints } from "@/utils/endpoints/issues";
 import { useCallback, useEffect, useState } from "react";
 
-const useIssues = (forum: TForum, nodeOrClubId: string) => {
+const useIssues = (forum: TForum, forumId: string) => {
   const [loading, setLoading] = useState(false);
   const [clickTrigger, setClickTrigger] = useState(false);
   const [myIssues, setMyIssues] = useState([]);
@@ -11,13 +11,13 @@ const useIssues = (forum: TForum, nodeOrClubId: string) => {
   const [globalIssues, setGlobalIssues] = useState([]);
   const [proposedIssues, setProposedIssues] = useState([]);
 
-  console.log(forum, nodeOrClubId, "useIssues");
+  console.log(forum, forumId, "useIssues");
   const fetchAllData = useCallback(async () => {
     setLoading(true);
 
     await Promise.allSettled([
       //fetch myIssues
-      IssuesEndpoints.fetchMyIssues(forum, nodeOrClubId)
+      IssuesEndpoints.fetchMyIssues(forum, forumId)
         .then((response) => {
           if (response) setMyIssues(response);
         })
@@ -26,7 +26,7 @@ const useIssues = (forum: TForum, nodeOrClubId: string) => {
         }),
 
       //fetch allIssues
-      IssuesEndpoints.fetchAllIssues(forum, nodeOrClubId)
+      IssuesEndpoints.fetchAllIssues(forum, forumId)
         .then((response) => {
           if (response) setAllIssues(response);
         })
@@ -35,7 +35,7 @@ const useIssues = (forum: TForum, nodeOrClubId: string) => {
         }),
 
       //fetch all liveIssues
-      IssuesEndpoints.fetchAllLiveIssues(forum, nodeOrClubId)
+      IssuesEndpoints.fetchAllLiveIssues(forum, forumId)
         .then((response) => {
           if (response) setLiveIssues(response);
         })
@@ -52,7 +52,7 @@ const useIssues = (forum: TForum, nodeOrClubId: string) => {
           console.log("Error fetching active liveIssues:", err);
         }),
 
-      IssuesEndpoints.fetchProposedIssues(forum, nodeOrClubId)
+      IssuesEndpoints.fetchProposedIssues(forum, forumId)
         .then((response) => {
           if (response) setProposedIssues(response);
         })
@@ -62,11 +62,11 @@ const useIssues = (forum: TForum, nodeOrClubId: string) => {
     ]);
 
     setLoading(false);
-  }, [forum, nodeOrClubId]);
+  }, [forum, forumId]);
 
   useEffect(() => {
     fetchAllData();
-  }, [nodeOrClubId, clickTrigger]);
+  }, [forumId, clickTrigger]);
 
   return {
     liveIssues,

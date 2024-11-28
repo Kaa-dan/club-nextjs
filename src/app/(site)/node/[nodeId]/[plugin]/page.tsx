@@ -1,3 +1,4 @@
+import DebateLayout from "@/components/plugins/debates/debate-layout";
 import IssuesLayout from "@/components/plugins/issues/issues-layout";
 import IssueTable from "@/components/plugins/issues/issues-table";
 import RulesLayout from "@/components/plugins/rules-regulations/rules-layout";
@@ -12,17 +13,10 @@ const PluginPage = async ({
   const renderPluginContent = () => {
     switch (plugin) {
       case "issues":
-        return (
-          <IssuesLayout forum="node" plugin={plugin} nodeorclubId={nodeId} />
-          // <IssuesLayout>
-          //   <IssueTable />
-          // </IssuesLayout>
-        );
+        return <IssuesLayout forum="node" plugin={plugin} forumId={nodeId} />;
 
       case "rules":
-        return (
-          <RulesLayout forum="node" plugin={plugin} nodeorclubId={nodeId} />
-        );
+        return <RulesLayout forum="node" plugin={plugin} forumId={nodeId} />;
 
       default:
         return (
@@ -30,6 +24,9 @@ const PluginPage = async ({
             <span className="text-muted-foreground">Module not found</span>
           </div>
         );
+
+      case "debate":
+        return <DebateLayout forumId={nodeId} forum="node" plugin={plugin} />;
     }
   };
 

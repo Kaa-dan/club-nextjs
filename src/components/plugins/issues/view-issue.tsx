@@ -55,13 +55,7 @@ interface ClubAndNodesData {
   clubs: Item[];
   nodes: Item[];
 }
-const IssueView = ({
-  forum,
-  nodeOrClubId,
-}: {
-  forum: TForum;
-  nodeOrClubId: string;
-}) => {
+const IssueView = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
   const { currentUserRole } = useClubStore((state) => state);
   const { globalUser } = useTokenStore((state) => state);
   const router = useRouter();

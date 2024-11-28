@@ -58,7 +58,6 @@ import plugin from "tailwindcss";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import PhotoInput from "@/components/ui/photo-input";
-import { type } from "os";
 import {
   Select,
   SelectContent,
@@ -79,6 +78,7 @@ import {
 import { ExpandableTableRow } from "./expandable-row";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import Loader1 from "@/components/globals/loaders/loader-1";
 
 type Rule = {
   _id: string;
@@ -88,8 +88,10 @@ type Rule = {
   publishedDate: string;
   club: string;
   createdBy: {
-    name: string;
-    avatar: string;
+    _id: string;
+    firstName: string;
+    lastName: string;
+    profileImage: string;
   };
   relevant: any[];
   irrelevant: any[];
@@ -99,21 +101,23 @@ type Rule = {
 interface DataTableProps {
   columns: ColumnDef<any>[];
   data: any[];
-  nodeorclubId: string;
+  forumId: string;
   plugin: TPlugins;
   forum: TForum;
   clickTrigger: boolean;
   setClickTrigger: React.Dispatch<React.SetStateAction<boolean>>;
+  loading: boolean;
 }
 
 function DataTable({
   columns,
   data,
-  nodeorclubId,
+  forumId,
   plugin,
   forum,
   clickTrigger,
   setClickTrigger,
+  loading,
 }: DataTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
@@ -152,26 +156,10 @@ function DataTable({
         <TableBody>
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
-              // <TableRow
-              //   key={row.id}
-              //   data-state={row.getIsSelected() && "selected"}
-              //   className="group hover:bg-muted/50"
-              // >
-              //   {row.getVisibleCells().map((cell) => (
-              //     <TableCell key={cell.id}>
-              //       {flexRender(cell.column.columnDef.cell, cell.getContext())}
-              //     </TableCell>
-              //   ))}
-              // </TableRow>
               <ExpandableTableRow
                 key={row.id}
                 row={row}
                 expandedContent={
-                  // <div className="flex">
-                  //   <div className="w-1/3 bg-red-500">hai</div>
-                  //   <div className="w-1/3 bg-green-500">hello</div>
-                  //   <div className="w-1/3 bg-blue-500">nice</div>
-                  // </div>
                   <div className="rounded-lg bg-white p-6 shadow-sm">
                     <div className="mb-4 flex items-start justify-between">
                       <div className="">
@@ -196,15 +184,6 @@ function DataTable({
                               {row?.original?.category}
                             </p>
                           </div>
-
-                          {/* <div>
-                            <p className="text-sm text-gray-400">
-                              Applicable for
-                            </p>
-                            <p className="font-medium text-gray-800">
-                              applicableFor
-                            </p>
-                          </div> */}
                         </div>
                       </div>
 
@@ -227,18 +206,6 @@ function DataTable({
                           )}
                         </p>
                         <div className="mt-1 flex items-center justify-end gap-1">
-                          {/* <svg
-                            className="size-4 text-gray-500"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                            <path
-                              fillRule="evenodd"
-                              d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
-                              clipRule="evenodd"
-                            />
-                          </svg> */}
                           <LockKeyhole className="size-4 text-gray-500" />
                           <span className="text-gray-600">Private</span>
                         </div>
@@ -260,25 +227,19 @@ function DataTable({
                       </div>
 
                       <div className="flex items-center gap-3">
-                        {/* <span className="rounded-full bg-orange-50 px-3 py-1 text-sm text-orange-400">
-                          relevantCount of totalCount find it relevant
-                        </span> */}
                         <button className="rounded-lg border border-gray-200 px-4 py-2 text-gray-600 hover:text-gray-800">
                           <Link
-                            href={`/${forum}/${nodeorclubId}/${plugin}/${row?.original?._id}/view`}
+                            href={`/${forum}/${forumId}/${plugin}/${row?.original?._id}/view`}
                             className="w-full"
                           >
                             View Original
                           </Link>
                         </button>
-                        {/* <button className="rounded-lg bg-green-500 px-4 py-2 text-white hover:bg-green-600">
-                          Report Offence
-                        </button> */}
                         <ContentDailog
                           plugin={plugin}
                           pluginId={row?.original?._id}
                           forum={forum}
-                          forumId={nodeorclubId}
+                          forumId={forumId}
                           isBtn={true}
                           setClickTrigger={setClickTrigger}
                           clickTrigger={clickTrigger}
@@ -290,16 +251,32 @@ function DataTable({
               />
             ))
           ) : (
-            <TableRow>
-              <TableCell colSpan={columns.length} className="h-32 text-center">
-                <div className="flex flex-col items-center justify-center space-y-1">
-                  <div className="text-lg font-medium">No rules found</div>
-                  <div className="text-sm text-muted-foreground">
-                    There are no rules available at the moment
-                  </div>
-                </div>
-              </TableCell>
-            </TableRow>
+            <>
+              {loading ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-32 text-center"
+                  >
+                    <Loader1 />
+                  </TableCell>
+                </TableRow>
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-32 text-center"
+                  >
+                    <div className="flex flex-col items-center justify-center space-y-1">
+                      <div className="text-lg font-medium">No rules found</div>
+                      <div className="text-sm text-muted-foreground">
+                        There are no rules available at the moment
+                      </div>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              )}
+            </>
           )}
         </TableBody>
       </Table>
@@ -310,29 +287,20 @@ function DataTable({
 export function RulesTable({
   plugin,
   forum,
-  nodeorclubId,
+  forumId,
   data,
   clickTrigger,
   setClickTrigger,
+  loading,
 }: {
   plugin: TPlugins;
   forum: TForum;
-  nodeorclubId: string;
+  forumId: string;
   data: any;
   clickTrigger: boolean;
   setClickTrigger: React.Dispatch<React.SetStateAction<boolean>>;
+  loading: boolean;
 }) {
-  // const [rules, setRules] = useState<Rule[]>([]);
-  // const [loading, setLoading] = useState(true);
-
-  // if (loading) {
-  //   return (
-  //     <div className="flex h-32 items-center justify-center">
-  //       <div className="size-8 animate-spin rounded-full border-b-2 border-primary"></div>
-  //     </div>
-  //   );
-  // }
-
   const columns: ColumnDef<Rule>[] = [
     {
       accessorKey: "sno",
@@ -428,6 +396,7 @@ export function RulesTable({
       header: "Posted by",
       cell: ({ row }) => {
         const postedBy: any = row.getValue("createdBy") as Rule["createdBy"];
+        console.log("postedBy", row.original);
         return (
           <div className="flex items-center gap-2">
             <Avatar className="size-8">
@@ -436,12 +405,15 @@ export function RulesTable({
                   postedBy?.profileImage ||
                   "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWdu-qOixArQruGnl8wz6iK-ygXGGGOSQytg&s"
                 }
-                alt={postedBy?.firstName}
+                alt="Avatar"
               />
-              <AvatarFallback>{postedBy?.name?.[0] || "A"}</AvatarFallback>
+              <AvatarFallback>
+                {postedBy?.firstName?.trim()?.[0] || "U"}
+              </AvatarFallback>
             </Avatar>
             <span className="text-sm text-muted-foreground">
-              {postedBy?.firstName}
+              {postedBy?.firstName || ""}
+              {postedBy?.lastName || ""}
             </span>
           </div>
         );
@@ -505,7 +477,7 @@ export function RulesTable({
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuItem>
                 <Link
-                  href={`/${forum}/${nodeorclubId}/${plugin}/${row?.original?._id}/edit`}
+                  href={`/${forum}/${forumId}/${plugin}/${row?.original?._id}/edit`}
                   className="w-full"
                 >
                   Edit Section
@@ -523,11 +495,12 @@ export function RulesTable({
       <DataTable
         columns={columns}
         data={data}
-        nodeorclubId={nodeorclubId}
+        forumId={forumId}
         plugin={plugin}
         forum={forum}
         setClickTrigger={setClickTrigger}
         clickTrigger={clickTrigger}
+        loading={loading}
       />
     </div>
   );

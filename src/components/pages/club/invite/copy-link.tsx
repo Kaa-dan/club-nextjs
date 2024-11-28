@@ -17,7 +17,7 @@ import { Search, Mail } from "lucide-react";
 
 export default function CopyLink() {
   return (
-    <DialogContent className="max-w-md h-[70vh] p-0 flex flex-col">
+    <DialogContent className="flex h-[70vh] max-w-md flex-col p-0">
       {/* Sticky Header */}
       <div className="sticky top-0 z-10 bg-white">
         <DialogHeader className="p-4 pb-2">
@@ -25,14 +25,14 @@ export default function CopyLink() {
             <DialogTitle>Invite Member</DialogTitle>
           </div>
         </DialogHeader>
-        <div className="p-4 space-y-4">
+        <div className="space-y-4 p-4">
           <div className="flex gap-2">
             <div className="relative flex-1">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
               <Input placeholder="Search members..." className="pl-8" />
             </div>
             <Button variant="outline" size="icon">
-              <Mail className="h-4 w-4" />
+              <Mail className="size-4" />
             </Button>
           </div>
           <Select defaultValue="all">
@@ -50,11 +50,11 @@ export default function CopyLink() {
       </div>
 
       {/* Scrollable Members List */}
-      <div className="space-y-2 text-xs p-4 overflow-y-auto scrollbar-none ">
+      <div className="space-y-2 overflow-y-auto p-4 text-xs scrollbar-none ">
         {members.map((member) => (
           <div
             key={member.id}
-            className="flex items-center gap-3 p-2 hover:bg-muted rounded-lg cursor-pointer"
+            className="flex cursor-pointer items-center gap-3 rounded-lg p-2 hover:bg-muted"
           >
             <Image
               src={member.avatar}
@@ -72,7 +72,7 @@ export default function CopyLink() {
       </div>
 
       {/* Sticky Footer */}
-      <div className="sticky scrol bg-white border-t p-4 flex items-center justify-end">
+      <div className="scrol sticky flex items-center justify-end border-t bg-white p-4">
         <Button>Copy Link</Button>
       </div>
     </DialogContent>
