@@ -14,7 +14,7 @@ type FilterComponentProps = {
 export function FilterComponent({ onSortChange }: FilterComponentProps) {
   return (
     <Select onValueChange={onSortChange}>
-      <SelectTrigger className="w-[180px]">
+      <SelectTrigger className="w-[180px] border-none">
         <SelectValue placeholder="Sort by" />
       </SelectTrigger>
       <SelectContent>
