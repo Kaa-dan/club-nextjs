@@ -281,7 +281,7 @@ export const DebateCard: React.FC<DebateCardProps> = ({
             <Badge className="text-white">{isPinned && "Marquee"}</Badge>
           )}
 
-          {participant && (isCurrentUserAuthor || hasRolePermission) && (
+          {(isCurrentUserAuthor || userCanDelete || hasRolePermission) && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="rounded-full p-2 hover:bg-gray-100">
@@ -289,7 +289,7 @@ export const DebateCard: React.FC<DebateCardProps> = ({
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                {/* Pin/Unpin option */}
+                {/* Pin/Unpin option - only for debate author */}
                 {isCurrentUserAuthor &&
                   !startingPoint && // Hide pin for starting posts
                   ((!isPinned &&
@@ -326,8 +326,10 @@ export const DebateCard: React.FC<DebateCardProps> = ({
                     </DropdownMenuItem>
                   )}
 
-                {/* Delete option */}
-                {isCurrentUserAuthor && ( // Show delete only if the user is the author
+                {/* Delete option - for comment author, debate author, or roles with permission */}
+                {(isCurrentUserAuthor ||
+                  userCanDelete ||
+                  hasRolePermission) && (
                   <DropdownMenuItem
                     onClick={() => {
                       Endpoints.deleteDebateArgument(commentId)
