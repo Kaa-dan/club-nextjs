@@ -42,6 +42,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useClubStore } from "@/store/clubs-store";
 import { useNodeStore } from "@/store/nodes-store";
+import Link from "next/link";
 
 const formSchema = z.object({
   topic: z.string().min(1, "Debate topic is required"),
@@ -379,7 +380,7 @@ const DebateForm = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
                   <div>
                     <FormItem>
                       <FormLabel className="flex items-center">
-                        CommentsFor
+                        {"Opening Comments (For)"}
                         <div className="ml-1 text-gray-400">ⓘ</div>
                       </FormLabel>
                       <ReactQuill
@@ -406,7 +407,8 @@ const DebateForm = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
                   <div>
                     <FormItem>
                       <FormLabel className="flex items-center">
-                        CommentsAgainst
+                        {"Opening Comments (Against)"}
+
                         <div className="ml-1 text-gray-400">ⓘ</div>
                       </FormLabel>
                       <ReactQuill
@@ -447,15 +449,18 @@ const DebateForm = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
               />
 
               <div className="flex space-x-2">
-                <Button
-                  disabled={form.formState.isSubmitting}
-                  type="button"
-                  variant="ghost"
-                  className="text-red-500 hover:bg-red-50 hover:text-red-600"
-                  onClick={() => form.reset()}
-                >
-                  Cancel
-                </Button>
+                <Link href={`/${forum}/${forumId}/debate`}>
+                  <Button
+                    disabled={form.formState.isSubmitting}
+                    type="button"
+                    variant="ghost"
+                    className="text-red-500 hover:bg-red-50 hover:text-red-600"
+                    onClick={() => form.reset()}
+                  >
+                    Cancel
+                  </Button>
+                </Link>
+
                 <Button
                   disabled={form.formState.isSubmitting}
                   type="button"

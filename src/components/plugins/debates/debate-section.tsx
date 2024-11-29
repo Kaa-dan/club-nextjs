@@ -281,76 +281,70 @@ export const DebateCard: React.FC<DebateCardProps> = ({
             <Badge className="text-white">{isPinned && "Marquee"}</Badge>
           )}
 
-          {participant &&
-            (isCurrentUserAuthor || userCanDelete || hasRolePermission) && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="rounded-full p-2 hover:bg-gray-100">
-                    <MoreVertical className="size-5 text-gray-500" />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  {/* Pin/Unpin option - Only show if not starting and other conditions are met */}
-                  {isCurrentUserAuthor &&
-                    !hasRolePermission &&
-                    !startingPoint && // Added condition to hide pin for starting posts
-                    ((!isPinned &&
-                      ((argumentType === "support" &&
-                        (pinnedSupportCount || 0) < 5) ||
-                        (argumentType === "against" &&
-                          (pinnedAgainstCount || 0) < 5))) ||
-                      isPinned) && (
-                      <DropdownMenuItem
-                        onClick={() => {
-                          if (!isPinned) {
-                            Endpoints.pin(debateId)
-                              .then((res) => {
-                                fetchArgs();
-                                console.log({ success: res });
-                              })
-                              .catch((err) =>
-                                console.error("Error pinning:", err)
-                              );
-                          } else {
-                            Endpoints.unpin(debateId)
-                              .then((res) => {
-                                fetchArgs();
-                                console.log({ success: res });
-                              })
-                              .catch((err) =>
-                                console.error("Error unpinning:", err)
-                              );
-                          }
-                        }}
-                      >
-                        <Pin className="mr-2 size-4" />
-                        <span>{!isPinned ? "Pin" : "Unpin"}</span>
-                      </DropdownMenuItem>
-                    )}
-
-                  {/* Delete option remains unchanged */}
-                  {(isCurrentUserAuthor ||
-                    userCanDelete ||
-                    hasRolePermission) && (
+          {participant && (isCurrentUserAuthor || hasRolePermission) && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="rounded-full p-2 hover:bg-gray-100">
+                  <MoreVertical className="size-5 text-gray-500" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {/* Pin/Unpin option */}
+                {isCurrentUserAuthor &&
+                  !startingPoint && // Hide pin for starting posts
+                  ((!isPinned &&
+                    ((argumentType === "support" &&
+                      (pinnedSupportCount || 0) < 5) ||
+                      (argumentType === "against" &&
+                        (pinnedAgainstCount || 0) < 5))) ||
+                    isPinned) && (
                     <DropdownMenuItem
                       onClick={() => {
-                        Endpoints.deleteDebateArgument(commentId)
-                          .then((res) => {
-                            fetchArgs();
-                            console.log({ success: res });
-                          })
-                          .catch((err) =>
-                            console.error("Error deleting:", err)
-                          );
+                        if (!isPinned) {
+                          Endpoints.pin(debateId)
+                            .then((res) => {
+                              fetchArgs();
+                              console.log({ success: res });
+                            })
+                            .catch((err) =>
+                              console.error("Error pinning:", err)
+                            );
+                        } else {
+                          Endpoints.unpin(debateId)
+                            .then((res) => {
+                              fetchArgs();
+                              console.log({ success: res });
+                            })
+                            .catch((err) =>
+                              console.error("Error unpinning:", err)
+                            );
+                        }
                       }}
                     >
-                      <Trash2 className="mr-2 size-4" />
-                      <span>Delete</span>
+                      <Pin className="mr-2 size-4" />
+                      <span>{!isPinned ? "Pin" : "Unpin"}</span>
                     </DropdownMenuItem>
                   )}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
+
+                {/* Delete option */}
+                {isCurrentUserAuthor && ( // Show delete only if the user is the author
+                  <DropdownMenuItem
+                    onClick={() => {
+                      Endpoints.deleteDebateArgument(commentId)
+                        .then((res) => {
+                          fetchArgs();
+                          console.log({ success: res });
+                        })
+                        .catch((err) => console.error("Error deleting:", err));
+                    }}
+                  >
+                    <Trash2 className="mr-2 size-4" />
+                    <span>Delete</span>
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
 
         {imageUrl && (
