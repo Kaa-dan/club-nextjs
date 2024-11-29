@@ -59,7 +59,7 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
 
   const isAdmin = () => currentUserRole === "admin";
   const isModeratorOrAdmin = () =>
-    ["moderator", "admin"].includes(currentUserRole.toLowerCase());
+    ["moderator", "admin", "owner"].includes(currentUserRole.toLowerCase());
 
   const SECTIONS = [
     { name: "News Feed", icon: ICONS.NodeNewsFeedIcon, path: "#" },

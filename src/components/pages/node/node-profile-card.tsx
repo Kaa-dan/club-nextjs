@@ -23,6 +23,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { ImageSkeleton } from "../club/club-profile-card";
 import env from "@/lib/env.config";
 import { useNodeCalls } from "@/hooks/apis/use-node-calls";
+import { ok } from "assert";
 
 interface ProfileCardProps {
   currentPage: string;
@@ -41,6 +42,8 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
   const { setUserRequestedNodes } = useNodeStore((state) => state);
 
   const isAdmin = () => currentUserRole === "admin";
+  console.log({ ok: currentUserRole });
+
   const isModeratorOrAdminOrOwner = () =>
     ["moderator", "admin", "owner"].includes(currentUserRole.toLowerCase());
 
