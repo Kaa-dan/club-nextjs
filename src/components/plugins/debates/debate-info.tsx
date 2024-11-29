@@ -31,6 +31,7 @@ type AdoptionOption = {
     clubId: string;
     role: string;
     name: string;
+    image: string;
   }[];
   nonAdoptedNodes: {
     nodeId: string;
