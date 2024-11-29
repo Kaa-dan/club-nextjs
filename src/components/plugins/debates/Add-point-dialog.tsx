@@ -76,12 +76,12 @@ export function AddPointDialog({
   const [preview, setPreview] = useState<string | null>(null);
   const [status, setStatus] = useState<boolean>(false); // Default status is false
   const [isExpired, setIsExpired] = useState(false);
-  console.log({ endingDate });
 
   useEffect(() => {
-    const currentDate = new Date();
-    const endDate = new Date(endingDate);
-    setIsExpired(endDate < currentDate); // true if expired
+    const _isExpired =
+      new Date(endingDate).setHours(0, 0, 0, 0) <
+      new Date().setHours(0, 0, 0, 0);
+    setIsExpired(_isExpired); // true if expired
   }, [endingDate]);
 
   const form = useForm<AddPointFormData>({

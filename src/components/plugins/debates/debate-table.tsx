@@ -162,9 +162,12 @@ export default function DebateTable({
     isAllDebatesTab: boolean = false
   ) => {
     if (isAllDebatesTab || debate.publishedStatus === "published") {
-      const now = new Date();
-      const closingDate = new Date(debate.closingDate);
-      return now > closingDate ? "ended" : "ongoing";
+      const isExpired =
+        new Date(debate?.closingDate).setHours(0, 0, 0, 0) <
+        new Date().setHours(0, 0, 0, 0);
+      // const now = new Date();
+      // const closingDate = new Date(debate.closingDate);
+      return isExpired ? "ended" : "ongoing";
     }
     return debate.publishedStatus;
   };

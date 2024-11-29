@@ -8,18 +8,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export function ExpiredDebateWarning() {
   return (
-    <motion.div
-      initial={{ y: -10, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{
-        type: "spring",
-        stiffness: 260,
-        damping: 20,
-        repeat: Infinity,
-        repeatType: "reverse",
-        duration: 1.5,
-      }}
-    >
+    <div className="mt-2">
       <Alert variant="destructive" className="mx-auto max-w-md">
         <AlertTriangle className="size-4" />
         <AlertTitle>Debate Expired</AlertTitle>
@@ -28,6 +17,6 @@ export function ExpiredDebateWarning() {
           content, but new contributions are not allowed.
         </AlertDescription>
       </Alert>
-    </motion.div>
+    </div>
   );
 }
