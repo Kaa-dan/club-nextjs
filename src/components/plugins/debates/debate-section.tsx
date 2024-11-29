@@ -1062,7 +1062,7 @@ export function DebateSection({ forum }: { forum: TForum }) {
   const [endingDate, setEndingDate] = useState<Date>();
 
   interface Participant {
-    user: string;
+    user: TUser;
     side: "support" | "against";
     _id: string;
   }
@@ -1078,7 +1078,7 @@ export function DebateSection({ forum }: { forum: TForum }) {
     pinnedAt: Date | null;
     startingPoint: boolean;
     timestamp: Date;
-    image: string[];
+    image: { url: string }[];
     createdAt: Date;
     updatedAt: Date;
   }
