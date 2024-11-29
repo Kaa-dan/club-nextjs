@@ -531,7 +531,11 @@ const AddNodeDialog = ({ open, setOpen }: IProps) => {
                       Previous
                     </Button>
                     <Button
-                      disabled={selectedModules.length === 0}
+                      disabled={
+                        selectedModules.length === 0 ||
+                        form?.formState?.isLoading ||
+                        form?.formState?.isSubmitting
+                      }
                       onClick={onFinalSubmit}
                       className="w-full rounded-lg py-2 text-white"
                     >

@@ -181,31 +181,16 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
             </span>
           </p>
         </div>
-        {recaptcha && (
-          <div>
-            <Dialog open={recaptcha} onOpenChange={setRecaptcha}>
-              <DialogTitle></DialogTitle>
-              <DialogContent
-                className="pointer-events-auto"
-                onInteractOutside={(e) => {
-                  e.preventDefault();
-                }}
-              >
-                <DialogHeader>
-                  {recaptcha ? (
-                    <ReCAPTCHA
-                      className="z-50 flex justify-center"
-                      ref={recaptchaRef}
-                      sitekey={env.RECAPTCHA_CLIENT as string}
-                      onChange={onRecaptchaChange}
-                    />
-                  ) : (
-                    "Loading..."
-                  )}
-                </DialogHeader>
-              </DialogContent>
-            </Dialog>
-          </div>
+
+        {recaptcha ? (
+          <ReCAPTCHA
+            className="z-50 flex justify-center"
+            ref={recaptchaRef}
+            sitekey={env.RECAPTCHA_CLIENT as string}
+            onChange={onRecaptchaChange}
+          />
+        ) : (
+          ""
         )}
 
         <div className="flex flex-col gap-2">
