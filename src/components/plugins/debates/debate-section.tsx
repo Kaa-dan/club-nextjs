@@ -52,6 +52,7 @@ interface DebateCardProps {
   postId: string;
   forum: TForum;
   entityId: string;
+  startingPoint: boolean;
 }
 interface Reply {
   _id: string;
@@ -88,6 +89,7 @@ export const DebateCard: React.FC<DebateCardProps> = ({
   postId,
   forum,
   entityId,
+  startingPoint,
 }) => {
   const [relevant, setRelevant] = useState(initialRelevant);
   const [irrelevant, setIrrelevant] = useState(initialIrrelevant);
@@ -242,12 +244,18 @@ export const DebateCard: React.FC<DebateCardProps> = ({
   const userCanDelete = currentUserId === argumentAuthorId; // User is the commenter
   console.log({ userClubRole });
 
-  const hasRolePermission = ["admin", "moderator", "owner"].includes(
-    userClubRole || userNodeRole
-  ); // User has a role that permits deletion
+  const hasRolePermission =
+    ["admin", "moderator", "owner"].includes(userClubRole) ||
+    ["admin", "moderator", "owner"].includes(userNodeRole);
+  console.log({ hasRolePermission });
+  console.log({ userNodeRole });
 
   return (
-    <Card className="overflow-hidden rounded-lg bg-white shadow-md">
+    <Card
+      className={`overflow-hidden rounded-lg border-t-4 bg-white shadow-md ${
+        argumentType === "support" ? "border-t-blue-500" : "border-t-red-500"
+      }`}
+    >
       <div className="space-y-4 p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -273,7 +281,7 @@ export const DebateCard: React.FC<DebateCardProps> = ({
             <Badge className="text-white">{isPinned && "Marquee"}</Badge>
           )}
 
-          {participant && (
+          {participant && (isCurrentUserAuthor || hasRolePermission) && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="rounded-full p-2 hover:bg-gray-100">
@@ -281,8 +289,9 @@ export const DebateCard: React.FC<DebateCardProps> = ({
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                {/* Pin/Unpin option - only for original author */}
+                {/* Pin/Unpin option */}
                 {isCurrentUserAuthor &&
+                  !startingPoint && // Hide pin for starting posts
                   ((!isPinned &&
                     ((argumentType === "support" &&
                       (pinnedSupportCount || 0) < 5) ||
@@ -317,15 +326,13 @@ export const DebateCard: React.FC<DebateCardProps> = ({
                     </DropdownMenuItem>
                   )}
 
-                {/* Delete option - logic for multiple cases */}
-                {(isCurrentUserAuthor ||
-                  userCanDelete ||
-                  hasRolePermission) && (
+                {/* Delete option */}
+                {isCurrentUserAuthor && ( // Show delete only if the user is the author
                   <DropdownMenuItem
                     onClick={() => {
-                      Endpoints.deleteDebateArgument(commentId) // Ensure the correct ID is used
+                      Endpoints.deleteDebateArgument(commentId)
                         .then((res) => {
-                          fetchArgs(); // Refresh the list
+                          fetchArgs();
                           console.log({ success: res });
                         })
                         .catch((err) => console.error("Error deleting:", err));
@@ -426,6 +433,207 @@ export const DebateCard: React.FC<DebateCardProps> = ({
   );
 };
 
+// export function DebateSection({ forum }: { forum: TForum }) {
+//   const { postId, clubId, nodeId } = useParams<{
+//     postId: string;
+//     clubId: string;
+//     nodeId: string;
+//   }>();
+//   const entityId = clubId ? clubId : nodeId;
+//   const [supportArgs, setSupportArgs] = useState<Argument[]>([]);
+//   const [againstArgs, setAgainstArgs] = useState<Argument[]>([]);
+//   const [sortOption, setSortOption] = useState<string>("relevantDesc");
+//   const { globalUser } = useTokenStore((state) => state);
+//   const userId = globalUser?._id;
+//   const [author, setAuthor] = useState("");
+//   const [pinnedAgainstCount, setPinnedAgainstCount] = useState(0);
+//   const [pinnedSupportCount, setPinnedSupportCount] = useState(0);
+//   const [endingDate, setEndingDate] = useState<Date>();
+
+//   const fetchArgs = () => {
+//     Endpoints.viewDebate(postId).then((res) => {
+//       setAuthor(res.createdBy._id);
+//       setPinnedAgainstCount(res.pinnedAgainstCount);
+//       setPinnedSupportCount(res.pinnedSupportCount);
+//       setEndingDate(res.closingDate as Date);
+//     });
+
+//     Endpoints.fetchDebateArgs(postId)
+//       .then((res) => {
+//         // Filter and sort support arguments
+//         const support = res
+//           .filter((arg) => arg.participant.side === "support")
+//           .sort((a, b) => {
+//             // Starting point first
+//             if (a.startingPoint && !b.startingPoint) return -1;
+//             if (!a.startingPoint && b.startingPoint) return 1;
+//             // Then pinned
+//             if (a.isPinned && !b.isPinned) return -1;
+//             if (!a.isPinned && b.isPinned) return 1;
+//             // Finally by timestamp
+//             return (
+//               new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+//             );
+//           });
+
+//         // Filter and sort against arguments
+//         const against = res
+//           .filter((arg) => arg.participant.side === "against")
+//           .sort((a, b) => {
+//             if (a.startingPoint && !b.startingPoint) return -1;
+//             if (!a.startingPoint && b.startingPoint) return 1;
+//             if (a.isPinned && !b.isPinned) return -1;
+//             if (!a.isPinned && b.isPinned) return 1;
+//             return (
+//               new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+//             );
+//           });
+
+//         setSupportArgs(support);
+//         setAgainstArgs(against);
+//       })
+//       .catch((err) => {
+//         console.log("err", err);
+//         setSupportArgs([]);
+//         setAgainstArgs([]);
+//       });
+//   };
+//   useEffect(() => {
+//     fetchArgs();
+//   }, [postId]);
+//   const sortArguments = (args: Argument[]) => {
+//     return [...args].sort((a, b) => {
+//       // Handle pinned arguments: pinned arguments come first
+//       if (a.isPinned && !b.isPinned) return -1; // `a` is pinned, `b` is not
+//       if (!a.isPinned && b.isPinned) return 1; // `b` is pinned, `a` is not
+
+//       // Apply the selected sorting option for non-pinned arguments
+//       switch (sortOption) {
+//         case "relevantDesc":
+//           return b.relevant - b.irrelevant - (a.relevant - a.irrelevant);
+//         case "relevantAsc":
+//           return a.relevant - a.irrelevant - (b.relevant - b.irrelevant);
+//         case "timeDesc":
+//           return (
+//             new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+//           );
+//         case "timeAsc":
+//           return (
+//             new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+//           );
+//         case "reset": // No sorting, return array as is
+//           return 0;
+//         default:
+//           return 0;
+//       }
+//     });
+//   };
+//   const sortedSupportArgs = sortArguments(supportArgs);
+//   const sortedAgainstArgs = sortArguments(againstArgs);
+//   console.log({ sortedSupportArgs });
+
+//   return (
+//     <div className="space-y-8">
+//       <div className="flex justify-start">
+//         <FilterComponent onSortChange={setSortOption} />
+//       </div>
+//       <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+//         {/* Support Arguments */}
+//         <div className="space-y-4">
+//           <div className="flex items-center justify-between">
+//             <h2 className="text-lg font-bold">For ({supportArgs.length})</h2>
+//             <AddPointDialog
+//               endingDate={endingDate as Date}
+//               entity={entityId}
+//               entityType={forum}
+//               fetchArg={fetchArgs}
+//               side="support"
+//               debateId={postId}
+//             />
+//           </div>
+//           <div className="space-y-4">
+//             {sortedSupportArgs.map((arg: Argument) => (
+//               <DebateCard
+//                 argumentType="support"
+//                 pinnedSupportCount={pinnedSupportCount}
+//                 fetchArgs={fetchArgs}
+//                 authorId={author}
+//                 key={arg?._id}
+//                 debateId={arg?._id}
+//                 content={arg?.content}
+//                 author={arg?.participant?.user?.userName}
+//                 date={
+//                   arg?.timestamp
+//                     ? new Date(arg.timestamp).toLocaleDateString()
+//                     : ""
+//                 }
+//                 profileImage={arg?.participant?.user?.profileImage}
+//                 initialRelevant={arg?.relevant}
+//                 initialIrrelevant={arg?.irrelevant}
+//                 userId={userId as string}
+//                 commentId={arg?._id}
+//                 imageUrl={arg?.image?.[0]?.url}
+//                 isPinned={arg?.isPinned}
+//                 argumentAuthorId={arg.participant.user._id}
+//                 postId={postId}
+//                 forum={forum}
+//                 entityId={entityId}
+//               />
+//             ))}
+//           </div>
+//         </div>
+
+//         {/* Against Arguments */}
+//         <div className="space-y-4">
+//           <div className="flex items-center justify-between">
+//             <h2 className="text-lg font-bold">
+//               Against ({againstArgs.length})
+//             </h2>
+//             <AddPointDialog
+//               entity={entityId}
+//               entityType={forum}
+//               fetchArg={fetchArgs}
+//               side="against"
+//               debateId={postId}
+//               endingDate={endingDate as Date}
+//             />
+//           </div>
+//           <div className="space-y-4">
+//             {sortedAgainstArgs.map((arg: Argument) => (
+//               <DebateCard
+//                 forum={forum}
+//                 argumentType="against"
+//                 pinnedAgainstCount={pinnedAgainstCount}
+//                 fetchArgs={fetchArgs}
+//                 authorId={author}
+//                 argumentAuthorId={arg.participant.user._id}
+//                 key={arg?._id}
+//                 debateId={arg?._id}
+//                 content={arg?.content}
+//                 author={arg?.participant?.user?.userName}
+//                 date={
+//                   arg?.timestamp
+//                     ? new Date(arg.timestamp).toLocaleDateString()
+//                     : ""
+//                 }
+//                 profileImage={arg?.participant?.user?.profileImage}
+//                 initialRelevant={arg?.relevant}
+//                 initialIrrelevant={arg?.irrelevant}
+//                 userId={userId as string}
+//                 commentId={arg?._id}
+//                 imageUrl={arg?.image?.[0]?.url}
+//                 isPinned={arg?.isPinned}
+//                 postId={postId}
+//                 entityId={entityId}
+//               />
+//             ))}
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
 export function DebateSection({ forum }: { forum: TForum }) {
   const { postId, clubId, nodeId } = useParams<{
     postId: string;
@@ -443,10 +651,45 @@ export function DebateSection({ forum }: { forum: TForum }) {
   const [pinnedSupportCount, setPinnedSupportCount] = useState(0);
   const [endingDate, setEndingDate] = useState<Date>();
 
+  const sortArguments = (args: Argument[]) => {
+    return [...args].sort((a, b) => {
+      // Starting point first
+      if (a.startingPoint && !b.startingPoint) return -1;
+      if (!a.startingPoint && b.startingPoint) return 1;
+
+      // Then pinned
+      if (a.isPinned && !b.isPinned) return -1;
+      if (!a.isPinned && b.isPinned) return 1;
+
+      // Then other sorting options if specified
+      if (sortOption !== "reset") {
+        switch (sortOption) {
+          case "relevantDesc":
+            return b.relevant - b.irrelevant - (a.relevant - a.irrelevant);
+          case "relevantAsc":
+            return a.relevant - a.irrelevant - (b.relevant - b.irrelevant);
+          case "timeDesc":
+            return (
+              new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+            );
+          case "timeAsc":
+            return (
+              new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+            );
+          default:
+            return (
+              new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+            );
+        }
+      }
+
+      // Default timestamp sort if no option selected
+      return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+    });
+  };
+
   const fetchArgs = () => {
     Endpoints.viewDebate(postId).then((res) => {
-      console.log({ arrrrrr: res.closingDate });
-
       setAuthor(res.createdBy._id);
       setPinnedAgainstCount(res.pinnedAgainstCount);
       setPinnedSupportCount(res.pinnedSupportCount);
@@ -461,6 +704,7 @@ export function DebateSection({ forum }: { forum: TForum }) {
         const against = res.filter(
           (arg: Argument) => arg.participant.side === "against"
         );
+
         setSupportArgs(support);
         setAgainstArgs(against);
       })
@@ -474,36 +718,9 @@ export function DebateSection({ forum }: { forum: TForum }) {
   useEffect(() => {
     fetchArgs();
   }, [postId]);
-  const sortArguments = (args: Argument[]) => {
-    return [...args].sort((a, b) => {
-      // Handle pinned arguments: pinned arguments come first
-      if (a.isPinned && !b.isPinned) return -1; // `a` is pinned, `b` is not
-      if (!a.isPinned && b.isPinned) return 1; // `b` is pinned, `a` is not
 
-      // Apply the selected sorting option for non-pinned arguments
-      switch (sortOption) {
-        case "relevantDesc":
-          return b.relevant - b.irrelevant - (a.relevant - a.irrelevant);
-        case "relevantAsc":
-          return a.relevant - a.irrelevant - (b.relevant - b.irrelevant);
-        case "timeDesc":
-          return (
-            new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-          );
-        case "timeAsc":
-          return (
-            new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
-          );
-        case "reset": // No sorting, return array as is
-          return 0;
-        default:
-          return 0;
-      }
-    });
-  };
   const sortedSupportArgs = sortArguments(supportArgs);
   const sortedAgainstArgs = sortArguments(againstArgs);
-  console.log({ sortedSupportArgs });
 
   return (
     <div className="space-y-8">
@@ -551,6 +768,7 @@ export function DebateSection({ forum }: { forum: TForum }) {
                 postId={postId}
                 forum={forum}
                 entityId={entityId}
+                startingPoint={arg.startingPoint}
               />
             ))}
           </div>
@@ -574,6 +792,7 @@ export function DebateSection({ forum }: { forum: TForum }) {
           <div className="space-y-4">
             {sortedAgainstArgs.map((arg: Argument) => (
               <DebateCard
+                startingPoint={arg.startingPoint}
                 forum={forum}
                 argumentType="against"
                 pinnedAgainstCount={pinnedAgainstCount}
