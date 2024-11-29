@@ -1065,45 +1065,106 @@ export function DebateSection({ forum }: { forum: TForum }) {
   const [pinnedSupportCount, setPinnedSupportCount] = useState(0);
   const [endingDate, setEndingDate] = useState<Date>();
 
+  interface Participant {
+    user: TUser;
+    side: "support" | "against";
+    _id: string;
+  }
+
+  interface Argument {
+    _id: string;
+    debate: string;
+    participant: Participant;
+    content: string;
+    relevant: string[];
+    irrelevant: string[];
+    isPinned: boolean;
+    pinnedAt: Date | null;
+    startingPoint: boolean;
+    timestamp: Date;
+    image: { url: string }[];
+    createdAt: Date;
+    updatedAt: Date;
+  }
+
   const sortArguments = (args: Argument[], sortOption: string) => {
     console.log("Sorting with option:", sortOption);
+
+    const getRelevanceScore = (arg: Argument) => {
+      const relevantCount = Array.isArray(arg.relevant)
+        ? arg.relevant.length
+        : 0;
+      const irrelevantCount = Array.isArray(arg.irrelevant)
+        ? arg.irrelevant.length
+        : 0;
+      return relevantCount - irrelevantCount;
+    };
+
     return [...args].sort((a, b) => {
-      // Starting point first
+      // StartingPoint should always be first
       if (a.startingPoint && !b.startingPoint) return -1;
       if (!a.startingPoint && b.startingPoint) return 1;
+      if (a.startingPoint && b.startingPoint) return 0; // If both are starting points, continue to next criteria
 
-      // Then pinned
+      // For all non-starting point items, apply sort criteria
+      // Calculate relevance scores
+      const scoreA = getRelevanceScore(a);
+      const scoreB = getRelevanceScore(b);
+
+      console.log("Comparing arguments:", {
+        a: {
+          content: a.content,
+          relevant: a.relevant?.length,
+          irrelevant: a.irrelevant?.length,
+          score: scoreA,
+          isPinned: a.isPinned,
+          startingPoint: a.startingPoint,
+        },
+        b: {
+          content: b.content,
+          relevant: b.relevant?.length,
+          irrelevant: b.irrelevant?.length,
+          score: scoreB,
+          isPinned: b.isPinned,
+          startingPoint: b.startingPoint,
+        },
+        sortOption,
+      });
+
+      // Then pinned status
       if (a.isPinned && !b.isPinned) return -1;
       if (!a.isPinned && b.isPinned) return 1;
 
-      // Calculate relevance scores
-      const scoreA = (a.relevant || 0) - (a.irrelevant || 0);
-      const scoreB = (b.relevant || 0) - (b.irrelevant || 0);
-
-      console.log("Comparing scores:", { scoreA, scoreB, sortOption });
-
-      // Then other sorting options if specified
+      // Then apply sort option
       if (sortOption !== "reset") {
         switch (sortOption) {
           case "relevantDesc":
-            return scoreB - scoreA;
+            // If scores are different, sort by score
+            if (scoreB !== scoreA) {
+              return scoreB - scoreA;
+            }
+            // If scores are equal, fall through to timestamp
+            break;
+
           case "relevantAsc":
-            return scoreA - scoreB;
+            if (scoreB !== scoreA) {
+              return scoreA - scoreB;
+            }
+            break;
+
           case "timeDesc":
             return (
               new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
             );
+
           case "timeAsc":
             return (
               new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
             );
-          default:
-            return (
-              new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-            );
         }
       }
 
+      // Default to timestamp sort
       return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
     });
   };

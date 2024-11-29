@@ -37,6 +37,7 @@ type AdoptionOption = {
     nodeId: string;
     role: string;
     name: string;
+    image: string;
   }[];
 };
 
