@@ -1,17 +1,13 @@
 import { create } from "zustand";
 import { io, Socket } from "socket.io-client";
 
-interface CommentPayload {
-  content: string;
-  assetId: string;
-}
 
 interface ServerToClientEvents {
-  commentAdded: (comment: CommentPayload) => void;
+  commentAdded: (comment: TCommentType) => void;
 }
 
 interface ClientToServerEvents {
-  newComment: (comment: CommentPayload) => void;
+  newComment: (comment: TCommentType) => void;
 }
 
 type SocketInstance = Socket<ServerToClientEvents, ClientToServerEvents>;
@@ -21,7 +17,7 @@ interface SocketStore {
   isConnected: boolean;
   connect: () => void;
   disconnect: () => void;
-  sendComment: (comment: CommentPayload) => void;
+  sendComment: (comment: TCommentType) => void;
 }
 
 const socket: SocketInstance = io(
@@ -57,7 +53,7 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
     socket.disconnect();
   },
 
-  sendComment: (comment: CommentPayload) => {
+  sendComment: (comment: TCommentType) => {
     const { socket } = get();
     socket.emit("newComment", comment);
   },

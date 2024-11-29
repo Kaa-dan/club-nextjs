@@ -24,9 +24,12 @@ import { useCommentsStore } from "@/store/comments-store";
 import { useProfanity } from "@/hooks/use-profanity";
 import CustomAlertDialog from "@/components/ui/custom/custom-alert-dialog";
 import { useSocketStore } from "@/hooks/use-socket-store";
+import { useTokenStore } from "@/store/store";
 const CommentInput = () => {
   const { socket, isConnected, connect, disconnect, sendComment } =
     useSocketStore();
+
+  const { globalUser } = useTokenStore((state) => state);
   useEffect(() => {
     connect();
 
@@ -101,8 +104,20 @@ const CommentInput = () => {
         setComments(res.data);
       }
       sendComment({
+        _id: globalUser?._id!,
         content: comment,
-        assetId: postId,
+        coverImage: globalUser?.coverImage!,
+        dislike: [],
+        like: [],
+        createdAt: new Date().toISOString(),
+        email: globalUser?.email!,
+        firstName: globalUser?.firstName!,
+        lastName: globalUser?.lastName!,
+        profileImage: globalUser?.profileImage!,
+        interests: globalUser?.interests!,
+        replies: [],
+        userName: globalUser?.userName!,
+        // ...globalUser,
       });
 
       setComment("");
