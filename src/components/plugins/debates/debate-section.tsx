@@ -281,72 +281,77 @@ export const DebateCard: React.FC<DebateCardProps> = ({
             <Badge className="text-white">{isPinned && "Marquee"}</Badge>
           )}
 
-          {(isCurrentUserAuthor || userCanDelete || hasRolePermission) && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="rounded-full p-2 hover:bg-gray-100">
-                  <MoreVertical className="size-5 text-gray-500" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                {/* Pin/Unpin option - only for debate author */}
-                {isCurrentUserAuthor &&
-                  !startingPoint && // Hide pin for starting posts
-                  ((!isPinned &&
-                    ((argumentType === "support" &&
-                      (pinnedSupportCount || 0) < 5) ||
-                      (argumentType === "against" &&
-                        (pinnedAgainstCount || 0) < 5))) ||
-                    isPinned) && (
-                    <DropdownMenuItem
-                      onClick={() => {
-                        if (!isPinned) {
-                          Endpoints.pin(debateId)
-                            .then((res) => {
-                              fetchArgs();
-                              console.log({ success: res });
-                            })
-                            .catch((err) =>
-                              console.error("Error pinning:", err)
-                            );
-                        } else {
-                          Endpoints.unpin(debateId)
-                            .then((res) => {
-                              fetchArgs();
-                              console.log({ success: res });
-                            })
-                            .catch((err) =>
-                              console.error("Error unpinning:", err)
-                            );
-                        }
-                      }}
-                    >
-                      <Pin className="mr-2 size-4" />
-                      <span>{!isPinned ? "Pin" : "Unpin"}</span>
-                    </DropdownMenuItem>
-                  )}
+          {participant &&
+            (isCurrentUserAuthor || userCanDelete || hasRolePermission) && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="rounded-full p-2 hover:bg-gray-100">
+                    <MoreVertical className="size-5 text-gray-500" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {/* Pin/Unpin option - only for debate author AND participant */}
+                  {participant &&
+                    isCurrentUserAuthor &&
+                    !startingPoint && // Hide pin for starting posts
+                    ((!isPinned &&
+                      ((argumentType === "support" &&
+                        (pinnedSupportCount || 0) < 5) ||
+                        (argumentType === "against" &&
+                          (pinnedAgainstCount || 0) < 5))) ||
+                      isPinned) && (
+                      <DropdownMenuItem
+                        onClick={() => {
+                          if (!isPinned) {
+                            Endpoints.pin(debateId)
+                              .then((res) => {
+                                fetchArgs();
+                                console.log({ success: res });
+                              })
+                              .catch((err) =>
+                                console.error("Error pinning:", err)
+                              );
+                          } else {
+                            Endpoints.unpin(debateId)
+                              .then((res) => {
+                                fetchArgs();
+                                console.log({ success: res });
+                              })
+                              .catch((err) =>
+                                console.error("Error unpinning:", err)
+                              );
+                          }
+                        }}
+                      >
+                        <Pin className="mr-2 size-4" />
+                        <span>{!isPinned ? "Pin" : "Unpin"}</span>
+                      </DropdownMenuItem>
+                    )}
 
-                {/* Delete option - for comment author, debate author, or roles with permission */}
-                {(isCurrentUserAuthor ||
-                  userCanDelete ||
-                  hasRolePermission) && (
-                  <DropdownMenuItem
-                    onClick={() => {
-                      Endpoints.deleteDebateArgument(commentId)
-                        .then((res) => {
-                          fetchArgs();
-                          console.log({ success: res });
-                        })
-                        .catch((err) => console.error("Error deleting:", err));
-                    }}
-                  >
-                    <Trash2 className="mr-2 size-4" />
-                    <span>Delete</span>
-                  </DropdownMenuItem>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
+                  {/* Delete option - only if participant AND (author OR commenter OR has role permission) */}
+                  {participant &&
+                    (isCurrentUserAuthor ||
+                      userCanDelete ||
+                      hasRolePermission) && (
+                      <DropdownMenuItem
+                        onClick={() => {
+                          Endpoints.deleteDebateArgument(commentId)
+                            .then((res) => {
+                              fetchArgs();
+                              console.log({ success: res });
+                            })
+                            .catch((err) =>
+                              console.error("Error deleting:", err)
+                            );
+                        }}
+                      >
+                        <Trash2 className="mr-2 size-4" />
+                        <span>Delete</span>
+                      </DropdownMenuItem>
+                    )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
         </div>
 
         {imageUrl && (
