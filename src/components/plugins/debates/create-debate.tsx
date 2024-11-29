@@ -111,13 +111,13 @@ const DebateForm = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
       const response = await Endpoints.postDebate(formDataToSend);
       toast.success(response.message || "Debate successfully created");
 
+      form.reset();
       router.push(`/${forum}/${forumId}/debate`);
     } catch (error) {
       console.error("Error submitting form:", error);
       toast.error("Failed to submit debate. Please try again.");
     } finally {
       setOpen(false);
-      form.reset();
     }
   };
 
