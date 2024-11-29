@@ -60,6 +60,7 @@ interface AddPointDialogProps {
   fetchArg: () => void;
   entityType: TForum;
   entity: string;
+  endingDate: Date;
 }
 
 export function AddPointDialog({
@@ -68,11 +69,20 @@ export function AddPointDialog({
   entityType,
   entity,
   trigger,
+  endingDate,
   fetchArg,
 }: AddPointDialogProps) {
   const [open, setOpen] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const [status, setStatus] = useState<boolean>(false); // Default status is false
+  const [isExpired, setIsExpired] = useState(false);
+  console.log({ endingDate });
+
+  useEffect(() => {
+    const currentDate = new Date();
+    const endDate = new Date(endingDate);
+    setIsExpired(endDate < currentDate); // true if expired
+  }, [endingDate]);
 
   const form = useForm<AddPointFormData>({
     resolver: zodResolver(addPointSchema),
@@ -129,14 +139,17 @@ export function AddPointDialog({
       {/* Show the Add Point button only if status is true */}
       {status && (
         <DialogTrigger asChild>
-          {trigger || (
-            <Button
-              variant="outline"
-              className={side === "support" ? "text-blue-600" : "text-red-600"}
-            >
-              + Add a point {side}
-            </Button>
-          )}
+          {!isExpired && // Only show the button if the debate is not expired
+            (trigger || (
+              <Button
+                variant="outline"
+                className={
+                  side === "support" ? "text-blue-600" : "text-red-600"
+                }
+              >
+                + Add a point {side}
+              </Button>
+            ))}
         </DialogTrigger>
       )}
       <DialogContent className="sm:max-w-[425px]">
@@ -146,7 +159,7 @@ export function AddPointDialog({
             <Button
               variant="ghost"
               size="icon"
-              className="h-6 w-6 p-0"
+              className="size-6 p-0"
               onClick={() => setOpen(false)}
             ></Button>
           </DialogTitle>
@@ -200,14 +213,14 @@ export function AddPointDialog({
                               onChange(undefined);
                             }}
                           >
-                            <X className="h-4 w-4" />
+                            <X className="size-4" />
                           </Button>
                         </div>
                       ) : (
                         <div className="flex items-center justify-center">
                           <label className="flex h-32 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100">
-                            <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                              <ImagePlus className="mb-2 h-8 w-8 text-gray-400" />
+                            <div className="flex flex-col items-center justify-center pb-6 pt-5">
+                              <ImagePlus className="mb-2 size-8 text-gray-400" />
                               <p className="text-sm text-gray-500">
                                 Click to upload image
                               </p>

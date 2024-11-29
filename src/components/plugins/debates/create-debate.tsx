@@ -36,11 +36,13 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { DialogHeader } from "@/components/ui/dialog";
 
-import { url } from "inspector";
 import {
   AlertDialogHeader,
   AlertDialogFooter,
 } from "@/components/ui/alert-dialog";
+import { useClubStore } from "@/store/clubs-store";
+import { useNodeStore } from "@/store/nodes-store";
+import Link from "next/link";
 
 const formSchema = z.object({
   topic: z.string().min(1, "Debate topic is required"),
@@ -59,6 +61,8 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 const DebateForm = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
+  const { currentUserRole: clubUserRole } = useClubStore((state) => state);
+  const { currentUserRole: nodeUserRole } = useNodeStore((state) => state);
   const [files, setFiles] = React.useState<File[]>([]);
   const router = useRouter();
   const form = useForm<FormValues>({
@@ -163,6 +167,9 @@ const DebateForm = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
       form.getValues("tags").filter((tag) => tag !== tagToRemove)
     );
   };
+  const isMember =
+    (forum === "club" && clubUserRole === "member") ||
+    (forum === "node" && nodeUserRole === "member");
 
   return (
     <Card className="mx-auto max-w-5xl">
@@ -201,7 +208,12 @@ const DebateForm = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
                     </FormLabel>
                     <FormControl>
                       <div className="relative">
-                        <Input {...field} type="date" className="h-9 pl-10" />
+                        <Input
+                          {...field}
+                          type="date"
+                          className="h-9 pl-10"
+                          min={new Date().toISOString().split("T")[0]} // Set minimum date to today
+                        />
                         <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                       </div>
                     </FormControl>
@@ -368,7 +380,7 @@ const DebateForm = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
                   <div>
                     <FormItem>
                       <FormLabel className="flex items-center">
-                        CommentsFor
+                        {"Opening Comments (For)"}
                         <div className="ml-1 text-gray-400">ⓘ</div>
                       </FormLabel>
                       <ReactQuill
@@ -395,7 +407,8 @@ const DebateForm = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
                   <div>
                     <FormItem>
                       <FormLabel className="flex items-center">
-                        CommentsAgainst
+                        {"Opening Comments (Against)"}
+
                         <div className="ml-1 text-gray-400">ⓘ</div>
                       </FormLabel>
                       <ReactQuill
@@ -436,15 +449,18 @@ const DebateForm = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
               />
 
               <div className="flex space-x-2">
-                <Button
-                  disabled={form.formState.isSubmitting}
-                  type="button"
-                  variant="ghost"
-                  className="text-red-500 hover:bg-red-50 hover:text-red-600"
-                  onClick={() => form.reset()}
-                >
-                  Cancel
-                </Button>
+                <Link href={`/${forum}/${forumId}/debate`}>
+                  <Button
+                    disabled={form.formState.isSubmitting}
+                    type="button"
+                    variant="ghost"
+                    className="text-red-500 hover:bg-red-50 hover:text-red-600"
+                    onClick={() => form.reset()}
+                  >
+                    Cancel
+                  </Button>
+                </Link>
+
                 <Button
                   disabled={form.formState.isSubmitting}
                   type="button"
@@ -458,7 +474,7 @@ const DebateForm = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
                   type="submit"
                   className="bg-emerald-500 hover:bg-emerald-600"
                 >
-                  Publish
+                  {isMember ? "Propose" : "Publish"}
                 </Button>
               </div>
             </div>
@@ -482,7 +498,11 @@ const DebateForm = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
               disabled={form.formState.isSubmitting}
               onClick={form.handleSubmit(onSubmit)}
             >
-              {form.formState.isSubmitting ? "Submitting..." : "Publish"}
+              {form.formState.isSubmitting
+                ? "Submitting..."
+                : isMember
+                  ? "Propose"
+                  : "Publish"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

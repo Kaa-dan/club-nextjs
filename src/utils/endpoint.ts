@@ -539,4 +539,15 @@ export class Endpoints {
       throw error;
     }
   }
+
+  static async createDebtaView(debateId: string) {
+    try {
+      const response = await withTokenAxios.put("debate/create-views", {
+        debateId,
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
 }

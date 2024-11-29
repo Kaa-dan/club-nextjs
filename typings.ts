@@ -195,4 +195,5 @@ type Argument = {
   relevant: number;
   irrelevant: number;
   isPinned: boolean;
+  startingPoint: true;
 };
