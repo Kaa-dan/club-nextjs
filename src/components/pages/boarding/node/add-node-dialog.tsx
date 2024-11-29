@@ -298,13 +298,8 @@ const DetailsForm = ({
                   {...field}
                   onChange={(e) => {
                     const value = e.target.value;
-                    const formattedName = formatName(value, {
-                      makeFirstLetterUppercase: true,
-                      allowNonConsecutiveSpaces: true,
-                      allowUppercaseInBetween: true,
-                    });
-                    field.onChange(formattedName);
-                    form.setValue("name", formattedName);
+                    field.onChange(value);
+                    form.setValue("name", value);
                   }}
                 />
               </FormControl>
@@ -540,7 +535,7 @@ const AddNodeDialog = ({ open, setOpen }: IProps) => {
                       onClick={onFinalSubmit}
                       className="w-full rounded-lg py-2 text-white"
                     >
-                      Next
+                      Ceate
                     </Button>
                   </div>
                 </div>

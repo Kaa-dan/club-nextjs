@@ -250,6 +250,7 @@ const View = ({ forum }: { forum: TForum }) => {
                   </span>
                 </div>
               </TooltipTrigger>
+
               <TooltipContent className="bg-white border text-black w-[200px] flex justify-between items-center  ">
                 <div>
                   <span className="flex justify-between">
@@ -272,9 +273,13 @@ const View = ({ forum }: { forum: TForum }) => {
 
           <Dialog>
             <DialogTrigger asChild>
-              <button className="rounded-md bg-green-500 px-4 py-1.5 text-sm text-white">
-                Adopt
-              </button>
+              {rule?.isPublic ? (
+                <button className="rounded-md bg-green-500 px-4 py-1.5 text-sm text-white">
+                  Adopt
+                </button>
+              ) : (
+                <div className="text-red-500 font-semibold">Private</div>
+              )}
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>

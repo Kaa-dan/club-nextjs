@@ -288,7 +288,8 @@ export default function RuleForm({
                       htmlFor="description"
                       className="flex items-center gap-2"
                     >
-                      Title <Info className="size-4 text-muted-foreground" />
+                      Title{" "}
+                      <Info className="size-4 cursor-pointer text-muted-foreground" />
                     </Label>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -316,7 +317,8 @@ export default function RuleForm({
                       htmlFor="description"
                       className="flex items-center gap-2"
                     >
-                      Domain <Info className="size-4 text-muted-foreground" />
+                      Domain{" "}
+                      <Info className="size-4 cursor-pointer text-muted-foreground" />
                     </Label>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -357,7 +359,8 @@ export default function RuleForm({
                       htmlFor="description"
                       className="flex items-center gap-2"
                     >
-                      Category <Info className="size-4 text-muted-foreground" />
+                      Category{" "}
+                      <Info className="size-4 cursor-pointer text-muted-foreground" />
                     </Label>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -392,7 +395,7 @@ export default function RuleForm({
                       className="flex items-center gap-2"
                     >
                       Applicable for?{" "}
-                      <Info className="size-4 text-muted-foreground" />
+                      <Info className="size-4 cursor-pointer text-muted-foreground" />
                     </Label>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -430,7 +433,7 @@ export default function RuleForm({
                       className="flex items-center gap-2"
                     >
                       Significance{" "}
-                      <Info className="size-4 text-muted-foreground" />
+                      <Info className="size-4 cursor-pointer text-muted-foreground" />
                     </Label>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -464,7 +467,8 @@ export default function RuleForm({
                         htmlFor="description"
                         className="flex items-center gap-2"
                       >
-                        Tags <Info className="size-4 text-muted-foreground" />
+                        Tags{" "}
+                        <Info className="size-4 cursor-pointer text-muted-foreground" />
                       </Label>
                     </TooltipTrigger>
                     <TooltipContent>
@@ -536,7 +540,7 @@ export default function RuleForm({
                     className="flex items-center gap-2"
                   >
                     Description{" "}
-                    <Info className="size-4 text-muted-foreground" />
+                    <Info className="size-4 cursor-pointer text-muted-foreground" />
                   </Label>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -578,7 +582,7 @@ export default function RuleForm({
                     className="flex items-center gap-2"
                   >
                     Files/Media{" "}
-                    <Info className="size-4 text-muted-foreground" />
+                    <Info className="size-4 cursor-pointer text-muted-foreground" />
                     <span className="ml-2 text-xs text-muted-foreground">
                       (JPEG, PNG, PDF, DOCX, Excel)
                     </span>
