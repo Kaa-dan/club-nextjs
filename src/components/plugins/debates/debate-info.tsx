@@ -25,6 +25,7 @@ import { Endpoints } from "@/utils/endpoint";
 import { useParams } from "next/navigation";
 import { toast } from "sonner";
 import { ExpiredDebateWarning } from "./expired-debate-warning";
+import Image from "next/image";
 type AdoptionOption = {
   nonAdoptedClubs: {
     clubId: string;
@@ -51,6 +52,7 @@ function DebateInfo() {
         type: "club",
         name: club.name,
         role: club.role,
+        image: club.image,
       }))) ||
     [];
   const nodes =
@@ -60,6 +62,7 @@ function DebateInfo() {
         type: "node",
         name: node.name,
         role: node.role,
+        image: node.image,
       }))) ||
     [];
   const adoptionOptions = [...clubs, ...nodes];
@@ -170,9 +173,21 @@ function DebateInfo() {
                       >
                         <div className="flex items-center gap-2">
                           {option.type === "club" ? (
-                            <Building2 className="size-4 text-blue-500" />
+                            <Image
+                              className="rounded-md"
+                              width={30}
+                              height={30}
+                              src={option?.image}
+                              alt={option.name}
+                            />
                           ) : (
-                            <Network className="size-4 text-purple-500" />
+                            <Image
+                              className="rounded-md"
+                              width={30}
+                              height={30}
+                              src={option?.image}
+                              alt={option.name}
+                            />
                           )}
                           <div className="text-sm font-medium">
                             {option.name}
