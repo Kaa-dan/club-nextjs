@@ -268,473 +268,430 @@ export default function RuleForm({
     }
   };
   return (
-    <>
-      <CustomBreadcrumb
-        items={breadcrumbItems}
-        className="my-4" // optional styling
-      />
-      <Card className="min-w-full max-w-3xl p-6">
-        <form
-          onSubmit={handleSubmit(() => setIsAlertOpen(true))}
-          className="space-y-4"
-        >
-          {/* Title and Domain */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <TooltipProvider>
+    <Card className="min-w-full max-w-3xl p-6">
+      <form
+        onSubmit={handleSubmit(() => setIsAlertOpen(true))}
+        className="space-y-4"
+      >
+        {/* Title and Domain */}xxxxxx
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <TooltipProvider>
+              <div className="flex items-center gap-2">
+                <Label htmlFor="title">Title</Label>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Label
-                      htmlFor="description"
-                      className="flex items-center gap-2"
-                    >
-                      Title <Info className="size-4 text-muted-foreground" />
-                    </Label>
+                    <Info className="size-4 cursor-pointer text-muted-foreground" />
                   </TooltipTrigger>
-                  <TooltipContent>
+                  <TooltipContent side="top">
                     <p className="text-white">Add title for your rule</p>
                   </TooltipContent>
                 </Tooltip>
-              </TooltipProvider>
-              <Controller
-                name="title"
-                control={control}
-                render={({ field }) => (
-                  <Input {...field} id="title" placeholder="Enter rule" />
-                )}
-              />
-              {errors.title && (
-                <p className="text-sm text-red-500">{errors?.title?.message}</p>
+              </div>
+            </TooltipProvider>
+            <Controller
+              name="title"
+              control={control}
+              render={({ field }) => (
+                <Input {...field} id="title" placeholder="Enter rule" />
               )}
-            </div>
+            />
+            {errors.title && (
+              <p className="text-sm text-red-500">{errors?.title?.message}</p>
+            )}
+          </div>
 
-            <div className="space-y-2">
-              <TooltipProvider>
+          <div className="space-y-2">
+            <TooltipProvider>
+              <div className="flex items-center gap-2">
+                <Label htmlFor="domain">Domain</Label>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Label
-                      htmlFor="description"
-                      className="flex items-center gap-2"
-                    >
-                      Domain <Info className="size-4 text-muted-foreground" />
-                    </Label>
+                    <Info className="size-4 cursor-pointer text-muted-foreground" />
                   </TooltipTrigger>
-                  <TooltipContent>
+                  <TooltipContent side="top">
                     <p className="text-white">Add a domain for your rule</p>
                   </TooltipContent>
                 </Tooltip>
-              </TooltipProvider>
-
-              <Controller
-                name="domain"
-                control={control}
-                render={({ field }) => (
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger id="domain">
-                      <SelectValue placeholder="Select Domain" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="domain1">Domain 1</SelectItem>
-                      <SelectItem value="domain2">Domain 2</SelectItem>
-                      <SelectItem value="domain3">Domain 3</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-              {errors.domain && (
-                <p className="text-sm text-red-500">{errors.domain.message}</p>
+              </div>
+            </TooltipProvider>
+            <Controller
+              name="domain"
+              control={control}
+              render={({ field }) => (
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <SelectTrigger id="domain">
+                    <SelectValue placeholder="Select Domain" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="domain1">Domain 1</SelectItem>
+                    <SelectItem value="domain2">Domain 2</SelectItem>
+                    <SelectItem value="domain3">Domain 3</SelectItem>
+                  </SelectContent>
+                </Select>
               )}
-            </div>
+            />
+            {errors.domain && (
+              <p className="text-sm text-red-500">{errors.domain.message}</p>
+            )}
           </div>
-
-          {/* Category and Applicable For */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <TooltipProvider>
+        </div>
+        {/* Category and Applicable For */}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <TooltipProvider>
+              <div className="flex items-center gap-2">
+                <Label htmlFor="category">Category</Label>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Label
-                      htmlFor="description"
-                      className="flex items-center gap-2"
-                    >
-                      Category <Info className="size-4 text-muted-foreground" />
-                    </Label>
+                    <Info className="size-4 cursor-pointer text-muted-foreground" />
                   </TooltipTrigger>
-                  <TooltipContent>
+                  <TooltipContent side="top">
                     <p className="text-white">Add category for your rule</p>
                   </TooltipContent>
                 </Tooltip>
-              </TooltipProvider>
-              <Controller
-                name="category"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    id="category"
-                    placeholder="Enter Category"
-                  />
-                )}
-              />
-              {errors.category && (
-                <p className="text-sm text-red-500">
-                  {errors.category.message}
-                </p>
+              </div>
+            </TooltipProvider>
+            <Controller
+              name="category"
+              control={control}
+              render={({ field }) => (
+                <Input {...field} id="category" placeholder="Enter Category" />
               )}
-            </div>
+            />
+            {errors.category && (
+              <p className="text-sm text-red-500">{errors.category.message}</p>
+            )}
+          </div>
 
-            <div className="space-y-2">
-              <TooltipProvider>
+          <div className="space-y-2">
+            <TooltipProvider>
+              <div className="flex items-center gap-2">
+                <Label htmlFor="applicableFor">Applicable for?</Label>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Label
-                      htmlFor="description"
-                      className="flex items-center gap-2"
-                    >
-                      Applicable for?{" "}
-                      <Info className="size-4 text-muted-foreground" />
-                    </Label>
+                    <Info className="size-4 cursor-pointer text-muted-foreground" />
                   </TooltipTrigger>
-                  <TooltipContent>
+                  <TooltipContent side="top">
                     <p className="text-white">Applicable for?</p>
                   </TooltipContent>
                 </Tooltip>
-              </TooltipProvider>
-              <Controller
-                name="applicableFor"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    id="applicableFor"
-                    placeholder="Applicable for?"
-                  />
-                )}
-              />
-              {errors.applicableFor && (
-                <p className="text-sm text-red-500">
-                  {errors.applicableFor.message}
-                </p>
+              </div>
+            </TooltipProvider>
+            <Controller
+              name="applicableFor"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  id="applicableFor"
+                  placeholder="Applicable for?"
+                />
               )}
-            </div>
+            />
+            {errors.applicableFor && (
+              <p className="text-sm text-red-500">
+                {errors.applicableFor.message}
+              </p>
+            )}
           </div>
-
-          {/* Significance and Tags */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <TooltipProvider>
+        </div>
+        {/* Significance and Tags */}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <TooltipProvider>
+              <div className="flex items-center gap-2">
+                <Label htmlFor="significance">Significance</Label>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Label
-                      htmlFor="significance"
-                      className="flex items-center gap-2"
-                    >
-                      Significance{" "}
-                      <Info className="size-4 text-muted-foreground" />
-                    </Label>
+                    <Info className="size-4 cursor-pointer text-muted-foreground" />
                   </TooltipTrigger>
-                  <TooltipContent>
+                  <TooltipContent side="top">
                     <p className="text-white">Enter Significance</p>
                   </TooltipContent>
                 </Tooltip>
-              </TooltipProvider>
-              <Controller
-                name="significance"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    id="significance"
-                    placeholder="Enter Significance"
-                  />
-                )}
-              />
-              {errors.significance && (
-                <p className="text-sm text-red-500">
-                  {errors.significance.message}
-                </p>
+              </div>
+            </TooltipProvider>
+            <Controller
+              name="significance"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  id="significance"
+                  placeholder="Enter Significance"
+                />
               )}
-            </div>
+            />
+            {errors.significance && (
+              <p className="text-sm text-red-500">
+                {errors.significance.message}
+              </p>
+            )}
+          </div>
+          <div className="space-y-2">
             <div className="space-y-2">
-              <div className="space-y-2">
-                <TooltipProvider>
+              <TooltipProvider>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="tags">Tags</Label>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Label
-                        htmlFor="description"
-                        className="flex items-center gap-2"
-                      >
-                        Tags <Info className="size-4 text-muted-foreground" />
-                      </Label>
+                      <Info className="size-4 cursor-pointer text-muted-foreground" />
                     </TooltipTrigger>
-                    <TooltipContent>
+                    <TooltipContent side="top">
                       <p className="text-white">Enter Tags for your rule</p>
                     </TooltipContent>
                   </Tooltip>
-                </TooltipProvider>
-
-                <div className="flex min-h-[40px] flex-wrap items-center gap-1 rounded-md border border-input bg-background  p-1">
-                  {tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="text-secondary-foreground flex items-center rounded bg-gray-300 px-1.5 py-0.5 text-xs"
-                    >
-                      {tag}
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="ml-1 h-auto p-0"
-                        onClick={() => handleRemoveTag(tag)}
-                      >
-                        <X className="size-3" />
-                        <span className="sr-only">Remove {tag}</span>
-                      </Button>
-                    </span>
-                  ))}
-                  <Controller
-                    name="tags"
-                    control={control}
-                    render={({ field }) => (
-                      <Input
-                        {...field}
-                        value={inputValue}
-                        onChange={(e) => setInputValue(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") {
-                            e.preventDefault();
-                            handleAddTag();
-                          }
-                        }}
-                        id="tags"
-                        placeholder="Enter Tags"
-                        className="h-6 flex-1 border-0 px-1 text-sm"
-                      />
-                    )}
-                  />
                 </div>
-              </div>
-              {errors.tags && (
-                <p className="text-sm text-destructive">
-                  {errors.tags.message}
-                </p>
-              )}
-            </div>
-          </div>
+              </TooltipProvider>
 
-          {/* Rule Description */}
-          {/* <TooltipLabel
-              label="Description"
-              tooltip="Enter"
-        /> */}
-          <div className="space-y-2">
-            <TooltipProvider>
+              <div className="flex min-h-[40px] flex-wrap items-center gap-1 rounded-md border border-input bg-background p-1">
+                {tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="text-secondary-foreground flex items-center rounded bg-gray-300 px-1.5 py-0.5 text-xs"
+                  >
+                    {tag}
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="ml-1 h-auto p-0"
+                      onClick={() => handleRemoveTag(tag)}
+                    >
+                      <X className="size-3" />
+                      <span className="sr-only">Remove {tag}</span>
+                    </Button>
+                  </span>
+                ))}
+                <Controller
+                  name="tags"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      value={inputValue}
+                      onChange={(e) => setInputValue(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          handleAddTag();
+                        }
+                      }}
+                      id="tags"
+                      placeholder="Enter Tags"
+                      className="h-6 flex-1 border-0 px-1 text-sm"
+                    />
+                  )}
+                />
+              </div>
+            </div>
+            {errors.tags && (
+              <p className="text-sm text-destructive">{errors.tags.message}</p>
+            )}
+          </div>
+        </div>
+        {/* Rule Description */}
+        <div className="space-y-2">
+          <TooltipProvider>
+            <div className="flex items-center gap-2">
+              <Label htmlFor="description">Description</Label>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Label
-                    htmlFor="description"
-                    className="flex items-center gap-2"
-                  >
-                    Description{" "}
-                    <Info className="size-4 text-muted-foreground" />
-                  </Label>
+                  <Info className="size-4 cursor-pointer text-muted-foreground" />
                 </TooltipTrigger>
-                <TooltipContent>
+                <TooltipContent side="top">
                   <p className="text-white">
                     Enter a detailed description of your project or task
                   </p>
                 </TooltipContent>
               </Tooltip>
-            </TooltipProvider>
-            <Controller
-              name="description"
-              control={control}
-              render={({ field }) => (
-                <div>
-                  <ReactQuill
-                    id="description"
-                    theme="snow"
-                    placeholder="Write something amazing..."
-                    {...field}
-                    onChange={(content) => field.onChange(content)}
-                  />
-                  {errors.description && (
-                    <p className="mt-2 text-sm text-red-500">
-                      {errors.description.message}
-                    </p>
-                  )}
-                </div>
-              )}
-            />
-          </div>
-
-          {/* File Upload */}
-          <div className="space-y-2">
-            <TooltipProvider>
+            </div>
+          </TooltipProvider>
+          <Controller
+            name="description"
+            control={control}
+            render={({ field }) => (
+              <div>
+                <ReactQuill
+                  id="description"
+                  theme="snow"
+                  placeholder="Write something amazing..."
+                  {...field}
+                  onChange={(content) => field.onChange(content)}
+                />
+                {errors.description && (
+                  <p className="mt-2 text-sm text-red-500">
+                    {errors.description.message}
+                  </p>
+                )}
+              </div>
+            )}
+          />
+        </div>
+        {/* File Upload */}
+        <div className="space-y-2">
+          <TooltipProvider>
+            <div className="flex items-center gap-2">
+              <Label htmlFor="file-upload">
+                Files/Media
+                <span className="ml-2 text-xs text-muted-foreground">
+                  (JPEG, PNG, PDF, DOCX, Excel)
+                </span>
+              </Label>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Label
-                    htmlFor="file-upload"
-                    className="flex items-center gap-2"
-                  >
-                    Files/Media{" "}
-                    <Info className="size-4 text-muted-foreground" />
-                    <span className="ml-2 text-xs text-muted-foreground">
-                      (JPEG, PNG, PDF, DOCX, Excel)
-                    </span>
-                  </Label>
+                  <Info className="size-4 cursor-pointer text-muted-foreground" />
                 </TooltipTrigger>
-                <TooltipContent>
+                <TooltipContent side="top">
                   <p className="text-white">
                     Upload files or media for your rule
                   </p>
                 </TooltipContent>
               </Tooltip>
-            </TooltipProvider>
-            <div
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={handleDrop}
-              className="rounded-lg border-2 border-dashed p-6 text-center"
-            >
-              <input
-                ref={fileInputRef}
-                type="file"
-                multiple
-                onChange={handleFileInput}
-                className="hidden"
-                id="file-upload"
-                accept={ACCEPTED_FILE_TYPES.join(",")}
-              />
-              <label
-                htmlFor="file-upload"
-                className="flex cursor-pointer flex-col items-center gap-2"
-              >
-                <Upload className="size-8 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">
-                  + Drag or Upload files (max 5 files, 5 MB each)
-                </span>
-              </label>
             </div>
-            {errors.files && (
-              <p className="text-sm text-red-500">{errors.files.message}</p>
-            )}
-            {files.length > 0 && (
-              <div className="mt-2 grid grid-cols-2 gap-2">
-                {files.map((fileObj, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between rounded-lg border p-2"
-                  >
-                    <div className="flex items-center space-x-2">
-                      {fileObj.file.type.startsWith("image/") &&
-                      fileObj.preview ? (
-                        <Image
-                          src={fileObj.preview}
-                          alt={`Preview of ${fileObj.file.name}`}
-                          width={40}
-                          height={40}
-                          className="rounded object-cover"
-                        />
-                      ) : (
-                        <FileIcon className="size-10 text-muted-foreground" />
-                      )}
-                      <span className="max-w-[150px] truncate text-sm">
-                        {fileObj.file.name}
-                      </span>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeFile(index)}
-                    >
-                      <X className="size-4" />
-                      <span className="sr-only">Remove file</span>
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Public Switch */}
-          <div className="flex items-center space-x-2">
-            <Controller
-              name="isPublic"
-              control={control}
-              render={({ field }) => (
-                <Switch
-                  id="isPublic"
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              )}
+          </TooltipProvider>
+          <div
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={handleDrop}
+            className="rounded-lg border-2 border-dashed p-6 text-center"
+          >
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              onChange={handleFileInput}
+              className="hidden"
+              id="file-upload"
+              accept={ACCEPTED_FILE_TYPES.join(",")}
             />
-            <Label htmlFor="isPublic">Make this rule Public</Label>
-          </div>
-
-          {/* Form Actions */}
-          <div className="flex justify-end gap-2 pt-4">
-            <Button type="button" variant="outline">
-              Cancel
-            </Button>
-            <Button
-              type="button"
-              onClick={() => {
-                const data = getValues();
-                const formDataToSend = new FormData();
-
-                Object.entries(data).forEach(([key, value]) => {
-                  if (key !== "files") {
-                    formDataToSend.append(key, value.toString());
-                  }
-                });
-
-                data.files?.forEach((fileObj: any) => {
-                  formDataToSend.append("file", fileObj.file);
-                });
-
-                formDataToSend.append(forum, forumId);
-                formDataToSend.append("publishedStatus", "draft");
-                Endpoints.saveDraft(formDataToSend).then((res) => {
-                  if (!res.isActive) {
-                    toast.success("saved to draft successfully");
-                  }
-                });
-              }}
-              variant="outline"
+            <label
+              htmlFor="file-upload"
+              className="flex cursor-pointer flex-col items-center gap-2"
             >
-              Save draft
-            </Button>
-
-            <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Create New Rule</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Are you sure you want to create this rule?
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel disabled={isSubmitting}>
-                    Cancel
-                  </AlertDialogCancel>
-                  <AlertDialogAction
-                    disabled={isSubmitting}
-                    onClick={handleSubmit(onSubmit)}
-                  >
-                    {isSubmitting ? "Submitting..." : "Publish"}
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-
-            <Button type="submit" disabled={isSubmitting}>
-              publish
-            </Button>
+              <Upload className="size-8 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">
+                + Drag or Upload files (max 5 files, 5 MB each)
+              </span>
+            </label>
           </div>
-        </form>
-      </Card>
-    </>
+          {errors.files && (
+            <p className="text-sm text-red-500">{errors.files.message}</p>
+          )}
+          {files.length > 0 && (
+            <div className="mt-2 grid grid-cols-2 gap-2">
+              {files.map((fileObj, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between rounded-lg border p-2"
+                >
+                  <div className="flex items-center space-x-2">
+                    {fileObj.file.type.startsWith("image/") &&
+                    fileObj.preview ? (
+                      <Image
+                        src={fileObj.preview}
+                        alt={`Preview of ${fileObj.file.name}`}
+                        width={40}
+                        height={40}
+                        className="rounded object-cover"
+                      />
+                    ) : (
+                      <FileIcon className="size-10 text-muted-foreground" />
+                    )}
+                    <span className="max-w-[150px] truncate text-sm">
+                      {fileObj.file.name}
+                    </span>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => removeFile(index)}
+                  >
+                    <X className="size-4" />
+                    <span className="sr-only">Remove file</span>
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        {/* Public Switch */}
+        <div className="flex items-center space-x-2">
+          <Controller
+            name="isPublic"
+            control={control}
+            render={({ field }) => (
+              <Switch
+                id="isPublic"
+                checked={field.value}
+                onCheckedChange={field.onChange}
+              />
+            )}
+          />
+          <Label htmlFor="isPublic">Make this rule Public</Label>
+        </div>
+        {/* Form Actions */}
+        <div className="flex justify-end gap-2 pt-4">
+          <Button type="button" variant="outline">
+            Cancel
+          </Button>
+          <Button
+            type="button"
+            onClick={() => {
+              const data = getValues();
+              const formDataToSend = new FormData();
+
+              Object.entries(data).forEach(([key, value]) => {
+                if (key !== "files") {
+                  formDataToSend.append(key, value.toString());
+                }
+              });
+
+              data.files?.forEach((fileObj: any) => {
+                formDataToSend.append("file", fileObj.file);
+              });
+
+              formDataToSend.append("forum", forumId);
+              formDataToSend.append("publishedStatus", "draft");
+              Endpoints.saveDraft(formDataToSend).then((res) => {
+                if (!res.isActive) {
+                  toast.success("saved to draft successfully");
+                }
+              });
+            }}
+            variant="outline"
+          >
+            Save draft
+          </Button>
+
+          <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Create New Rule</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to create this rule?
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={isSubmitting}>
+                  Cancel
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  disabled={isSubmitting}
+                  onClick={handleSubmit(onSubmit)}
+                >
+                  {isSubmitting ? "Submitting..." : "Publish"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+
+          <Button type="submit" disabled={isSubmitting}>
+            publish
+          </Button>
+        </div>
+      </form>
+    </Card>
   );
 }

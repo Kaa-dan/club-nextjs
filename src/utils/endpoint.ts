@@ -63,7 +63,7 @@ export class Endpoints {
   static async fetchUserJoinedClubs() {
     try {
       const response = await withTokenAxios.get(`/clubs/user-clubs`);
-      console.log({ response });
+      console.log({ joinedClubs: response });
 
       return response.data;
     } catch (error) {

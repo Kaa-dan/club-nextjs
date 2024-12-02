@@ -389,15 +389,15 @@ export function Menu({ isOpen }: MenuProps) {
                                             see it here!
                                           </p>
                                         )}
+                                        <div className="px-4 pt-2 text-sm font-semibold">
+                                          {"Requested "}
+                                          {groupLabel === "Nodes"
+                                            ? "Nodes"
+                                            : "Clubs"}
+                                        </div>
                                         {requestedMenuItems &&
                                         requestedMenuItems?.length > 0 ? (
                                           <>
-                                            <div className="px-4 pt-2 text-sm font-semibold">
-                                              {"Requested "}
-                                              {groupLabel === "Nodes"
-                                                ? "Nodes"
-                                                : "Clubs"}
-                                            </div>
                                             <div className="grid grid-cols-5 gap-3 p-2">
                                               {requestedMenuItems?.map(
                                                 (node: any) => (
