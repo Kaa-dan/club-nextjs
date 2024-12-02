@@ -43,6 +43,12 @@ import {
 import { useClubStore } from "@/store/clubs-store";
 import { useNodeStore } from "@/store/nodes-store";
 import Link from "next/link";
+import {
+  TooltipProvider,
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
 
 const formSchema = z.object({
   topic: z.string().min(1, "Debate topic is required"),
@@ -185,7 +191,16 @@ const DebateForm = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
                   <FormItem>
                     <FormLabel className="flex items-center">
                       Debate Topic
-                      <div className="ml-1 text-gray-400">ⓘ</div>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="ml-1 text-gray-400">ⓘ</div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Debate Topic</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </FormLabel>
                     <FormControl>
                       <Input {...field} className="h-9" />
@@ -202,7 +217,16 @@ const DebateForm = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
                   <FormItem>
                     <FormLabel className="flex items-center">
                       Closing date
-                      <div className="ml-1 text-gray-400">ⓘ</div>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="ml-1 text-gray-400">ⓘ</div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Closing date</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </FormLabel>
                     <FormControl>
                       <div className="relative">
@@ -227,7 +251,16 @@ const DebateForm = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
                   <FormItem>
                     <FormLabel className="flex items-center">
                       Significance
-                      <div className="ml-1 text-gray-400">ⓘ</div>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="ml-1 text-gray-400">ⓘ</div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Significance</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </FormLabel>
                     <FormControl>
                       <Textarea
@@ -247,7 +280,16 @@ const DebateForm = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
                   <FormItem>
                     <FormLabel className="flex items-center">
                       Target Audience
-                      <div className="ml-1 text-gray-400">ⓘ</div>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="ml-1 text-gray-400">ⓘ</div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Target Audience</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </FormLabel>
                     <FormControl>
                       <Input {...field} className="h-9" />
@@ -264,7 +306,16 @@ const DebateForm = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
                   <FormItem>
                     <FormLabel className="flex items-center">
                       Tags
-                      <div className="ml-1 text-gray-400">ⓘ</div>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="ml-1 text-gray-400">ⓘ</div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Tags</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </FormLabel>
                     <FormControl>
                       <div>
@@ -306,7 +357,16 @@ const DebateForm = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
                   <FormItem>
                     <FormLabel className="flex items-center">
                       Files/Media
-                      <div className="ml-1 text-gray-400">ⓘ</div>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="ml-1 text-gray-400">ⓘ</div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>File/Media</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </FormLabel>
                     <FormControl>
                       <div
@@ -379,7 +439,16 @@ const DebateForm = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
                     <FormItem>
                       <FormLabel className="flex items-center">
                         {"Starting comment"}
-                        <div className="ml-1 text-gray-400">ⓘ</div>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="ml-1 text-gray-400">ⓘ</div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Starting comment</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>{" "}
                       </FormLabel>
                       <ReactQuill
                         theme="snow"
