@@ -49,11 +49,9 @@ const formSchema = z.object({
   closingDate: z.string().optional(),
   significance: z.string().min(1, "Significance is required"),
   targetAudience: z.string().min(1, "Target audience is required"),
-  tags: z.array(z.string()),
-  openingCommentsFor: z.string().min(1, "Opening comments (For) are required"),
-  openingCommentsAgainst: z
-    .string()
-    .min(1, "Opening comments (Against) are required"),
+  startingComment: z.string().min(1, "Starting comment is required"),
+
+  tags: z.array(z.string()).min(1, "At least one tag is required"), // Make tags required
   isPublic: z.boolean().default(false),
   files: z.array(z.any()).optional(),
 });
@@ -73,12 +71,12 @@ const DebateForm = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
       significance: "",
       targetAudience: "",
       tags: [],
-      openingCommentsFor: "",
-      openingCommentsAgainst: "",
+      startingComment: "",
       isPublic: false,
       files: [],
     },
   });
+  console.log(form.getValues());
 
   const [open, setOpen] = useState<boolean>(false);
   // Form submission
@@ -372,15 +370,15 @@ const DebateForm = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-6">
+            <div>
               <Controller
-                name="openingCommentsFor"
+                name="startingComment"
                 control={form.control}
                 render={({ field }) => (
                   <div>
                     <FormItem>
                       <FormLabel className="flex items-center">
-                        {"Opening Comments (For)"}
+                        {"Starting comment"}
                         <div className="ml-1 text-gray-400">ⓘ</div>
                       </FormLabel>
                       <ReactQuill
@@ -390,40 +388,12 @@ const DebateForm = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
                         onChange={(content) => field.onChange(content)}
                       />
                     </FormItem>
-                    {/* Uncomment and update error handling when needed */}
-                    {/* {errors.openingCommentsFor && (
-          <p className="mt-2 text-sm text-red-500">
-            {errors.openingCommentsFor.message}
-          </p>
-        )} */}
-                  </div>
-                )}
-              />
-
-              <Controller
-                name="openingCommentsAgainst"
-                control={form.control}
-                render={({ field }) => (
-                  <div>
-                    <FormItem>
-                      <FormLabel className="flex items-center">
-                        {"Opening Comments (Against)"}
-
-                        <div className="ml-1 text-gray-400">ⓘ</div>
-                      </FormLabel>
-                      <ReactQuill
-                        id=""
-                        theme="snow"
-                        placeholder="Write something amazing..."
-                        {...field}
-                        onChange={(content) => field.onChange(content)}
-                      />
-                      {/* {errors. && (
+                    {/* Error handling */}
+                    {form.formState.errors.startingComment && (
                       <p className="mt-2 text-sm text-red-500">
-                        {errors.description.message}
+                        {form.formState.errors.startingComment.message}
                       </p>
-                    )} */}
-                    </FormItem>
+                    )}
                   </div>
                 )}
               />
