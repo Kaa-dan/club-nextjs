@@ -273,7 +273,7 @@ export default function RuleForm({
         onSubmit={handleSubmit(() => setIsAlertOpen(true))}
         className="space-y-4"
       >
-        {/* Title and Domain */}
+        {/* Title and Domain */}xxxxxx
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <TooltipProvider>
@@ -336,7 +336,6 @@ export default function RuleForm({
             )}
           </div>
         </div>
-
         {/* Category and Applicable For */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
@@ -397,7 +396,6 @@ export default function RuleForm({
             )}
           </div>
         </div>
-
         {/* Significance and Tags */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
@@ -493,7 +491,6 @@ export default function RuleForm({
             )}
           </div>
         </div>
-
         {/* Rule Description */}
         <div className="space-y-2">
           <TooltipProvider>
@@ -532,7 +529,6 @@ export default function RuleForm({
             )}
           />
         </div>
-
         {/* File Upload */}
         <div className="space-y-2">
           <TooltipProvider>
@@ -620,7 +616,6 @@ export default function RuleForm({
             </div>
           )}
         </div>
-
         {/* Public Switch */}
         <div className="flex items-center space-x-2">
           <Controller
@@ -636,7 +631,6 @@ export default function RuleForm({
           />
           <Label htmlFor="isPublic">Make this rule Public</Label>
         </div>
-
         {/* Form Actions */}
         <div className="flex justify-end gap-2 pt-4">
           <Button type="button" variant="outline">
