@@ -74,14 +74,17 @@ export function AddPointDialog({
 }: AddPointDialogProps) {
   const [open, setOpen] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
-  const [status, setStatus] = useState<boolean>(false); // Default status is false
+  const [participationStatus, setParticipationStatus] =
+    useState<boolean>(false); // Default status is false
   const [isExpired, setIsExpired] = useState(false);
 
   useEffect(() => {
-    const _isExpired =
-      new Date(endingDate).setHours(0, 0, 0, 0) <
-      new Date().setHours(0, 0, 0, 0);
-    setIsExpired(_isExpired); // true if expired
+    if (endingDate) {
+      const _isExpired =
+        new Date(endingDate).setHours(0, 0, 0, 0) <
+        new Date().setHours(0, 0, 0, 0);
+      setIsExpired(_isExpired); // true if expir
+    }
   }, [endingDate]);
 
   const form = useForm<AddPointFormData>({
@@ -104,7 +107,7 @@ export function AddPointDialog({
   useEffect(() => {
     Endpoints.checkParticipationStatus(debateId, entityType, entity).then(
       (res) => {
-        setStatus(res.isAllowed);
+        setParticipationStatus(res.isAllowed);
       }
     );
   }, [debateId, entityType, entity]);
@@ -137,7 +140,7 @@ export function AddPointDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       {/* Show the Add Point button only if status is true */}
-      {status && (
+      {participationStatus && (
         <DialogTrigger asChild>
           {!isExpired && // Only show the button if the debate is not expired
             (trigger || (

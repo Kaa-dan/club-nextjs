@@ -291,13 +291,25 @@ const View = ({ forum }: { forum: TForum }) => {
       </div>
 
       {/* Main Content */}
-      <div className="mb-8 space-y-4">
+      <div className="quill-content">
+        <style>{`
+        .quill-content ol {
+          list-style-type: decimal;
+          padding-left: 1.5rem;
+          margin: 1rem 0;
+        }
+        .quill-content li {
+          padding: 0.25rem 0;
+        }
+        .quill-content .ql-ui {
+          display: none;
+        }
+      `}</style>
         <div
           dangerouslySetInnerHTML={{
-            __html: rule?.description
-              ? sanitizeHtmlContent(rule.description)
-              : "",
+            __html: sanitizeHtmlContent(rule?.description as string),
           }}
+          className="prose prose-slate max-w-none"
         />
       </div>
 
