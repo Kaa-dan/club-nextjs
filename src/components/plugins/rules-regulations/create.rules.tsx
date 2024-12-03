@@ -46,6 +46,8 @@ import {
   BreadcrumbItemType,
   CustomBreadcrumb,
 } from "@/components/globals/breadcrumb-component";
+import { useClubStore } from "@/store/clubs-store";
+import { useNodeStore } from "@/store/nodes-store";
 
 // Types
 // interface FileWithPreview {
@@ -116,6 +118,8 @@ export default function RuleForm({
   forumId: string;
   forum: TForum;
 }) {
+  const { currentUserRole: clubUserRole } = useClubStore((state) => state);
+  const { currentUserRole: nodeUserRole } = useNodeStore((state) => state);
   const breadcrumbItems: BreadcrumbItemType[] = [
     {
       label: "Rules",
@@ -267,6 +271,9 @@ export default function RuleForm({
       // reset();
     }
   };
+  const isMember =
+    (forum === "club" && clubUserRole === "member") ||
+    (forum === "node" && nodeUserRole === "member");
   return (
     <Card className="min-w-full max-w-3xl p-6">
       <form
@@ -665,33 +672,38 @@ export default function RuleForm({
             Save draft
           </Button>
 
-          <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Create New Rule</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Are you sure you want to create this rule?
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel disabled={isSubmitting}>
-                  Cancel
-                </AlertDialogCancel>
-                <AlertDialogAction
-                  disabled={isSubmitting}
-                  onClick={handleSubmit(onSubmit)}
-                >
-                  {isSubmitting ? "Submitting..." : "Publish"}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+            <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Create New Rule</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Are you sure you want to create this rule?
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel disabled={isSubmitting}>
+                    Cancel
+                  </AlertDialogCancel>
+                  <AlertDialogAction
+                    disabled={isSubmitting}
+                    onClick={handleSubmit(onSubmit)}
+                  >
+                    {isSubmitting
+                      ? "Submitting..."
+                      : isMember
+                        ? "Propose"
+                        : "Publish"}{" "}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
 
-          <Button type="submit" disabled={isSubmitting}>
-            publish
-          </Button>
-        </div>
-      </form>
-    </Card>
+            <Button type="submit" disabled={isSubmitting}>
+              {isMember ? "Propose" : "Publish"}
+            </Button>
+          </div>
+        </form>
+      </Card>
+    </>
   );
 }

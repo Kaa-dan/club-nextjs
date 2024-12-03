@@ -324,11 +324,7 @@ export const DebateCard: React.FC<DebateCardProps> = ({
                         }}
                       >
                         <Pin className="mr-2 size-4" />
-                        <span>
-                          {!isPinned
-                            ? "Make as marquee"
-                            : "Remove from marquee"}
-                        </span>
+                        <span>{!isPinned ? "Pin" : "Unpin"}</span>
                       </DropdownMenuItem>
                     )}
 
