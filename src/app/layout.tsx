@@ -53,7 +53,7 @@ export default function RootLayout({
       lang="en"
       suppressHydrationWarning // Suppresses warnings for attributes added by browser extensions
     >
-      <meta charset="utf-8"></meta>
+      <meta charSet="utf-8"></meta>
       <body
         className={cn(
           inter.variable, // Apply font as a CSS variable
