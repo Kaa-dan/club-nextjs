@@ -53,6 +53,19 @@ import { ProjectApi } from "./projectApi";
 import { toast } from "sonner";
 import { currencyData } from "@/utils/data/currency";
 import { Trash2 } from "lucide-react";
+import { FILE } from "dns";
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_FILES = 5;
+const ACCEPTED_FILE_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/vnd.ms-excel",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+];
 export const projectFormSchema = z
   .object({
     title: z.string().min(1, "Project title is required"),
@@ -101,19 +114,23 @@ export const projectFormSchema = z
     files: z
       .array(
         z.object({
-          file: z.any(),
-          preview: z.string(),
+          file: z
+            .instanceof(File)
+            .refine(
+              (file) => file.size <= MAX_FILE_SIZE,
+              `File size should be less than 5MB`
+            )
+            .refine(
+              (file) => ACCEPTED_FILE_TYPES.includes(file.type as any),
+              `File type must be one of: ${ACCEPTED_FILE_TYPES.join(", ")}`
+            ),
+          preview: z.string().optional(),
         })
       )
-      .optional(),
-    banner: z
-      .object({
-        file: z.instanceof(File),
-        size: z.number(),
-        type: z.string(),
-      })
-      .nullable()
-      .optional(),
+      .max(MAX_FILES, `You can only upload up to ${MAX_FILES} files`)
+      .optional()
+      .default([]),
+    banner: z.instanceof(File).nullable().optional(),
   })
   .refine(
     (data) => {
@@ -129,13 +146,21 @@ export const projectFormSchema = z
 
 export type ProjectFormValues = z.infer<typeof projectFormSchema>;
 
-export default function ProjectForm() {
+export default function ProjectForm({
+  forum,
+  forumId,
+}: {
+  forum: TForum;
+  forumId: string;
+}) {
   const [files, setFiles] = React.useState<
     Array<{
       file: File;
       preview: string;
     }>
   >([]);
+
+  console.log({ files });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
@@ -179,56 +204,62 @@ export default function ProjectForm() {
   });
   console.log({ err: form.formState.errors });
 
-  const onSubmit = (data: ProjectFormValues) => {
-    console.log({ d: data });
+  const onSubmit = async (data: ProjectFormValues) => {
+    try {
+      const formData = new FormData();
 
-    const formData = new FormData();
+      // Create budget object
+      const budget = {
+        from: Number(data.budgetMin),
+        to: Number(data.budgetMax),
+        currency: data.currency,
+      };
 
-    // Create budget object
-    const budget = {
-      from: Number(data.budgetMin),
-      to: Number(data.budgetMax),
-      currency: data.currency,
-    };
-
-    // Add all text/number fields
-    Object.entries(data).forEach(([key, value]) => {
-      if (
-        key !== "files" &&
-        key !== "banner" &&
-        key !== "budget" &&
-        value !== undefined
-      ) {
-        if (Array.isArray(value)) {
-          formData.append(key, JSON.stringify(value));
-        } else if (value instanceof Date) {
-          formData.append(key, value.toISOString());
-        } else {
-          formData.append(key, value?.toString() || "");
+      // Add all text/number fields
+      Object.entries(data).forEach(([key, value]) => {
+        if (
+          key !== "files" &&
+          key !== "banner" &&
+          key !== "budgetMin" &&
+          key !== "budgetMax" &&
+          value !== undefined
+        ) {
+          if (Array.isArray(value)) {
+            formData.append(key, JSON.stringify(value));
+          } else if (value instanceof Date) {
+            formData.append(key, value.toISOString());
+          } else {
+            formData.append(key, value?.toString() || "");
+          }
         }
-      }
-    });
-
-    // Add budget as JSON string
-    formData.append("budget", budget as any);
-
-    // Add banner if exists
-    if (data.banner?.file) {
-      formData.append("bannerImage", data.banner.file);
-    }
-
-    // Add multiple files
-    files.forEach((file) => {
-      formData.append(`files`, file.file);
-    });
-
-    ProjectApi.create(formData)
-      .then((res) => {
-        toast.success("project created");
-      })
-      .catch((err) => {
-        toast.error(err.response.data.message || "something went wrong");
       });
+
+      // Add budget as JSON string
+      formData.append("budget", JSON.stringify(budget));
+
+      // Add banner if exists
+      if (data.banner) {
+        formData.append("bannerImage", data.banner);
+      }
+
+      // Add multiple files
+      files.forEach((file) => {
+        formData.append(`file`, file.file);
+      });
+
+      formData.append(forum, forumId);
+
+      // Wait for the API call to complete
+      await ProjectApi.create(formData);
+      toast.success("project created");
+
+      // Optionally reset form or redirect here
+      // form.reset();
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "something went wrong");
+      // Re-enable the submit button by setting isSubmitting to false
+      form.setError("root", { message: "Submission failed" });
+    }
   };
 
   const addCommitteeMember = () => {
@@ -265,6 +296,8 @@ export default function ProjectForm() {
     setBannerPreview("");
     form.setValue("banner", null);
   };
+
+  console.log({ state: form.formState.isSubmitting });
 
   return (
     <TooltipProvider>
@@ -570,7 +603,7 @@ export default function ProjectForm() {
                     <TooltipContent>Upload banner image</TooltipContent>
                   </Tooltip>
                 </FormLabel>
-                {!field.value?.file ? (
+                {!field.value ? (
                   <label className="block cursor-pointer rounded-lg border-2 border-dashed p-8 text-center hover:bg-muted/25">
                     <Input
                       type="file"
@@ -597,9 +630,9 @@ export default function ProjectForm() {
                     >
                       <X className="size-4" />
                     </Button>
-                    {field.value?.file && (
+                    {field.value && (
                       <Image
-                        src={URL.createObjectURL(field.value.file)}
+                        src={URL.createObjectURL(field.value)}
                         alt="Banner Preview"
                         fill
                         className="object-cover"
@@ -620,11 +653,7 @@ export default function ProjectForm() {
               onOpenChange={setModalOpen}
               title="Crop Banner"
               onCrop={(croppedFile) => {
-                form.setValue("banner", {
-                  file: croppedFile,
-                  size: croppedFile.size,
-                  type: croppedFile.type,
-                });
+                form.setValue("banner", croppedFile);
                 setBannerPreview("");
               }}
             />
@@ -1170,8 +1199,8 @@ export default function ProjectForm() {
             <Button type="button" variant="outline">
               Cancel
             </Button>
-            <Button disabled={form.formState.isSubmitting} type="submit">
-              Submit
+            <Button type="submit" disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting ? "Submitting..." : "Submit"}
             </Button>
           </div>
         </form>
