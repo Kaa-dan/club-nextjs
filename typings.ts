@@ -1,5 +1,5 @@
 type TUserRole = "admin" | "member" | "owner" | "moderator";
-type TPlugins = "rules" | "issues" | "debate";
+type TPlugins = "rules" | "issues" | "debate" | "project";
 type TForum = "node" | "club";
 type TFileType = "image" | "video" | "document" | "pdf" | "unknown";
 type TJoinStatus = "VISITOR" | "MEMBER" | "REQUESTED";
@@ -10,6 +10,12 @@ type TIssuesLabel =
   | "My Issues"
   | "Proposed Issues";
 
+type TProjectLable =
+  | "On going projects"
+  | "All Projects"
+  | "Global Projects"
+  | "My Projects"
+  | "Proposed Project";
 interface TCommentUser {
   firstName: string;
   lastName: string;

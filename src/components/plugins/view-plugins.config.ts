@@ -28,4 +28,9 @@ export const viewPluginConfig: Record<TPlugins, PluginConfig> = {
     description: "View Debate",
     component: ViewDebate,
   },
+  project: {
+    title: "Debate",
+    description: "View Debate",
+    component: ViewDebate,
+  },
 };
