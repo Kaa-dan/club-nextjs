@@ -78,10 +78,10 @@ export default function ClubMembersList({
 
   const isOwner = () => currentUserRole === "owner";
 
-  const isOWnerOrAdmin = () => ["owner", "admin"].includes(currentUserRole);
+  const isOWnerOrAdmin = () => ["owner", "admin"].includes(currentUserRole!);
 
   const isModeratorOrAdminOrOwner = () =>
-    ["moderator", "admin", "owner"].includes(currentUserRole);
+    ["moderator", "admin", "owner"].includes(currentUserRole!);
 
   type UserRole = "member" | "admin" | "moderator" | "owner";
 
