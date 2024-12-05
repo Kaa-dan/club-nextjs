@@ -39,6 +39,11 @@ const ModulesBar: React.FC<{
         plugin === "debate" ? ICONS.BarDebateIconGreen : ICONS.BarDebateIcon,
     },
     {
+      link: "project",
+      name: "Projects",
+      icon: ICONS.BarFunnyIcon,
+    },
+    {
       link: "events",
       name: "Events News",
       icon: ICONS.BarEventsIcon,
