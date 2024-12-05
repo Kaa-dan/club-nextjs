@@ -48,6 +48,7 @@ import { SharedEndpoints } from "@/utils/endpoints/shared";
 import CustomAlertDialog from "@/components/ui/custom/custom-alert-dialog";
 import { TMembers } from "@/types";
 import { useClubStore } from "@/store/clubs-store";
+import { usePermission } from "@/lib/use-permission";
 
 type ClubMemberListProps = {
   isModalOpen: boolean;
@@ -64,6 +65,7 @@ export default function ClubMembersList({
   setClickTrigger,
   clickTrigger,
 }: ClubMemberListProps) {
+  const { hasPermission } = usePermission();
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -105,7 +107,7 @@ export default function ClubMembersList({
         }
       },
       show: (role: UserRole) => {
-        return role !== "admin" && isOwner();
+        return role !== "admin" && hasPermission("update:makeAdmin");
       },
     },
 
@@ -128,7 +130,7 @@ export default function ClubMembersList({
         }
       },
       show: (role: UserRole) => {
-        return role !== "moderator" && isOwner();
+        return role !== "moderator" && hasPermission("update:makeAdmin");
       },
     },
 
@@ -151,7 +153,7 @@ export default function ClubMembersList({
         }
       },
       show: (role: UserRole) => {
-        return role !== "member" && isOwner();
+        return role !== "member" && hasPermission("update:makeAdmin");
       },
     },
 

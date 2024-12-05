@@ -15,6 +15,13 @@ const ROLES = {
     "view:approvals",
     "view:preferences",
 
+    // Roles
+    "update:makeAdmin",
+    "update:removeUser",
+
+    // Asset
+    "view:proposedAsset",
+
     // Rules
     "view:rulesReportOffense",
   ] as const,
@@ -30,12 +37,15 @@ const ROLES = {
     "view:analytics",
     "view:preferences",
 
+    // Roles
+    "update:removeUser",
+
+    // Asset
+    "view:proposedAsset",
+
     // Rules
     "view:rulesReportOffense",
-    "view:rules",
 
-    // Issues
-    "view:issues",
     "view:debates",
     "view:clubs",
     "view:members",
@@ -49,6 +59,9 @@ const ROLES = {
     "view:members",
     "view:activities",
     "view:approvals",
+
+    // Asset
+    "view:proposedAsset",
   ] as const,
   member: [
     "view:profile",

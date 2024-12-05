@@ -245,8 +245,8 @@ export const DebateCard: React.FC<DebateCardProps> = ({
   console.log({ userClubRole });
 
   const hasRolePermission =
-    ["admin", "moderator", "owner"].includes(userClubRole) ||
-    ["admin", "moderator", "owner"].includes(userNodeRole);
+    ["admin", "moderator", "owner"].includes(userClubRole!) ||
+    ["admin", "moderator", "owner"].includes(userNodeRole!);
   console.log({ hasRolePermission });
   console.log({ userNodeRole });
 
