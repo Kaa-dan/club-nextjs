@@ -8,7 +8,7 @@ import Link from "next/link";
 import React from "react";
 import IssueTable from "./issues-table";
 import useIssues from "./use-issues";
-import { useClubStore } from "@/store/clubs-store";
+import { usePermission } from "@/lib/use-permission";
 
 interface TabData {
   label: TIssuesLabel;
@@ -35,7 +35,7 @@ const IssuesLayout = ({
     loading,
   } = useIssues(forum, forumId);
 
-  const { currentUserRole } = useClubStore((state) => state);
+  const { hasPermission } = usePermission();
 
   const tabs: TabData[] = [
     {
@@ -58,7 +58,7 @@ const IssuesLayout = ({
 
   const getFilteredTabs = (): TabData[] => {
     const _tabs = tabs;
-    if (["admin", "moderator", "owner"]?.includes(currentUserRole)) {
+    if (hasPermission("view:proposedAsset")) {
       _tabs.push({
         label: "Proposed Issues",
         count: proposedIssues.length || 0,

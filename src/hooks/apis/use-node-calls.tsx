@@ -4,6 +4,7 @@ import { useNodeStore } from "@/store/nodes-store";
 import { NodeEndpoints } from "@/utils/endpoints/node";
 import { Endpoints } from "@/utils/endpoint";
 import { useTokenStore } from "@/store/store";
+import { useClubStore } from "@/store/clubs-store";
 
 interface UseNodeDataReturn {
   // Fetch operations
@@ -28,6 +29,7 @@ export const useNodeCalls = (): UseNodeDataReturn => {
     setUserRequestedNodes,
     setNodeJoinStatus,
   } = useNodeStore();
+  const { setCurrentUserRole: setClubUserRole } = useClubStore();
 
   const fetchNodeDetails = useCallback(
     async (nodeId: string) => {
@@ -46,6 +48,8 @@ export const useNodeCalls = (): UseNodeDataReturn => {
       } catch (error) {
         console.error("Error fetching node details:", error);
         throw error;
+      } finally {
+        setClubUserRole(null);
       }
     },
     [setCurrentNode, setCurrentUserRole]
