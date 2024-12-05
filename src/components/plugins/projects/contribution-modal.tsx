@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -31,6 +32,7 @@ import {
   FileTextIcon,
 } from "lucide-react";
 import Image from "next/image";
+import { ProjectApi } from "./projectApi";
 
 const formSchema = z.object({
   volunteers: z.number().min(1, "Please enter a value greater than 0"),
@@ -61,8 +63,13 @@ export default function ContributionModal({
   });
 
   const onSubmit = (values: FormValues) => {
-    console.log(values);
-    setOpen(false);
+    ProjectApi.contribute(projectId, parameterId)
+      .then((res) => {
+        toast.success("contribution added!!!");
+      })
+      .catch((err) => {
+        toast.error("something went wrong!!!");
+      });
   };
 
   const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {

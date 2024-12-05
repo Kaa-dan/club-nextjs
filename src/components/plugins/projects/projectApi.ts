@@ -18,4 +18,14 @@ export const ProjectApi = {
       throw error;
     }
   },
+  contribute: async (rootProject: string, parameter: string) => {
+    try {
+      const response = await withTokenAxios.post("adopt-contribution", {
+        rootProject,
+        parameter,
+      });
+    } catch (error) {
+      throw error;
+    }
+  },
 };
