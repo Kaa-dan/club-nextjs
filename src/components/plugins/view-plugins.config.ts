@@ -1,6 +1,7 @@
 import IssueView from "./issues/view-issue";
 import View from "./rules-regulations/view";
 import ViewDebate from "./debates/view-debate";
+import ViewProject from "./projects/view";
 interface PluginProps {
   forumId: string;
   forum: TForum;
@@ -29,8 +30,8 @@ export const viewPluginConfig: Record<TPlugins, PluginConfig> = {
     component: ViewDebate,
   },
   project: {
-    title: "Debate",
+    title: "project",
     description: "View Debate",
-    component: ViewDebate,
+    component: ViewProject,
   },
 };
