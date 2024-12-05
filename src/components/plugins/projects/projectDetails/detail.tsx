@@ -9,7 +9,7 @@ import { useParams } from "next/navigation";
 import React from "react";
 import ContributionModal from "../contribution-modal";
 export default function Details() {
-  const [project, setProject] = useState<ProjectData>();
+  const [project, setProject] = useState<TProjectData>();
   const { postId } = useParams<{ postId: string }>();
 
   useEffect(() => {

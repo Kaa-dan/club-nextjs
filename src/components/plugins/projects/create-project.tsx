@@ -57,7 +57,6 @@ import { ProjectApi } from "./projectApi";
 import { toast } from "sonner";
 import { currencyData } from "@/utils/data/currency";
 import { Trash2 } from "lucide-react";
-import { FILE } from "dns";
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const MAX_FILES = 5;
 const ACCEPTED_FILE_TYPES = [
@@ -1246,7 +1245,9 @@ export default function ProjectForm({
             render={({ field }) => (
               <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                 <div className="space-y-0.5">
-                  <FormLabel>Make Public</FormLabel>
+                  <FormLabel>
+                    Whether Initiative can be adopted outside the region?
+                  </FormLabel>
                 </div>
                 <FormControl>
                   <Switch

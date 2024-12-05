@@ -203,7 +203,7 @@ type Argument = {
   startingPoint: true;
 };
 
-interface ProjectData {
+interface TProjectData {
   _id: {
     $oid: string;
   };
@@ -233,7 +233,13 @@ interface ProjectData {
   status: string;
   createdAt: Date;
   updatedAt: Date;
-  __v: number;
+  createdBy: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    userName: string;
+    profileImage: string;
+  };
 }
 
 interface Committee {
