@@ -76,19 +76,12 @@ export default function Page() {
 
   const isOwner = () => currentUserRole === "owner";
 
-  const isAdmin = () => currentUserRole === "admin";
-
-  const isModerator = () => currentUserRole === "moderator";
-
-  const isAdminOrModerator = () =>
-    ["admin", "moderator"].includes(currentUserRole);
-
-  const isOWnerOrAdmin = () => ["owner", "admin"].includes(currentUserRole);
+  const isOWnerOrAdmin = () => ["owner", "admin"].includes(currentUserRole!);
 
   type UserRole = "member" | "admin" | "moderator" | "owner";
 
   const isModeratorOrAdminOrOwner = () =>
-    ["moderator", "admin", "owner"].includes(currentUserRole);
+    ["moderator", "admin", "owner"].includes(currentUserRole!);
 
   const SECTIONS = [
     {
