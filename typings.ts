@@ -202,3 +202,46 @@ type Argument = {
   isPinned: boolean;
   startingPoint: true;
 };
+
+interface ProjectData {
+  _id: {
+    $oid: string;
+  };
+  club: string;
+  title: string;
+  region: string;
+  budget: {
+    from: number;
+    to: number;
+    currency: string;
+  };
+  significance: string;
+  solution: string;
+  bannerImage: {
+    url: string;
+    originalname: string;
+    mimetype: string;
+    size: number;
+  };
+  committees: Committee[];
+  champions: Champion[];
+  aboutPromoters: string;
+  fundingDetails: string;
+  keyTakeaways: string;
+  risksAndChallenges: string;
+  deadline: Date;
+  status: string;
+  createdAt: Date;
+  updatedAt: Date;
+  __v: number;
+}
+
+interface Committee {
+  name: string;
+  designation: string;
+  userId: string;
+}
+
+interface Champion {
+  // Add properties here if there are specific fields for champions
+}

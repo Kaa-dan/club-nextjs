@@ -5,6 +5,10 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { format } from "date-fns";
+import { useMemo } from "react";
+import { useClubStore } from "@/store/clubs-store";
+import { useNodeStore } from "@/store/nodes-store";
+import { MultiSelect } from "@/components/ui/multi-select";
 import {
   X,
   Plus,
@@ -83,6 +87,7 @@ export const projectFormSchema = z
       .array(
         z.object({
           name: z.string().min(1, "Name is required"),
+          userId: z.string().min(1, "userId is required"),
           designation: z.string().min(1, "Designation is required"),
         })
       )
@@ -160,8 +165,8 @@ export default function ProjectForm({
     }>
   >([]);
 
-  console.log({ files });
-
+  const { currentClub } = useClubStore((state) => state);
+  const { currentNode } = useNodeStore((state) => state);
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
 
@@ -187,7 +192,7 @@ export default function ProjectForm({
   const form = useForm<ProjectFormValues>({
     resolver: zodResolver(projectFormSchema),
     defaultValues: {
-      committees: [{ name: "", designation: "" }],
+      committees: [{ name: "", designation: "", userId: "" }],
       parameters: [{ title: "", value: "", unit: "" }],
       faqs: [{ question: "", answer: "" }],
       isPublic: false,
@@ -262,14 +267,6 @@ export default function ProjectForm({
     }
   };
 
-  const addCommitteeMember = () => {
-    const currentMembers = form.getValues("committees");
-    form.setValue("committees", [
-      ...currentMembers,
-      { name: "", designation: "" },
-    ]);
-  };
-
   const addParameter = () => {
     const currentParams = form.getValues("parameters");
     form.setValue("parameters", [
@@ -296,8 +293,52 @@ export default function ProjectForm({
     setBannerPreview("");
     form.setValue("banner", null);
   };
+  const addCommitteeMember = () => {
+    const currentValue = form.getValues("committees") || [];
+    form.setValue("committees", [
+      ...currentValue,
+      {
+        userId: "",
+        name: "",
+        designation: "",
+      },
+    ]);
+  };
 
-  console.log({ state: form.formState.isSubmitting });
+  // Get all available members based on forum type
+  const allMembers = useMemo(() => {
+    return forum === "club"
+      ? currentClub?.members?.map((member) => ({
+          title: member?.user?.userName,
+          value: member?.user?._id,
+        })) || []
+      : currentNode?.members?.map((member) => ({
+          title: member?.user?.userName,
+          value: member?.user?._id,
+        })) || [];
+  }, [forum, currentClub, currentNode]);
+
+  // Get currently selected members
+  const getSelectedMembers = (currentIndex: number) => {
+    const committees = form.getValues("committees") || [];
+    return committees.reduce(
+      (acc: string[], committee: { userId: string }, index) => {
+        if (index !== currentIndex && committee.userId) {
+          acc.push(committee.userId);
+        }
+        return acc;
+      },
+      []
+    );
+  };
+
+  // Filter available options based on already selected members
+  const getAvailableOptions = (currentIndex: number) => {
+    const selectedMembers = getSelectedMembers(currentIndex);
+    return allMembers.filter(
+      (member) => !selectedMembers.includes(member.value)
+    );
+  };
 
   return (
     <TooltipProvider>
@@ -707,21 +748,43 @@ export default function ProjectForm({
                               <TooltipTrigger>
                                 <Info className="size-4 text-gray-400" />
                               </TooltipTrigger>
-                              <TooltipContent>Enter member name</TooltipContent>
+                              <TooltipContent>Select member</TooltipContent>
                             </Tooltip>
                           </div>
-                          <Input
-                            placeholder="Enter name"
-                            value={member.name}
-                            onChange={(e) => {
-                              const newValue = [...field.value];
-                              newValue[index] = {
-                                ...newValue[index],
-                                name: e.target.value,
-                              };
-                              field.onChange(newValue);
-                            }}
-                          />
+                          <FormControl>
+                            <MultiSelect
+                              options={getAvailableOptions(index)}
+                              defaultValue={
+                                member.userId ? [member.userId] : []
+                              }
+                              onValueChange={(values) => {
+                                const selectedValues = Array.isArray(values)
+                                  ? values
+                                  : [values];
+                                const newValue = [...field.value];
+                                if (selectedValues[0]) {
+                                  const selectedMember = allMembers.find(
+                                    (m) => m.value === selectedValues[0]
+                                  );
+                                  newValue[index] = {
+                                    ...newValue[index],
+                                    userId: selectedValues[0],
+                                    name: selectedMember?.title || "",
+                                  };
+                                } else {
+                                  newValue[index] = {
+                                    ...newValue[index],
+                                    userId: "",
+                                    name: "",
+                                  };
+                                }
+                                field.onChange(newValue);
+                              }}
+                              placeholder="Select member"
+                              className="w-full"
+                              maxCount={1}
+                            />
+                          </FormControl>
                         </div>
                         <div className="space-y-2">
                           <div className="flex items-center gap-2">
