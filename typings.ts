@@ -224,6 +224,7 @@ interface ProjectData {
     size: number;
   };
   committees: Committee[];
+  contributions: any[];
   champions: Champion[];
   aboutPromoters: string;
   fundingDetails: string;
