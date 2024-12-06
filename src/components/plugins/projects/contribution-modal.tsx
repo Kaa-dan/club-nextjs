@@ -33,10 +33,26 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { ProjectApi } from "./projectApi";
+import { log } from "console";
 
+// Validation Schema
 const formSchema = z.object({
   volunteers: z.number().min(1, "Please enter a value greater than 0"),
-  files: z.array(z.instanceof(File)).optional(),
+  files: z
+    .array(z.instanceof(File))
+    .refine((files) => files.length > 0, "Please upload at least one file.")
+    .refine(
+      (files) => files.every((file) => file.size <= 5 * 1024 * 1024),
+      "File size must be less than 5MB."
+    )
+    .refine(
+      (files) =>
+        files.every(
+          (file) =>
+            file.type.startsWith("image/") || file.type === "application/pdf"
+        ),
+      "Only image files and PDF files are allowed."
+    ),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -46,11 +62,15 @@ export default function ContributionModal({
   parameterId,
   open,
   setOpen,
+  forumId,
+  forum,
 }: {
   projectId: string;
   parameterId: string;
   open: boolean;
   setOpen: (open: boolean) => void;
+  forumId: string;
+  forum: TForum;
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -63,12 +83,29 @@ export default function ContributionModal({
   });
 
   const onSubmit = (values: FormValues) => {
-    ProjectApi.contribute(projectId, parameterId)
+    console.log({ values });
+    // Create a new FormData object
+    const formData = new FormData();
+    formData.append("value", values.volunteers.toString());
+
+    // Append files to FormData
+    values.files.forEach((file) => {
+      formData.append("files", file); // This appends each file under the "files" field
+    });
+
+    // Add the projectId and parameterId to the FormData
+    formData.append("rootProject", projectId);
+    formData.append("parameter", parameterId);
+    formData.append(forum, forumId);
+
+    // Call your API
+    ProjectApi.contribute(formData)
       .then((res) => {
-        toast.success("contribution added!!!");
+        console.log({ res });
+        toast.success("Contribution added!");
       })
       .catch((err) => {
-        toast.error("something went wrong!!!");
+        toast.error("Something went wrong!");
       });
   };
 
@@ -136,13 +173,6 @@ export default function ContributionModal({
                     />
                   </FormControl>
                   <FormMessage />
-                  {/* <div className="space-y-1.5">
-                    <Progress value={78} className="h-2" />
-                    <div className="flex items-center justify-between text-sm">
-                      <div>128</div>
-                      <div className="text-emerald-500">+11.01%</div>
-                    </div>
-                  </div> */}
                 </FormItem>
               )}
             />

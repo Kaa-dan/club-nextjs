@@ -18,12 +18,9 @@ export const ProjectApi = {
       throw error;
     }
   },
-  contribute: async (rootProject: string, parameter: string) => {
+  contribute: async (data: FormData) => {
     try {
-      const response = await withTokenAxios.post("adopt-contribution", {
-        rootProject,
-        parameter,
-      });
+      const response = await withTokenAxios.post("adopt-contribution", data);
     } catch (error) {
       throw error;
     }

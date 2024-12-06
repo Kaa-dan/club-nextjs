@@ -1,6 +1,14 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import Details from "./projectDetails/detail";
-export default function ViewProject({ postId }: { postId: string }) {
+export default function ViewProject({
+  postId,
+  forumId,
+  forum,
+}: {
+  postId: string;
+  forumId: string;
+  forum: TForum;
+}) {
   return (
     <Tabs defaultValue="details" className="w-full">
       <TabsList className="h-auto border-b bg-transparent p-0">
@@ -30,7 +38,7 @@ export default function ViewProject({ postId }: { postId: string }) {
         </TabsTrigger>
       </TabsList>
       <TabsContent value="details" className="p-4">
-        <Details />
+        <Details forumId={forumId} forum={forum} />
       </TabsContent>
       <TabsContent value="leaderboard" className="p-4">
         Leaderboard content

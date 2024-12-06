@@ -229,6 +229,7 @@ interface ProjectData {
   fundingDetails: string;
   keyTakeaways: string;
   risksAndChallenges: string;
+  parameters: any[];
   deadline: Date;
   status: string;
   createdAt: Date;
