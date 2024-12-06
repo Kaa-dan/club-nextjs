@@ -18,7 +18,7 @@ const PluginPage = async ({
         return <RulesLayout forum={"club"} forumId={clubId} plugin={plugin} />;
       case "debate":
         return <DebateLayout forumId={clubId} forum="club" plugin={plugin} />;
-      case "project":
+      case "projects":
         return <ProjectLayout forum="club" forumId={clubId} plugin={plugin} />;
       default:
         return (

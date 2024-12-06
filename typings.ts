@@ -1,5 +1,5 @@
 type TUserRole = "admin" | "member" | "owner" | "moderator";
-type TPlugins = "rules" | "issues" | "debate" | "project";
+type TPlugins = "rules" | "issues" | "debate" | "projects";
 type TForum = "node" | "club";
 type TFileType = "image" | "video" | "document" | "pdf" | "unknown";
 type TJoinStatus = "VISITOR" | "MEMBER" | "REQUESTED";
@@ -203,10 +203,8 @@ type Argument = {
   startingPoint: true;
 };
 
-interface ProjectData {
-  _id: {
-    $oid: string;
-  };
+interface TProjectData {
+  _id: string;
   club: string;
   title: string;
   region: string;
@@ -235,7 +233,25 @@ interface ProjectData {
   status: string;
   createdAt: Date;
   updatedAt: Date;
-  __v: number;
+  createdBy: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    userName: string;
+    profileImage: string;
+  };
+  faqs: {
+    _id: string;
+    question: string;
+    answer: string;
+    status: string;
+    askedBy: string;
+    answeredBy: string;
+    Date: string;
+    createdAt: string;
+    updatedAt: string;
+    project: string;
+  };
 }
 
 interface Committee {

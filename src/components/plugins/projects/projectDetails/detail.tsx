@@ -11,20 +11,15 @@ import React from "react";
 import ContributionModal from "../contribution-modal";
 import { ContributionApprovalModal } from "../contribution-details-modal";
 export default function Details({
+  project,
   forumId,
   forum,
 }: {
   forumId: string;
   forum: TForum;
+  project: TProjectData | undefined;
 }) {
-  const [project, setProject] = useState<ProjectData>();
   const { postId } = useParams<{ postId: string }>();
-
-  useEffect(() => {
-    ProjectApi.singleView(postId).then((res) => {
-      setProject(res);
-    });
-  }, []);
 
   const [openApproval, setOpenApproval] = useState(false);
   const [selectedParam, setSelectedParam] = useState(null);

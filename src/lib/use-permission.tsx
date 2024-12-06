@@ -21,6 +21,8 @@ const ROLES = {
 
     // Asset
     "view:proposedAsset",
+    "create:asset",
+    "adopt:asset",
 
     // Rules
     "view:rulesReportOffense",
@@ -42,6 +44,8 @@ const ROLES = {
 
     // Asset
     "view:proposedAsset",
+    "create:asset",
+    "adopt:asset",
 
     // Rules
     "view:rulesReportOffense",
@@ -62,6 +66,8 @@ const ROLES = {
 
     // Asset
     "view:proposedAsset",
+    "create:asset",
+    "adopt:asset",
   ] as const,
   member: [
     "view:profile",
@@ -69,6 +75,9 @@ const ROLES = {
     "view:modules",
     "view:chapters",
     "view:members",
+
+    // Asset
+    "propose:asset",
   ] as const,
   VISITOR: ["view:newsFeed", "view:modules", "view:members"],
 } as const;
