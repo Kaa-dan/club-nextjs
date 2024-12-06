@@ -16,6 +16,7 @@ import DebateTable from "./debate-table";
 import useDebates from "./use-debate";
 import { useClubStore } from "@/store/clubs-store";
 import { useNodeStore } from "@/store/nodes-store";
+import { usePermission } from "@/lib/use-permission";
 
 interface TabData {
   label: string;
@@ -31,6 +32,7 @@ const DebateLayout = ({
   forum: TForum;
   forumId: string;
 }) => {
+  const { hasPermission } = usePermission();
   const { currentUserRole: currentUserClubRole, clubJoinStatus } = useClubStore(
     (state) => state
   );
@@ -70,12 +72,7 @@ const DebateLayout = ({
       label: "My Debates",
       count: myDebates?.length || 0,
     },
-    ...(currentUserClubRole === "owner" ||
-    currentUserClubRole === "moderator" ||
-    currentUserClubRole === "admin" ||
-    currentUserNodeRole === "owner" ||
-    currentUserNodeRole === "moderator" ||
-    currentUserNodeRole === "admin"
+    ...(hasPermission("view:proposedAsset")
       ? [
           {
             label: "Proposed Debates",

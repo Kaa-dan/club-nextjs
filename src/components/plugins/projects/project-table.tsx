@@ -41,23 +41,6 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import Loader1 from "@/components/globals/loaders/loader-1";
 
-export type Issue = {
-  _id: string;
-  title: string;
-  description: string;
-  publishedDate: string;
-  publishedStatus: string;
-  createdAt: string;
-  createdBy: {
-    _id: string;
-    firstName: string;
-    lastName: string;
-    profileImage: string;
-  };
-  relevant: any[];
-  irrelevant: any[];
-};
-
 interface DataTableProps {
   columns: ColumnDef<any>[];
   data: any[];
@@ -146,9 +129,11 @@ function DataTable({
                     className="h-32 text-center"
                   >
                     <div className="flex flex-col items-center justify-center space-y-1">
-                      <div className="text-lg font-medium">No Issues found</div>
+                      <div className="text-lg font-medium">
+                        No Projects found
+                      </div>
                       <div className="text-sm text-muted-foreground">
-                        There are no issues available at the moment
+                        There are no Projects available at the moment
                       </div>
                     </div>
                   </TableCell>
@@ -181,47 +166,50 @@ export default function ProjectTable({
   tab: TProjectLable;
   loading?: boolean;
 }) {
-  // const [sorting, setSorting] = useState<SortingState>([]);
-
-  // const table = useReactTable({
-  //   data: issues,
-  //   columns,
-  //   getCoreRowModel: getCoreRowModel(),
-  //   getPaginationRowModel: getPaginationRowModel(),
-  //   onSortingChange: setSorting,
-  //   getSortedRowModel: getSortedRowModel(),
-  //   state: {
-  //     sorting,
-  //   },
-  // });
-
-  const columns: ColumnDef<Issue>[] = [
+  const columns: ColumnDef<TProjectData>[] = [
     {
       accessorKey: "sno",
       header: "SNO",
       cell: ({ row }) => <div className="font-medium">{row.index + 1}</div>,
     },
     {
-      accessorKey: "Issues",
+      accessorKey: "Projects",
       header: ({ column }) => {
         return (
           <Button
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            Issues
+            Projects
             <ArrowUpDown className="ml-2 size-4" />
           </Button>
         );
       },
       cell: ({ row }) => {
-        const issue = row.original;
         return (
           <div className="space-y-1">
-            <div className="font-medium">{issue.title}</div>
-            {/* <div className="text-sm text-muted-foreground">
-              {issue.description}
-            </div> */}
+            <div className="font-medium">{row?.original?.title}</div>
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "traction",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Traction
+            <ArrowUpDown className="ml-2 size-4" />
+          </Button>
+        );
+      },
+      cell: ({ row }) => {
+        return (
+          <div className="space-y-1">
+            <div className="font-medium">234 Adopted</div>
           </div>
         );
       },
@@ -233,7 +221,7 @@ export default function ProjectTable({
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Posted
+          Posted At
           <ArrowUpDown className="ml-2 size-4" />
         </Button>
       ),
@@ -251,12 +239,10 @@ export default function ProjectTable({
       },
     },
     {
-      accessorKey: "publishedStatus",
+      accessorKey: "status",
       header: "Status",
       cell: ({ row }) => {
-        const status = row.getValue(
-          "publishedStatus"
-        ) as Issue["publishedStatus"];
+        const status = row.getValue("status") as TProjectData["status"];
         return (
           <Badge
             variant={
@@ -280,18 +266,12 @@ export default function ProjectTable({
       accessorKey: "createdBy",
       header: "Posted by",
       cell: ({ row }) => {
-        const postedBy = row.getValue("createdBy") as Issue["createdBy"];
+        const postedBy = row.getValue("createdBy") as TProjectData["createdBy"];
         console.log(postedBy, "posted by");
         return (
           <div className="flex items-center gap-2">
             <Avatar className="size-8">
-              <AvatarImage
-                src={
-                  postedBy?.profileImage ||
-                  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWdu-qOixArQruGnl8wz6iK-ygXGGGOSQytg&s"
-                }
-                alt="Avatar"
-              />
+              <AvatarImage src={postedBy?.profileImage} alt="Avatar" />
               <AvatarFallback>
                 {postedBy?.firstName?.trim()?.[0] || "U"}
               </AvatarFallback>
@@ -326,7 +306,7 @@ export default function ProjectTable({
                 <ThumbsUp
                   className={cn("size-4  cursor-pointer text-primary")}
                 />
-                <span>{row?.original?.relevant?.length}</span>
+                <span>{0}</span>
               </div>
               <div className="flex items-center gap-1">
                 <ThumbsUp
@@ -334,7 +314,7 @@ export default function ProjectTable({
                     "size-4 rotate-180 cursor-pointer text-red-500"
                   )}
                 />
-                <span>{row?.original?.irrelevant?.length}</span>
+                <span>{0}</span>
               </div>
             </div>
           )
@@ -345,8 +325,6 @@ export default function ProjectTable({
       id: "actions",
       header: "Actions",
       cell: ({ row }) => {
-        const issue = row.original;
-
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

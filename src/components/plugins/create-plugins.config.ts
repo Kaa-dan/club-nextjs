@@ -30,7 +30,7 @@ export const createPluginConfig: Record<TPlugins, PluginConfig> = {
     description: "Manage Debate",
     component: DebateForm,
   },
-  project: {
+  projects: {
     title: "Project",
     description: "Manage Project",
     component: ProjectForm,

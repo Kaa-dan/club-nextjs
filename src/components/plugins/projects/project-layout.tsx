@@ -9,6 +9,7 @@ import React from "react";
 import ProjectTable from "./project-table";
 import { useClubStore } from "@/store/clubs-store";
 import { usePermission } from "@/lib/use-permission";
+import useProjects from "./use-projects";
 
 interface TabData {
   label: TProjectLable;
@@ -24,34 +25,26 @@ const ProjectLayout = ({
   forum: TForum;
   forumId: string;
 }) => {
-  //   const {
-  //     liveIssues,
-  //     allIssues,
-  //     globalIssues,
-  //     myIssues,
-  //     setClickTrigger,
-  //     proposedIssues,
-  //     clickTrigger,
-  //     loading,
-  //   } = useIssues(forum, forumId);
+  const { activeProjects, globalProjects, myProjects, allProjects, loading } =
+    useProjects(forum, forumId);
   const { hasPermission } = usePermission();
 
   const tabs: TabData[] = [
     {
       label: "On going projects",
-      count: 0,
+      count: activeProjects?.length,
     },
     {
       label: "All Projects",
-      count: 0,
+      count: allProjects?.length,
     },
     {
       label: "Global Projects",
-      count: 0,
+      count: globalProjects?.length,
     },
     {
       label: "My Projects",
-      count: 0,
+      count: myProjects?.length,
     },
   ];
 
@@ -76,69 +69,19 @@ const ProjectLayout = ({
     let data: any[] = [];
     switch (tab.label) {
       case "On going projects":
-        data = [
-          {
-            id: 1,
-            name: "Website Redesign",
-            status: "Ongoing",
-            owner: "Alice Johnson",
-            team: "Design Team",
-            createdAt: "2024-12-01",
-            updatedAt: "2024-12-02",
-          },
-        ];
+        data = activeProjects;
         break;
       case "All Projects":
-        data = [
-          {
-            id: 1,
-            name: "Website Redesign",
-            status: "Ongoing",
-            owner: "Alice Johnson",
-            team: "Design Team",
-            createdAt: "2024-12-01",
-            updatedAt: "2024-12-02",
-          },
-        ];
+        data = allProjects;
         break;
       case "Global Projects":
-        data = [
-          {
-            id: 1,
-            name: "Website Redesign",
-            status: "Ongoing",
-            owner: "Alice Johnson",
-            team: "Design Team",
-            createdAt: "2024-12-01",
-            updatedAt: "2024-12-02",
-          },
-        ];
+        data = globalProjects;
         break;
       case "My Projects":
-        data = [
-          {
-            id: 1,
-            name: "Website Redesign",
-            status: "Ongoing",
-            owner: "Alice Johnson",
-            team: "Design Team",
-            createdAt: "2024-12-01",
-            updatedAt: "2024-12-02",
-          },
-        ];
+        data = myProjects;
         break;
       case "Proposed Project":
-        data = [
-          {
-            id: 1,
-            name: "Website Redesign",
-            status: "Ongoing",
-            owner: "Alice Johnson",
-            team: "Design Team",
-            createdAt: "2024-12-01",
-            updatedAt: "2024-12-02",
-          },
-        ];
+        data = myProjects;
         break;
       default:
         data = [];
@@ -173,7 +116,7 @@ const ProjectLayout = ({
         {tabs?.map((tab) => (
           <TabsContent key={tab.label} value={tab.label} className="space-y-4">
             <div className="flex items-center gap-4">
-              <Link href="project/create">
+              <Link href="projects/create">
                 <Button className="bg-primary hover:bg-emerald-600">
                   Add a new Project
                 </Button>

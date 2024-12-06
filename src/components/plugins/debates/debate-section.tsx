@@ -30,6 +30,7 @@ import { Badge } from "@/components/ui/badge";
 import { type } from "os";
 import { useClubStore } from "@/store/clubs-store";
 import { useNodeStore } from "@/store/nodes-store";
+import { usePermission } from "@/lib/use-permission";
 
 interface DebateCardProps {
   isPinned: boolean;
