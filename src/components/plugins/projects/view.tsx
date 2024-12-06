@@ -1,14 +1,14 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import Details from "./projectDetails/detail";
 export default function ViewProject({
-  postId,
   forumId,
   forum,
 }: {
-  postId: string;
   forumId: string;
   forum: TForum;
 }) {
+  console.log({ hello: forumId });
+  console.log({ hi: forum });
   return (
     <Tabs defaultValue="details" className="w-full">
       <TabsList className="h-auto border-b bg-transparent p-0">

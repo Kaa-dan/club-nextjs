@@ -93,6 +93,7 @@ export default function Details({
                 projectId={postId}
                 setOpen={setOPen}
                 key={param._id}
+                forum={forum}
               />
             </React.Fragment>
           ))}
