@@ -132,10 +132,9 @@ export const projectFormSchema = z
           preview: z.string().optional(),
         })
       )
-      .max(MAX_FILES, `You can only upload up to ${MAX_FILES} files`)
-      .optional()
-      .default([]),
-    banner: z.instanceof(File).nullable().optional(),
+      .min(1, "At least one file is required")
+      .max(MAX_FILES, `You can only upload up to ${MAX_FILES} files`),
+    banner: z.instanceof(File, { message: "Banner is required" }).nullable(),
   })
   .refine(
     (data) => {
@@ -148,7 +147,6 @@ export const projectFormSchema = z
       path: ["budgetMax"],
     }
   );
-
 export type ProjectFormValues = z.infer<typeof projectFormSchema>;
 
 export default function ProjectForm({
