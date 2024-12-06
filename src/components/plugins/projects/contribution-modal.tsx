@@ -11,7 +11,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -22,21 +21,23 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Progress } from "@/components/ui/progress";
-import {
-  Info,
-  X,
-  Upload,
-  FileIcon,
-  ImageIcon,
-  FileTextIcon,
-} from "lucide-react";
+import { Info, X, Upload, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { ProjectApi } from "./projectApi";
 
 const formSchema = z.object({
   volunteers: z.number().min(1, "Please enter a value greater than 0"),
-  files: z.array(z.instanceof(File)).optional(),
+  files: z
+    .array(z.instanceof(File))
+    .min(1, "Please upload at least one file.")
+    .refine(
+      (files) => files.every((file) => file.size <= 5 * 1024 * 1024),
+      "File size must be less than 5MB."
+    )
+    .refine(
+      (files) => files.every((file) => file.type.startsWith("image/")),
+      "Only image files are allowed."
+    ),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -46,13 +47,18 @@ export default function ContributionModal({
   parameterId,
   open,
   setOpen,
+  forumId,
+  forum,
 }: {
   projectId: string;
   parameterId: string;
   open: boolean;
   setOpen: (open: boolean) => void;
+  forumId: string;
+  forum: TForum;
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -62,14 +68,29 @@ export default function ContributionModal({
     },
   });
 
-  const onSubmit = (values: FormValues) => {
-    ProjectApi.contribute(projectId, parameterId)
-      .then((res) => {
-        toast.success("contribution added!!!");
-      })
-      .catch((err) => {
-        toast.error("something went wrong!!!");
-      });
+  const onSubmit = async (values: FormValues) => {
+    setIsSubmitting(true);
+    const formData = new FormData();
+    formData.append("value", values.volunteers.toString());
+
+    values.files.forEach((file) => {
+      formData.append("file", file);
+    });
+
+    formData.append("rootProject", projectId);
+    formData.append("parameter", parameterId);
+    formData.append(forum, forumId);
+
+    try {
+      await ProjectApi.contribute(formData);
+      toast.success("Contribution added successfully!");
+      form.reset();
+      setOpen(false);
+    } catch (error) {
+      toast.error("Failed to add contribution");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
@@ -79,30 +100,23 @@ export default function ContributionModal({
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     if (event.dataTransfer.files) {
-      form.setValue("files", Array.from(event.dataTransfer.files));
+      const newFiles = Array.from(event.dataTransfer.files);
+      form.setValue("files", [...form.getValues("files"), ...newFiles]);
     }
   };
 
-  const getFileIcon = (fileType: string) => {
-    if (fileType.startsWith("image/")) return <ImageIcon className="size-6" />;
-    if (fileType === "application/pdf")
-      return <FileTextIcon className="size-6" />;
-    return <FileIcon className="size-6" />;
+  const removeFile = (indexToRemove: number) => {
+    const currentFiles = form.getValues("files");
+    const updatedFiles = currentFiles.filter(
+      (_, index) => index !== indexToRemove
+    );
+    form.setValue("files", updatedFiles);
   };
 
-  const renderFilePreview = (file: File) => {
-    if (file.type.startsWith("image/")) {
-      return (
-        <Image
-          src={URL.createObjectURL(file)}
-          alt={file.name}
-          width={40}
-          height={40}
-          className="rounded object-cover"
-        />
-      );
-    }
-    return getFileIcon(file.type);
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newFiles = e.target.files ? Array.from(e.target.files) : [];
+    const currentFiles = form.getValues("files");
+    form.setValue("files", [...currentFiles, ...newFiles]);
   };
 
   return (
@@ -136,13 +150,6 @@ export default function ContributionModal({
                     />
                   </FormControl>
                   <FormMessage />
-                  {/* <div className="space-y-1.5">
-                    <Progress value={78} className="h-2" />
-                    <div className="flex items-center justify-between text-sm">
-                      <div>128</div>
-                      <div className="text-emerald-500">+11.01%</div>
-                    </div>
-                  </div> */}
                 </FormItem>
               )}
             />
@@ -150,44 +157,58 @@ export default function ContributionModal({
               control={form.control}
               name="files"
               render={({ field }) => (
-                <FormItem className="space-y-2">
+                <FormItem className="space-y-4">
                   <FormLabel className="flex items-center gap-1">
                     Files/Media
                     <Info className="size-4 text-muted-foreground" />
                   </FormLabel>
                   <FormControl>
-                    <div
-                      className="cursor-pointer rounded-lg border-2 border-dashed p-4 transition-colors hover:bg-muted/50"
-                      onClick={() => fileInputRef.current?.click()}
-                      onDragOver={handleDragOver}
-                      onDrop={handleDrop}
-                    >
-                      <Input
-                        type="file"
-                        ref={fileInputRef}
-                        onChange={(e) =>
-                          field.onChange(
-                            e.target.files ? Array.from(e.target.files) : []
-                          )
-                        }
-                        className="hidden"
-                        multiple
-                      />
-                      {field.value && field.value.length > 0 ? (
-                        <ul className="space-y-2">
-                          {field.value.map((file, index) => (
-                            <li key={index} className="flex items-center gap-2">
-                              {renderFilePreview(file)}
-                              <span className="truncate text-sm">
-                                {file.name}
-                              </span>
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
+                    <div className="space-y-4">
+                      <div
+                        className="cursor-pointer rounded-lg border-2 border-dashed p-4 transition-colors hover:bg-muted/50"
+                        onClick={() => fileInputRef.current?.click()}
+                        onDragOver={handleDragOver}
+                        onDrop={handleDrop}
+                      >
+                        <Input
+                          type="file"
+                          ref={fileInputRef}
+                          onChange={handleFileChange}
+                          className="hidden"
+                          multiple
+                          accept="image/*"
+                        />
                         <div className="flex flex-col items-center gap-2 text-center text-sm text-muted-foreground">
                           <Upload className="size-6" />
                           <span>+ Drag or Upload a file</span>
+                        </div>
+                      </div>
+
+                      {field.value && field.value.length > 0 && (
+                        <div className="grid grid-cols-3 gap-4">
+                          {field.value.map((file, index) => (
+                            <div key={index} className="relative">
+                              <Image
+                                src={URL.createObjectURL(file)}
+                                alt={file.name}
+                                width={100}
+                                height={100}
+                                className="rounded-lg object-cover w-full h-24"
+                              />
+                              <Button
+                                type="button"
+                                variant="destructive"
+                                size="icon"
+                                className="absolute -top-2 -right-2 h-6 w-6"
+                                onClick={() => removeFile(index)}
+                              >
+                                <X className="size-3" />
+                              </Button>
+                              <p className="text-xs mt-1 truncate">
+                                {file.name}
+                              </p>
+                            </div>
+                          ))}
                         </div>
                       )}
                     </div>
@@ -204,7 +225,16 @@ export default function ContributionModal({
               >
                 Cancel
               </Button>
-              <Button type="submit">Submit</Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Submitting...
+                  </>
+                ) : (
+                  "Submit"
+                )}
+              </Button>
             </div>
           </form>
         </Form>

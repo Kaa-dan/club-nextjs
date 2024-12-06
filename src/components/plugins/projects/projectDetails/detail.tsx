@@ -10,7 +10,11 @@ import React from "react";
 import ContributionModal from "../contribution-modal";
 export default function Details({
   project,
+  forumId,
+  forum,
 }: {
+  forumId: string;
+  forum: TForum;
   project: TProjectData | undefined;
 }) {
   const { postId } = useParams<{ postId: string }>();
@@ -53,50 +57,44 @@ export default function Details({
         {/* Metrics Grid */}
         <div className="mb-8 grid gap-6 md:grid-cols-2">
           {/* Volunteers Card */}
-          <Card className="border-0 shadow-sm">
-            <CardContent className="p-6">
-              <div className="mb-3 flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-500">
-                    Volunteers
-                  </p>
-                  <p className="mt-1 text-2xl font-semibold">128</p>
-                </div>
-                <span className="font-medium text-emerald-500">11.01%</span>
-              </div>
-              <Progress value={11} className="mb-4 h-1.5" />
-              <Button
-                onClick={() => setOPen(true)}
-                variant="outline"
-                className="w-full"
-              >
-                + Add Contribution
-              </Button>
-            </CardContent>
-            <ContributionModal
-              open={open}
-              setOpen={setOPen}
-              projectId="erhjebrje"
-              parameterId="eherhejrje"
-            />
-          </Card>
+          {project?.parameters.map((param: any, index) => (
+            <React.Fragment key={param._id}>
+              <Card className="border-0 shadow-sm">
+                <CardContent className="p-6">
+                  <div className="mb-3 flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">
+                        {param.title}
+                      </p>
+                      <p className="mt-1 text-2xl font-semibold">
+                        {param.value}
+                      </p>
+                    </div>
+                    <span className="font-medium text-emerald-500">11.01%</span>
+                  </div>
+                  <Progress value={11} className="mb-4 h-1.5" />
+                  <Button
+                    onClick={() => setOPen(true)}
+                    variant="outline"
+                    className="w-full"
+                  >
+                    + Add Contribution
+                  </Button>
+                </CardContent>
+              </Card>
+              <ContributionModal
+                forumId={forumId}
+                open={open}
+                parameterId={param._id}
+                projectId={postId}
+                setOpen={setOPen}
+                key={param._id}
+                forum={forum}
+              />
+            </React.Fragment>
+          ))}
 
           {/* Grains Card */}
-          <Card className="border-0 shadow-sm">
-            <CardContent className="p-6">
-              <div className="mb-3 flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Grains</p>
-                  <p className="mt-1 text-2xl font-semibold">239</p>
-                </div>
-                <span className="font-medium text-emerald-500">11.01%</span>
-              </div>
-              <Progress value={11} className="mb-4 h-1.5" />
-              <Button variant="outline" className="w-full">
-                + Add Contribution
-              </Button>
-            </CardContent>
-          </Card>
         </div>
 
         {/* Stats Grid */}

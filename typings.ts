@@ -204,9 +204,7 @@ type Argument = {
 };
 
 interface TProjectData {
-  _id: {
-    $oid: string;
-  };
+  _id: string;
   club: string;
   title: string;
   region: string;
@@ -229,6 +227,7 @@ interface TProjectData {
   fundingDetails: string;
   keyTakeaways: string;
   risksAndChallenges: string;
+  parameters: any[];
   deadline: Date;
   status: string;
   createdAt: Date;
@@ -239,6 +238,18 @@ interface TProjectData {
     lastName: string;
     userName: string;
     profileImage: string;
+  };
+  faqs: {
+    _id: string;
+    question: string;
+    answer: string;
+    status: string;
+    askedBy: string;
+    answeredBy: string;
+    Date: string;
+    createdAt: string;
+    updatedAt: string;
+    project: string;
   };
 }
 

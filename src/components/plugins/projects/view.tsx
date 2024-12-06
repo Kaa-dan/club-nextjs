@@ -6,7 +6,14 @@ import { useParams } from "next/navigation";
 import FAQList from "./faq-list";
 import { useEffect, useState } from "react";
 import { ProjectApi } from "./projectApi";
-export default function ViewProject() {
+import ProjectWall from "./project-wall";
+export default function ViewProject({
+  forumId,
+  forum,
+}: {
+  forumId: string;
+  forum: TForum;
+}) {
   const [project, setProject] = useState<TProjectData>();
   const { postId, plugin } = useParams<{
     plugin: TPlugins;
@@ -49,16 +56,16 @@ export default function ViewProject() {
           </TabsTrigger>
         </TabsList>
         <TabsContent value="details" className="p-4">
-          <Details project={project} />
+          <Details project={project} forumId={forumId} forum={forum} />
         </TabsContent>
         <TabsContent value="leaderboard" className="p-4">
           Leaderboard content
         </TabsContent>
         <TabsContent value="wall" className="p-4">
-          Project wall content
+          <ProjectWall />
         </TabsContent>
         <TabsContent value="faqs" className="p-4">
-          <FAQList faqs={project?.faqs} />
+          <FAQList faqs={project?.faqs!} />
         </TabsContent>
       </Tabs>
       <CommentsSection plugin={plugin} postId={postId} />
