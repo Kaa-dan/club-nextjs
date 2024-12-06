@@ -13,24 +13,6 @@ const useProjects = (forum: TForum, forumId: string) => {
     setLoading(true);
 
     await Promise.allSettled([
-      //   Endpoints.getActiveRules(forum, forumId)
-      //     .then((response) => {
-      //       console.log({ rules: response });
-      //       if (response) setActiveProjects(response);
-      //     })
-      //     .catch((err) => {
-      //       console.error("Error fetching active rules:", err);
-      //     }),
-
-      //   // Global Rules
-      //   Endpoints.getGlobalRules()
-      //     .then((response) => {
-      //       if (response) setGlobalProjects(response);
-      //     })
-      //     .catch((err) => {
-      //       console.error("Error fetching global rules:", err);
-      //     }),
-
       ProjectsEndpoints.fetchAllProjects(forum, forumId)
         .then((response) => {
           console.log({ response });
@@ -44,6 +26,14 @@ const useProjects = (forum: TForum, forumId: string) => {
         .then((response) => {
           console.log({ response });
           setMyProjects(response?.projects);
+        })
+        .catch((err) => {
+          console.error("Error fetching offences:", err);
+        }),
+      ProjectsEndpoints.fetchGlobalProjects()
+        .then((response) => {
+          console.log({ response });
+          setGlobalProjects(response?.projects);
         })
         .catch((err) => {
           console.error("Error fetching offences:", err);

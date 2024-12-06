@@ -30,4 +30,17 @@ export class ProjectsEndpoints {
     );
     return data;
   }
+
+  static async fetchGlobalProjects() {
+    const queryParams = new URLSearchParams({
+      status: "published",
+      page: "1",
+      limit: "10",
+    });
+
+    const { data } = await withTokenAxios.get(
+      `/project/global-projects?${queryParams.toString()}`
+    );
+    return data;
+  }
 }
