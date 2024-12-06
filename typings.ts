@@ -222,6 +222,7 @@ interface TProjectData {
     size: number;
   };
   committees: Committee[];
+  contributions: any[];
   champions: Champion[];
   aboutPromoters: string;
   fundingDetails: string;

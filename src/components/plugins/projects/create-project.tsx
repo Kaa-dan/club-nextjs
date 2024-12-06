@@ -66,9 +66,11 @@ const ACCEPTED_FILE_TYPES = [
   "application/pdf",
   "application/msword",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  "application/vnd.ms-excel",
-  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
 ];
+
+const ACCEPTED_BANNER_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const MAX_BANNER_SIZE = 2 * 1024 * 1024; // 2MB
+
 export const projectFormSchema = z
   .object({
     title: z.string().min(1, "Project title is required"),
@@ -122,18 +124,40 @@ export const projectFormSchema = z
             .instanceof(File)
             .refine(
               (file) => file.size <= MAX_FILE_SIZE,
-              `File size should be less than 5MB`
+              `File size should be less than ${MAX_FILE_SIZE / (1024 * 1024)}MB`
             )
             .refine(
-              (file) => ACCEPTED_FILE_TYPES.includes(file.type as any),
+              (file) => ACCEPTED_FILE_TYPES.includes(file.type),
               `File type must be one of: ${ACCEPTED_FILE_TYPES.join(", ")}`
             ),
           preview: z.string().optional(),
         })
       )
-      .min(1, "At least one file is required")
-      .max(MAX_FILES, `You can only upload up to ${MAX_FILES} files`),
-    banner: z.instanceof(File, { message: "Banner is required" }).nullable(),
+      .optional()
+      .default([]) // Make files optional with empty array default
+      .superRefine((files, ctx) => {
+        if (files && files.length > MAX_FILES) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.too_big,
+            maximum: MAX_FILES,
+            type: "array",
+            inclusive: true,
+            message: `You can only upload up to ${MAX_FILES} files`,
+          });
+        }
+      }),
+    banner: z
+      .instanceof(File)
+      .refine(
+        (file) => file.size <= MAX_BANNER_SIZE,
+        `Banner size should be less than ${MAX_BANNER_SIZE / (1024 * 1024)}MB`
+      )
+      .refine(
+        (file) => ACCEPTED_BANNER_TYPES.includes(file.type),
+        `Banner must be an image file (${ACCEPTED_BANNER_TYPES.join(", ")})`
+      )
+      .nullable()
+      .optional(), // Make banner completely optional
   })
   .refine(
     (data) => {

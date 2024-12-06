@@ -3,11 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Eye, Users } from "lucide-react";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { ProjectApi } from "../projectApi";
 import { useParams } from "next/navigation";
 import React from "react";
 import ContributionModal from "../contribution-modal";
+import { ContributionApprovalModal } from "../contribution-details-modal";
 export default function Details({
   project,
   forumId,
@@ -19,25 +21,19 @@ export default function Details({
 }) {
   const { postId } = useParams<{ postId: string }>();
 
+  const [openApproval, setOpenApproval] = useState(false);
+  const [selectedParam, setSelectedParam] = useState(null);
   const [open, setOPen] = useState<boolean>(false);
   return (
     <div className="mx-auto max-w-4xl rounded-lg bg-white shadow-sm">
       {/* Header Banner */}
       <div className="relative h-40 overflow-hidden rounded-t-lg bg-[#001529]">
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='100%' height='100%' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23001529' /%3E%3Cstop offset='100%25' stop-color='%23003366' /%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M0 0h100v100H0z' fill='url(%23g)' /%3E%3C/svg%3E")`,
-            backgroundSize: "cover",
-          }}
-        >
-          <div
-            className="absolute inset-0"
-            style={{
-              backgroundImage: `url(${project?.bannerImage?.url})`,
-            }}
-          ></div>
-        </div>
+        <Image
+          src={project?.bannerImage.url as string}
+          alt="Banner"
+          fill
+          className="object-cover"
+        />
       </div>
 
       {/* Content */}
@@ -56,7 +52,6 @@ export default function Details({
 
         {/* Metrics Grid */}
         <div className="mb-8 grid gap-6 md:grid-cols-2">
-          {/* Volunteers Card */}
           {project?.parameters.map((param: any, index) => (
             <React.Fragment key={param._id}>
               <Card className="border-0 shadow-sm">
@@ -67,19 +62,48 @@ export default function Details({
                         {param.title}
                       </p>
                       <p className="mt-1 text-2xl font-semibold">
+                        {project?.contributions[index]?.value || 0} /{" "}
                         {param.value}
                       </p>
                     </div>
-                    <span className="font-medium text-emerald-500">11.01%</span>
+                    <span>
+                      {Math.min(
+                        ((project?.contributions[index]?.value || 0) /
+                          (param.value || 0)) *
+                          100,
+                        100
+                      ).toFixed(1)}
+                      %
+                    </span>
                   </div>
-                  <Progress value={11} className="mb-4 h-1.5" />
-                  <Button
-                    onClick={() => setOPen(true)}
-                    variant="outline"
-                    className="w-full"
-                  >
-                    + Add Contribution
-                  </Button>
+                  <Progress
+                    value={Math.min(
+                      ((project?.contributions[index]?.value || 0) /
+                        (param.value || 0)) *
+                        100,
+                      100
+                    )}
+                    className="mb-4 h-1.5"
+                  />
+                  <div className="flex justify-between gap-2">
+                    <Button
+                      onClick={() => setOPen(true)}
+                      variant="outline"
+                      className="flex-grow"
+                    >
+                      + Add Contribution
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setSelectedParam(param);
+                        setOpenApproval(true);
+                      }}
+                      variant="outline"
+                      size="icon"
+                    >
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
               <ContributionModal
@@ -93,10 +117,15 @@ export default function Details({
               />
             </React.Fragment>
           ))}
-
-          {/* Grains Card */}
+          {selectedParam && (
+            <ContributionApprovalModal
+              open={openApproval}
+              setOpen={setOpenApproval}
+              param={selectedParam}
+              projectId={postId}
+            />
+          )}
         </div>
-
         {/* Stats Grid */}
         <div className="mb-8 grid grid-cols-3 gap-4 md:grid-cols-3">
           <div className="rounded-lg bg-white p-4 shadow-sm">
