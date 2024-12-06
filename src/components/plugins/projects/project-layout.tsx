@@ -8,6 +8,7 @@ import Link from "next/link";
 import React from "react";
 import ProjectTable from "./project-table";
 import { useClubStore } from "@/store/clubs-store";
+import { usePermission } from "@/lib/use-permission";
 
 interface TabData {
   label: TProjectLable;
@@ -33,8 +34,7 @@ const ProjectLayout = ({
   //     clickTrigger,
   //     loading,
   //   } = useIssues(forum, forumId);
-
-  const { currentUserRole } = useClubStore((state) => state);
+  const { hasPermission } = usePermission();
 
   const tabs: TabData[] = [
     {
@@ -57,7 +57,7 @@ const ProjectLayout = ({
 
   const getFilteredTabs = (): TabData[] => {
     const _tabs = tabs;
-    if (["admin", "moderator", "owner"]?.includes(currentUserRole)) {
+    if (hasPermission("view:proposedAsset")) {
       _tabs.push({
         label: "Proposed Project",
         count: 0,
