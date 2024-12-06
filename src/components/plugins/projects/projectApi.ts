@@ -1,4 +1,5 @@
 import { withTokenAxios } from "@/lib/mainAxios";
+import { thru } from "lodash";
 
 export const ProjectApi = {
   create: async (data: FormData) => {
@@ -21,6 +22,19 @@ export const ProjectApi = {
   contribute: async (data: FormData) => {
     try {
       const response = await withTokenAxios.post("adopt-contribution", data);
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  contributions: async (
+    projectId: string,
+    status: "accepted" | "rejected" | "pending"
+  ) => {
+    try {
+      const response = await withTokenAxios.get(
+        `project/contributions/${projectId}/${status}`
+      );
     } catch (error) {
       throw error;
     }
