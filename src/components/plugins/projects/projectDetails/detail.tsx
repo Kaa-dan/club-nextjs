@@ -8,15 +8,13 @@ import { ProjectApi } from "../projectApi";
 import { useParams } from "next/navigation";
 import React from "react";
 import ContributionModal from "../contribution-modal";
-export default function Details() {
-  const [project, setProject] = useState<TProjectData>();
+export default function Details({
+  project,
+}: {
+  project: TProjectData | undefined;
+}) {
   const { postId } = useParams<{ postId: string }>();
 
-  useEffect(() => {
-    ProjectApi.singleView(postId).then((res) => {
-      setProject(res);
-    });
-  }, []);
   const [open, setOPen] = useState<boolean>(false);
   return (
     <div className="mx-auto max-w-4xl rounded-lg bg-white shadow-sm">

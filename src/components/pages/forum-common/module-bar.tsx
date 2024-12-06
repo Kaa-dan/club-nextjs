@@ -39,7 +39,7 @@ const ModulesBar: React.FC<{
         plugin === "debate" ? ICONS.BarDebateIconGreen : ICONS.BarDebateIcon,
     },
     {
-      link: "project",
+      link: "projects",
       name: "Projects",
       icon: ICONS.BarFunnyIcon,
     },

@@ -1,13 +1,24 @@
+"use client";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import Details from "./projectDetails/detail";
 import CommentsSection from "@/components/globals/comments/comments-section";
-export default function ViewProject({
-  forumId,
-  forum,
-}: {
-  forumId: string;
-  forum: TPlugins;
-}) {
+import { useParams } from "next/navigation";
+import FAQList from "./faq-list";
+import { useEffect, useState } from "react";
+import { ProjectApi } from "./projectApi";
+export default function ViewProject() {
+  const [project, setProject] = useState<TProjectData>();
+  const { postId, plugin } = useParams<{
+    plugin: TPlugins;
+    postId: string;
+  }>();
+
+  useEffect(() => {
+    if (postId)
+      ProjectApi.singleView(postId).then((res) => {
+        setProject(res);
+      });
+  }, [postId]);
   return (
     <>
       <Tabs defaultValue="details" className="w-full">
@@ -38,7 +49,7 @@ export default function ViewProject({
           </TabsTrigger>
         </TabsList>
         <TabsContent value="details" className="p-4">
-          <Details />
+          <Details project={project} />
         </TabsContent>
         <TabsContent value="leaderboard" className="p-4">
           Leaderboard content
@@ -47,10 +58,10 @@ export default function ViewProject({
           Project wall content
         </TabsContent>
         <TabsContent value="faqs" className="p-4">
-          FAQs content
+          <FAQList faqs={project?.faqs} />
         </TabsContent>
       </Tabs>
-      <CommentsSection plugin={forum} postId={forumId} />
+      <CommentsSection plugin={plugin} postId={postId} />
     </>
   );
 }
