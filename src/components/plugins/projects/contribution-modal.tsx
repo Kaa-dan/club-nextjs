@@ -44,18 +44,24 @@ type FormValues = z.infer<typeof formSchema>;
 
 export default function ContributionModal({
   projectId,
-  parameterId,
+
+  fetch,
   open,
   setOpen,
   forumId,
   forum,
+  param,
 }: {
   projectId: string;
-  parameterId: string;
+
   open: boolean;
   setOpen: (open: boolean) => void;
   forumId: string;
   forum: TForum;
+  fetch: (postId: string) => void;
+  param: {
+    _id: string;
+  };
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -78,11 +84,12 @@ export default function ContributionModal({
     });
 
     formData.append("rootProject", projectId);
-    formData.append("parameter", parameterId);
+    formData.append("parameter", param._id);
     formData.append(forum, forumId);
 
     try {
       await ProjectApi.contribute(formData);
+      fetch(projectId);
       toast.success("Contribution added successfully!");
       form.reset();
       setOpen(false);

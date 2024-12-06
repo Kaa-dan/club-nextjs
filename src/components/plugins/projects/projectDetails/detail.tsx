@@ -19,11 +19,13 @@ export default function Details({
 }) {
   const [project, setProject] = useState<ProjectData>();
   const { postId } = useParams<{ postId: string }>();
-
-  useEffect(() => {
+  function fetch(postId: string) {
     ProjectApi.singleView(postId).then((res) => {
       setProject(res);
     });
+  }
+  useEffect(() => {
+    fetch(postId);
   }, []);
 
   const [openApproval, setOpenApproval] = useState(false);
@@ -67,13 +69,23 @@ export default function Details({
                         {param.title}
                       </p>
                       <p className="mt-1 text-2xl font-semibold">
-                        {project?.contributions[index]?.value || 0} /{" "}
-                        {param.value}
+                        {project?.contributions
+                          .filter((item) => item.parameter === param._id)
+                          .reduce(
+                            (sum, contribution) => sum + contribution.value,
+                            0
+                          ) || 0}{" "}
+                        / {param.value}
                       </p>
                     </div>
                     <span>
                       {Math.min(
-                        ((project?.contributions[index]?.value || 0) /
+                        ((project?.contributions
+                          .filter((item) => item.parameter === param._id)
+                          .reduce(
+                            (sum, contribution) => sum + contribution.value,
+                            0
+                          ) || 0) /
                           (param.value || 0)) *
                           100,
                         100
@@ -82,17 +94,24 @@ export default function Details({
                     </span>
                   </div>
                   <Progress
-                    value={Math.min(
-                      ((project?.contributions[index]?.value || 0) /
-                        (param.value || 0)) *
-                        100,
+                    value={
+                      ((
+                        project?.contributions.find(
+                          (item) => item.parameter === param._id
+                        ) || 0
+                      )?.value /
+                        (param.value || 1)) *
                       100
-                    )}
+                    }
                     className="mb-4 h-1.5"
                   />
+
                   <div className="flex justify-between gap-2">
                     <Button
-                      onClick={() => setOPen(true)}
+                      onClick={() => {
+                        setOPen(true);
+                        setSelectedParam(param);
+                      }}
                       variant="outline"
                       className="flex-grow"
                     >
@@ -111,19 +130,23 @@ export default function Details({
                   </div>
                 </CardContent>
               </Card>
-              <ContributionModal
-                forumId={forumId}
-                open={open}
-                parameterId={param._id}
-                projectId={postId}
-                setOpen={setOPen}
-                key={param._id}
-                forum={forum}
-              />
             </React.Fragment>
           ))}
-          {selectedParam && (
+          {selectedParam && open && (
+            <ContributionModal
+              param={selectedParam}
+              forumId={forumId}
+              open={open}
+              projectId={postId}
+              setOpen={setOPen}
+              forum={forum}
+              fetch={fetch}
+            />
+          )}
+
+          {selectedParam && openApproval && (
             <ContributionApprovalModal
+              // paramId={param._id}
               open={openApproval}
               setOpen={setOpenApproval}
               param={selectedParam}
