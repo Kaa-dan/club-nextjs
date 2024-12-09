@@ -87,21 +87,22 @@ export const projectFormSchema = z
     committees: z
       .array(
         z.object({
-          name: z.string().min(1, "Name is required"),
-          userId: z.string().min(1, "userId is required"),
-          designation: z.string().min(1, "Designation is required"),
+          name: z.string(),
+          userId: z.string(),
+          designation: z.string(),
         })
       )
-      .min(1, "At least one committee member is required"),
+      .nonempty("At least one committee member is required"),
+    // 1. First in your schema
     parameters: z
       .array(
         z.object({
-          title: z.string().min(1, "Title is required"),
-          value: z.string().min(1, "Value is required"),
-          unit: z.string().min(1, "Unit is required"),
+          title: z.string(),
+          value: z.string(),
+          unit: z.string(),
         })
       )
-      .min(1, "At least one parameter is required"),
+      .nonempty("At least one parameter is required"), // changed from min(1) to nonempty()
     faqs: z
       .array(
         z.object({
@@ -213,9 +214,9 @@ export default function ProjectForm({
   const form = useForm<ProjectFormValues>({
     resolver: zodResolver(projectFormSchema),
     defaultValues: {
-      committees: [{ name: "", designation: "", userId: "" }],
-      parameters: [{ title: "", value: "", unit: "" }],
-      faqs: [{ question: "", answer: "" }],
+      committees: [],
+      parameters: [],
+      faqs: [],
       isPublic: false,
       budgetMin: "0",
       budgetMax: "0",
