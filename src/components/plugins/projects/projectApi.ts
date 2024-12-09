@@ -35,8 +35,20 @@ export const ProjectApi = {
       const response = await withTokenAxios.get(
         `project/contributions/${projectId}/${status}`
       );
+      return response.data;
     } catch (error) {
       throw error;
+    }
+  },
+
+  acceptContribuion: async (contribuionId: string) => {
+    try {
+      const response = await withTokenAxios.put(
+        `project/accept-contributions/${contribuionId}`
+      );
+      return response.data;
+    } catch (err) {
+      throw err;
     }
   },
 };

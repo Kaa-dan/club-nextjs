@@ -20,6 +20,14 @@ export default function Details({
   project: TProjectData | undefined;
 }) {
   const { postId } = useParams<{ postId: string }>();
+  // function fetch(postId: string) {
+  //   ProjectApi.singleView(postId).then((res) => {
+  //     setProject(res);
+  //   });
+  // }
+  // useEffect(() => {
+  //   fetch(postId);
+  // }, []);
 
   const [openApproval, setOpenApproval] = useState(false);
   const [selectedParam, setSelectedParam] = useState(null);
@@ -40,13 +48,10 @@ export default function Details({
       <div className="p-8">
         <div className="mb-8">
           <h2 className="mb-3 text-2xl font-semibold tracking-tight">
-            Blood Donation
+            {project?.title}
           </h2>
           <p className="leading-relaxed text-gray-600">
-            Donate Blood, Save Lives: Your generous contribution can make a
-            world of difference to those in need. Join us in our mission to
-            provide lifesaving blood to patients in hospitals and medical
-            facilities.
+            {project?.significance}
           </p>
         </div>
 
@@ -62,13 +67,23 @@ export default function Details({
                         {param.title}
                       </p>
                       <p className="mt-1 text-2xl font-semibold">
-                        {project?.contributions[index]?.value || 0} /{" "}
-                        {param.value}
+                        {project?.contributions
+                          .filter((item) => item.parameter === param._id)
+                          .reduce(
+                            (sum, contribution) => sum + contribution.value,
+                            0
+                          ) || 0}{" "}
+                        / {param.value}
                       </p>
                     </div>
                     <span>
                       {Math.min(
-                        ((project?.contributions[index]?.value || 0) /
+                        ((project?.contributions
+                          .filter((item) => item.parameter === param._id)
+                          .reduce(
+                            (sum, contribution) => sum + contribution.value,
+                            0
+                          ) || 0) /
                           (param.value || 0)) *
                           100,
                         100
@@ -77,19 +92,26 @@ export default function Details({
                     </span>
                   </div>
                   <Progress
-                    value={Math.min(
-                      ((project?.contributions[index]?.value || 0) /
-                        (param.value || 0)) *
-                        100,
+                    value={
+                      ((
+                        project?.contributions.find(
+                          (item) => item.parameter === param._id
+                        ) || 0
+                      )?.value /
+                        (param.value || 1)) *
                       100
-                    )}
+                    }
                     className="mb-4 h-1.5"
                   />
+
                   <div className="flex justify-between gap-2">
                     <Button
-                      onClick={() => setOPen(true)}
+                      onClick={() => {
+                        setOPen(true);
+                        setSelectedParam(param);
+                      }}
                       variant="outline"
-                      className="flex-grow"
+                      className="grow"
                     >
                       + Add Contribution
                     </Button>
@@ -101,24 +123,28 @@ export default function Details({
                       variant="outline"
                       size="icon"
                     >
-                      <Eye className="h-4 w-4" />
+                      <Eye className="size-4" />
                     </Button>
                   </div>
                 </CardContent>
               </Card>
-              <ContributionModal
-                forumId={forumId}
-                open={open}
-                parameterId={param._id}
-                projectId={postId}
-                setOpen={setOPen}
-                key={param._id}
-                forum={forum}
-              />
             </React.Fragment>
           ))}
-          {selectedParam && (
+          {selectedParam && open && (
+            <ContributionModal
+              param={selectedParam}
+              forumId={forumId}
+              open={open}
+              projectId={postId}
+              setOpen={setOPen}
+              forum={forum}
+              fetch={fetch}
+            />
+          )}
+
+          {selectedParam && openApproval && (
             <ContributionApprovalModal
+              // paramId={param._id}
               open={openApproval}
               setOpen={setOpenApproval}
               param={selectedParam}

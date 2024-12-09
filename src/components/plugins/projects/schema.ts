@@ -30,14 +30,8 @@ export const projectFormSchema = z.object({
     )
     .min(1, "At least one committee member is required"),
   parameters: z
-    .array(
-      z.object({
-        title: z.string().min(1, "Title is required"),
-        value: z.number(),
-        unit: z.string().min(1, "Unit is required"),
-      })
-    )
-    .min(1, "At least one parameter is required"),
+    .array(z.object({})) // Define an array of objects
+    .min(1, "Array must contain at least one object"), // Ensure array has at least one element
   faqs: z
     .array(
       z.object({
