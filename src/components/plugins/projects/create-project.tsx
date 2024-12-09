@@ -314,6 +314,7 @@ export default function ProjectForm({
     setBannerPreview("");
     form.setValue("banner", null);
   };
+
   const addCommitteeMember = () => {
     const currentValue = form.getValues("committees") || [];
     form.setValue("committees", [
@@ -339,26 +340,10 @@ export default function ProjectForm({
         })) || [];
   }, [forum, currentClub, currentNode]);
 
-  // Get currently selected members
-  const getSelectedMembers = (currentIndex: number) => {
-    const committees = form.getValues("committees") || [];
-    return committees.reduce(
-      (acc: string[], committee: { userId: string }, index) => {
-        if (index !== currentIndex && committee.userId) {
-          acc.push(committee.userId);
-        }
-        return acc;
-      },
-      []
-    );
-  };
-
-  // Filter available options based on already selected members
+  // Since we want to allow duplicates, we can simply return all members
+  // without filtering out already selected ones
   const getAvailableOptions = (currentIndex: number) => {
-    const selectedMembers = getSelectedMembers(currentIndex);
-    return allMembers.filter(
-      (member) => !selectedMembers.includes(member.value)
-    );
+    return allMembers;
   };
 
   return (
@@ -776,34 +761,31 @@ export default function ProjectForm({
                             <MultiSelect
                               options={getAvailableOptions(index)}
                               defaultValue={
-                                member.userId ? [member.userId] : []
+                                member.userId ? member.userId.split(",") : []
                               }
                               onValueChange={(values) => {
                                 const selectedValues = Array.isArray(values)
                                   ? values
                                   : [values];
                                 const newValue = [...field.value];
-                                if (selectedValues[0]) {
-                                  const selectedMember = allMembers.find(
-                                    (m) => m.value === selectedValues[0]
-                                  );
-                                  newValue[index] = {
-                                    ...newValue[index],
-                                    userId: selectedValues[0],
-                                    name: selectedMember?.title || "",
-                                  };
-                                } else {
-                                  newValue[index] = {
-                                    ...newValue[index],
-                                    userId: "",
-                                    name: "",
-                                  };
-                                }
+
+                                // Get all selected members' names
+                                const selectedMemberNames = selectedValues.map(
+                                  (value) =>
+                                    allMembers.find((m) => m.value === value)
+                                      ?.title || ""
+                                );
+
+                                newValue[index] = {
+                                  ...newValue[index],
+                                  userId: selectedValues.join(","), // Store multiple IDs as comma-separated string
+                                  name: selectedMemberNames.join(", "), // Store multiple names as comma-separated string
+                                };
+
                                 field.onChange(newValue);
                               }}
-                              placeholder="Select member"
+                              placeholder="Select members"
                               className="w-full"
-                              maxCount={1}
                             />
                           </FormControl>
                         </div>
