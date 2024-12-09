@@ -311,7 +311,7 @@ export default function ProjectForm({
       formData.append("forum", forumId);
 
       // Wait for the API call to complete
-      // await ProjectApi.create(formData);
+      await ProjectApi.create(formData);
       toast.success("Project created successfully");
 
       // Optionally reset form or redirect here
