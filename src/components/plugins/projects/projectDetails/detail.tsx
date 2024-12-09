@@ -20,14 +20,14 @@ export default function Details({
   project: TProjectData | undefined;
 }) {
   const { postId } = useParams<{ postId: string }>();
-  function fetch(postId: string) {
-    ProjectApi.singleView(postId).then((res) => {
-      setProject(res);
-    });
-  }
-  useEffect(() => {
-    fetch(postId);
-  }, []);
+  // function fetch(postId: string) {
+  //   ProjectApi.singleView(postId).then((res) => {
+  //     setProject(res);
+  //   });
+  // }
+  // useEffect(() => {
+  //   fetch(postId);
+  // }, []);
 
   const [openApproval, setOpenApproval] = useState(false);
   const [selectedParam, setSelectedParam] = useState(null);
@@ -48,13 +48,10 @@ export default function Details({
       <div className="p-8">
         <div className="mb-8">
           <h2 className="mb-3 text-2xl font-semibold tracking-tight">
-            Blood Donation
+            {project?.title}
           </h2>
           <p className="leading-relaxed text-gray-600">
-            Donate Blood, Save Lives: Your generous contribution can make a
-            world of difference to those in need. Join us in our mission to
-            provide lifesaving blood to patients in hospitals and medical
-            facilities.
+            {project?.significance}
           </p>
         </div>
 
@@ -114,7 +111,7 @@ export default function Details({
                         setSelectedParam(param);
                       }}
                       variant="outline"
-                      className="flex-grow"
+                      className="grow"
                     >
                       + Add Contribution
                     </Button>
@@ -126,7 +123,7 @@ export default function Details({
                       variant="outline"
                       size="icon"
                     >
-                      <Eye className="h-4 w-4" />
+                      <Eye className="size-4" />
                     </Button>
                   </div>
                 </CardContent>
