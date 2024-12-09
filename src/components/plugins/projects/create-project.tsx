@@ -84,6 +84,9 @@ export const projectFormSchema = z
     significance: z.string().min(1, "Significance is required"),
     solution: z.string().min(1, "Solution is required"),
     relatedEvent: z.string().min(1, "Related event is required"),
+    champions: z
+      .array(z.string())
+      .nonempty("At least one champion is required"),
     committees: z
       .array(
         z.object({
@@ -93,7 +96,6 @@ export const projectFormSchema = z
         })
       )
       .nonempty("At least one committee member is required"),
-    // 1. First in your schema
     parameters: z
       .array(
         z.object({
@@ -102,7 +104,7 @@ export const projectFormSchema = z
           unit: z.string(),
         })
       )
-      .nonempty("At least one parameter is required"), // changed from min(1) to nonempty()
+      .nonempty("At least one parameter is required"),
     faqs: z
       .array(
         z.object({
@@ -135,7 +137,7 @@ export const projectFormSchema = z
         })
       )
       .optional()
-      .default([]) // Make files optional with empty array default
+      .default([])
       .superRefine((files, ctx) => {
         if (files && files.length > MAX_FILES) {
           ctx.addIssue({
@@ -158,7 +160,7 @@ export const projectFormSchema = z
         `Banner must be an image file (${ACCEPTED_BANNER_TYPES.join(", ")})`
       )
       .nullable()
-      .optional(), // Make banner completely optional
+      .optional(),
   })
   .refine(
     (data) => {
@@ -214,6 +216,7 @@ export default function ProjectForm({
   const form = useForm<ProjectFormValues>({
     resolver: zodResolver(projectFormSchema),
     defaultValues: {
+      champions: [],
       committees: [],
       parameters: [],
       faqs: [],
@@ -229,7 +232,6 @@ export default function ProjectForm({
     name: "faqs",
     control: form.control,
   });
-  console.log({ err: form.formState.errors });
 
   const onSubmit = async (data: ProjectFormValues) => {
     try {
@@ -277,6 +279,7 @@ export default function ProjectForm({
           key !== "budgetMin" &&
           key !== "budgetMax" &&
           key !== "committees" && // Exclude the original committees array
+          key !== "champions" &&
           value !== undefined
         ) {
           if (Array.isArray(value)) {
@@ -308,7 +311,7 @@ export default function ProjectForm({
       formData.append("forum", forumId);
 
       // Wait for the API call to complete
-      await ProjectApi.create(formData);
+      // await ProjectApi.create(formData);
       toast.success("Project created successfully");
 
       // Optionally reset form or redirect here
@@ -736,6 +739,40 @@ export default function ProjectForm({
               }}
             />
           )}
+
+          <FormField
+            control={form.control}
+            name="champions"
+            render={({ field }) => (
+              <FormItem className="flex w-full flex-col md:w-1/2">
+                <FormLabel className="text-sm font-medium mb-2">
+                  Champions
+                </FormLabel>
+                <FormControl>
+                  <MultiSelect
+                    options={
+                      forum === "club"
+                        ? currentClub?.members?.map((member) => ({
+                            title: member?.user?.userName,
+                            value: member?.user?._id, // Ensure value is the ID
+                          })) || []
+                        : currentNode?.members?.map((member) => ({
+                            title: member?.user?.userName,
+                            value: member?.user?._id, // Ensure value is the ID
+                          })) || []
+                    }
+                    defaultValue={field.value || []} // Set default value to an array
+                    onValueChange={(selectedValues) => {
+                      field.onChange(selectedValues); // Update field value with IDs
+                    }}
+                    placeholder="Select champion"
+                    variant="inverted"
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
           <FormField
             control={form.control}
             name="committees"
@@ -904,6 +941,7 @@ export default function ProjectForm({
                           </Button>
                         )}
                       </div>
+
                       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                         <div className="space-y-2">
                           <div className="flex items-center gap-2">
