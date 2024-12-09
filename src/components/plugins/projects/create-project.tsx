@@ -241,13 +241,41 @@ export default function ProjectForm({
         currency: data.currency,
       };
 
-      // Add all text/number fields
+      // Group committee members - starts with array of individual entries
+      const groupedCommittees = data.committees.reduce(
+        (acc: any[], member: any) => {
+          // Only process if userId exists
+          if (!member.userId) return acc;
+
+          const existingIndex = acc.findIndex(
+            (m) => m.userId === member.userId
+          );
+
+          if (existingIndex !== -1) {
+            // If member exists, add new designation to array
+            acc[existingIndex].designations.push(member.designation);
+          } else {
+            // Add new member with designation in array
+            acc.push({
+              userId: member.userId,
+              name: member.name,
+              designations: [member.designation],
+            });
+          }
+
+          return acc;
+        },
+        []
+      );
+
+      // Add all text/number fields except specific excluded ones
       Object.entries(data).forEach(([key, value]) => {
         if (
           key !== "files" &&
           key !== "banner" &&
           key !== "budgetMin" &&
           key !== "budgetMax" &&
+          key !== "committees" && // Exclude the original committees array
           value !== undefined
         ) {
           if (Array.isArray(value)) {
@@ -259,6 +287,9 @@ export default function ProjectForm({
           }
         }
       });
+
+      // Add grouped committees
+      formData.append("committees", JSON.stringify(groupedCommittees));
 
       // Add budget as JSON string
       formData.append("budget", JSON.stringify(budget));
@@ -273,17 +304,16 @@ export default function ProjectForm({
         formData.append(`file`, file.file);
       });
 
-      formData.append(forum, forumId);
+      formData.append("forum", forumId);
 
       // Wait for the API call to complete
       await ProjectApi.create(formData);
-      toast.success("project created");
+      toast.success("Project created successfully");
 
       // Optionally reset form or redirect here
       // form.reset();
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "something went wrong");
-      // Re-enable the submit button by setting isSubmitting to false
+      toast.error(err.response?.data?.message || "Something went wrong");
       form.setError("root", { message: "Submission failed" });
     }
   };
