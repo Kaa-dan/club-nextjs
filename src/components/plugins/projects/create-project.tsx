@@ -308,7 +308,7 @@ export default function ProjectForm({
         formData.append(`file`, file.file);
       });
 
-      formData.append("forum", forumId);
+      formData.append(forum, forumId);
 
       // Wait for the API call to complete
       await ProjectApi.create(formData);
