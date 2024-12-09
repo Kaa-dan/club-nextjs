@@ -6,16 +6,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search } from "lucide-react";
 import Link from "next/link";
 import React from "react";
-import IssueTable from "./issues-table";
-import useIssues from "./use-issues";
+import ProjectTable from "./project-table";
+import { useClubStore } from "@/store/clubs-store";
 import { usePermission } from "@/lib/use-permission";
+import useProjects from "./use-projects";
 
 interface TabData {
-  label: TIssuesLabel;
+  label: TProjectLable;
   count: number;
 }
 
-const IssuesLayout = ({
+const ProjectLayout = ({
   plugin,
   forum,
   forumId,
@@ -24,35 +25,26 @@ const IssuesLayout = ({
   forum: TForum;
   forumId: string;
 }) => {
-  const {
-    liveIssues,
-    allIssues,
-    globalIssues,
-    myIssues,
-    setClickTrigger,
-    proposedIssues,
-    clickTrigger,
-    loading,
-  } = useIssues(forum, forumId);
-
+  const { activeProjects, globalProjects, myProjects, allProjects, loading } =
+    useProjects(forum, forumId);
   const { hasPermission } = usePermission();
 
   const tabs: TabData[] = [
     {
-      label: "Live Issues",
-      count: liveIssues.length || 0,
+      label: "On going projects",
+      count: activeProjects?.length,
     },
     {
-      label: "All Issues",
-      count: allIssues.length || 0,
+      label: "All Projects",
+      count: allProjects?.length,
     },
     {
-      label: "Global Library",
-      count: globalIssues.length || 0,
+      label: "Global Projects",
+      count: globalProjects?.length,
     },
     {
-      label: "My Issues",
-      count: myIssues.length || 0,
+      label: "My Projects",
+      count: myProjects?.length,
     },
   ];
 
@@ -60,8 +52,8 @@ const IssuesLayout = ({
     const _tabs = tabs;
     if (hasPermission("view:proposedAsset")) {
       _tabs.push({
-        label: "Proposed Issues",
-        count: proposedIssues.length || 0,
+        label: "Proposed Project",
+        count: 0,
       });
     }
     return _tabs;
@@ -76,20 +68,20 @@ const IssuesLayout = ({
   function getData(tab: TabData): any[] {
     let data: any[] = [];
     switch (tab.label) {
-      case "Live Issues":
-        data = liveIssues;
+      case "On going projects":
+        data = activeProjects;
         break;
-      case "All Issues":
-        data = allIssues;
+      case "All Projects":
+        data = allProjects;
         break;
-      case "Global Library":
-        data = globalIssues;
+      case "Global Projects":
+        data = globalProjects;
         break;
-      case "My Issues":
-        data = myIssues;
+      case "My Projects":
+        data = myProjects;
         break;
-      case "Proposed Issues":
-        data = proposedIssues;
+      case "Proposed Project":
+        data = myProjects;
         break;
       default:
         data = [];
@@ -99,16 +91,16 @@ const IssuesLayout = ({
   }
 
   return (
-    <div className="w-full space-y-4  p-4 ">
+    <div className="w-full space-y-4  p-4">
       <div className="space-y-2">
-        <h2 className="text-2xl font-bold tracking-tight">Community Issues</h2>
+        <h2 className="text-2xl font-bold tracking-tight">Project</h2>
         <p className="text-muted-foreground">
           {`Lorem ipsum dolor sit amet consectetur. Congue varius lorem et
           egestas. Iaculis semper risus sit egestas.`}
         </p>
       </div>
 
-      <Tabs defaultValue="Live Issues" className="w-full space-y-4 ">
+      <Tabs defaultValue="On going projects" className="w-full space-y-4 ">
         <TabsList className="flex h-auto flex-wrap gap-1 bg-background p-1">
           {getFilteredTabs()?.map((tab) => (
             <TabsTrigger
@@ -121,12 +113,12 @@ const IssuesLayout = ({
           ))}
         </TabsList>
 
-        {tabs.map((tab) => (
+        {tabs?.map((tab) => (
           <TabsContent key={tab.label} value={tab.label} className="space-y-4">
             <div className="flex items-center gap-4">
-              <Link href="issues/create">
+              <Link href="projects/create">
                 <Button className="bg-primary hover:bg-emerald-600">
-                  Add a new issue
+                  Add a new Project
                 </Button>
               </Link>
               <div className="relative flex-1">
@@ -171,15 +163,12 @@ const IssuesLayout = ({
                 </svg>
               </Button>
             </div>
-            <IssueTable
+            <ProjectTable
               forumId={forumId}
               plugin={plugin}
               forum={forum}
-              data={getData(tab)}
               tab={tab.label}
-              clickTrigger={clickTrigger}
-              setClickTrigger={setClickTrigger}
-              loading={loading}
+              data={getData(tab)}
             />
           </TabsContent>
         ))}
@@ -188,4 +177,4 @@ const IssuesLayout = ({
   );
 };
 
-export default IssuesLayout;
+export default ProjectLayout;

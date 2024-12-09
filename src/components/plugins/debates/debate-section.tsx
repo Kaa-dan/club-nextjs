@@ -30,6 +30,7 @@ import { Badge } from "@/components/ui/badge";
 import { type } from "os";
 import { useClubStore } from "@/store/clubs-store";
 import { useNodeStore } from "@/store/nodes-store";
+import { usePermission } from "@/lib/use-permission";
 
 interface DebateCardProps {
   isPinned: boolean;
@@ -245,8 +246,8 @@ export const DebateCard: React.FC<DebateCardProps> = ({
   console.log({ userClubRole });
 
   const hasRolePermission =
-    ["admin", "moderator", "owner"].includes(userClubRole) ||
-    ["admin", "moderator", "owner"].includes(userNodeRole);
+    ["admin", "moderator", "owner"].includes(userClubRole!) ||
+    ["admin", "moderator", "owner"].includes(userNodeRole!);
   console.log({ hasRolePermission });
   console.log({ userNodeRole });
 
