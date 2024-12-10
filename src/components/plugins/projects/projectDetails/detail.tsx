@@ -10,6 +10,17 @@ import { useParams } from "next/navigation";
 import React from "react";
 import ContributionModal from "../contribution-modal";
 import { ContributionApprovalModal } from "../contribution-details-modal";
+import { Check } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
+
 export default function Details({
   project,
   forumId,
@@ -28,7 +39,36 @@ export default function Details({
   // useEffect(() => {
   //   fetch(postId);
   // }, []);
-
+  const [adoptionOptions] = useState<any[]>([
+    {
+      type: "club",
+      name: "Tech Club",
+      image: "https://placehold.co/600x400/000000/FFFFFF/png",
+      id: "1",
+      role: "admin",
+    },
+    {
+      type: "club",
+      name: "Art Club",
+      image: "https://placehold.co/600x400/000000/FFFFFF/png",
+      id: "2",
+      role: "member",
+    },
+    {
+      type: "node",
+      name: "Node 1",
+      image: "https://placehold.co/600x400/000000/FFFFFF/png",
+      id: "3",
+      role: "moderator",
+    },
+    {
+      type: "node",
+      name: "Node 2",
+      image: "https://placehold.co/600x400/000000/FFFFFF/png",
+      id: "4",
+      role: "owner",
+    },
+  ]);
   const [openApproval, setOpenApproval] = useState(false);
   const [selectedParam, setSelectedParam] = useState(null);
   const [open, setOPen] = useState<boolean>(false);
@@ -47,9 +87,72 @@ export default function Details({
       {/* Content */}
       <div className="p-8">
         <div className="mb-8">
-          <h2 className="mb-3 text-2xl font-semibold tracking-tight">
-            {project?.title}
-          </h2>
+          <div className="flex justify-between items-center mb-3">
+            <h2 className="text-2xl font-semibold tracking-tight">
+              {project?.title}
+            </h2>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button className="bg-green-400 text-white hover:bg-green-500">
+                  Adopt
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-sm">
+                <DialogHeader className="sticky top-0 z-10 mt-4 bg-white">
+                  <DialogTitle>Choose adoption type</DialogTitle>
+                  <DialogDescription className="text-sm">
+                    Select a club or node to adopt this debate
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="mt-2 max-h-60 space-y-2 overflow-y-auto">
+                  {adoptionOptions.length > 0 ? (
+                    adoptionOptions.map((option, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between rounded-lg border p-2 transition-colors hover:bg-slate-50"
+                      >
+                        <div className="flex items-center gap-2">
+                          <Image
+                            className="rounded-md"
+                            width={30}
+                            height={30}
+                            src={option.image}
+                            alt={option.name}
+                          />
+                          <div className="text-sm font-medium">
+                            {option.name}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className="text-xs">
+                            {option.type}
+                          </Badge>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-7 px-2"
+                          >
+                            <Check className="mr-1 size-3" />
+                            <span className="text-xs">
+                              {["admin", "moderator", "owner"].includes(
+                                option.role
+                              )
+                                ? "Adopt"
+                                : "Propose"}
+                            </span>
+                          </Button>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="p-4 text-center text-sm text-gray-500">
+                      No clubs or nodes available for adoption.
+                    </div>
+                  )}
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
           <p className="leading-relaxed text-gray-600">
             {project?.significance}
           </p>
