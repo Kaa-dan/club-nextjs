@@ -7,6 +7,7 @@ import FAQList from "./faq-list";
 import { useEffect, useState } from "react";
 import { ProjectApi } from "./projectApi";
 import ProjectWall from "./project-wall";
+import LeaderBoard from "./projectDetails/leader-board";
 export default function ViewProject({
   forumId,
   forum,
@@ -59,7 +60,7 @@ export default function ViewProject({
           <Details project={project} forumId={forumId} forum={forum} />
         </TabsContent>
         <TabsContent value="leaderboard" className="p-4">
-          Leaderboard content
+          <LeaderBoard />
         </TabsContent>
         <TabsContent value="wall" className="p-4">
           <ProjectWall />
