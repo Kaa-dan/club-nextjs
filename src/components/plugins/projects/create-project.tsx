@@ -90,9 +90,9 @@ export const projectFormSchema = z
     committees: z
       .array(
         z.object({
-          name: z.string(),
+          name: z.string().min(1, "Name is Required"),
           userId: z.string(),
-          designation: z.string(),
+          designation: z.string().min(1, "Designation is required"),
         })
       )
       .nonempty("At least one committee member is required"),
@@ -136,19 +136,7 @@ export const projectFormSchema = z
           preview: z.string().optional(),
         })
       )
-      .optional()
-      .default([])
-      .superRefine((files, ctx) => {
-        if (files && files.length > MAX_FILES) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.too_big,
-            maximum: MAX_FILES,
-            type: "array",
-            inclusive: true,
-            message: `You can only upload up to ${MAX_FILES} files`,
-          });
-        }
-      }),
+      .min(1, "At least one file is required"),
     banner: z
       .instanceof(File)
       .refine(
@@ -182,49 +170,67 @@ export default function ProjectForm({
   forum: TForum;
   forumId: string;
 }) {
-  const [files, setFiles] = React.useState<
-    Array<{
-      file: File;
-      preview: string;
-    }>
-  >([]);
-
   const { currentClub } = useClubStore((state) => state);
   const { currentNode } = useNodeStore((state) => state);
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
+    const existingFiles = form.getValues("files");
 
     selectedFiles.forEach((file) => {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setFiles((prev) => [
-          ...prev,
+        const updatedFiles = [
+          ...existingFiles, // Keep existing files
           {
             file,
-            preview: reader.result as string,
+            preview: reader.result as string, // Generate a preview
           },
-        ]);
+        ];
+        form.setValue("files", updatedFiles); // Update the form field
       };
+
       reader.readAsDataURL(file);
     });
   };
 
   const handleRemoveFile = (index: number) => {
-    setFiles((prev) => prev.filter((_, i) => i !== index));
+    const updatedFiles = form
+      .getValues("files")
+      .filter((_: any, idx: number) => idx !== index);
+    form.setValue("files", updatedFiles);
   };
 
   const form = useForm<ProjectFormValues>({
     resolver: zodResolver(projectFormSchema),
     defaultValues: {
       champions: [],
-      committees: [],
-      parameters: [],
-      faqs: [],
+      committees: [
+        {
+          name: "",
+          userId: "",
+          designation: "",
+        },
+      ],
+      parameters: [
+        {
+          title: "",
+          unit: "",
+          value: "",
+        },
+      ],
+      faqs: [
+        {
+          question: "",
+          answer: "",
+        },
+      ],
       isPublic: false,
       budgetMin: "0",
       budgetMax: "0",
       relatedEvent: "",
       closingRemark: "",
+      files: [],
     },
   });
 
@@ -303,11 +309,6 @@ export default function ProjectForm({
         formData.append("bannerImage", data.banner);
       }
 
-      // Add multiple files
-      files.forEach((file) => {
-        formData.append(`file`, file.file);
-      });
-
       formData.append(forum, forumId);
 
       // Wait for the API call to complete
@@ -379,7 +380,7 @@ export default function ProjectForm({
   const getAvailableOptions = (currentIndex: number) => {
     return allMembers;
   };
-
+  console.log(form.formState.errors.committees);
   return (
     <TooltipProvider>
       <Form {...form}>
@@ -772,119 +773,137 @@ export default function ProjectForm({
               </FormItem>
             )}
           />
-
           <FormField
             control={form.control}
             name="committees"
-            render={({ field }) => (
+            render={({ field, formState }) => (
               <FormItem>
                 <h3 className="mb-4 text-lg font-medium">Project Committee</h3>
                 <div className="space-y-6">
-                  {field.value.map((member, index) => (
-                    <div key={index} className="relative">
-                      <div className="mb-2 flex items-center justify-between">
-                        <div className="flex items-center gap-1">
-                          <FormLabel className="text-sm font-medium text-gray-700">
-                            Member {index + 1}
-                          </FormLabel>
-                          <Tooltip>
-                            <TooltipTrigger>
-                              <Info className="size-4 text-gray-400" />
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              Enter member details
-                            </TooltipContent>
-                          </Tooltip>
-                        </div>
-                        {index !== 0 && (
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="h-auto p-1 text-red-500 hover:bg-transparent hover:text-red-600"
-                            onClick={() => {
-                              const newValue = [...field.value];
-                              newValue.splice(index, 1);
-                              field.onChange(newValue);
-                            }}
-                          >
-                            <Trash2 className="size-4" />
-                          </Button>
-                        )}
-                      </div>
-                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-2">
-                            <FormLabel className="text-sm font-normal text-gray-600">
-                              Name
+                  {field.value.map((member, index) => {
+                    const memberError = formState.errors?.committees?.[index];
+                    return (
+                      <div key={index} className="relative">
+                        <div className="mb-2 flex items-center justify-between">
+                          <div className="flex items-center gap-1">
+                            <FormLabel className="text-sm font-medium text-gray-700">
+                              Member {index + 1}
                             </FormLabel>
                             <Tooltip>
                               <TooltipTrigger>
                                 <Info className="size-4 text-gray-400" />
                               </TooltipTrigger>
-                              <TooltipContent>Select member</TooltipContent>
+                              <TooltipContent>
+                                Enter member details
+                              </TooltipContent>
                             </Tooltip>
                           </div>
-                          <FormControl>
-                            <MultiSelect
-                              options={getAvailableOptions(index)}
-                              defaultValue={
-                                member.userId ? member.userId.split(",") : []
-                              }
-                              onValueChange={(values) => {
-                                const selectedValues = Array.isArray(values)
-                                  ? values
-                                  : [values];
+                          {index !== 0 && (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="h-auto p-1 text-red-500 hover:bg-transparent hover:text-red-600"
+                              onClick={() => {
                                 const newValue = [...field.value];
-
-                                // Get all selected members' names
-                                const selectedMemberNames = selectedValues.map(
-                                  (value) =>
-                                    allMembers.find((m) => m.value === value)
-                                      ?.title || ""
-                                );
-
-                                newValue[index] = {
-                                  ...newValue[index],
-                                  userId: selectedValues.join(","), // Store multiple IDs as comma-separated string
-                                  name: selectedMemberNames.join(", "), // Store multiple names as comma-separated string
-                                };
-
+                                newValue.splice(index, 1);
                                 field.onChange(newValue);
                               }}
-                              placeholder="Select members"
-                              className="w-full"
-                            />
-                          </FormControl>
+                            >
+                              <Trash2 className="size-4" />
+                            </Button>
+                          )}
                         </div>
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-2">
-                            <FormLabel className="text-sm font-normal text-gray-600">
-                              Designation
-                            </FormLabel>
-                            <Tooltip>
-                              <TooltipTrigger>
-                                <Info className="size-4 text-gray-400" />
-                              </TooltipTrigger>
-                              <TooltipContent>Enter designation</TooltipContent>
-                            </Tooltip>
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                          {/* Name Field */}
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2">
+                              <FormLabel className="text-sm font-normal text-gray-600">
+                                Name
+                              </FormLabel>
+                              <Tooltip>
+                                <TooltipTrigger>
+                                  <Info className="size-4 text-gray-400" />
+                                </TooltipTrigger>
+                                <TooltipContent>Select member</TooltipContent>
+                              </Tooltip>
+                            </div>
+                            <FormControl>
+                              <MultiSelect
+                                options={getAvailableOptions(index)}
+                                defaultValue={
+                                  member.userId ? member.userId.split(",") : []
+                                }
+                                onValueChange={(values) => {
+                                  const selectedValues = Array.isArray(values)
+                                    ? values
+                                    : [values];
+                                  const newValue = [...field.value];
+
+                                  const selectedMemberNames =
+                                    selectedValues.map(
+                                      (value) =>
+                                        allMembers.find(
+                                          (m) => m.value === value
+                                        )?.title || ""
+                                    );
+
+                                  newValue[index] = {
+                                    ...newValue[index],
+                                    userId: selectedValues.join(","),
+                                    name: selectedMemberNames.join(", "),
+                                  };
+
+                                  field.onChange(newValue);
+                                }}
+                                placeholder="Select members"
+                                className="w-full"
+                              />
+                            </FormControl>
+                            {memberError?.name && (
+                              <FormMessage>
+                                {memberError.name.message}
+                              </FormMessage>
+                            )}
                           </div>
-                          <Input
-                            placeholder="Enter designation"
-                            value={member.designation}
-                            onChange={(e) => {
-                              const newValue = [...field.value];
-                              newValue[index] = {
-                                ...newValue[index],
-                                designation: e.target.value,
-                              };
-                              field.onChange(newValue);
-                            }}
-                          />
+
+                          {/* Designation Field */}
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2">
+                              <FormLabel className="text-sm font-normal text-gray-600">
+                                Designation
+                              </FormLabel>
+                              <Tooltip>
+                                <TooltipTrigger>
+                                  <Info className="size-4 text-gray-400" />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  Enter designation
+                                </TooltipContent>
+                              </Tooltip>
+                            </div>
+                            <Input
+                              placeholder="Enter designation"
+                              value={member.designation}
+                              onChange={(e) => {
+                                const newValue = [...field.value];
+                                newValue[index] = {
+                                  ...newValue[index],
+                                  designation: e.target.value,
+                                };
+                                field.onChange(newValue);
+                              }}
+                            />
+                            {memberError?.designation && (
+                              <FormMessage>
+                                {memberError.designation.message}
+                              </FormMessage>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                   <Button
                     type="button"
                     variant="outline"
@@ -896,10 +915,15 @@ export default function ProjectForm({
                     Add Member
                   </Button>
                 </div>
-                <FormMessage />
+                {formState.errors?.committees?.message && (
+                  <FormMessage>
+                    {formState.errors.committees.message}
+                  </FormMessage>
+                )}
               </FormItem>
             )}
           />
+
           <FormField
             control={form.control}
             name="parameters"
@@ -1245,6 +1269,70 @@ export default function ProjectForm({
             </div>
           </div>
 
+          {/* <FormField
+            control={form.control}
+            name="files"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="flex items-center gap-2">
+                  Files/Media
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Info className="size-4 text-muted-foreground" />
+                    </TooltipTrigger>
+                    <TooltipContent>Upload files</TooltipContent>
+                  </Tooltip>
+                </FormLabel>
+                <div className="space-y-4">
+                  <label className="block cursor-pointer rounded-lg border-2 border-dashed p-8 text-center hover:bg-muted/25">
+                    <Input
+                      type="file"
+                      accept="image/*,.pdf,.xlsx,.xls"
+                      multiple
+                      className="hidden"
+                      onChange={handleFileChange}
+                    />
+                    <div className="flex flex-col items-center gap-2">
+                      <p className="text-sm text-muted-foreground">
+                        + Upload files
+                      </p>
+                    </div>
+                  </label>
+                  {field.value?.length > 0 && (
+                    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+                      {field.value.map((file, index) => (
+                        <div
+                          key={index}
+                          className="relative aspect-square overflow-hidden rounded-lg border"
+                        >
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="absolute right-1 top-1 z-10 size-6 bg-background/80 hover:bg-background/90"
+                            onClick={() => handleRemoveFile(index)}
+                          >
+                            <X className="size-3" />
+                          </Button>
+                          {file.file.type.startsWith("image/") ? (
+                            <img
+                              src={file.preview}
+                              alt={`Preview ${index + 1}`}
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <div className="flex h-full items-center justify-center bg-muted/25 p-2 text-center text-sm text-muted-foreground">
+                              {file.file.name}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          /> */}
           <FormField
             control={form.control}
             name="files"
@@ -1274,10 +1362,9 @@ export default function ProjectForm({
                       </p>
                     </div>
                   </label>
-
-                  {files.length > 0 && (
+                  {field.value?.length > 0 && (
                     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
-                      {files.map((file, index) => (
+                      {field.value.map((file, index) => (
                         <div
                           key={index}
                           className="relative aspect-square overflow-hidden rounded-lg border"
@@ -1291,11 +1378,10 @@ export default function ProjectForm({
                             <X className="size-3" />
                           </Button>
                           {file.file.type.startsWith("image/") ? (
-                            <Image
+                            <img
                               src={file.preview}
                               alt={`Preview ${index + 1}`}
-                              fill
-                              className="object-cover"
+                              className="h-full w-full object-cover"
                             />
                           ) : (
                             <div className="flex h-full items-center justify-center bg-muted/25 p-2 text-center text-sm text-muted-foreground">
@@ -1311,7 +1397,6 @@ export default function ProjectForm({
               </FormItem>
             )}
           />
-
           <FormField
             control={form.control}
             name="isPublic"
