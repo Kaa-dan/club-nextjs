@@ -1,5 +1,4 @@
 import { withTokenAxios } from "@/lib/mainAxios";
-import { thru } from "lodash";
 
 export const ProjectApi = {
   create: async (data: FormData) => {
@@ -49,6 +48,29 @@ export const ProjectApi = {
       return response.data;
     } catch (err) {
       throw err;
+    }
+  },
+
+  notAdoptedClubsAndNodes: async (projectId: string) => {
+    try {
+      const response = await withTokenAxios.get(
+        `adopt-contribution/not-adopted-forum/${projectId}`
+      );
+      return response.data;
+    } catch (err) {
+      throw err;
+    }
+  },
+
+  adoptProject: async (data: { project: string; [key: string]: string }) => {
+    try {
+      const response = await withTokenAxios.post(
+        `adopt-contribution/adopt-forum`,
+        data
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
     }
   },
 };
