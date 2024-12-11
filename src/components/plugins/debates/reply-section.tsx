@@ -128,7 +128,7 @@ export const ReplySection: React.FC<ReplySectionProps> = ({
               <button
                 onClick={() => onReplyVote(reply._id, "relevant")}
                 className={`flex items-center gap-1 rounded px-1.5 py-0.5 transition-all duration-200 ${
-                  reply.relevant.includes(userId)
+                  reply?.relevant?.includes(userId)
                     ? "scale-105 bg-green-50 text-green-600"
                     : "text-gray-500 hover:bg-gray-50"
                 }`}
@@ -136,23 +136,23 @@ export const ReplySection: React.FC<ReplySectionProps> = ({
                 <ThumbsUp
                   size={14}
                   className={`transition-all duration-200 ${
-                    reply.relevant.includes(userId)
+                    reply?.relevant?.includes(userId)
                       ? "rotate-12 fill-current text-green-600"
                       : "text-gray-500"
                   }`}
                 />
                 <span
                   className={`text-xs transition-all duration-200 ${
-                    reply.relevant.includes(userId) ? "font-semibold" : ""
+                    reply?.relevant?.includes(userId) ? "font-semibold" : ""
                   }`}
                 >
-                  {reply.relevant.length}
+                  {reply?.relevant?.length}
                 </span>
               </button>
               <button
                 onClick={() => onReplyVote(reply._id, "irrelevant")}
                 className={`flex items-center gap-1 rounded px-1.5 py-0.5 transition-all duration-200 ${
-                  reply.irrelevant.includes(userId)
+                  reply?.irrelevant?.includes(userId)
                     ? "scale-105 bg-red-50 text-red-500"
                     : "text-gray-500 hover:bg-gray-50"
                 }`}
@@ -160,24 +160,24 @@ export const ReplySection: React.FC<ReplySectionProps> = ({
                 <ThumbsDown
                   size={14}
                   className={`transition-all duration-200 ${
-                    reply.irrelevant.includes(userId)
+                    reply?.irrelevant?.includes(userId)
                       ? "-rotate-12 fill-current text-red-500"
                       : "text-gray-500"
                   }`}
                 />
                 <span
                   className={`text-xs transition-all duration-200 ${
-                    reply.irrelevant.includes(userId) ? "font-semibold" : ""
+                    reply?.irrelevant?.includes(userId) ? "font-semibold" : ""
                   }`}
                 >
-                  {reply.irrelevant.length}
+                  {reply?.irrelevant?.length}
                 </span>
               </button>
               <button
                 onClick={() =>
                   handleReplyClick(
-                    reply.participant.user.userName,
-                    reply.parentId
+                    reply?.participant?.user?.userName,
+                    reply?.parentId
                   )
                 }
                 className="text-xs text-blue-500 hover:underline"

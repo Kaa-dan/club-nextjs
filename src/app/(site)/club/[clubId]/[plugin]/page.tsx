@@ -2,6 +2,7 @@ import RulesLayout from "@/components/plugins/rules-regulations/rules-layout";
 import IssuesLayout from "@/components/plugins/issues/issues-layout";
 import React from "react";
 import DebateLayout from "@/components/plugins/debates/debate-layout";
+import ProjectLayout from "@/components/plugins/projects/project-layout";
 const PluginPage = async ({
   params,
 }: {
@@ -17,6 +18,8 @@ const PluginPage = async ({
         return <RulesLayout forum={"club"} forumId={clubId} plugin={plugin} />;
       case "debate":
         return <DebateLayout forumId={clubId} forum="club" plugin={plugin} />;
+      case "projects":
+        return <ProjectLayout forum="club" forumId={clubId} plugin={plugin} />;
       default:
         return (
           <div className="flex h-full items-center justify-center">

@@ -23,7 +23,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { ImageSkeleton } from "../club/club-profile-card";
 import env from "@/lib/env.config";
 import { useNodeCalls } from "@/hooks/apis/use-node-calls";
-import { ok } from "assert";
+import { usePermission } from "@/lib/use-permission";
 
 interface ProfileCardProps {
   currentPage: string;
@@ -34,18 +34,14 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
   currentPage,
   setCurrentPage,
 }) => {
-  const { currentNode, currentUserRole, nodeJoinStatus, setNodeJoinStatus } =
-    useNodeStore((state) => state);
+  const { hasPermission } = usePermission();
+  const { currentNode, nodeJoinStatus, setNodeJoinStatus } = useNodeStore(
+    (state) => state
+  );
   const { fetchNodeJoinStatus } = useNodeCalls();
   const recaptchaRef = useRef(null);
 
   const { setUserRequestedNodes } = useNodeStore((state) => state);
-
-  const isAdmin = () => currentUserRole === "admin";
-  console.log({ ok: currentUserRole });
-
-  const isModeratorOrAdminOrOwner = () =>
-    ["moderator", "admin", "owner"].includes(currentUserRole.toLowerCase());
 
   const SECTIONS = [
     { name: "News Feed", icon: ICONS.NodeNewsFeedIcon, path: "#" },
@@ -71,18 +67,19 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
       icon: ICONS.NodeApprovalsIcon,
       notifications: 0,
       path: `/node/${currentNode?.node?._id}/approvals`,
-      show: isModeratorOrAdminOrOwner, // Only show for moderator and admin
+      show: hasPermission("view:approvals"),
     },
     {
       name: "Insights/Analytics",
       icon: ICONS.NodeInsightsIcon,
       path: "#",
-      show: isAdmin, // Only show for admin
+      show: hasPermission("view:analytics"),
     },
     {
       name: "Activities",
       icon: ICONS.NodeActivitiesIcon,
-      path: `/node/${currentNode?.node?._id}/activity`, // Fixed the path from approvals to activity
+      path: `/node/${currentNode?.node?._id}/activity`,
+      show: hasPermission("view:activities"),
     },
     {
       name: "Preferences",
@@ -231,7 +228,7 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
           )}
         </div>
         <div className=" my-3 h-auto  space-y-2 pb-4">
-          {SECTIONS?.filter((section) => !section.show || section.show())?.map(
+          {SECTIONS?.filter((section) => section.show !== false)?.map(
             (section) => (
               <button
                 key={section.name}

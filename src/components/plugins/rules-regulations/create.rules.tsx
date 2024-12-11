@@ -46,6 +46,8 @@ import {
   BreadcrumbItemType,
   CustomBreadcrumb,
 } from "@/components/globals/breadcrumb-component";
+import { useClubStore } from "@/store/clubs-store";
+import { useNodeStore } from "@/store/nodes-store";
 
 // Types
 // interface FileWithPreview {
@@ -116,6 +118,8 @@ export default function RuleForm({
   forumId: string;
   forum: TForum;
 }) {
+  const { currentUserRole: clubUserRole } = useClubStore((state) => state);
+  const { currentUserRole: nodeUserRole } = useNodeStore((state) => state);
   const breadcrumbItems: BreadcrumbItemType[] = [
     {
       label: "Rules",
@@ -267,6 +271,9 @@ export default function RuleForm({
       // reset();
     }
   };
+  const isMember =
+    (forum === "club" && clubUserRole === "member") ||
+    (forum === "node" && nodeUserRole === "member");
   return (
     <Card className="min-w-full max-w-3xl p-6">
       <form
@@ -681,14 +688,18 @@ export default function RuleForm({
                   disabled={isSubmitting}
                   onClick={handleSubmit(onSubmit)}
                 >
-                  {isSubmitting ? "Submitting..." : "Publish"}
+                  {isSubmitting
+                    ? "Submitting..."
+                    : isMember
+                      ? "Propose"
+                      : "Publish"}{" "}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
 
           <Button type="submit" disabled={isSubmitting}>
-            publish
+            {isMember ? "Propose" : "Publish"}
           </Button>
         </div>
       </form>
