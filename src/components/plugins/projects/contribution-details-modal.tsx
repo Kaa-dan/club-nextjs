@@ -107,7 +107,13 @@ export function ContributionApprovalModal({
 
   const handleApprove = (id: string): void => {
     console.log(`Approving contribution ${id}`);
-    // Update state logic here
+    ProjectApi.acceptContribuion(id)
+      .then((res) => {
+        fetchData();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const handleReject = (id: string): void => {
@@ -131,7 +137,7 @@ export function ContributionApprovalModal({
                 <TableCell>
                   <div className="flex items-center gap-3">
                     {userDetail?.profileImage && (
-                      <div className="relative h-8 w-8 overflow-hidden rounded-full">
+                      <div className="relative size-8 overflow-hidden rounded-full">
                         <Image
                           src={userDetail.profileImage}
                           alt={userDetail.userName}
@@ -190,7 +196,7 @@ export function ContributionApprovalModal({
             <TableCell>
               <div className="flex items-center gap-3">
                 {userDetail?.profileImage && (
-                  <div className="relative h-8 w-8 overflow-hidden rounded-full">
+                  <div className="relative size-8 overflow-hidden rounded-full">
                     <Image
                       src={userDetail.profileImage}
                       alt={userDetail.userName}
@@ -217,7 +223,7 @@ export function ContributionApprovalModal({
                   onClick={() => handleApprove(contribution._id)}
                   size="sm"
                   variant="outline"
-                  className="bg-green-50 border-0 text-green-600 hover:bg-green-100 hover:text-green-700"
+                  className="border-0 bg-green-50 text-green-600 hover:bg-green-100 hover:text-green-700"
                 >
                   Accept
                 </Button>
@@ -225,7 +231,7 @@ export function ContributionApprovalModal({
                   onClick={() => handleReject(contribution._id)}
                   size="sm"
                   variant="outline"
-                  className="bg-red-50 border-0 text-red-600 hover:bg-red-100 hover:text-red-700"
+                  className="border-0 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700"
                 >
                   Reject
                 </Button>

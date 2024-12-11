@@ -12,6 +12,7 @@ import ContributionModal from "../contribution-modal";
 import { ContributionApprovalModal } from "../contribution-details-modal";
 import { Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+
 import {
   Dialog,
   DialogTrigger,
@@ -39,39 +40,54 @@ export default function Details({
   // useEffect(() => {
   //   fetch(postId);
   // }, []);
-  const [adoptionOptions] = useState<any[]>([
-    {
-      type: "club",
-      name: "Tech Club",
-      image: "https://placehold.co/600x400/000000/FFFFFF/png",
-      id: "1",
-      role: "admin",
-    },
-    {
-      type: "club",
-      name: "Art Club",
-      image: "https://placehold.co/600x400/000000/FFFFFF/png",
-      id: "2",
-      role: "member",
-    },
-    {
-      type: "node",
-      name: "Node 1",
-      image: "https://placehold.co/600x400/000000/FFFFFF/png",
-      id: "3",
-      role: "moderator",
-    },
-    {
-      type: "node",
-      name: "Node 2",
-      image: "https://placehold.co/600x400/000000/FFFFFF/png",
-      id: "4",
-      role: "owner",
-    },
-  ]);
+  const [adoptionOptions, setAdoptionOptions] = useState<any>();
   const [openApproval, setOpenApproval] = useState(false);
   const [selectedParam, setSelectedParam] = useState(null);
   const [open, setOPen] = useState<boolean>(false);
+  useEffect(() => {
+    ProjectApi.notAdoptedClubsAndNodes(project?._id as string).then((res) => {
+      setAdoptionOptions(res.data);
+    });
+  }, []);
+  const clubs =
+    adoptionOptions?.forums
+      .filter((forum: { type: TForum }) => forum.type === "club")
+      .map(
+        (club: {
+          id: string;
+          type: TForum;
+          name: string;
+          role: string;
+          image: string;
+        }) => ({
+          clubId: club.id,
+          type: "club",
+          name: club.name,
+          role: club.role,
+          image: club.image,
+        })
+      ) || [];
+
+  const nodes =
+    adoptionOptions?.forums
+      .filter((forum: { type: TForum }) => forum.type === "node")
+      .map(
+        (node: {
+          id: string;
+          type: TForum;
+          name: string;
+          role: string;
+          image: string;
+        }) => ({
+          nodeId: node.id,
+          type: "node",
+          name: node.name,
+          role: node.role,
+          image: node.image,
+        })
+      ) || [];
+  const adoptionOption = [...clubs, ...nodes];
+
   return (
     <div className="mx-auto max-w-4xl rounded-lg bg-white shadow-sm">
       {/* Header Banner */}
@@ -87,7 +103,7 @@ export default function Details({
       {/* Content */}
       <div className="p-8">
         <div className="mb-8">
-          <div className="flex justify-between items-center mb-3">
+          <div className="mb-3 flex items-center justify-between">
             <h2 className="text-2xl font-semibold tracking-tight">
               {project?.title}
             </h2>
@@ -105,8 +121,8 @@ export default function Details({
                   </DialogDescription>
                 </DialogHeader>
                 <div className="mt-2 max-h-60 space-y-2 overflow-y-auto">
-                  {adoptionOptions.length > 0 ? (
-                    adoptionOptions.map((option, index) => (
+                  {adoptionOption.length > 0 ? (
+                    adoptionOption.map((option, index) => (
                       <div
                         key={index}
                         className="flex items-center justify-between rounded-lg border p-2 transition-colors hover:bg-slate-50"
@@ -128,6 +144,18 @@ export default function Details({
                             {option.type}
                           </Badge>
                           <Button
+                            onClick={() => {
+                              ProjectApi.adoptProject({
+                                project: project?._id as string,
+                                [forum]: forumId,
+                              }).then((res) => {
+                                ProjectApi.notAdoptedClubsAndNodes(
+                                  project?._id as string
+                                ).then((res) => {
+                                  setAdoptionOptions(res.data);
+                                });
+                              });
+                            }}
                             size="sm"
                             variant="outline"
                             className="h-7 px-2"

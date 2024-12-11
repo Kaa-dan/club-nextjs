@@ -263,3 +263,18 @@ interface Committee {
 interface Champion {
   // Add properties here if there are specific fields for champions
 }
+
+type AdoptionOption = {
+  nonAdoptedClubs: {
+    clubId: string;
+    role: string;
+    name: string;
+    image: string;
+  }[];
+  nonAdoptedNodes: {
+    nodeId: string;
+    role: string;
+    name: string;
+    image: string;
+  }[];
+};
