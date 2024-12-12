@@ -21,15 +21,18 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { usePermission } from "@/lib/use-permission";
 
 export default function Details({
   project,
   forumId,
   forum,
+  fetchProject,
 }: {
   forumId: string;
   forum: TForum;
   project: TProjectData | undefined;
+  fetchProject: () => void;
 }) {
   const { postId } = useParams<{ postId: string }>();
   // function fetch(postId: string) {
@@ -44,6 +47,8 @@ export default function Details({
   const [openApproval, setOpenApproval] = useState(false);
   const [selectedParam, setSelectedParam] = useState(null);
   const [open, setOPen] = useState<boolean>(false);
+  const { hasPermission } = usePermission();
+
   useEffect(() => {
     ProjectApi.notAdoptedClubsAndNodes(project?._id as string).then((res) => {
       setAdoptionOptions(res.data);
@@ -93,7 +98,7 @@ export default function Details({
       {/* Header Banner */}
       <div className="relative h-40 overflow-hidden rounded-t-lg bg-[#001529]">
         <Image
-          src={project?.bannerImage.url as string}
+          src={project?.bannerImage?.url as string}
           alt="Banner"
           fill
           className="object-cover"
@@ -246,16 +251,18 @@ export default function Details({
                     >
                       + Add Contribution
                     </Button>
-                    <Button
-                      onClick={() => {
-                        setSelectedParam(param);
-                        setOpenApproval(true);
-                      }}
-                      variant="outline"
-                      size="icon"
-                    >
-                      <Eye className="size-4" />
-                    </Button>
+                    {hasPermission("view:assetPrivateInfos") && (
+                      <Button
+                        onClick={() => {
+                          setSelectedParam(param);
+                          setOpenApproval(true);
+                        }}
+                        variant="outline"
+                        size="icon"
+                      >
+                        <Eye className="size-4" />
+                      </Button>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -269,7 +276,7 @@ export default function Details({
               projectId={postId}
               setOpen={setOPen}
               forum={forum}
-              fetch={fetch}
+              fetch={fetchProject}
             />
           )}
 

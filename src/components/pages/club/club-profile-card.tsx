@@ -58,7 +58,7 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
 
   const router = useRouter();
 
-  console.log("apprr ,", hasPermission("view:approvals"));
+  console.log("apprr ,", hasPermission("view:assetPrivateInfos"));
 
   const SECTIONS = [
     {

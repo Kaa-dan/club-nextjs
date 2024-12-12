@@ -15,14 +15,15 @@ const ROLES = {
     "view:approvals",
     "view:preferences",
 
+    // Asset
+    "view:proposedAsset",
+    "view:assetPrivateInfos",
+    "create:asset",
+    "adopt:asset",
+
     // Roles
     "update:makeAdmin",
     "update:removeUser",
-
-    // Asset
-    "view:proposedAsset",
-    "create:asset",
-    "adopt:asset",
 
     // Rules
     "view:rulesReportOffense",
@@ -44,6 +45,7 @@ const ROLES = {
 
     // Asset
     "view:proposedAsset",
+    "view:assetPrivateInfos",
     "create:asset",
     "adopt:asset",
 

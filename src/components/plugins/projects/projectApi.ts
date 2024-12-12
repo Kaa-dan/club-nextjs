@@ -73,4 +73,35 @@ export const ProjectApi = {
       throw error;
     }
   },
+
+  createAnnouncement: async (data: FormData) => {
+    try {
+      const response = await withTokenAxios.post("announcement", data);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  getAllProjectActivities: async (projectId: String) => {
+    try {
+      const response = await withTokenAxios.get(
+        `adopt-contribution/project-activities/${projectId}`
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  fetchActivities: async (projectId: string) => {
+    try {
+      const response = await withTokenAxios.get(
+        `announcement/all-project-announcement/${projectId}`
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
 };

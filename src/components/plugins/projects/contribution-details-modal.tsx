@@ -105,7 +105,7 @@ export function ContributionApprovalModal({
     fetchData();
   }, [projectId]);
 
-  const handleApprove = (id: string): void => {
+  const handleApproveReject = (id: string, type: boolean): void => {
     console.log(`Approving contribution ${id}`);
     ProjectApi.acceptContribuion(id)
       .then((res) => {
@@ -114,11 +114,6 @@ export function ContributionApprovalModal({
       .catch((err) => {
         console.log(err);
       });
-  };
-
-  const handleReject = (id: string): void => {
-    console.log(`Rejecting contribution ${id}`);
-    // Update state logic here
   };
 
   const renderContributorsList = () => {
@@ -220,7 +215,7 @@ export function ContributionApprovalModal({
             <TableCell>
               <div className="flex gap-2">
                 <Button
-                  onClick={() => handleApprove(contribution._id)}
+                  onClick={() => handleApproveReject(contribution._id, true)}
                   size="sm"
                   variant="outline"
                   className="border-0 bg-green-50 text-green-600 hover:bg-green-100 hover:text-green-700"
@@ -228,7 +223,7 @@ export function ContributionApprovalModal({
                   Accept
                 </Button>
                 <Button
-                  onClick={() => handleReject(contribution._id)}
+                  onClick={() => handleApproveReject(contribution._id, false)}
                   size="sm"
                   variant="outline"
                   className="border-0 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700"
