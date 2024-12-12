@@ -103,7 +103,8 @@ type TRule = {
   updatedAt: string;
   __v: number;
   irrelevant: Array<any>;
-  adobtedClubs: [];
+  adoptedClubs: [];
+  adoptedNodes: [];
 };
 
 interface IssueFile {

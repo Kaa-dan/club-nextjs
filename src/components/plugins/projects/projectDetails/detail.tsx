@@ -35,6 +35,7 @@ export default function Details({
   fetchProject: () => void;
 }) {
   const { postId } = useParams<{ postId: string }>();
+  console.log({ postId });
   // function fetch(postId: string) {
   //   ProjectApi.singleView(postId).then((res) => {
   //     setProject(res);
@@ -50,8 +51,9 @@ export default function Details({
   const { hasPermission } = usePermission();
 
   useEffect(() => {
-    ProjectApi.notAdoptedClubsAndNodes(project?._id as string).then((res) => {
-      setAdoptionOptions(res.data);
+    ProjectApi.notAdoptedClubsAndNodes(postId as string).then((res) => {
+      console.log({ res });
+      setAdoptionOptions(res);
     });
   }, []);
   const clubs =
@@ -59,13 +61,13 @@ export default function Details({
       .filter((forum: { type: TForum }) => forum.type === "club")
       .map(
         (club: {
-          id: string;
+          _id: string;
           type: TForum;
           name: string;
           role: string;
           image: string;
         }) => ({
-          clubId: club.id,
+          _id: club._id,
           type: "club",
           name: club.name,
           role: club.role,
@@ -73,18 +75,20 @@ export default function Details({
         })
       ) || [];
 
+  console.log({ adoptionOptions });
+
   const nodes =
     adoptionOptions?.forums
       .filter((forum: { type: TForum }) => forum.type === "node")
       .map(
         (node: {
-          id: string;
+          _id: string;
           type: TForum;
           name: string;
           role: string;
           image: string;
         }) => ({
-          nodeId: node.id,
+          _id: node._id,
           type: "node",
           name: node.name,
           role: node.role,
@@ -120,7 +124,7 @@ export default function Details({
               </DialogTrigger>
               <DialogContent className="max-w-sm">
                 <DialogHeader className="sticky top-0 z-10 mt-4 bg-white">
-                  <DialogTitle>Choose adoption type</DialogTitle>
+                  <DialogTitle>Choose adoption</DialogTitle>
                   <DialogDescription className="text-sm">
                     Select a club or node to adopt this debate
                   </DialogDescription>
@@ -150,9 +154,10 @@ export default function Details({
                           </Badge>
                           <Button
                             onClick={() => {
+                              console.log({ option });
                               ProjectApi.adoptProject({
                                 project: project?._id as string,
-                                [forum]: forumId,
+                                [option?.type]: option._id,
                               }).then((res) => {
                                 ProjectApi.notAdoptedClubsAndNodes(
                                   project?._id as string

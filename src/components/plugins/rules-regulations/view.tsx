@@ -34,6 +34,16 @@ import { Button } from "@/components/ui/button";
 import { useTokenStore } from "@/store/store";
 import { ICONS } from "@/lib/constants";
 import Image from "next/image";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+//importing images
+import ClubIcon from "@public/icons/club-grey.icon.svg";
+import NodeIcon from "@public/icons/node-grey.icon.svg";
 interface Item {
   _id: string;
   name: string;
@@ -217,15 +227,59 @@ const View = ({ forum }: { forum: TForum }) => {
             <Eye className="size-4" />
             <span>{`${rule?.views.length} Viewer's`}</span>
           </div>
-          <div className="flex items-center gap-2 text-sm text-gray-600">
+          {/* <div className="flex items-center gap-2 text-sm text-gray-600">
             <UserCheck className="size-4" />
-            <span>{rule?.adobtedClubs ? rule.adobtedClubs : "0"} Adopted</span>
-          </div>
+            <span>
+              {(rule?.adoptedClubs.length || 0) +
+                (rule?.adoptedNodes.length || 0)}{" "}
+              Adopted
+            </span>
+          </div> */}
+
+          {/* tooltip for adopted */}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <UserCheck className="size-4" />
+                  <span>
+                    {" "}
+                    {(rule?.adoptedClubs.length || 0) +
+                      (rule?.adoptedNodes.length || 0)}{" "}
+                    Adopted
+                  </span>
+                </div>
+              </TooltipTrigger>
+
+              <TooltipContent className="bg-white border text-black w-[200px] flex justify-between items-center  ">
+                <div>
+                  <span className="flex justify-between">
+                    <Image src={ClubIcon} alt="club" className="mr-2" />
+                    {rule?.adoptedClubs.length}{" "}
+                    <span className="ml-2">Clubs </span>
+                  </span>
+                </div>
+                <div className="h-[5px] w-[5px] rounded-full bg-gray-500"></div>
+                <div>
+                  <span className="flex justify-between">
+                    <Image src={NodeIcon} alt="node" className="mr-2" />
+                    {rule?.adoptedNodes.length}{" "}
+                    <span className="ml-2">Nodes</span>
+                  </span>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
           <Dialog>
             <DialogTrigger asChild>
-              <button className="rounded-md bg-green-500 px-4 py-1.5 text-sm text-white">
-                Adopt
-              </button>
+              {rule?.isPublic ? (
+                <button className="rounded-md bg-green-500 px-4 py-1.5 text-sm text-white">
+                  Adopt
+                </button>
+              ) : (
+                <div className="text-red-500 font-semibold">Private</div>
+              )}
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
