@@ -64,7 +64,11 @@ export const ProjectApi = {
     }
   },
 
-  adoptProject: async (data: { project: string; [key: string]: string }) => {
+  adoptProject: async (data: {
+    project: string;
+    [key: string]: string | undefined;
+    proposalMessage?: string;
+  }) => {
     try {
       const response = await withTokenAxios.post(
         `adopt-contribution/adopt-forum`,
