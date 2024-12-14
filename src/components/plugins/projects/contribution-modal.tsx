@@ -149,7 +149,7 @@ export default function ContributionModal({
               render={({ field }) => (
                 <FormItem className="space-y-2">
                   <FormLabel className="flex items-center gap-1">
-                    Volunteers
+                    Value
                     <Info className="size-4 text-muted-foreground" />
                   </FormLabel>
                   <FormControl>

@@ -125,7 +125,8 @@ const ProjectWall: React.FC<ProjectWallProps> = ({
                     <span className="mx-2 text-sm text-muted-foreground"></span>
                     <p className="text-sm text-muted-foreground">
                       {/* {activity.location} {` `} */}
-                      Contributed {activity.contribution?.value}
+                      Contributed {activity.contribution?.value} to{" "}
+                      {activity.contribution?.parameter?.title}
                     </p>
                   </div>
                   <p className="text-xs text-muted-foreground">

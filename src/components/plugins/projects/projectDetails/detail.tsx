@@ -256,18 +256,17 @@ export default function Details({
                     >
                       + Add Contribution
                     </Button>
-                    {hasPermission("view:assetPrivateInfos") && (
-                      <Button
-                        onClick={() => {
-                          setSelectedParam(param);
-                          setOpenApproval(true);
-                        }}
-                        variant="outline"
-                        size="icon"
-                      >
-                        <Eye className="size-4" />
-                      </Button>
-                    )}
+
+                    <Button
+                      onClick={() => {
+                        setSelectedParam(param);
+                        setOpenApproval(true);
+                      }}
+                      variant="outline"
+                      size="icon"
+                    >
+                      <Eye className="size-4" />
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
