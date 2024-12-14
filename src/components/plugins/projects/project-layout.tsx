@@ -25,26 +25,34 @@ const ProjectLayout = ({
   forum: TForum;
   forumId: string;
 }) => {
-  const { activeProjects, globalProjects, myProjects, allProjects, loading } =
-    useProjects(forum, forumId);
+  const {
+    activeProjects,
+    globalProjects,
+    myProjects,
+    allProjects,
+    loading,
+    proposedProjects,
+    refetch,
+    projectCounts,
+  } = useProjects(forum, forumId);
   const { hasPermission } = usePermission();
 
   const tabs: TabData[] = [
     {
       label: "On going projects",
-      count: activeProjects?.length,
+      count: projectCounts?.activeProjects || 0,
     },
     {
       label: "All Projects",
-      count: allProjects?.length,
+      count: projectCounts?.allProjects || 0,
     },
     {
       label: "Global Projects",
-      count: globalProjects?.length,
+      count: projectCounts?.globalProjects || 0,
     },
     {
       label: "My Projects",
-      count: myProjects?.length,
+      count: projectCounts?.myProjects || 0,
     },
   ];
 
@@ -53,7 +61,7 @@ const ProjectLayout = ({
     if (hasPermission("view:proposedAsset")) {
       _tabs.push({
         label: "Proposed Project",
-        count: 0,
+        count: proposedProjects.length,
       });
     }
     return _tabs;
@@ -81,7 +89,7 @@ const ProjectLayout = ({
         data = myProjects;
         break;
       case "Proposed Project":
-        data = myProjects;
+        data = proposedProjects;
         break;
       default:
         data = [];
@@ -164,6 +172,7 @@ const ProjectLayout = ({
               </Button>
             </div>
             <ProjectTable
+              reFetch={refetch}
               forumId={forumId}
               plugin={plugin}
               forum={forum}

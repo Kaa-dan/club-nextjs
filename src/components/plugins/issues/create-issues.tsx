@@ -299,38 +299,30 @@ export default function CreateIssueForm({
                   <FormItem className="flex w-full flex-col md:w-1/2">
                     <TooltipLabel
                       label="Deadline"
-                      tooltip="Enter a clear, concise title for your issue"
+                      tooltip="Enter the deadline date for this issue"
                     />
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant="outline"
-                            className={`w-full border-slate-700 pl-3 text-left font-normal text-slate-700 ${
-                              !field.value && "text-muted-foreground"
-                            }`}
-                          >
-                            {field.value ? (
-                              format(field.value, "PPP")
-                            ) : (
-                              <span>Pick a date</span>
-                            )}
-                            <Calendar className="ml-auto size-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <CalendarComponent
-                          mode="single"
-                          selected={field.value}
-                          onSelect={field.onChange}
-                          disabled={(date) =>
-                            date < new Date() || date < new Date("1900-01-01")
+                    <div className="relative w-full">
+                      <Input
+                        type="date"
+                        value={
+                          field.value ? format(field.value, "yyyy-MM-dd") : ""
+                        }
+                        onChange={(e) => {
+                          const selectedDate = new Date(e.target.value);
+                          // Ensure the date is valid and within acceptable range
+                          if (
+                            selectedDate &&
+                            selectedDate >= new Date() &&
+                            selectedDate >= new Date("1900-01-01")
+                          ) {
+                            field.onChange(selectedDate);
+                          } else {
+                            toast.warning("Please select a valid future date");
                           }
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
+                        }}
+                        className="w-full pl-10 pr-4 py-2 border justify-center text-green-300 font-semibold border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                      />
+                    </div>
                     <FormMessage />
                   </FormItem>
                 )}

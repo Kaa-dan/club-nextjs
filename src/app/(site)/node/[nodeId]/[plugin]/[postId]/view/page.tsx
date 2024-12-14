@@ -24,7 +24,7 @@ const Page = async ({
   ];
 
   return (
-    <div className=" min-w-full">
+    <div className=" min-w-full ">
       <div className="flex flex-col gap-4">
         <div>
           <h1 className="text-xl">{config.title}</h1>
@@ -34,7 +34,7 @@ const Page = async ({
         </div>
         <CustomBreadcrumb items={breadcrumbItems} className="my-1" />
 
-        <div className="w-full">
+        <div className="w-full ">
           <PluginComponent forumId={nodeId} forum="node" />
         </div>
       </div>

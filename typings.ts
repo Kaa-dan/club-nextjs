@@ -264,7 +264,7 @@ interface Champion {
   // Add properties here if there are specific fields for champions
 }
 
-type AdoptionOption = {
+type TAdoptionOption = {
   nonAdoptedClubs: {
     clubId: string;
     role: string;

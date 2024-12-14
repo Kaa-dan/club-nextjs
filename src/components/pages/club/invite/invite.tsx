@@ -120,7 +120,7 @@ export default function Invite({ entityId, type }: InviteProps): JSX.Element {
         </DialogHeader>
         <hr />
 
-        <div className="grid gap-4 py-4">
+        <div className="grid gap-4 py-4 ">
           <div className="relative flex gap-5">
             <Search className="absolute left-2 top-2.5 size-4 text-muted-foreground" />
             <Input
@@ -158,7 +158,10 @@ export default function Invite({ entityId, type }: InviteProps): JSX.Element {
           </div>
           <div className="max-h-[200px] space-y-4 overflow-y-auto">
             {allUsers?.map((user, idx) => (
-              <div key={idx} className="flex items-center justify-between">
+              <div
+                key={idx}
+                className="flex items-center  w-[95%] justify-between"
+              >
                 <div className="flex gap-4">
                   <div className="size-16">
                     <Avatar>
@@ -189,7 +192,7 @@ export default function Invite({ entityId, type }: InviteProps): JSX.Element {
                   onClick={() =>
                     sentInvitationHandler(entityId, user?._id, type)
                   }
-                  className="rounded-md bg-green-500 px-2 py-1 text-white"
+                  className="rounded-md  px-2 py-1 bg-green-400  text-white"
                 >
                   Invite
                 </button>

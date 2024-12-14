@@ -21,17 +21,22 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { usePermission } from "@/lib/use-permission";
+import { toast } from "sonner";
 
 export default function Details({
   project,
   forumId,
   forum,
+  fetchProject,
 }: {
   forumId: string;
   forum: TForum;
   project: TProjectData | undefined;
+  fetchProject: () => void;
 }) {
   const { postId } = useParams<{ postId: string }>();
+  console.log({ postId });
   // function fetch(postId: string) {
   //   ProjectApi.singleView(postId).then((res) => {
   //     setProject(res);
@@ -44,23 +49,28 @@ export default function Details({
   const [openApproval, setOpenApproval] = useState(false);
   const [selectedParam, setSelectedParam] = useState(null);
   const [open, setOPen] = useState<boolean>(false);
-  useEffect(() => {
-    ProjectApi.notAdoptedClubsAndNodes(project?._id as string).then((res) => {
-      setAdoptionOptions(res.data);
+  const { hasPermission } = usePermission();
+  function fetchNotAdoptedClubAndNode() {
+    ProjectApi.notAdoptedClubsAndNodes(postId as string).then((res) => {
+      console.log({ res });
+      setAdoptionOptions(res);
     });
+  }
+  useEffect(() => {
+    fetchNotAdoptedClubAndNode();
   }, []);
   const clubs =
     adoptionOptions?.forums
       .filter((forum: { type: TForum }) => forum.type === "club")
       .map(
         (club: {
-          id: string;
+          _id: string;
           type: TForum;
           name: string;
           role: string;
           image: string;
         }) => ({
-          clubId: club.id,
+          _id: club._id,
           type: "club",
           name: club.name,
           role: club.role,
@@ -68,18 +78,20 @@ export default function Details({
         })
       ) || [];
 
+  console.log({ adoptionOptions });
+
   const nodes =
     adoptionOptions?.forums
       .filter((forum: { type: TForum }) => forum.type === "node")
       .map(
         (node: {
-          id: string;
+          _id: string;
           type: TForum;
           name: string;
           role: string;
           image: string;
         }) => ({
-          nodeId: node.id,
+          _id: node._id,
           type: "node",
           name: node.name,
           role: node.role,
@@ -93,7 +105,7 @@ export default function Details({
       {/* Header Banner */}
       <div className="relative h-40 overflow-hidden rounded-t-lg bg-[#001529]">
         <Image
-          src={project?.bannerImage.url as string}
+          src={project?.bannerImage?.url as string}
           alt="Banner"
           fill
           className="object-cover"
@@ -115,7 +127,7 @@ export default function Details({
               </DialogTrigger>
               <DialogContent className="max-w-sm">
                 <DialogHeader className="sticky top-0 z-10 mt-4 bg-white">
-                  <DialogTitle>Choose adoption type</DialogTitle>
+                  <DialogTitle>Choose adoption</DialogTitle>
                   <DialogDescription className="text-sm">
                     Select a club or node to adopt this debate
                   </DialogDescription>
@@ -145,15 +157,13 @@ export default function Details({
                           </Badge>
                           <Button
                             onClick={() => {
+                              console.log({ option });
                               ProjectApi.adoptProject({
                                 project: project?._id as string,
-                                [forum]: forumId,
+                                [option?.type]: option._id,
                               }).then((res) => {
-                                ProjectApi.notAdoptedClubsAndNodes(
-                                  project?._id as string
-                                ).then((res) => {
-                                  setAdoptionOptions(res.data);
-                                });
+                                toast.success("adoption successful");
+                                fetchNotAdoptedClubAndNode();
                               });
                             }}
                             size="sm"
@@ -246,16 +256,18 @@ export default function Details({
                     >
                       + Add Contribution
                     </Button>
-                    <Button
-                      onClick={() => {
-                        setSelectedParam(param);
-                        setOpenApproval(true);
-                      }}
-                      variant="outline"
-                      size="icon"
-                    >
-                      <Eye className="size-4" />
-                    </Button>
+                    {hasPermission("view:assetPrivateInfos") && (
+                      <Button
+                        onClick={() => {
+                          setSelectedParam(param);
+                          setOpenApproval(true);
+                        }}
+                        variant="outline"
+                        size="icon"
+                      >
+                        <Eye className="size-4" />
+                      </Button>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -269,7 +281,7 @@ export default function Details({
               projectId={postId}
               setOpen={setOPen}
               forum={forum}
-              fetch={fetch}
+              fetch={fetchProject}
             />
           )}
 

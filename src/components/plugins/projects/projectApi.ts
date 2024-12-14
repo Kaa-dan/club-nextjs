@@ -40,10 +40,12 @@ export const ProjectApi = {
     }
   },
 
-  acceptContribuion: async (contribuionId: string) => {
+  acceptContribuion: async (contribuionId: string, status: boolean) => {
+    console.log({ hehe: status });
+
     try {
       const response = await withTokenAxios.put(
-        `project/accept-contributions/${contribuionId}`
+        `project/accept-contributions/${contribuionId}/${status}`
       );
       return response.data;
     } catch (err) {
@@ -67,6 +69,69 @@ export const ProjectApi = {
       const response = await withTokenAxios.post(
         `adopt-contribution/adopt-forum`,
         data
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  createAnnouncement: async (data: FormData) => {
+    try {
+      const response = await withTokenAxios.post("announcement", data);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  getAllProjectActivities: async (projectId: String) => {
+    try {
+      const response = await withTokenAxios.get(
+        `adopt-contribution/project-activities/${projectId}`
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  getAllAnnouncements: async (projectId: string) => {
+    try {
+      const response = await withTokenAxios.get(
+        `announcement/all-project-announcement/${projectId}`
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  leaderBoard: async (
+    projectId: string,
+    forumId?: string,
+    forumType?: TForum
+  ) => {
+    try {
+      const response = await withTokenAxios.get(
+        "adopt-contribution/leaderboard",
+        {
+          params: {
+            projectId,
+            forumId,
+            forumType,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  projectAction: async (projectId: string, type: "accept" | "reject") => {
+    try {
+      const response = await withTokenAxios.put(
+        `project/accept-proposed-project/${projectId}/${type}`
       );
       return response.data;
     } catch (error) {
