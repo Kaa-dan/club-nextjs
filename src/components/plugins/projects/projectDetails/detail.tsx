@@ -14,6 +14,8 @@ import { Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { formatDistanceToNow } from "date-fns";
+import { Label } from "@/components/ui/lable";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogTrigger,
@@ -37,6 +39,9 @@ export default function Details({
   project: TProjectData | undefined;
   fetchProject: () => void;
 }) {
+  const [selectedOption, setSelectedOption] = useState<any>(null);
+  const [showProposalForm, setShowProposalForm] = useState(false);
+  const [proposalMessage, setProposalMessage] = useState("");
   const { postId } = useParams<{ postId: string }>();
   console.log({ postId });
   // function fetch(postId: string) {
@@ -101,6 +106,29 @@ export default function Details({
         })
       ) || [];
   const adoptionOption = [...clubs, ...nodes];
+  const handlePropose = (option: any) => {
+    setSelectedOption(option);
+    setShowProposalForm(true);
+  };
+
+  const handleSubmitProposal = () => {
+    if (!proposalMessage.trim()) {
+      toast.error("Please provide a reason for your proposal");
+      return;
+    }
+
+    ProjectApi.adoptProject({
+      project: project?._id as string,
+      [selectedOption?.type]: selectedOption?._id,
+      proposalMessage: proposalMessage,
+    }).then((res) => {
+      toast.success("Proposal submitted successfully");
+      fetchNotAdoptedClubAndNode();
+      setShowProposalForm(false);
+      setProposalMessage("");
+      setSelectedOption(null);
+    });
+  };
 
   return (
     <div className="mx-auto max-w-4xl rounded-lg bg-white shadow-sm">
@@ -121,77 +149,127 @@ export default function Details({
             <h2 className="text-2xl font-semibold tracking-tight">
               {project?.title}
             </h2>
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button className="bg-green-400 text-white hover:bg-green-500">
-                  Adopt
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-sm">
-                <DialogHeader className="sticky top-0 z-10 mt-4 bg-white">
-                  <DialogTitle>Choose adoption</DialogTitle>
-                  <DialogDescription className="text-sm">
-                    Select a club or node to adopt this debate
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="mt-2 max-h-60 space-y-2 overflow-y-auto">
-                  {adoptionOption.length > 0 ? (
-                    adoptionOption.map((option, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center justify-between rounded-lg border p-2 transition-colors hover:bg-slate-50"
-                      >
-                        <div className="flex items-center gap-2">
-                          <Image
-                            className="rounded-md"
-                            width={30}
-                            height={30}
-                            src={option.image}
-                            alt={option.name}
-                          />
-                          <div className="text-sm font-medium">
-                            {option.name}
+            <>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button className="bg-green-400 text-white hover:bg-green-500">
+                    Adopt
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-sm">
+                  <DialogHeader className="sticky top-0 z-10 mt-4 bg-white">
+                    <DialogTitle>Choose adoption</DialogTitle>
+                    <DialogDescription className="text-sm">
+                      Select a club or node to adopt this debate
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="mt-2 max-h-60 space-y-2 overflow-y-auto">
+                    {adoptionOption.length > 0 ? (
+                      adoptionOption.map((option, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center justify-between rounded-lg border p-2 transition-colors hover:bg-slate-50"
+                        >
+                          <div className="flex items-center gap-2">
+                            <img
+                              className="rounded-md"
+                              width={30}
+                              height={30}
+                              src={option.image}
+                              alt={option.name}
+                            />
+                            <div className="text-sm font-medium">
+                              {option.name}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline" className="text-xs">
+                              {option.type}
+                            </Badge>
+                            <Button
+                              onClick={() => {
+                                if (
+                                  ["admin", "moderator", "owner"].includes(
+                                    option.role
+                                  )
+                                ) {
+                                  ProjectApi.adoptProject({
+                                    project: project?._id as string,
+                                    [option.type]: option._id,
+                                  }).then((res) => {
+                                    toast.success("Adoption successful");
+                                    fetchNotAdoptedClubAndNode();
+                                  });
+                                } else {
+                                  handlePropose(option);
+                                }
+                              }}
+                              size="sm"
+                              variant="outline"
+                              className="h-7 px-2"
+                            >
+                              <Check className="mr-1 size-3" />
+                              <span className="text-xs">
+                                {["admin", "moderator", "owner"].includes(
+                                  option.role
+                                )
+                                  ? "Adopt"
+                                  : "Propose"}
+                              </span>
+                            </Button>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline" className="text-xs">
-                            {option.type}
-                          </Badge>
-                          <Button
-                            onClick={() => {
-                              console.log({ option });
-                              ProjectApi.adoptProject({
-                                project: project?._id as string,
-                                [option?.type]: option._id,
-                              }).then((res) => {
-                                toast.success("adoption successful");
-                                fetchNotAdoptedClubAndNode();
-                              });
-                            }}
-                            size="sm"
-                            variant="outline"
-                            className="h-7 px-2"
-                          >
-                            <Check className="mr-1 size-3" />
-                            <span className="text-xs">
-                              {["admin", "moderator", "owner"].includes(
-                                option.role
-                              )
-                                ? "Adopt"
-                                : "Propose"}
-                            </span>
-                          </Button>
-                        </div>
+                      ))
+                    ) : (
+                      <div className="p-4 text-center text-sm text-gray-500">
+                        No clubs or nodes available for adoption.
                       </div>
-                    ))
-                  ) : (
-                    <div className="p-4 text-center text-sm text-gray-500">
-                      No clubs or nodes available for adoption.
+                    )}
+                  </div>
+                </DialogContent>
+              </Dialog>
+
+              <Dialog
+                open={showProposalForm}
+                onOpenChange={setShowProposalForm}
+              >
+                <DialogContent className="max-w-sm">
+                  <DialogHeader>
+                    <DialogTitle>Submit Proposal</DialogTitle>
+                    <DialogDescription className="text-sm">
+                      Please provide a reason for your proposal to{" "}
+                      {selectedOption?.name}
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="proposal-message">Proposal Message</Label>
+                      <Textarea
+                        id="proposal-message"
+                        placeholder="Enter your reason for proposing..."
+                        value={proposalMessage}
+                        onChange={(e) => setProposalMessage(e.target.value)}
+                        className="min-h-32"
+                      />
                     </div>
-                  )}
-                </div>
-              </DialogContent>
-            </Dialog>
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setShowProposalForm(false);
+                          setProposalMessage("");
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                      <Button onClick={handleSubmitProposal}>
+                        Submit Proposal
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </>
           </div>
           <p className="leading-relaxed text-gray-600">
             {project?.significance}
@@ -372,10 +450,11 @@ export default function Details({
             </Avatar>
             <div>
               <p className="font-medium">{project?.createdBy?.userName}</p>
+
               <p className="mt-0.5 text-sm text-gray-500">
-                {formatDistanceToNow(new Date(project?.createdAt as Date), {
+                {/* {formatDistanceToNow(new Date(project?.createdAt as Date), {
                   addSuffix: true,
-                })}
+                })} */}
               </p>
             </div>
           </div>
