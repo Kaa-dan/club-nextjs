@@ -244,8 +244,8 @@ const View = ({ forum }: { forum: TForum }) => {
                   <UserCheck className="size-4" />
                   <span>
                     {" "}
-                    {(rule?.adoptedClubs.length || 0) +
-                      (rule?.adoptedNodes.length || 0)}{" "}
+                    {(rule?.adobtedClubs?.length || 0) +
+                      (rule?.adobtedNodes?.length || 0)}{" "}
                     Adopted
                   </span>
                 </div>
@@ -255,7 +255,7 @@ const View = ({ forum }: { forum: TForum }) => {
                 <div>
                   <span className="flex justify-between">
                     <Image src={ClubIcon} alt="club" className="mr-2" />
-                    {rule?.adoptedClubs.length}{" "}
+                    {rule?.adobtedClubs?.length}{" "}
                     <span className="ml-2">Clubs </span>
                   </span>
                 </div>
@@ -263,7 +263,7 @@ const View = ({ forum }: { forum: TForum }) => {
                 <div>
                   <span className="flex justify-between">
                     <Image src={NodeIcon} alt="node" className="mr-2" />
-                    {rule?.adoptedNodes.length}{" "}
+                    {rule?.adobtedNodes?.length}{" "}
                     <span className="ml-2">Nodes</span>
                   </span>
                 </div>

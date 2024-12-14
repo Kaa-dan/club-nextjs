@@ -12,7 +12,8 @@ import ContributionModal from "../contribution-modal";
 import { ContributionApprovalModal } from "../contribution-details-modal";
 import { Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { formatDistanceToNow } from "date-fns";
 import {
   Dialog,
   DialogTrigger,
@@ -23,6 +24,7 @@ import {
 } from "@/components/ui/dialog";
 import { usePermission } from "@/lib/use-permission";
 import { toast } from "sonner";
+import { Day } from "react-day-picker";
 
 export default function Details({
   project,
@@ -357,27 +359,34 @@ export default function Details({
         </div>
 
         {/* Contribution Section */}
-        <div className="mb-8 border-b pb-8">
-          <p className="mb-4 w-2/5 rounded-md bg-green-100 p-1 text-center text-xs font-medium text-emerald-500">
-            239 Contribution from this forum
-          </p>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="size-12 rounded-full bg-gray-200"></div>
-              <div>
-                <p className="font-medium">Leslie Alexander</p>
-                <p className="mt-0.5 text-sm text-gray-500">14 min ago</p>
-              </div>
+        <div className="flex items-center justify-between pb-8">
+          <div className="flex items-center gap-4">
+            <Avatar className="size-12">
+              <AvatarImage
+                src={project?.createdBy?.profileImage}
+                alt={project?.createdBy?.userName}
+              />
+              <AvatarFallback>
+                {project?.createdBy?.userName?.charAt(0)}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <p className="font-medium">{project?.createdBy?.userName}</p>
+              <p className="mt-0.5 text-sm text-gray-500">
+                {formatDistanceToNow(new Date(project?.createdAt as Date), {
+                  addSuffix: true,
+                })}
+              </p>
             </div>
-            <div className="flex items-center gap-6 text-sm text-gray-500">
-              <div className="flex items-center gap-2">
-                <Eye className="size-4" />
-                <span>12.5k Viewers</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Users className="size-4" />
-                <span>236 Adopted</span>
-              </div>
+          </div>
+          <div className="flex items-center gap-6 text-sm text-gray-500">
+            <div className="flex items-center gap-2">
+              <Eye className="size-4" />
+              <span>12.5k Viewers</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Users className="size-4" />
+              <span>236 Adopted</span>
             </div>
           </div>
         </div>
