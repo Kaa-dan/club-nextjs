@@ -104,6 +104,7 @@ type TRule = {
   __v: number;
   irrelevant: Array<any>;
   adobtedClubs: [];
+  adobtedNodes: [];
 };
 
 interface IssueFile {
