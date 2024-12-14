@@ -2,6 +2,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { Loader2 } from "lucide-react";
 import {
   DialogContent,
   DialogDescription,
@@ -53,9 +54,11 @@ type FormValues = z.infer<typeof formSchema>;
 const AnnouncementDialog = ({
   projectId,
   setOpen,
+  fetchAnnouncement,
 }: {
   setOpen: () => void;
   projectId: string;
+  fetchAnnouncement: () => void;
 }) => {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -129,11 +132,18 @@ const AnnouncementDialog = ({
         formData.append(`file`, fileObj.file);
       });
 
-      ProjectApi.createAnnouncement(formData).then(() => {
-        setOpen();
-        form.reset();
-        toast.success("Announcement created successfully!");
-      });
+      // ProjectApi.createAnnouncement(formData).then(() => {
+      //   setOpen();
+      //   form.reset();
+      //   fetchAnnouncement();
+      //   toast.success("Announcement created successfully!");
+      // });
+
+      const response = await ProjectApi.createAnnouncement(formData);
+      setOpen();
+      form.reset();
+      fetchAnnouncement();
+      toast.success("Announcement created successfully!");
       console.log("Announcement submitted successfully");
     } catch (error) {
       console.error("Error submitting announcement:", error);
@@ -249,7 +259,20 @@ const AnnouncementDialog = ({
           )}
 
           <DialogFooter>
-            <Button type="submit">Publish</Button>
+            <Button
+              type="submit"
+              className="flex items-center rounded-md bg-green-500 px-4 py-2 text-white "
+              disabled={form.formState.isSubmitting}
+            >
+              {form.formState.isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 animate-spin" size="1rem" />
+                  Processing...
+                </>
+              ) : (
+                "Submit"
+              )}
+            </Button>
           </DialogFooter>
         </form>
       </Form>

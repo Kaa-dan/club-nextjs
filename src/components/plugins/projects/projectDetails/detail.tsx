@@ -22,6 +22,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { usePermission } from "@/lib/use-permission";
+import { toast } from "sonner";
 
 export default function Details({
   project,
@@ -49,12 +50,14 @@ export default function Details({
   const [selectedParam, setSelectedParam] = useState(null);
   const [open, setOPen] = useState<boolean>(false);
   const { hasPermission } = usePermission();
-
-  useEffect(() => {
+  function fetchNotAdoptedClubAndNode() {
     ProjectApi.notAdoptedClubsAndNodes(postId as string).then((res) => {
       console.log({ res });
       setAdoptionOptions(res);
     });
+  }
+  useEffect(() => {
+    fetchNotAdoptedClubAndNode();
   }, []);
   const clubs =
     adoptionOptions?.forums
@@ -159,11 +162,8 @@ export default function Details({
                                 project: project?._id as string,
                                 [option?.type]: option._id,
                               }).then((res) => {
-                                ProjectApi.notAdoptedClubsAndNodes(
-                                  project?._id as string
-                                ).then((res) => {
-                                  setAdoptionOptions(res.data);
-                                });
+                                toast.success("adoption successful");
+                                fetchNotAdoptedClubAndNode();
                               });
                             }}
                             size="sm"

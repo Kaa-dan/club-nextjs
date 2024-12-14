@@ -68,7 +68,7 @@ export default function ViewProject({
           />
         </TabsContent>
         <TabsContent value="leaderboard" className="p-4">
-          <LeaderBoard />
+          <LeaderBoard forum={forum} forumId={forumId} />
         </TabsContent>
         <TabsContent value="wall" className="p-4">
           <ProjectWall project={project as TProjectData} />

@@ -9,6 +9,7 @@ import { useMemo } from "react";
 import { useClubStore } from "@/store/clubs-store";
 import { useNodeStore } from "@/store/nodes-store";
 import { MultiSelect } from "@/components/ui/multi-select";
+import { useRouter } from "next/navigation";
 import {
   X,
   Plus,
@@ -68,6 +69,7 @@ export default function ProjectForm({
 }) {
   const { currentClub } = useClubStore((state) => state);
   const { currentNode } = useNodeStore((state) => state);
+  const router = useRouter();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
@@ -210,6 +212,8 @@ export default function ProjectForm({
 
       // Wait for the API call to complete
       await ProjectApi.create(formData);
+      router.push(`/${forum}/${forumId}/projects`);
+
       toast.success("Project created successfully");
 
       // Optionally reset form or redirect here
@@ -332,10 +336,15 @@ export default function ProjectForm({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="north">North</SelectItem>
-                      <SelectItem value="south">South</SelectItem>
-                      <SelectItem value="east">East</SelectItem>
-                      <SelectItem value="west">West</SelectItem>
+                      <SelectItem value="bangalore">Bangalore</SelectItem>
+                      <SelectItem value="mumbai">Mumbai</SelectItem>
+                      <SelectItem value="kochi">Kochi</SelectItem>
+                      <SelectItem value="delhi">Delhi</SelectItem>
+                      <SelectItem value="chennai">Chennai</SelectItem>
+                      <SelectItem value="kolkata">Kolkata</SelectItem>
+                      <SelectItem value="hyderabad">Hyderabad</SelectItem>
+                      <SelectItem value="pune">Pune</SelectItem>
+                      <SelectItem value="jaipur">Jaipur</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -663,6 +672,7 @@ export default function ProjectForm({
                     onValueChange={(selectedValues) => {
                       field.onChange(selectedValues); // Update field value with IDs
                     }}
+                    maxCount={2}
                     placeholder="Select champion"
                     variant="inverted"
                   />
@@ -727,6 +737,7 @@ export default function ProjectForm({
                             </div>
                             <FormControl>
                               <MultiSelect
+                                maxCount={1}
                                 options={getAvailableOptions(index)}
                                 defaultValue={
                                   member.userId ? member.userId.split(",") : []
@@ -949,6 +960,24 @@ export default function ProjectForm({
                               <SelectItem value="number">Number</SelectItem>
                               <SelectItem value="currency">Currency</SelectItem>
                               <SelectItem value="time">Time</SelectItem>
+                              {/* Add more units here */}
+                              <SelectItem value="cm">Centimeter</SelectItem>
+                              <SelectItem value="m">Meter</SelectItem>
+                              <SelectItem value="kg">Kilogram</SelectItem>
+                              <SelectItem value="g">Gram</SelectItem>
+                              <SelectItem value="l">Liter</SelectItem>
+                              <SelectItem value="ml">Milliliter</SelectItem>
+                              <SelectItem value="km">Kilometer</SelectItem>
+                              <SelectItem value="mi">Mile</SelectItem>
+                              <SelectItem value="hour">Hour</SelectItem>
+                              <SelectItem value="minute">Minute</SelectItem>
+                              <SelectItem value="second">Second</SelectItem>
+                              <SelectItem value="fahrenheit">
+                                Fahrenheit
+                              </SelectItem>
+                              <SelectItem value="celsius">Celsius</SelectItem>
+                              <SelectItem value="kelvin">Kelvin</SelectItem>
+                              {/* Add more unit types if needed */}
                             </SelectContent>
                           </Select>
                         </div>

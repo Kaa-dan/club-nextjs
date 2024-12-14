@@ -1,9 +1,13 @@
 import { withTokenAxios } from "@/lib/mainAxios";
 
 export class ProjectsEndpoints {
-  static async fetchAllProjects(forum: TForum, forumId: string) {
+  static async fetchAllProjects(
+    forum: TForum,
+    forumId: string,
+    status: "published" | "proposed"
+  ) {
     const queryParams = new URLSearchParams({
-      status: "published",
+      status,
       page: "1",
       limit: "10",
       isActive: "true",

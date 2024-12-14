@@ -17,16 +17,14 @@ const PluginPage = async ({
 
       case "rules":
         return <RulesLayout forum="node" plugin={plugin} forumId={nodeId} />;
-
+      case "debate":
+        return <DebateLayout forumId={nodeId} forum="node" plugin={plugin} />;
       default:
         return (
           <div className="flex h-full items-center justify-center">
             <span className="text-muted-foreground">Module not found</span>
           </div>
         );
-
-      case "debate":
-        return <DebateLayout forumId={nodeId} forum="node" plugin={plugin} />;
     }
   };
 
