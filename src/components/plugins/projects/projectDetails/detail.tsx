@@ -43,7 +43,6 @@ export default function Details({
   const [showProposalForm, setShowProposalForm] = useState(false);
   const [proposalMessage, setProposalMessage] = useState("");
   const { postId } = useParams<{ postId: string }>();
-  console.log({ postId });
   // function fetch(postId: string) {
   //   ProjectApi.singleView(postId).then((res) => {
   //     setProject(res);
