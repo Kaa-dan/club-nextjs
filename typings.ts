@@ -1,5 +1,5 @@
 type TUserRole = "admin" | "member" | "owner" | "moderator";
-type TPlugins = "rules" | "issues" | "debate";
+type TPlugins = "rules" | "issues" | "debate" | "projects";
 type TForum = "node" | "club";
 type TFileType = "image" | "video" | "document" | "pdf" | "unknown";
 type TJoinStatus = "VISITOR" | "MEMBER" | "REQUESTED";
@@ -10,6 +10,12 @@ type TIssuesLabel =
   | "My Issues"
   | "Proposed Issues";
 
+type TProjectLable =
+  | "On going projects"
+  | "All Projects"
+  | "Global Projects"
+  | "My Projects"
+  | "Proposed Project";
 interface TCommentUser {
   firstName: string;
   lastName: string;
@@ -97,8 +103,8 @@ type TRule = {
   updatedAt: string;
   __v: number;
   irrelevant: Array<any>;
-  adoptedClubs: [];
-  adoptedNodes: [];
+  adobtedClubs: [];
+  adobtedNodes: [];
 };
 
 interface IssueFile {
@@ -196,4 +202,80 @@ type Argument = {
   irrelevant: number;
   isPinned: boolean;
   startingPoint: true;
+};
+
+interface TProjectData {
+  _id: string;
+  club: string;
+  title: string;
+  region: string;
+  budget: {
+    from: number;
+    to: number;
+    currency: string;
+  };
+  significance: string;
+  solution: string;
+  bannerImage: {
+    url: string;
+    originalname: string;
+    mimetype: string;
+    size: number;
+  };
+  committees: Committee[];
+  contributions: any[];
+  champions: Champion[];
+  aboutPromoters: string;
+  fundingDetails: string;
+  keyTakeaways: string;
+  risksAndChallenges: string;
+  parameters: any[];
+  deadline: Date;
+  status: string;
+  createdAt: Date;
+  updatedAt: Date;
+  createdBy: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    userName: string;
+    profileImage: string;
+  };
+  faqs: {
+    _id: string;
+    question: string;
+    answer: string;
+    status: string;
+    askedBy: string;
+    answeredBy: string;
+    Date: string;
+    createdAt: string;
+    updatedAt: string;
+    project: string;
+  };
+}
+
+interface Committee {
+  name: string;
+  designation: string;
+  userId: string;
+}
+
+interface Champion {
+  // Add properties here if there are specific fields for champions
+}
+
+type TAdoptionOption = {
+  nonAdoptedClubs: {
+    clubId: string;
+    role: string;
+    name: string;
+    image: string;
+  }[];
+  nonAdoptedNodes: {
+    nodeId: string;
+    role: string;
+    name: string;
+    image: string;
+  }[];
 };

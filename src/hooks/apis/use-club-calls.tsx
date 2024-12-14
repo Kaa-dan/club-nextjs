@@ -6,6 +6,7 @@ import { ClubEndpoints } from "@/utils/endpoints/club";
 import { fetchSpecificClub } from "../../components/pages/club/endpoint";
 import { toast } from "sonner";
 import { useTokenStore } from "@/store/store";
+import { useNodeStore } from "@/store/nodes-store";
 
 interface UseClubCallsReturn {
   // Fetch operations
@@ -31,6 +32,7 @@ export const useClubCalls = (): UseClubCallsReturn => {
     setUserRequestedClubs,
     setClubJoinStatus,
   } = useClubStore();
+  const { setCurrentUserRole: setNodeUserRole } = useNodeStore();
 
   const fetchClubDetails = useCallback(
     async (clubId: string) => {
@@ -51,6 +53,8 @@ export const useClubCalls = (): UseClubCallsReturn => {
       } catch (error) {
         console.error("Error fetching club details:", error);
         throw error;
+      } finally {
+        setNodeUserRole(null);
       }
     },
     [setCurrentClub, setCurrentUserRole]

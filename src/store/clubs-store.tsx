@@ -10,12 +10,12 @@ interface ClubState {
   userJoinedClubs: TClub[];
   userRequestedClubs: any[];
   currentClub: ICurrentClub | null;
-  currentUserRole: TUserRole;
+  currentUserRole: TUserRole | null;
   clubJoinStatus: TJoinStatus | null;
   setUserJoinedClubs: (userJoinedClub: TClub[]) => void;
   setUserRequestedClubs: (userRequestedClubs: any[]) => void;
   setCurrentClub: (currentClub: ICurrentClub) => void;
-  setCurrentUserRole: (currentUserRole: TUserRole) => void;
+  setCurrentUserRole: (currentUserRole: TUserRole | null) => void;
   setClubJoinStatus: (clubJoinStatus: TJoinStatus) => void;
 }
 
@@ -23,7 +23,7 @@ export const useClubStore = create<ClubState>()((set) => ({
   userJoinedClubs: [],
   userRequestedClubs: [],
   currentClub: null,
-  currentUserRole: "member",
+  currentUserRole: null,
   clubJoinStatus: null,
   setUserJoinedClubs: (userJoinedClubs) => set({ userJoinedClubs }),
   setUserRequestedClubs: (userRequestedClubs) => set({ userRequestedClubs }),

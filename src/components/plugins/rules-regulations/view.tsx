@@ -244,8 +244,8 @@ const View = ({ forum }: { forum: TForum }) => {
                   <UserCheck className="size-4" />
                   <span>
                     {" "}
-                    {(rule?.adoptedClubs.length || 0) +
-                      (rule?.adoptedNodes.length || 0)}{" "}
+                    {(rule?.adobtedClubs?.length || 0) +
+                      (rule?.adobtedNodes?.length || 0)}{" "}
                     Adopted
                   </span>
                 </div>
@@ -255,7 +255,7 @@ const View = ({ forum }: { forum: TForum }) => {
                 <div>
                   <span className="flex justify-between">
                     <Image src={ClubIcon} alt="club" className="mr-2" />
-                    {rule?.adoptedClubs.length}{" "}
+                    {rule?.adobtedClubs?.length}{" "}
                     <span className="ml-2">Clubs </span>
                   </span>
                 </div>
@@ -263,7 +263,7 @@ const View = ({ forum }: { forum: TForum }) => {
                 <div>
                   <span className="flex justify-between">
                     <Image src={NodeIcon} alt="node" className="mr-2" />
-                    {rule?.adoptedNodes.length}{" "}
+                    {rule?.adobtedNodes?.length}{" "}
                     <span className="ml-2">Nodes</span>
                   </span>
                 </div>
@@ -345,13 +345,25 @@ const View = ({ forum }: { forum: TForum }) => {
       </div>
 
       {/* Main Content */}
-      <div className="mb-8 space-y-4">
+      <div className="quill-content">
+        <style>{`
+        .quill-content ol {
+          list-style-type: decimal;
+          padding-left: 1.5rem;
+          margin: 1rem 0;
+        }
+        .quill-content li {
+          padding: 0.25rem 0;
+        }
+        .quill-content .ql-ui {
+          display: none;
+        }
+      `}</style>
         <div
           dangerouslySetInnerHTML={{
-            __html: rule?.description
-              ? sanitizeHtmlContent(rule.description)
-              : "",
+            __html: sanitizeHtmlContent(rule?.description as string),
           }}
+          className="prose prose-slate max-w-none"
         />
       </div>
 

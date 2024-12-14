@@ -31,6 +31,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import env from "@/lib/env.config";
 import { useClubCalls } from "@/hooks/apis/use-club-calls";
+import { usePermission } from "@/lib/use-permission";
 
 interface ProfileCardProps {
   currentPage: string;
@@ -46,10 +47,10 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
   const {
     setUserJoinedClubs,
     setUserRequestedClubs,
-    currentUserRole,
     currentClub,
     clubJoinStatus,
   } = useClubStore((state) => state);
+  const { hasPermission } = usePermission();
   const { fetchClubJoinStatus } = useClubCalls();
   const [recaptcha, setRecaptcha] = useState(false);
   const recaptchaRef = useRef(null);
@@ -57,51 +58,64 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
 
   const router = useRouter();
 
-  const isAdmin = () => currentUserRole === "admin";
-  const isModeratorOrAdmin = () =>
-    ["moderator", "admin", "owner"].includes(currentUserRole.toLowerCase());
+  console.log("apprr ,", hasPermission("view:assetPrivateInfos"));
 
   const SECTIONS = [
-    { name: "News Feed", icon: ICONS.NodeNewsFeedIcon, path: "#" },
-    { name: "Modules", icon: ICONS.NodeModulesIcon, path: "#" },
+    {
+      name: "News Feed",
+      icon: ICONS.NodeNewsFeedIcon,
+      path: "#",
+      show: hasPermission("view:newsFeed"),
+    },
+    {
+      name: "Modules",
+      icon: ICONS.NodeModulesIcon,
+      path: "#",
+      show: hasPermission("view:modules"),
+    },
     {
       name: "Profile",
       icon: ICONS.NodeProfileIcon,
       path: `/club/${clubId}/profile`,
+      show: hasPermission("view:profile"),
     },
     {
       name: "Chapters",
       icon: ICONS.NodeChaptersIcon,
       notifications: 0,
       path: "#",
+      show: hasPermission("view:chapters"),
     },
     {
       name: "Members",
       icon: ICONS.NodeMembersIcon,
       path: `/club/${clubId}/members`,
+      show: hasPermission("view:members"),
     },
     {
       name: "Approvals",
       icon: ICONS.NodeApprovalsIcon,
       notifications: 0,
       path: `/club/${clubId}/approvals`,
-      show: isModeratorOrAdmin, // Only show for moderator and admin
+      show: hasPermission("view:approvals"),
     },
     {
       name: "Insights/Analytics",
       icon: ICONS.NodeInsightsIcon,
       path: "#",
-      show: isAdmin, // Only show for admin
+      show: hasPermission("view:analytics"),
     },
     {
       name: "Activities",
       icon: ICONS.NodeActivitiesIcon,
       path: `/club/${clubId}/activity`,
+      show: hasPermission("view:activities"),
     },
     {
       name: "Preferences",
       icon: ICONS.NodePreferencesIcon,
       path: "#",
+      show: hasPermission("view:activities"),
     },
   ];
   // console.log({ url: club.club.profileImage.url);
@@ -276,44 +290,42 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
           </div>
         </div>
         <div className=" my-3 h-auto space-y-2  pb-4">
-          {SECTIONS?.filter((section) => !section.show || section.show())?.map(
-            (section) => (
-              <button
-                key={section?.name}
-                className={`flex w-full items-center justify-between rounded-md p-2 ${
-                  currentPage === section?.name
-                    ? "border border-primary bg-green-50"
-                    : "border border-white hover:bg-gray-100"
-                }`}
-                onClick={() => {
-                  setCurrentPage(section?.name);
-                  router.push(section?.path);
-                }}
-              >
-                <span className="flex items-center space-x-2">
-                  <Image
-                    src={section?.icon}
-                    alt={section?.name}
-                    height={30}
-                    width={30}
-                    className="size-4"
-                  />
-                  <span>{section?.name}</span>
-                </span>
-                <div className="flex gap-2">
-                  {section?.notifications ? (
-                    <span
-                      className="flex size-5 items-center justify-center rounded-full bg-orange-500 text-xs
+          {SECTIONS?.filter((section) => section.show)?.map((section) => (
+            <button
+              key={section?.name}
+              className={`flex w-full items-center justify-between rounded-md p-2 ${
+                currentPage === section?.name
+                  ? "border border-primary bg-green-50"
+                  : "border border-white hover:bg-gray-100"
+              }`}
+              onClick={() => {
+                setCurrentPage(section?.name);
+                router.push(section?.path);
+              }}
+            >
+              <span className="flex items-center space-x-2">
+                <Image
+                  src={section?.icon}
+                  alt={section?.name}
+                  height={30}
+                  width={30}
+                  className="size-4"
+                />
+                <span>{section?.name}</span>
+              </span>
+              <div className="flex gap-2">
+                {section?.notifications ? (
+                  <span
+                    className="flex size-5 items-center justify-center rounded-full bg-orange-500 text-xs
                    font-medium text-white"
-                    >
-                      {section?.notifications}
-                    </span>
-                  ) : null}
-                  <ChevronRight size={"1rem"} />
-                </div>
-              </button>
-            )
-          )}
+                  >
+                    {section?.notifications}
+                  </span>
+                ) : null}
+                <ChevronRight size={"1rem"} />
+              </div>
+            </button>
+          ))}
         </div>
       </div>
     </div>

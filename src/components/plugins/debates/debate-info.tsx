@@ -26,6 +26,7 @@ import { useParams } from "next/navigation";
 import { toast } from "sonner";
 import { ExpiredDebateWarning } from "./expired-debate-warning";
 import Image from "next/image";
+import sanitizeHtmlContent from "@/utils/sanitize";
 type AdoptionOption = {
   nonAdoptedClubs: {
     clubId: string;
@@ -86,9 +87,10 @@ function DebateInfo() {
     });
   }, []);
 
-  const isExpired =
-    new Date(debate?.closingDate).setHours(0, 0, 0, 0) <
-    new Date().setHours(0, 0, 0, 0);
+  const isExpired = debate?.closingDate
+    ? new Date(debate?.closingDate).setHours(0, 0, 0, 0) <
+      new Date().setHours(0, 0, 0, 0)
+    : false;
 
   return (
     <Card className="mx-auto border">
@@ -129,14 +131,44 @@ function DebateInfo() {
               <Badge key={index}>{tag}</Badge>
             ))}
         </div>
+        <div className="mt-6">
+          <h3 className="mb-2 text-lg font-semibold">Starting Comment</h3>
+          <Card className="overflow-hidden">
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center text-sm font-medium">
+                <Network className="mr-2 size-4" />
+                Initial Debate Point
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {debate?.startingComment ? (
+                <p
+                  className="whitespace-pre-wrap text-sm text-muted-foreground"
+                  dangerouslySetInnerHTML={{
+                    __html: sanitizeHtmlContent(debate.startingComment),
+                  }}
+                ></p>
+              ) : (
+                <p className="text-sm italic text-muted-foreground">
+                  No starting comment provided
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
         <div className="mt-4 grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
           <div>
             <div className="text-muted-foreground">Date Started</div>
             <div>{moment(debate?.createdAt).format("DD/MM/YYYY")}</div>
           </div>
           <div>
-            <div className="text-muted-foreground">Closure date</div>
-            <div>{moment(debate?.closingDate).format("DD/MM/YYYY")}</div>
+            <div className="text-muted-foreground">Closing date</div>
+            {debate?.closingDate ? (
+              <div>{moment(debate?.closingDate).format("DD/MM/YYYY")}</div>
+            ) : (
+              "NILL"
+            )}
           </div>
           <div>
             <div className="text-muted-foreground">Points</div>

@@ -20,11 +20,13 @@ const NodeJoinCard: React.FC<{
   requested: boolean;
   isLoading: boolean;
   onJoin: (id: string) => void;
+  reCAPTCHA: boolean;
 }> = ({
   node: { name, profileImage, members, coverImage, location, ...node },
   requested,
   onJoin,
   isLoading,
+  reCAPTCHA,
 }) => {
   const { clubJoinStatus } = useClubStore();
   const [isDailogOpen, setIsDailogOpen] = React.useState(false);

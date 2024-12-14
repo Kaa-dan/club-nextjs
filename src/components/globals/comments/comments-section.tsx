@@ -12,7 +12,6 @@ import CommentInput from "./comment-input";
 import Comment from "./comment";
 import { useCommentsStore } from "@/store/comments-store";
 import { useSocketStore } from "@/hooks/use-socket-store";
-import comment from "./comment";
 
 const CommentsSection: React.FC<{
   plugin: TPlugins;
