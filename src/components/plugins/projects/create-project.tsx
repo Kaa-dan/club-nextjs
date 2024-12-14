@@ -905,7 +905,7 @@ export default function ProjectForm({
                         <div className="space-y-2">
                           <div className="flex items-center gap-2">
                             <FormLabel className="text-sm font-normal text-gray-600">
-                              Value
+                              Target
                             </FormLabel>
                             <Tooltip>
                               <TooltipTrigger>

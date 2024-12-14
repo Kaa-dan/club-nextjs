@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { usePermission } from "@/lib/use-permission";
 import {
   Dialog,
   DialogContent,
@@ -84,7 +85,7 @@ export const ContributionApprovalModal = ({
   const [acceptedData, setAcceptedData] = useState<ProjectData[]>([]);
   const [pendingData, setPendingData] = useState<ProjectData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-
+  const { hasPermission } = usePermission();
   const fetchData = async () => {
     try {
       setIsLoading(true);
@@ -95,11 +96,11 @@ export const ContributionApprovalModal = ({
 
       // Filter for contributions matching the param id
       const filteredAccepted = acceptedRes.filter(
-        (project) => project.parameters?._id === param._id
+        (project: any) => project.parameters?._id === param._id
       );
 
       const filteredPending = pendingRes.filter(
-        (project) => project.parameters?._id === param._id
+        (project: any) => project.parameters?._id === param._id
       );
 
       console.log("Filtered Accepted:", filteredAccepted);
@@ -265,7 +266,10 @@ export const ContributionApprovalModal = ({
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="contributors">Contributors</TabsTrigger>
-            <TabsTrigger value="approvals">Approvals</TabsTrigger>
+
+            {hasPermission("view:assetPrivateInfos") && (
+              <TabsTrigger value="approvals">Approvals</TabsTrigger>
+            )}
           </TabsList>
           <TabsContent value="contributors">
             <Table>
