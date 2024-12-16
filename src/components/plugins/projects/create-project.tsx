@@ -454,32 +454,27 @@ export default function ProjectForm({
                       <TooltipContent>Select deadline</TooltipContent>
                     </Tooltip>
                   </FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            "w-full justify-start text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          <CalendarIcon className="mr-2 size-4" />
-                          {field.value
-                            ? format(field.value, "PPP")
-                            : "Select date"}
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={field.onChange}
-                        initialFocus
+                  <FormControl>
+                    <div className="relative">
+                      <input
+                        type="date"
+                        className={cn(
+                          "w-full rounded-md border px-3 py-2 text-sm",
+                          !field.value && "text-muted-foreground"
+                        )}
+                        min={format(new Date(), "yyyy-MM-dd")}
+                        value={
+                          field.value ? format(field.value, "yyyy-MM-dd") : ""
+                        }
+                        onChange={(e) => {
+                          const date = e.target.value
+                            ? new Date(e.target.value)
+                            : null;
+                          field.onChange(date);
+                        }}
                       />
-                    </PopoverContent>
-                  </Popover>
+                    </div>
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
