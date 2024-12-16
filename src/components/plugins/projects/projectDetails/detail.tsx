@@ -1,4 +1,5 @@
 "use client";
+import { ThumbsUp, ThumbsDown, MessageCircle, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -43,7 +44,6 @@ export default function Details({
   const [showProposalForm, setShowProposalForm] = useState(false);
   const [proposalMessage, setProposalMessage] = useState("");
   const { postId } = useParams<{ postId: string }>();
-  console.log({ postId });
   // function fetch(postId: string) {
   //   ProjectApi.singleView(postId).then((res) => {
   //     setProject(res);
@@ -574,9 +574,26 @@ export default function Details({
             </div>
           </div>
         </div>
-        <div className="mb-8 border-b pb-8">
+        <div className="mb-8  pb-8">
           <h3 className="mb-3 text-lg font-semibold">Risks & Challenges</h3>
           <p className="text-gray-600">{project?.risksAndChallenges}</p>
+        </div>
+      </div>
+      <div className="flex items-center justify-between border-t py-4">
+        <div className="flex gap-6">
+          <button className="flex items-center gap-1">
+            <ThumbsUp className="size-4 text-green-500" />
+            <span className="text-sm text-green-500">0 Relevant</span>
+          </button>
+          <button className="flex items-center gap-1">
+            <ThumbsDown className="size-4 text-red-500" />
+            <span className="text-sm text-red-500">0 Not Relevant</span>
+          </button>
+
+          <button className="flex items-center gap-1">
+            <Share2 className="size-4" />
+            <span className="text-sm">Share</span>
+          </button>
         </div>
       </div>
     </div>
