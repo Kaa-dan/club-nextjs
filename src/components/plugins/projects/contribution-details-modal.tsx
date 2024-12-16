@@ -81,20 +81,21 @@ export const ContributionApprovalModal = ({
   param,
   projectId,
 }: ContributionApprovalModalProps) => {
-  const [activeTab, setActiveTab] = useState("contributors");
   const [acceptedData, setAcceptedData] = useState<ProjectData[]>([]);
   const [pendingData, setPendingData] = useState<ProjectData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { hasPermission } = usePermission();
+
   const fetchData = async () => {
     try {
       setIsLoading(true);
       const [acceptedRes, pendingRes] = await Promise.all([
         ProjectApi.contributions(projectId, "accepted"),
-        ProjectApi.contributions(projectId, "pending"),
+        hasPermission("view:assetPrivateInfos")
+          ? ProjectApi.contributions(projectId, "pending")
+          : Promise.resolve([]),
       ]);
 
-      // Filter for contributions matching the param id
       const filteredAccepted = acceptedRes.filter(
         (project: any) => project.parameters?._id === param._id
       );
@@ -102,9 +103,6 @@ export const ContributionApprovalModal = ({
       const filteredPending = pendingRes.filter(
         (project: any) => project.parameters?._id === param._id
       );
-
-      console.log("Filtered Accepted:", filteredAccepted);
-      console.log("Filtered Pending:", filteredPending);
 
       setAcceptedData(filteredAccepted);
       setPendingData(filteredPending);
@@ -122,8 +120,6 @@ export const ContributionApprovalModal = ({
   }, [projectId, param?._id, open]);
 
   const handleApproveReject = async (id: string, isApprove: boolean) => {
-    console.log({ isApprove });
-
     try {
       setIsLoading(true);
       await ProjectApi.acceptContribuion(id, isApprove);
@@ -263,42 +259,54 @@ export const ContributionApprovalModal = ({
         <DialogHeader>
           <DialogTitle>Contributions - {param.title}</DialogTitle>
         </DialogHeader>
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="contributors">Contributors</TabsTrigger>
-
-            {hasPermission("view:assetPrivateInfos") && (
+        {hasPermission("view:assetPrivateInfos") ? (
+          <Tabs defaultValue="contributors" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="contributors">Contributors</TabsTrigger>
               <TabsTrigger value="approvals">Approvals</TabsTrigger>
-            )}
-          </TabsList>
-          <TabsContent value="contributors">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Contributor</TableHead>
-                  <TableHead>Parameter</TableHead>
-                  <TableHead>Value</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Files</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>{renderContributorsList()}</TableBody>
-            </Table>
-          </TabsContent>
-          <TabsContent value="approvals">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Contributor</TableHead>
-                  <TableHead>Parameter</TableHead>
-                  <TableHead>Value</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>{renderApprovalsList()}</TableBody>
-            </Table>
-          </TabsContent>
-        </Tabs>
+            </TabsList>
+            <TabsContent value="contributors">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Contributor</TableHead>
+                    <TableHead>Parameter</TableHead>
+                    <TableHead>Value</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Files</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>{renderContributorsList()}</TableBody>
+              </Table>
+            </TabsContent>
+            <TabsContent value="approvals">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Contributor</TableHead>
+                    <TableHead>Parameter</TableHead>
+                    <TableHead>Value</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>{renderApprovalsList()}</TableBody>
+              </Table>
+            </TabsContent>
+          </Tabs>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Contributor</TableHead>
+                <TableHead>Parameter</TableHead>
+                <TableHead>Value</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead>Files</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>{renderContributorsList()}</TableBody>
+          </Table>
+        )}
       </DialogContent>
     </Dialog>
   );
