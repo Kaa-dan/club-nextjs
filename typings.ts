@@ -253,6 +253,8 @@ interface TProjectData {
     updatedAt: string;
     project: string;
   };
+  relevant: any[];
+  irrelevant: any[];
 }
 
 interface Committee {

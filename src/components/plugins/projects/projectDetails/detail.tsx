@@ -28,6 +28,7 @@ import {
 import { usePermission } from "@/lib/use-permission";
 import { toast } from "sonner";
 import { Day } from "react-day-picker";
+import { useTokenStore } from "@/store/store";
 
 export default function Details({
   project,
@@ -57,15 +58,23 @@ export default function Details({
   const [selectedParam, setSelectedParam] = useState(null);
   const [open, setOPen] = useState<boolean>(false);
   const { hasPermission } = usePermission();
+  const { globalUser } = useTokenStore((state) => state);
+  console.log({ userId: globalUser?._id });
+
   function fetchNotAdoptedClubAndNode() {
     ProjectApi.notAdoptedClubsAndNodes(postId as string).then((res) => {
-      console.log({ res });
       setAdoptionOptions(res);
     });
   }
   useEffect(() => {
     fetchNotAdoptedClubAndNode();
-  }, []);
+    setOptimisticReactions({
+      irrelevant: project?.irrelevant as string[],
+      relevant: project?.relevant as string[],
+    });
+
+    console.log({ optimisticReactions });
+  }, [project]);
   const clubs =
     adoptionOptions?.forums
       .filter((forum: { type: TForum }) => forum.type === "club")
@@ -84,8 +93,6 @@ export default function Details({
           image: club.image,
         })
       ) || [];
-
-  console.log({ adoptionOptions });
 
   const nodes =
     adoptionOptions?.forums
@@ -129,10 +136,49 @@ export default function Details({
       setSelectedOption(null);
     });
   };
+  const [optimisticReactions, setOptimisticReactions] = useState({
+    relevant: project?.relevant || [],
+    irrelevant: project?.irrelevant || [],
+  });
+
+  const handleReaction = async (action: "like" | "dislike") => {
+    if (!project?._id) return;
+
+    const userId = globalUser?._id;
+
+    const previousState = { ...optimisticReactions };
+
+    setOptimisticReactions((prev) => {
+      const isLike = action === "like";
+      const targetArray = isLike ? "relevant" : "irrelevant";
+      const otherArray = isLike ? "irrelevant" : "relevant";
+
+      const filteredOther = prev[otherArray].filter((id) => id !== userId);
+
+      const exists = prev[targetArray].includes(userId);
+      const updatedTarget = exists
+        ? prev[targetArray].filter((id) => id !== userId)
+        : [...prev[targetArray], userId];
+
+      return {
+        ...prev,
+        [targetArray]: updatedTarget,
+        [otherArray]: filteredOther,
+      };
+    });
+
+    try {
+      await ProjectApi.reactToPost(project._id, action);
+    } catch (error) {
+      setOptimisticReactions(previousState);
+      toast.error("Failed to update reaction");
+    }
+  };
+  console.log("hello");
+  console.log({ optimisticReactions });
 
   return (
     <div className="mx-auto max-w-4xl rounded-lg bg-white shadow-sm">
-      {/* Header Banner */}
       <div className="relative h-40 overflow-hidden rounded-t-lg bg-[#001529]">
         <Image
           src={project?.bannerImage?.url as string}
@@ -171,7 +217,7 @@ export default function Details({
                           className="flex items-center justify-between rounded-lg border p-2 transition-colors hover:bg-slate-50"
                         >
                           <div className="flex items-center gap-2">
-                            <img
+                            <Image
                               className="rounded-md"
                               width={30}
                               height={30}
@@ -579,20 +625,56 @@ export default function Details({
           <p className="text-gray-600">{project?.risksAndChallenges}</p>
         </div>
       </div>
+
       <div className="flex items-center justify-between border-t py-4">
         <div className="flex gap-6">
-          <button className="flex items-center gap-1">
-            <ThumbsUp className="size-4 text-green-500" />
-            <span className="text-sm text-green-500">0 Relevant</span>
+          <button
+            onClick={() => handleReaction("like")}
+            className="flex items-center gap-1"
+          >
+            <ThumbsUp
+              className={`size-4 ${
+                optimisticReactions?.relevant?.includes(globalUser?._id)
+                  ? "fill-green-500 text-green-500"
+                  : "text-gray-500"
+              }`}
+            />
+            <span
+              className={`text-sm ${
+                optimisticReactions?.relevant?.includes(globalUser?._id)
+                  ? "text-green-500"
+                  : "text-gray-500"
+              }`}
+            >
+              {optimisticReactions?.relevant?.length || 0}
+            </span>
           </button>
-          <button className="flex items-center gap-1">
-            <ThumbsDown className="size-4 text-red-500" />
-            <span className="text-sm text-red-500">0 Not Relevant</span>
+
+          <button
+            onClick={() => handleReaction("dislike")}
+            className="flex items-center gap-1"
+          >
+            <ThumbsDown
+              className={`size-4 ${
+                optimisticReactions?.irrelevant?.includes(globalUser?._id)
+                  ? "fill-red-500 text-red-500"
+                  : "text-gray-500"
+              }`}
+            />
+            <span
+              className={`text-sm ${
+                optimisticReactions?.irrelevant?.includes(globalUser?._id)
+                  ? "text-red-500"
+                  : "text-gray-500"
+              }`}
+            >
+              {optimisticReactions?.irrelevant?.length || 0}
+            </span>
           </button>
 
           <button className="flex items-center gap-1">
-            <Share2 className="size-4" />
-            <span className="text-sm">Share</span>
+            <Share2 className="size-4 text-gray-500" />
+            <span className="text-sm text-gray-500">Share</span>
           </button>
         </div>
       </div>
