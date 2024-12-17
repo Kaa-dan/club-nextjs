@@ -142,4 +142,16 @@ export const ProjectApi = {
       throw error;
     }
   },
+
+  reactToPost: async (postId: string, action: "like" | "dislike") => {
+    try {
+      const response = await withTokenAxios.patch("/project/react", {
+        postId,
+        action,
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
 };

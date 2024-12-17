@@ -1,27 +1,11 @@
 "use client";
 
-import * as React from "react";
-import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import * as React from "react";
+import { useFieldArray, useForm } from "react-hook-form";
 
-import { format } from "date-fns";
-import { useMemo } from "react";
-import { useClubStore } from "@/store/clubs-store";
-import { useNodeStore } from "@/store/nodes-store";
-import { MultiSelect } from "@/components/ui/multi-select";
-import { useRouter } from "next/navigation";
-import {
-  X,
-  Plus,
-  Info,
-  CalendarIcon,
-  PlusCircle,
-  InfoIcon,
-} from "lucide-react";
-import Image from "next/image";
-import { cn } from "@/lib/utils";
+import CropDialog from "@/components/globals/cropper/image-cropper";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import {
   Form,
   FormControl,
@@ -30,11 +14,9 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { MultiSelect } from "@/components/ui/multi-select";
 import {
   Select,
   SelectContent,
@@ -42,22 +24,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
-import ReactQuill from "react-quill-new";
-import CropDialog from "@/components/globals/cropper/image-cropper";
-import { ProjectApi } from "./projectApi";
-import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import { useClubStore } from "@/store/clubs-store";
+import { useNodeStore } from "@/store/nodes-store";
 import { currencyData } from "@/utils/data/currency";
-import { Trash2 } from "lucide-react";
+import { format } from "date-fns";
+import { Info, InfoIcon, Plus, PlusCircle, Trash2, X } from "lucide-react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useMemo } from "react";
+import ReactQuill from "react-quill-new";
+import { toast } from "sonner";
+import { ProjectApi } from "./projectApi";
 import { ProjectFormValues, projectFormSchema } from "./schema";
 
 export default function ProjectForm({
@@ -102,7 +88,10 @@ export default function ProjectForm({
   const form = useForm<ProjectFormValues>({
     resolver: zodResolver(projectFormSchema),
     defaultValues: {
+      title: "",
+      region: "",
       champions: [],
+      significance: "",
       committees: [
         {
           name: "",
@@ -110,6 +99,11 @@ export default function ProjectForm({
           designation: "",
         },
       ],
+      howToTakePart: "",
+      aboutPromoters: "",
+      fundingDetails: "",
+      keyTakeaways: "",
+      risksAndChallenges: "",
       parameters: [
         {
           title: "",
@@ -124,8 +118,8 @@ export default function ProjectForm({
         },
       ],
       isPublic: false,
-      budgetMin: "0",
-      budgetMax: "0",
+      budgetMin: "",
+      budgetMax: "",
       relatedEvent: "",
       closingRemark: "",
       files: [],
@@ -136,7 +130,6 @@ export default function ProjectForm({
     name: "faqs",
     control: form.control,
   });
-  console.log(form.formState.errors);
 
   const onSubmit = async (data: ProjectFormValues) => {
     try {
@@ -281,7 +274,7 @@ export default function ProjectForm({
   const getAvailableOptions = (currentIndex: number) => {
     return allMembers;
   };
-  console.log(form.formState.errors.committees);
+  console.log(form.formState.errors);
   return (
     <TooltipProvider>
       <Form {...form}>
