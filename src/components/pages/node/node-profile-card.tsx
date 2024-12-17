@@ -55,7 +55,7 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
       name: "Chapters",
       icon: ICONS.NodeChaptersIcon,
       notifications: 0,
-      path: "#",
+      path: `/node/${currentNode?.node._id}/chapters`,
     },
     {
       name: "Members",
