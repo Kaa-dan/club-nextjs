@@ -132,10 +132,17 @@ export const ProjectApi = {
       throw error;
     }
   },
-  projectAction: async (projectId: string, type: "accept" | "reject") => {
+  projectAction: async (
+    projectId: string,
+    type: "accept" | "reject",
+    creationType: "proposed" | "creation"
+  ) => {
     try {
       const response = await withTokenAxios.put(
-        `project/accept-proposed-project/${projectId}/${type}`
+        `project/accept-proposed-project/${projectId}/${type}`,
+        {
+          creationType,
+        }
       );
       return response.data;
     } catch (error) {

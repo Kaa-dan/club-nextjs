@@ -350,11 +350,13 @@ export default function ProjectTable({
                 {/* Accept */}
                 <DropdownMenuItem
                   onSelect={() => {
-                    ProjectApi.projectAction(row.original._id, "accept").then(
-                      () => {
-                        reFetch();
-                      }
-                    );
+                    ProjectApi.projectAction(
+                      row.original._id,
+                      "accept",
+                      row.original.type
+                    ).then(() => {
+                      reFetch();
+                    });
                   }}
                 >
                   Accept
@@ -362,11 +364,13 @@ export default function ProjectTable({
                 {/* Reject */}
                 <DropdownMenuItem
                   onSelect={() => {
-                    ProjectApi.projectAction(row.original._id, "reject").then(
-                      () => {
-                        reFetch();
-                      }
-                    );
+                    ProjectApi.projectAction(
+                      row.original._id,
+                      "reject",
+                      row.original.type
+                    ).then(() => {
+                      reFetch();
+                    });
                   }}
                   className="text-red-500"
                 >

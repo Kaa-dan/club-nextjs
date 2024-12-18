@@ -255,6 +255,7 @@ interface TProjectData {
   };
   relevant: any[];
   irrelevant: any[];
+  type: "proposed" | "creation";
 }
 
 interface Committee {
