@@ -182,8 +182,8 @@ const Comment: React.FC<{ comment: TCommentType }> = ({ comment }) => {
     <div className="flex gap-3">
       <UserHoverCard username={comment?.userName} userData={comment}>
         <Image
-          src={comment.profileImage}
-          alt={`${comment.firstName} ${comment.lastName}`}
+          src={comment?.profileImage}
+          alt={`${comment?.firstName?.charAt(0)}`}
           width={32}
           height={32}
           className="size-8 rounded-full object-cover"

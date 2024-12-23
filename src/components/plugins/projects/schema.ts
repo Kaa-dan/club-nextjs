@@ -61,6 +61,7 @@ export const projectFormSchema = z
     risksAndChallenges: z.string().min(1, "Risks and challenges are required"),
     closingRemark: z.string().min(1, "Closing Remark is required"),
     howToTakePart: z.string().min(1, "How to take part is required"),
+
     isPublic: z.boolean().default(false),
     files: z
       .array(

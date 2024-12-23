@@ -550,4 +550,23 @@ export class Endpoints {
       throw error;
     }
   }
+
+
+  static async getFeeds(entity:'node' | 'club', entityId:string, page = 1, limit = 10) {
+    try {
+      const response = await withTokenAxios.get('assets/feed', {
+        params: {
+          entity,
+          entityId,
+          page,
+          limit
+        }
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+
 }

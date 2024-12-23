@@ -83,7 +83,7 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
       name: "Chapters",
       icon: ICONS.NodeChaptersIcon,
       notifications: 0,
-      path: "#",
+      path: `/club/${clubId}/chapters`,
       show: hasPermission("view:chapters"),
     },
     {

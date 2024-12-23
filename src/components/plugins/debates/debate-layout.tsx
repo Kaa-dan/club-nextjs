@@ -139,7 +139,7 @@ const DebateLayout = ({
             <div className="flex items-center gap-4">
               {(clubJoinStatus === "MEMBER" || nodeJoinStatus === "MEMBER") && (
                 <Link href="debate/create">
-                  <Button className="bg-primary hover:bg-emerald-600">
+                  <Button className="bg-primary hover:bg-emerald-600  text-white">
                     Add a new Debate
                   </Button>
                 </Link>

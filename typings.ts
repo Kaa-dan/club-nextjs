@@ -253,6 +253,9 @@ interface TProjectData {
     updatedAt: string;
     project: string;
   };
+  relevant: any[];
+  irrelevant: any[];
+  type: "proposed" | "creation";
 }
 
 interface Committee {
@@ -279,3 +282,29 @@ type TAdoptionOption = {
     image: string;
   }[];
 };
+
+
+
+
+ interface Author {
+  name: string;
+  email: string;
+  title?: string;
+}
+
+ interface Post {
+  _id: string;
+  author: Author;
+  content: string; 
+  type: string;
+  createdAt: string;
+  relevantCount?: number;
+  notRelevantCount?: number;
+  viewCount?: number;
+}
+
+ interface FeedResponse {
+  items: Post[];
+  hasMore: boolean;
+  total: number;
+}
