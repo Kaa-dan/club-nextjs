@@ -125,7 +125,7 @@ const ProjectLayout = ({
           <TabsContent key={tab.label} value={tab.label} className="space-y-4">
             <div className="flex items-center gap-4">
               <Link href="projects/create">
-                <Button className="bg-primary hover:bg-emerald-600">
+                <Button className="bg-primary hover:bg-emerald-600 text-white">
                   Add a new Project
                 </Button>
               </Link>
