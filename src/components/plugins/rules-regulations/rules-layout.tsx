@@ -138,7 +138,7 @@ const RulesLayout = ({
             >
               <div className="flex items-center gap-4">
                 <Link href="rules/create">
-                  <Button className="bg-primary hover:bg-emerald-600">
+                  <Button className="bg-primary hover:bg-emerald-600 text-white">
                     Add a new Rule
                   </Button>
                 </Link>
