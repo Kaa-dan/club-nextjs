@@ -346,7 +346,7 @@ export default function Details({
                     <span>
                       {Math.min(
                         ((project?.contributions
-                          .filter((item) => item.parameter === param._id)
+                          .filter((item) => item.parameters === param._id)
                           .reduce(
                             (sum, contribution) => sum + contribution.value,
                             0
