@@ -290,8 +290,8 @@ const PostComponent: React.FC<PostComponentProps> = ({ post, clubId, onRelevancy
             <CarouselNext className="hidden md:flex" />
           </Carousel>
         )}
-        
-        <div className="flex gap-2">
+        {
+          post.type !== "debate" &&   <div className="flex gap-2">
           <Button 
             onClick={() => handleRelevancy(post.type, post._id, 'like')} 
             variant="outline" 
@@ -331,8 +331,11 @@ const PostComponent: React.FC<PostComponentProps> = ({ post, clubId, onRelevancy
             <span className="hidden lg:inline">Save</span>
           </Button>
         </div>
+        }
+      
       </CardContent>
-      <CardFooter>
+      {
+        post.type !== "debate" &&  <CardFooter>
         <div className="flex w-full items-center gap-2">
           <Input
             className="flex-1"
@@ -349,6 +352,8 @@ const PostComponent: React.FC<PostComponentProps> = ({ post, clubId, onRelevancy
           </Button>
         </div>
       </CardFooter>
+      }
+     
     </Card>
   );
 };
