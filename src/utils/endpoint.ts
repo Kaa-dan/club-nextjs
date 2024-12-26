@@ -567,6 +567,18 @@ export class Endpoints {
       throw error;
     }
   }
-
+static async relevancy ( type: 'issues' | 'debate' | 'projects',   moduleId: string,
+  action: 'like' | 'dislike') {
+  try {
+    const response = await withTokenAxios.post('assets/relevancy',{
+      type,
+      moduleId,
+      action
+    })
+    return response.data
+  } catch (error) {
+    throw error
+  }
+}
 
 }
