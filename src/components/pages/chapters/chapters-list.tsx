@@ -16,7 +16,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { title } from "process";
+import CreateChapterModal from "./create-chapter-modal";
 
 interface Item {
   id: string;
@@ -30,9 +30,10 @@ interface ItemGridProps {
   items: Item[];
 }
 
-export function ItemGrid({ items }: ItemGridProps) {
+export function ChaptersList({ items }: ItemGridProps) {
   const [searchQuery, setSearchQuery] = React.useState("");
   const [filteredItems, setFilteredItems] = React.useState(items);
+  const [openCreateModal, setOpenCreateModal] = React.useState(false);
 
   React.useEffect(() => {
     const filtered = items.filter(
@@ -43,9 +44,33 @@ export function ItemGrid({ items }: ItemGridProps) {
     setFilteredItems(filtered);
   }, [searchQuery, items]);
 
+  const exampleClubs = [
+    { id: "1", name: "Manchester United" },
+    { id: "2", name: "Real Madrid" },
+    { id: "3", name: "Bayern Munich" },
+    { id: "4", name: "Barcelona" },
+    { id: "5", name: "Liverpool" },
+  ];
+
   return (
     <div className="container mx-auto space-y-6 p-4">
-      <h1 className="mb-4 text-2xl font-bold">All Chapters</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="mb-4 text-2xl font-bold">All Chapters</h1>
+        <Button
+          onClick={() => setOpenCreateModal(true)}
+          variant="outline"
+          size="default"
+        >
+          Create Chapter
+        </Button>
+        {openCreateModal && (
+          <CreateChapterModal
+            open={openCreateModal}
+            onOpenChange={setOpenCreateModal}
+            clubs={exampleClubs}
+          />
+        )}
+      </div>
       <div className="flex items-center gap-2">
         <div className="relative flex-1">
           <Search className="absolute left-2 top-2.5 size-4 text-muted-foreground" />
