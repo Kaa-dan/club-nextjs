@@ -688,14 +688,18 @@ export default function RuleForm({
                   disabled={isSubmitting}
                   onClick={handleSubmit(onSubmit)}
                 >
-                  {isSubmitting ? "Submitting..." : "Publish"}
+                  {isSubmitting
+                    ? "Submitting..."
+                    : isMember
+                      ? "Propose"
+                      : "Publish"}{" "}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
 
           <Button type="submit" disabled={isSubmitting}>
-            publish
+            {isMember ? "Propose" : "Publish"}
           </Button>
         </div>
       </form>

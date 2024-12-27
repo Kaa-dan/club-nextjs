@@ -21,16 +21,17 @@ import { FilterComponent } from "./filter-component";
 import { Endpoints } from "@/utils/endpoint";
 import sanitizeHtmlContent from "@/utils/sanitize";
 import {
-  DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenu,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { type } from "os";
 import { useClubStore } from "@/store/clubs-store";
 import { useNodeStore } from "@/store/nodes-store";
 import { usePermission } from "@/lib/use-permission";
+import { toast } from "sonner";
 
 interface DebateCardProps {
   isPinned: boolean;
@@ -102,40 +103,62 @@ export const DebateCard: React.FC<DebateCardProps> = ({
   const currentUserId = globalUser?._id;
   const { currentUserRole: userClubRole } = useClubStore((state) => state);
   const { currentUserRole: userNodeRole } = useNodeStore((state) => state);
+
+  
+  interface ReactionEntry {
+    user: string;
+    date: string;
+  }
+  
   const handleVote = async (type: "relevant" | "irrelevant") => {
+    if (!userId) return;
+  
+    // Store previous state for rollback
     const previousRelevant = [...relevant];
     const previousIrrelevant = [...irrelevant];
-
+  
     if (type === "relevant") {
-      const isCurrentlyRelevant = relevant.includes(userId);
+      const isCurrentlyRelevant = relevant.some((entry:any) => entry.user === userId);
+      
       setRelevant(
         isCurrentlyRelevant
-          ? relevant.filter((id: string) => id !== userId)
-          : [...relevant, userId]
+          ? relevant.filter((entry:any) => entry.user !== userId)
+          : [...relevant, { user: userId, date: new Date().toISOString() }]
       );
-      if (irrelevant.includes(userId)) {
-        setIrrelevant(irrelevant.filter((id: string) => id !== userId));
+  
+      // Remove from irrelevant if exists
+      if (irrelevant.some((entry:any) => entry.user === userId)) {
+        setIrrelevant(irrelevant.filter((entry:any) => entry.user !== userId));
       }
     } else {
-      const isCurrentlyIrrelevant = irrelevant.includes(userId);
+      const isCurrentlyIrrelevant = irrelevant.some((entry:any) => entry.user === userId);
+      
       setIrrelevant(
         isCurrentlyIrrelevant
-          ? irrelevant.filter((id: string) => id !== userId)
-          : [...irrelevant, userId]
+          ? irrelevant.filter((entry:any) => entry.user !== userId)
+          : [...irrelevant, { user: userId, date: new Date().toISOString() }]
       );
-      if (relevant.includes(userId)) {
-        setRelevant(relevant.filter((id: string) => id !== userId));
+  
+      // Remove from relevant if exists
+      if (relevant.some((entry:any)=> entry.user === userId)) {
+        setRelevant(relevant.filter((entry:any) => entry.user !== userId));
       }
     }
-
+  
     try {
       const updatedArgument = await Endpoints.toggleVote(debateId, type);
+      
+      // Update with server response
       setRelevant(updatedArgument.relevant);
       setIrrelevant(updatedArgument.irrelevant);
     } catch (error) {
       console.error("Error toggling vote:", error);
+      
+      // Rollback on error
       setRelevant(previousRelevant);
       setIrrelevant(previousIrrelevant);
+      
+      toast.error("Failed to update vote");
     }
   };
 
@@ -239,8 +262,8 @@ export const DebateCard: React.FC<DebateCardProps> = ({
     fetchRepliesForComment();
   }, [showComments]);
 
-  const isRelevant = relevant.includes(userId);
-  const isIrrelevant = irrelevant.includes(userId);
+  const isRelevant = relevant.some((item:{user:string,date:Date}) => item.user == userId);
+  const isIrrelevant = irrelevant.some((item:{user:string,date:Date}) => item.user == userId);
   const isCurrentUserAuthor = currentUserId === authorId; // Current user authored the argument
   const userCanDelete = currentUserId === argumentAuthorId; // User is the commenter
   console.log({ userClubRole });

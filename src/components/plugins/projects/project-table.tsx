@@ -40,6 +40,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import Loader1 from "@/components/globals/loaders/loader-1";
+import { ProjectApi } from "./projectApi";
 
 interface DataTableProps {
   columns: ColumnDef<any>[];
@@ -59,6 +60,7 @@ function DataTable({
   plugin,
   forum,
   clickTrigger,
+
   setClickTrigger,
   loading,
 }: DataTableProps) {
@@ -156,6 +158,7 @@ export default function ProjectTable({
   setClickTrigger,
   tab,
   loading,
+  reFetch,
 }: {
   plugin: TPlugins;
   forum: TForum;
@@ -165,6 +168,7 @@ export default function ProjectTable({
   setClickTrigger?: React.Dispatch<React.SetStateAction<boolean>>;
   tab: TProjectLable;
   loading?: boolean;
+  reFetch: any;
 }) {
   const columns: ColumnDef<TProjectData>[] = [
     {
@@ -284,47 +288,99 @@ export default function ProjectTable({
         );
       },
     },
-    {
-      accessorKey: "relevanceScore",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Relevance Score
-            <ArrowUpDown className="ml-2 size-4" />
-          </Button>
-        );
-      },
-      cell: ({ row }) => {
-        return (
-          console.log(row, "relevanceScore"),
-          (
-            <div className="flex items-center gap-4 text-sm text-muted-foreground">
-              <div className="flex items-center gap-1">
-                <ThumbsUp
-                  className={cn("size-4  cursor-pointer text-primary")}
-                />
-                <span>{0}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <ThumbsUp
-                  className={cn(
-                    "size-4 rotate-180 cursor-pointer text-red-500"
-                  )}
-                />
-                <span>{0}</span>
-              </div>
-            </div>
-          )
-        );
-      },
-    },
+    ...(tab !== "Proposed Project"
+      ? [
+          {
+            accessorKey: "relevanceScore",
+            header: ({ column }: any) => {
+              return (
+                <Button
+                  variant="ghost"
+                  onClick={() =>
+                    column.toggleSorting(column.getIsSorted() === "asc")
+                  }
+                >
+                  Relevance Score
+                  <ArrowUpDown className="ml-2 size-4" />
+                </Button>
+              );
+            },
+            cell: ({ row }: any) => {
+              return (
+                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-1">
+                    <ThumbsUp className="size-4 cursor-pointer text-primary" />
+                    <span>{0}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <ThumbsUp className="size-4 rotate-180 cursor-pointer text-red-500" />
+                    <span>{0}</span>
+                  </div>
+                </div>
+              );
+            },
+          },
+        ]
+      : []),
+    // ... (previous columns remain the same)
     {
       id: "actions",
       header: "Actions",
       cell: ({ row }) => {
+        if (tab === "Proposed Project") {
+          return (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="size-8 p-0">
+                  <span className="sr-only">Open menu</span>
+                  <MoreHorizontal className="size-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {/* <DropdownMenuLabel>Actions</DropdownMenuLabel> */}
+                {/* View Details */}
+                <DropdownMenuItem asChild>
+                  <Link
+                    href={`/${forum}/${forumId}/${plugin}/${row.original._id}/view`}
+                    className="w-full"
+                  >
+                    View Details
+                  </Link>
+                </DropdownMenuItem>
+                {/* Accept */}
+                <DropdownMenuItem
+                  onSelect={() => {
+                    ProjectApi.projectAction(
+                      row.original._id,
+                      "accept",
+                      row.original.type
+                    ).then(() => {
+                      reFetch();
+                    });
+                  }}
+                >
+                  Accept
+                </DropdownMenuItem>
+                {/* Reject */}
+                <DropdownMenuItem
+                  onSelect={() => {
+                    ProjectApi.projectAction(
+                      row.original._id,
+                      "reject",
+                      row.original.type
+                    ).then(() => {
+                      reFetch();
+                    });
+                  }}
+                  className="text-red-500"
+                >
+                  Reject
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          );
+        }
+
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -335,7 +391,7 @@ export default function ProjectTable({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem>
+              <DropdownMenuItem asChild>
                 <Link
                   href={`/${forum}/${forumId}/${plugin}/${row.original._id}/view`}
                   className="w-full"

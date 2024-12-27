@@ -253,7 +253,7 @@ const IssueView = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
           <div className="flex items-center gap-3">
             {issue?.createdBy?.profileImage ? (
               <Image
-                src={issue.createdBy.profileImage}
+                src={issue?.createdBy?.profileImage}
                 alt={issue.createdBy?.userName || "User"}
                 className="size-8 rounded-full object-cover"
                 width={32}

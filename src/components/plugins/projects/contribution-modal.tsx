@@ -15,6 +15,7 @@ import {
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -27,6 +28,7 @@ import { ProjectApi } from "./projectApi";
 
 const formSchema = z.object({
   volunteers: z.number().min(1, "Please enter a value greater than 0"),
+  remarks: z.string().min(1, "Remarks are required."),
   files: z
     .array(z.instanceof(File))
     .min(1, "Please upload at least one file.")
@@ -70,6 +72,7 @@ export default function ContributionModal({
     resolver: zodResolver(formSchema),
     defaultValues: {
       volunteers: 0,
+      remarks: "",
       files: [],
     },
   });
@@ -78,6 +81,7 @@ export default function ContributionModal({
     setIsSubmitting(true);
     const formData = new FormData();
     formData.append("value", values.volunteers.toString());
+    formData.append("remarks", values.remarks);
 
     values.files.forEach((file) => {
       formData.append("file", file);
@@ -145,7 +149,7 @@ export default function ContributionModal({
               render={({ field }) => (
                 <FormItem className="space-y-2">
                   <FormLabel className="flex items-center gap-1">
-                    Volunteers
+                    Value
                     <Info className="size-4 text-muted-foreground" />
                   </FormLabel>
                   <FormControl>
@@ -156,6 +160,21 @@ export default function ContributionModal({
                       onChange={(e) => field.onChange(Number(e.target.value))}
                     />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="remarks"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Remarks</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+
                   <FormMessage />
                 </FormItem>
               )}
@@ -200,18 +219,18 @@ export default function ContributionModal({
                                 alt={file.name}
                                 width={100}
                                 height={100}
-                                className="rounded-lg object-cover w-full h-24"
+                                className="h-24 w-full rounded-lg object-cover"
                               />
                               <Button
                                 type="button"
                                 variant="destructive"
                                 size="icon"
-                                className="absolute -top-2 -right-2 h-6 w-6"
+                                className="absolute -right-2 -top-2 size-6"
                                 onClick={() => removeFile(index)}
                               >
                                 <X className="size-3" />
                               </Button>
-                              <p className="text-xs mt-1 truncate">
+                              <p className="mt-1 truncate text-xs">
                                 {file.name}
                               </p>
                             </div>
@@ -235,7 +254,7 @@ export default function ContributionModal({
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 className="mr-2 size-4 animate-spin" />
                     Submitting...
                   </>
                 ) : (

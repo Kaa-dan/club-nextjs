@@ -2,6 +2,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { Loader2 } from "lucide-react";
 import {
   DialogContent,
   DialogDescription,
@@ -20,6 +21,9 @@ import {
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { X, FileIcon, Image as ImageIcon, FileText } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { ProjectApi } from "../projectApi";
+import { toast } from "sonner";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_FILE_TYPES = [
@@ -47,16 +51,15 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-interface FileWithPreview {
-  file: File;
-  preview: string;
-}
-
-const AnnouncementDialog = () => {
-  const [selectedFiles, setSelectedFiles] = React.useState<FileWithPreview[]>(
-    []
-  );
-
+const AnnouncementDialog = ({
+  projectId,
+  setOpen,
+  fetchAnnouncement,
+}: {
+  setOpen: () => void;
+  projectId: string;
+  fetchAnnouncement: () => void;
+}) => {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -64,11 +67,13 @@ const AnnouncementDialog = () => {
       files: [],
     },
   });
+  console.log({ projectId });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
+    const currentFiles = form.getValues("files") || [];
 
-    if (selectedFiles.length + files.length > 5) {
+    if (currentFiles.length + files.length > 5) {
       form.setError("files", {
         message: "Maximum 5 files allowed",
       });
@@ -100,28 +105,64 @@ const AnnouncementDialog = () => {
           : "/doc-icon.png",
     }));
 
-    setSelectedFiles((prev) => [...prev, ...newFiles]);
+    form.setValue("files", [...currentFiles, ...newFiles]);
   };
 
   const removeFile = (index: number) => {
-    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
-  };
+    const files = form.getValues("files") || [];
+    const fileToRemove = files[index];
 
-  const onSubmit = (values: FormValues) => {
-    // Handle form submission
-    console.log(values, selectedFiles);
+    if (fileToRemove.preview.startsWith("blob:")) {
+      URL.revokeObjectURL(fileToRemove.preview);
+    }
+
+    const updatedFiles = files.filter((_, i) => i !== index);
+    form.setValue("files", updatedFiles);
+  };
+  const onSubmit = async (values: FormValues) => {
+    try {
+      console.log({ values });
+      console.log({ projectId });
+
+      const formData = new FormData();
+      formData.append("announcement", values.announcement);
+      formData.append("projectId", projectId);
+
+      values.files?.forEach((fileObj, index) => {
+        formData.append(`file`, fileObj.file);
+      });
+
+      // ProjectApi.createAnnouncement(formData).then(() => {
+      //   setOpen();
+      //   form.reset();
+      //   fetchAnnouncement();
+      //   toast.success("Announcement created successfully!");
+      // });
+
+      const response = await ProjectApi.createAnnouncement(formData);
+      setOpen();
+      form.reset();
+      fetchAnnouncement();
+      toast.success("Announcement created successfully!");
+      console.log("Announcement submitted successfully");
+    } catch (error) {
+      console.error("Error submitting announcement:", error);
+    }
   };
 
   React.useEffect(() => {
     // Cleanup previews on unmount
     return () => {
-      selectedFiles.forEach((file) => {
+      const files = form.getValues("files") || [];
+      files.forEach((file) => {
         if (file.preview.startsWith("blob:")) {
           URL.revokeObjectURL(file.preview);
         }
       });
     };
-  }, []);
+  }, [form]);
+
+  const files = form.watch("files") || [];
 
   return (
     <DialogContent className="sm:max-w-[425px]">
@@ -152,37 +193,40 @@ const AnnouncementDialog = () => {
             )}
           />
 
-          <FormItem>
-            <FormLabel>Files/Media</FormLabel>
-            <FormControl>
-              <div className="rounded-lg border-2 border-dashed p-4 transition hover:border-primary/50">
-                <input
-                  type="file"
-                  multiple
-                  onChange={handleFileChange}
-                  accept={ACCEPTED_FILE_TYPES.join(",")}
-                  className="hidden"
-                  id="file-upload"
-                />
-                <label
-                  htmlFor="file-upload"
-                  className="flex cursor-pointer flex-col items-center justify-center"
-                >
-                  <div className="text-sm text-muted-foreground">
-                    Drag or Upload a file (max 5 files)
+          <FormField
+            control={form.control}
+            name="files"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Files/Media</FormLabel>
+                <FormControl>
+                  <div className="rounded-lg border-2 border-dashed p-4 transition hover:border-primary/50">
+                    <Input
+                      type="file"
+                      multiple
+                      onChange={handleFileChange}
+                      accept={ACCEPTED_FILE_TYPES.join(",")}
+                      className="hidden"
+                      id="file-upload"
+                    />
+                    <label
+                      htmlFor="file-upload"
+                      className="flex cursor-pointer flex-col items-center justify-center"
+                    >
+                      <div className="text-sm text-muted-foreground">
+                        Drag or Upload a file (max 5 files)
+                      </div>
+                    </label>
                   </div>
-                  <Button type="button" variant="outline" className="mt-2">
-                    Select Files
-                  </Button>
-                </label>
-              </div>
-            </FormControl>
-            <FormMessage />
-          </FormItem>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-          {selectedFiles.length > 0 && (
+          {files.length > 0 && (
             <div className="grid grid-cols-2 gap-4">
-              {selectedFiles.map((file, index) => (
+              {files.map((file, index) => (
                 <div key={index} className="relative rounded-lg border p-2">
                   <Button
                     type="button"
@@ -215,7 +259,20 @@ const AnnouncementDialog = () => {
           )}
 
           <DialogFooter>
-            <Button type="submit">Publish</Button>
+            <Button
+              type="submit"
+              className="flex items-center rounded-md bg-green-500 px-4 py-2 text-white "
+              disabled={form.formState.isSubmitting}
+            >
+              {form.formState.isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 animate-spin" size="1rem" />
+                  Processing...
+                </>
+              ) : (
+                "Submit"
+              )}
+            </Button>
           </DialogFooter>
         </form>
       </Form>

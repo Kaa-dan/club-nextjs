@@ -6,7 +6,8 @@ import { useParams } from "next/navigation";
 import FAQList from "./faq-list";
 import { useEffect, useState } from "react";
 import { ProjectApi } from "./projectApi";
-import ProjectWall from "./project-wall";
+import ProjectWall from "./projectDetails/project-wall";
+import LeaderBoard from "./projectDetails/leader-board";
 export default function ViewProject({
   forumId,
   forum,
@@ -20,11 +21,14 @@ export default function ViewProject({
     postId: string;
   }>();
 
-  useEffect(() => {
+  function fetchProject() {
     if (postId)
       ProjectApi.singleView(postId).then((res) => {
         setProject(res);
       });
+  }
+  useEffect(() => {
+    fetchProject();
   }, [postId]);
   return (
     <>
@@ -56,13 +60,18 @@ export default function ViewProject({
           </TabsTrigger>
         </TabsList>
         <TabsContent value="details" className="p-4">
-          <Details project={project} forumId={forumId} forum={forum} />
+          <Details
+            fetchProject={fetchProject}
+            project={project}
+            forumId={forumId}
+            forum={forum}
+          />
         </TabsContent>
         <TabsContent value="leaderboard" className="p-4">
-          Leaderboard content
+          <LeaderBoard forum={forum} forumId={forumId} />
         </TabsContent>
         <TabsContent value="wall" className="p-4">
-          <ProjectWall />
+          <ProjectWall project={project as TProjectData} />
         </TabsContent>
         <TabsContent value="faqs" className="p-4">
           <FAQList faqs={project?.faqs!} />

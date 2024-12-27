@@ -1,4 +1,5 @@
 "use client";
+import { ThumbsUp, ThumbsDown, MessageCircle, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -10,15 +11,39 @@ import { useParams } from "next/navigation";
 import React from "react";
 import ContributionModal from "../contribution-modal";
 import { ContributionApprovalModal } from "../contribution-details-modal";
+import { Check } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { formatDistanceToNow } from "date-fns";
+import { Label } from "@/components/ui/lable";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { usePermission } from "@/lib/use-permission";
+import { toast } from "sonner";
+import { Day } from "react-day-picker";
+import { useTokenStore } from "@/store/store";
+
 export default function Details({
   project,
   forumId,
   forum,
+  fetchProject,
 }: {
   forumId: string;
   forum: TForum;
   project: TProjectData | undefined;
+  fetchProject: () => void;
 }) {
+  const [selectedOption, setSelectedOption] = useState<any>(null);
+  const [showProposalForm, setShowProposalForm] = useState(false);
+  const [proposalMessage, setProposalMessage] = useState("");
   const { postId } = useParams<{ postId: string }>();
   // function fetch(postId: string) {
   //   ProjectApi.singleView(postId).then((res) => {
@@ -28,16 +53,156 @@ export default function Details({
   // useEffect(() => {
   //   fetch(postId);
   // }, []);
-
+  const [adoptionOptions, setAdoptionOptions] = useState<any>();
   const [openApproval, setOpenApproval] = useState(false);
   const [selectedParam, setSelectedParam] = useState(null);
   const [open, setOPen] = useState<boolean>(false);
+  const { hasPermission } = usePermission();
+  const { globalUser } = useTokenStore((state) => state);
+  console.log({ userId: globalUser?._id });
+
+  function fetchNotAdoptedClubAndNode() {
+    ProjectApi.notAdoptedClubsAndNodes(postId as string).then((res) => {
+      setAdoptionOptions(res);
+    });
+  }
+  useEffect(() => {
+    fetchNotAdoptedClubAndNode();
+    setOptimisticReactions({
+      irrelevant: project?.irrelevant as string[],
+      relevant: project?.relevant as string[],
+    });
+
+    console.log({ optimisticReactions });
+  }, [project]);
+  const clubs =
+    adoptionOptions?.forums
+      .filter((forum: { type: TForum }) => forum.type === "club")
+      .map(
+        (club: {
+          _id: string;
+          type: TForum;
+          name: string;
+          role: string;
+          image: string;
+        }) => ({
+          _id: club._id,
+          type: "club",
+          name: club.name,
+          role: club.role,
+          image: club.image,
+        })
+      ) || [];
+
+  const nodes =
+    adoptionOptions?.forums
+      .filter((forum: { type: TForum }) => forum.type === "node")
+      .map(
+        (node: {
+          _id: string;
+          type: TForum;
+          name: string;
+          role: string;
+          image: string;
+        }) => ({
+          _id: node._id,
+          type: "node",
+          name: node.name,
+          role: node.role,
+          image: node.image,
+        })
+      ) || [];
+  const adoptionOption = [...clubs, ...nodes];
+  const handlePropose = (option: any) => {
+    setSelectedOption(option);
+    setShowProposalForm(true);
+  };
+
+  const handleSubmitProposal = () => {
+    if (!proposalMessage.trim()) {
+      toast.error("Please provide a reason for your proposal");
+      return;
+    }
+
+    ProjectApi.adoptProject({
+      project: project?._id as string,
+      [selectedOption?.type]: selectedOption?._id,
+      proposalMessage: proposalMessage,
+    }).then((res) => {
+      toast.success("Proposal submitted successfully");
+      fetchNotAdoptedClubAndNode();
+      setShowProposalForm(false);
+      setProposalMessage("");
+      setSelectedOption(null);
+    });
+  };
+  const [optimisticReactions, setOptimisticReactions] = useState({
+    relevant: project?.relevant || [],
+    irrelevant: project?.irrelevant || [],
+  });
+
+  interface ReactionEntry {
+    user: string;
+    date: string;
+  }
+  
+  interface OptimisticReactions {
+    relevant: ReactionEntry[];
+    irrelevant: ReactionEntry[];
+  }
+  
+  const handleReaction = async (action: "like" | "dislike") => {
+    if (!project?._id || !globalUser?._id) return;
+    
+    const userId = globalUser._id;
+    const previousState = { ...optimisticReactions };
+    
+    setOptimisticReactions((prev) => {
+      const isLike = action === "like";
+      const targetArray = isLike ? "relevant" : "irrelevant";
+      const otherArray = isLike ? "irrelevant" : "relevant";
+      
+      // Remove from other array if exists
+      const filteredOther = prev[otherArray].filter(
+        (entry) => entry.user !== userId
+      );
+      
+      // Check if user already reacted
+      const exists = prev[targetArray].some((entry) => entry.user === userId);
+      
+      // Update target array
+      const updatedTarget = exists
+        ? prev[targetArray].filter((entry) => entry.user !== userId)
+        : [
+            ...prev[targetArray],
+            {
+              user: userId,
+              date: new Date().toISOString()
+            }
+          ];
+      
+      return {
+        ...prev,
+        [targetArray]: updatedTarget,
+        [otherArray]: filteredOther,
+      };
+    });
+    
+    try {
+      await ProjectApi.reactToPost(project._id, action);
+    } catch (error) {
+      setOptimisticReactions(previousState);
+      toast.error("Failed to update reaction");
+    }
+  };
+  console.log("hello");
+  console.log({ optimisticReactions });
+
   return (
     <div className="mx-auto max-w-4xl rounded-lg bg-white shadow-sm">
-      {/* Header Banner */}
       <div className="relative h-40 overflow-hidden rounded-t-lg bg-[#001529]">
         <Image
-          src={project?.bannerImage.url as string}
+          src={project?.bannerImage?.url as string}
           alt="Banner"
           fill
           className="object-cover"
@@ -47,9 +212,132 @@ export default function Details({
       {/* Content */}
       <div className="p-8">
         <div className="mb-8">
-          <h2 className="mb-3 text-2xl font-semibold tracking-tight">
-            {project?.title}
-          </h2>
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-2xl font-semibold tracking-tight">
+              {project?.title}
+            </h2>
+            <>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button className="bg-green-400 text-white hover:bg-green-500">
+                    Adopt
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-sm">
+                  <DialogHeader className="sticky top-0 z-10 mt-4 bg-white">
+                    <DialogTitle>Choose adoption</DialogTitle>
+                    <DialogDescription className="text-sm">
+                      Select a club or node to adopt this debate
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="mt-2 max-h-60 space-y-2 overflow-y-auto">
+                    {adoptionOption.length > 0 ? (
+                      adoptionOption.map((option, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center justify-between rounded-lg border p-2 transition-colors hover:bg-slate-50"
+                        >
+                          <div className="flex items-center gap-2">
+                            <Image
+                              className="rounded-md"
+                              width={30}
+                              height={30}
+                              src={option.image}
+                              alt={option.name}
+                            />
+                            <div className="text-sm font-medium">
+                              {option.name}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline" className="text-xs">
+                              {option.type}
+                            </Badge>
+                            <Button
+                              onClick={() => {
+                                if (
+                                  ["admin", "moderator", "owner"].includes(
+                                    option.role
+                                  )
+                                ) {
+                                  ProjectApi.adoptProject({
+                                    project: project?._id as string,
+                                    [option.type]: option._id,
+                                  }).then((res) => {
+                                    toast.success("Adoption successful");
+                                    fetchNotAdoptedClubAndNode();
+                                  });
+                                } else {
+                                  handlePropose(option);
+                                }
+                              }}
+                              size="sm"
+                              variant="outline"
+                              className="h-7 px-2"
+                            >
+                              <Check className="mr-1 size-3" />
+                              <span className="text-xs">
+                                {["admin", "moderator", "owner"].includes(
+                                  option.role
+                                )
+                                  ? "Adopt"
+                                  : "Propose"}
+                              </span>
+                            </Button>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="p-4 text-center text-sm text-gray-500">
+                        No clubs or nodes available for adoption.
+                      </div>
+                    )}
+                  </div>
+                </DialogContent>
+              </Dialog>
+
+              <Dialog
+                open={showProposalForm}
+                onOpenChange={setShowProposalForm}
+              >
+                <DialogContent className="max-w-sm">
+                  <DialogHeader>
+                    <DialogTitle>Submit Proposal</DialogTitle>
+                    <DialogDescription className="text-sm">
+                      Please provide a reason for your proposal to{" "}
+                      {selectedOption?.name}
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="proposal-message">Proposal Message</Label>
+                      <Textarea
+                        id="proposal-message"
+                        placeholder="Enter your reason for proposing..."
+                        value={proposalMessage}
+                        onChange={(e) => setProposalMessage(e.target.value)}
+                        className="min-h-32"
+                      />
+                    </div>
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setShowProposalForm(false);
+                          setProposalMessage("");
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                      <Button onClick={handleSubmitProposal}>
+                        Submit Proposal
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </>
+          </div>
           <p className="leading-relaxed text-gray-600">
             {project?.significance}
           </p>
@@ -115,6 +403,7 @@ export default function Details({
                     >
                       + Add Contribution
                     </Button>
+
                     <Button
                       onClick={() => {
                         setSelectedParam(param);
@@ -138,7 +427,7 @@ export default function Details({
               projectId={postId}
               setOpen={setOPen}
               forum={forum}
-              fetch={fetch}
+              fetch={fetchProject}
             />
           )}
 
@@ -215,27 +504,35 @@ export default function Details({
         </div>
 
         {/* Contribution Section */}
-        <div className="mb-8 border-b pb-8">
-          <p className="mb-4 w-2/5 rounded-md bg-green-100 p-1 text-center text-xs font-medium text-emerald-500">
-            239 Contribution from this forum
-          </p>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="size-12 rounded-full bg-gray-200"></div>
-              <div>
-                <p className="font-medium">Leslie Alexander</p>
-                <p className="mt-0.5 text-sm text-gray-500">14 min ago</p>
-              </div>
+        <div className="flex items-center justify-between pb-8">
+          <div className="flex items-center gap-4">
+            <Avatar className="size-12">
+              <AvatarImage
+                src={project?.createdBy?.profileImage}
+                alt={project?.createdBy?.userName}
+              />
+              <AvatarFallback>
+                {project?.createdBy?.userName?.charAt(0)}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <p className="font-medium">{project?.createdBy?.userName}</p>
+
+              <p className="mt-0.5 text-sm text-gray-500">
+                {/* {formatDistanceToNow(new Date(project?.createdAt as Date), {
+                  addSuffix: true,
+                })} */}
+              </p>
             </div>
-            <div className="flex items-center gap-6 text-sm text-gray-500">
-              <div className="flex items-center gap-2">
-                <Eye className="size-4" />
-                <span>12.5k Viewers</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Users className="size-4" />
-                <span>236 Adopted</span>
-              </div>
+          </div>
+          <div className="flex items-center gap-6 text-sm text-gray-500">
+            <div className="flex items-center gap-2">
+              <Eye className="size-4" />
+              <span>12.5k Viewers</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Users className="size-4" />
+              <span>236 Adopted</span>
             </div>
           </div>
         </div>
@@ -344,9 +641,62 @@ export default function Details({
             </div>
           </div>
         </div>
-        <div className="mb-8 border-b pb-8">
+        <div className="mb-8  pb-8">
           <h3 className="mb-3 text-lg font-semibold">Risks & Challenges</h3>
           <p className="text-gray-600">{project?.risksAndChallenges}</p>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between border-t py-4">
+        <div className="flex gap-6">
+        <button
+    onClick={() => handleReaction("like")}
+    className="flex items-center gap-1"
+  >
+    <ThumbsUp
+      className={`size-4 ${
+        optimisticReactions?.relevant?.some(entry => entry.user === globalUser?._id)
+          ? "fill-green-500 text-green-500"
+          : "text-gray-500"
+      }`}
+    />
+    <span
+      className={`text-sm ${
+        optimisticReactions?.relevant?.some(entry => entry.user === globalUser?._id)
+          ? "text-green-500"
+          : "text-gray-500"
+      }`}
+    >
+      {optimisticReactions?.relevant?.length || 0}
+    </span>
+  </button>
+
+  <button
+    onClick={() => handleReaction("dislike")}
+    className="flex items-center gap-1"
+  >
+    <ThumbsDown
+      className={`size-4 ${
+        optimisticReactions?.irrelevant?.some(entry => entry.user === globalUser?._id)
+          ? "fill-red-500 text-red-500"
+          : "text-gray-500"
+      }`}
+    />
+    <span
+      className={`text-sm ${
+        optimisticReactions?.irrelevant?.some(entry => entry.user === globalUser?._id)
+          ? "text-red-500"
+          : "text-gray-500"
+      }`}
+    >
+      {optimisticReactions?.irrelevant?.length || 0}
+    </span>
+  </button>
+
+          <button className="flex items-center gap-1">
+            <Share2 className="size-4 text-gray-500" />
+            <span className="text-sm text-gray-500">Share</span>
+          </button>
         </div>
       </div>
     </div>

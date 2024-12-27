@@ -103,8 +103,8 @@ type TRule = {
   updatedAt: string;
   __v: number;
   irrelevant: Array<any>;
-  adoptedClubs: [];
-  adoptedNodes: [];
+  adobtedClubs: [];
+  adobtedNodes: [];
 };
 
 interface IssueFile {
@@ -253,6 +253,9 @@ interface TProjectData {
     updatedAt: string;
     project: string;
   };
+  relevant: any[];
+  irrelevant: any[];
+  type: "proposed" | "creation";
 }
 
 interface Committee {
@@ -263,4 +266,45 @@ interface Committee {
 
 interface Champion {
   // Add properties here if there are specific fields for champions
+}
+
+type TAdoptionOption = {
+  nonAdoptedClubs: {
+    clubId: string;
+    role: string;
+    name: string;
+    image: string;
+  }[];
+  nonAdoptedNodes: {
+    nodeId: string;
+    role: string;
+    name: string;
+    image: string;
+  }[];
+};
+
+
+
+
+ interface Author {
+  name: string;
+  email: string;
+  title?: string;
+}
+
+ interface Post {
+  _id: string;
+  author: Author;
+  content: string; 
+  type: string;
+  createdAt: string;
+  relevantCount?: number;
+  notRelevantCount?: number;
+  viewCount?: number;
+}
+
+ interface FeedResponse {
+  items: Post[];
+  hasMore: boolean;
+  total: number;
 }

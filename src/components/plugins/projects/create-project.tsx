@@ -1,26 +1,11 @@
 "use client";
 
-import * as React from "react";
-import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { format } from "date-fns";
-import { useMemo } from "react";
-import { useClubStore } from "@/store/clubs-store";
-import { useNodeStore } from "@/store/nodes-store";
-import { MultiSelect } from "@/components/ui/multi-select";
-import {
-  X,
-  Plus,
-  Info,
-  CalendarIcon,
-  PlusCircle,
-  InfoIcon,
-} from "lucide-react";
-import Image from "next/image";
-import { cn } from "@/lib/utils";
+import * as React from "react";
+import { useFieldArray, useForm } from "react-hook-form";
+
+import CropDialog from "@/components/globals/cropper/image-cropper";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import {
   Form,
   FormControl,
@@ -29,11 +14,9 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { MultiSelect } from "@/components/ui/multi-select";
 import {
   Select,
   SelectContent,
@@ -41,139 +24,27 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
-import ReactQuill from "react-quill-new";
-import CropDialog from "@/components/globals/cropper/image-cropper";
-import { ProjectApi } from "./projectApi";
-import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import { useClubStore } from "@/store/clubs-store";
+import { useNodeStore } from "@/store/nodes-store";
 import { currencyData } from "@/utils/data/currency";
-import { Trash2 } from "lucide-react";
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-const MAX_FILES = 5;
-const ACCEPTED_FILE_TYPES = [
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "application/pdf",
-  "application/msword",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-];
-
-const ACCEPTED_BANNER_TYPES = ["image/jpeg", "image/png", "image/webp"];
-const MAX_BANNER_SIZE = 2 * 1024 * 1024; // 2MB
-
-export const projectFormSchema = z
-  .object({
-    title: z.string().min(1, "Project title is required"),
-    region: z.string().min(1, "Project region is required"),
-    currency: z.string({
-      required_error: "Currency is required",
-    }),
-    budgetMin: z.string().min(1, "Minimum budget is required"),
-    budgetMax: z.string().min(1, "Maximum budget is required"),
-    deadline: z.date().optional(),
-    significance: z.string().min(1, "Significance is required"),
-    solution: z.string().min(1, "Solution is required"),
-    relatedEvent: z.string().min(1, "Related event is required"),
-    champions: z
-      .array(z.string())
-      .nonempty("At least one champion is required"),
-    committees: z
-      .array(
-        z.object({
-          name: z.string(),
-          userId: z.string(),
-          designation: z.string(),
-        })
-      )
-      .nonempty("At least one committee member is required"),
-    parameters: z
-      .array(
-        z.object({
-          title: z.string(),
-          value: z.string(),
-          unit: z.string(),
-        })
-      )
-      .nonempty("At least one parameter is required"),
-    faqs: z
-      .array(
-        z.object({
-          question: z.string().min(1, "Question is required"),
-          answer: z.string().min(1, "Answer is required"),
-        })
-      )
-      .min(1, "At least one FAQ is required"),
-    fundingDetails: z.string().min(1, "Funding details are required"),
-    aboutPromoters: z.string().min(1, "About promoters is required"),
-    keyTakeaways: z.string().min(1, "Key Takeaway is required"),
-    risksAndChallenges: z.string().min(1, "Risks and challenges are required"),
-    closingRemark: z.string().min(1, "Closing Remark is required"),
-    howToTakePart: z.string().min(1, "How to take part is required"),
-    isPublic: z.boolean().default(false),
-    files: z
-      .array(
-        z.object({
-          file: z
-            .instanceof(File)
-            .refine(
-              (file) => file.size <= MAX_FILE_SIZE,
-              `File size should be less than ${MAX_FILE_SIZE / (1024 * 1024)}MB`
-            )
-            .refine(
-              (file) => ACCEPTED_FILE_TYPES.includes(file.type),
-              `File type must be one of: ${ACCEPTED_FILE_TYPES.join(", ")}`
-            ),
-          preview: z.string().optional(),
-        })
-      )
-      .optional()
-      .default([])
-      .superRefine((files, ctx) => {
-        if (files && files.length > MAX_FILES) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.too_big,
-            maximum: MAX_FILES,
-            type: "array",
-            inclusive: true,
-            message: `You can only upload up to ${MAX_FILES} files`,
-          });
-        }
-      }),
-    banner: z
-      .instanceof(File)
-      .refine(
-        (file) => file.size <= MAX_BANNER_SIZE,
-        `Banner size should be less than ${MAX_BANNER_SIZE / (1024 * 1024)}MB`
-      )
-      .refine(
-        (file) => ACCEPTED_BANNER_TYPES.includes(file.type),
-        `Banner must be an image file (${ACCEPTED_BANNER_TYPES.join(", ")})`
-      )
-      .nullable()
-      .optional(),
-  })
-  .refine(
-    (data) => {
-      const min = Number(data.budgetMin);
-      const max = Number(data.budgetMax);
-      return max >= min;
-    },
-    {
-      message: "Maximum budget cannot be less than minimum budget",
-      path: ["budgetMax"],
-    }
-  );
-export type ProjectFormValues = z.infer<typeof projectFormSchema>;
+import { format } from "date-fns";
+import { Info, InfoIcon, Plus, PlusCircle, Trash2, X } from "lucide-react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useMemo } from "react";
+import ReactQuill from "react-quill-new";
+import { toast } from "sonner";
+import { ProjectApi } from "./projectApi";
+import { ProjectFormValues, projectFormSchema } from "./schema";
 
 export default function ProjectForm({
   forum,
@@ -182,49 +53,76 @@ export default function ProjectForm({
   forum: TForum;
   forumId: string;
 }) {
-  const [files, setFiles] = React.useState<
-    Array<{
-      file: File;
-      preview: string;
-    }>
-  >([]);
-
   const { currentClub } = useClubStore((state) => state);
   const { currentNode } = useNodeStore((state) => state);
+  const router = useRouter();
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
+    const existingFiles = form.getValues("files");
 
     selectedFiles.forEach((file) => {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setFiles((prev) => [
-          ...prev,
+        const updatedFiles = [
+          ...existingFiles, // Keep existing files
           {
             file,
-            preview: reader.result as string,
+            preview: reader.result as string, // Generate a preview
           },
-        ]);
+        ];
+        form.setValue("files", updatedFiles); // Update the form field
       };
+
       reader.readAsDataURL(file);
     });
   };
 
   const handleRemoveFile = (index: number) => {
-    setFiles((prev) => prev.filter((_, i) => i !== index));
+    const updatedFiles = form
+      .getValues("files")
+      .filter((_: any, idx: number) => idx !== index);
+    form.setValue("files", updatedFiles);
   };
 
   const form = useForm<ProjectFormValues>({
     resolver: zodResolver(projectFormSchema),
     defaultValues: {
+      title: "",
+      region: "",
       champions: [],
-      committees: [],
-      parameters: [],
-      faqs: [],
+      significance: "",
+      committees: [
+        {
+          name: "",
+          userId: "",
+          designation: "",
+        },
+      ],
+      howToTakePart: "",
+      aboutPromoters: "",
+      fundingDetails: "",
+      keyTakeaways: "",
+      risksAndChallenges: "",
+      parameters: [
+        {
+          title: "",
+          unit: "",
+          value: "",
+        },
+      ],
+      faqs: [
+        {
+          question: "",
+          answer: "",
+        },
+      ],
       isPublic: false,
-      budgetMin: "0",
-      budgetMax: "0",
+      budgetMin: "",
+      budgetMax: "",
       relatedEvent: "",
       closingRemark: "",
+      files: [],
     },
   });
 
@@ -303,15 +201,12 @@ export default function ProjectForm({
         formData.append("bannerImage", data.banner);
       }
 
-      // Add multiple files
-      files.forEach((file) => {
-        formData.append(`file`, file.file);
-      });
-
       formData.append(forum, forumId);
 
       // Wait for the API call to complete
       await ProjectApi.create(formData);
+      router.push(`/${forum}/${forumId}/projects`);
+
       toast.success("Project created successfully");
 
       // Optionally reset form or redirect here
@@ -379,7 +274,7 @@ export default function ProjectForm({
   const getAvailableOptions = (currentIndex: number) => {
     return allMembers;
   };
-
+  console.log(form.formState.errors);
   return (
     <TooltipProvider>
       <Form {...form}>
@@ -434,10 +329,15 @@ export default function ProjectForm({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="north">North</SelectItem>
-                      <SelectItem value="south">South</SelectItem>
-                      <SelectItem value="east">East</SelectItem>
-                      <SelectItem value="west">West</SelectItem>
+                      <SelectItem value="bangalore">Bangalore</SelectItem>
+                      <SelectItem value="mumbai">Mumbai</SelectItem>
+                      <SelectItem value="kochi">Kochi</SelectItem>
+                      <SelectItem value="delhi">Delhi</SelectItem>
+                      <SelectItem value="chennai">Chennai</SelectItem>
+                      <SelectItem value="kolkata">Kolkata</SelectItem>
+                      <SelectItem value="hyderabad">Hyderabad</SelectItem>
+                      <SelectItem value="pune">Pune</SelectItem>
+                      <SelectItem value="jaipur">Jaipur</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -547,32 +447,27 @@ export default function ProjectForm({
                       <TooltipContent>Select deadline</TooltipContent>
                     </Tooltip>
                   </FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            "w-full justify-start text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          <CalendarIcon className="mr-2 size-4" />
-                          {field.value
-                            ? format(field.value, "PPP")
-                            : "Select date"}
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={field.onChange}
-                        initialFocus
+                  <FormControl>
+                    <div className="relative">
+                      <input
+                        type="date"
+                        className={cn(
+                          "w-full rounded-md border px-3 py-2 text-sm",
+                          !field.value && "text-muted-foreground"
+                        )}
+                        min={format(new Date(), "yyyy-MM-dd")}
+                        value={
+                          field.value ? format(field.value, "yyyy-MM-dd") : ""
+                        }
+                        onChange={(e) => {
+                          const date = e.target.value
+                            ? new Date(e.target.value)
+                            : null;
+                          field.onChange(date);
+                        }}
                       />
-                    </PopoverContent>
-                  </Popover>
+                    </div>
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -745,7 +640,7 @@ export default function ProjectForm({
             name="champions"
             render={({ field }) => (
               <FormItem className="flex w-full flex-col md:w-1/2">
-                <FormLabel className="text-sm font-medium mb-2">
+                <FormLabel className="mb-2 text-sm font-medium">
                   Champions
                 </FormLabel>
                 <FormControl>
@@ -765,6 +660,7 @@ export default function ProjectForm({
                     onValueChange={(selectedValues) => {
                       field.onChange(selectedValues); // Update field value with IDs
                     }}
+                    maxCount={2}
                     placeholder="Select champion"
                     variant="inverted"
                   />
@@ -772,119 +668,138 @@ export default function ProjectForm({
               </FormItem>
             )}
           />
-
           <FormField
             control={form.control}
             name="committees"
-            render={({ field }) => (
+            render={({ field, formState }) => (
               <FormItem>
                 <h3 className="mb-4 text-lg font-medium">Project Committee</h3>
                 <div className="space-y-6">
-                  {field.value.map((member, index) => (
-                    <div key={index} className="relative">
-                      <div className="mb-2 flex items-center justify-between">
-                        <div className="flex items-center gap-1">
-                          <FormLabel className="text-sm font-medium text-gray-700">
-                            Member {index + 1}
-                          </FormLabel>
-                          <Tooltip>
-                            <TooltipTrigger>
-                              <Info className="size-4 text-gray-400" />
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              Enter member details
-                            </TooltipContent>
-                          </Tooltip>
-                        </div>
-                        {index !== 0 && (
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="h-auto p-1 text-red-500 hover:bg-transparent hover:text-red-600"
-                            onClick={() => {
-                              const newValue = [...field.value];
-                              newValue.splice(index, 1);
-                              field.onChange(newValue);
-                            }}
-                          >
-                            <Trash2 className="size-4" />
-                          </Button>
-                        )}
-                      </div>
-                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-2">
-                            <FormLabel className="text-sm font-normal text-gray-600">
-                              Name
+                  {field.value.map((member, index) => {
+                    const memberError = formState.errors?.committees?.[index];
+                    return (
+                      <div key={index} className="relative">
+                        <div className="mb-2 flex items-center justify-between">
+                          <div className="flex items-center gap-1">
+                            <FormLabel className="text-sm font-medium text-gray-700">
+                              Member {index + 1}
                             </FormLabel>
                             <Tooltip>
                               <TooltipTrigger>
                                 <Info className="size-4 text-gray-400" />
                               </TooltipTrigger>
-                              <TooltipContent>Select member</TooltipContent>
+                              <TooltipContent>
+                                Enter member details
+                              </TooltipContent>
                             </Tooltip>
                           </div>
-                          <FormControl>
-                            <MultiSelect
-                              options={getAvailableOptions(index)}
-                              defaultValue={
-                                member.userId ? member.userId.split(",") : []
-                              }
-                              onValueChange={(values) => {
-                                const selectedValues = Array.isArray(values)
-                                  ? values
-                                  : [values];
+                          {index !== 0 && (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="h-auto p-1 text-red-500 hover:bg-transparent hover:text-red-600"
+                              onClick={() => {
                                 const newValue = [...field.value];
-
-                                // Get all selected members' names
-                                const selectedMemberNames = selectedValues.map(
-                                  (value) =>
-                                    allMembers.find((m) => m.value === value)
-                                      ?.title || ""
-                                );
-
-                                newValue[index] = {
-                                  ...newValue[index],
-                                  userId: selectedValues.join(","), // Store multiple IDs as comma-separated string
-                                  name: selectedMemberNames.join(", "), // Store multiple names as comma-separated string
-                                };
-
+                                newValue.splice(index, 1);
                                 field.onChange(newValue);
                               }}
-                              placeholder="Select members"
-                              className="w-full"
-                            />
-                          </FormControl>
+                            >
+                              <Trash2 className="size-4" />
+                            </Button>
+                          )}
                         </div>
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-2">
-                            <FormLabel className="text-sm font-normal text-gray-600">
-                              Designation
-                            </FormLabel>
-                            <Tooltip>
-                              <TooltipTrigger>
-                                <Info className="size-4 text-gray-400" />
-                              </TooltipTrigger>
-                              <TooltipContent>Enter designation</TooltipContent>
-                            </Tooltip>
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                          {/* Name Field */}
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2">
+                              <FormLabel className="text-sm font-normal text-gray-600">
+                                Name
+                              </FormLabel>
+                              <Tooltip>
+                                <TooltipTrigger>
+                                  <Info className="size-4 text-gray-400" />
+                                </TooltipTrigger>
+                                <TooltipContent>Select member</TooltipContent>
+                              </Tooltip>
+                            </div>
+                            <FormControl>
+                              <MultiSelect
+                                maxCount={1}
+                                options={getAvailableOptions(index)}
+                                defaultValue={
+                                  member.userId ? member.userId.split(",") : []
+                                }
+                                onValueChange={(values) => {
+                                  const selectedValues = Array.isArray(values)
+                                    ? values
+                                    : [values];
+                                  const newValue = [...field.value];
+
+                                  const selectedMemberNames =
+                                    selectedValues.map(
+                                      (value) =>
+                                        allMembers.find(
+                                          (m) => m.value === value
+                                        )?.title || ""
+                                    );
+
+                                  newValue[index] = {
+                                    ...newValue[index],
+                                    userId: selectedValues.join(","),
+                                    name: selectedMemberNames.join(", "),
+                                  };
+
+                                  field.onChange(newValue);
+                                }}
+                                placeholder="Select members"
+                                className="w-full"
+                              />
+                            </FormControl>
+                            {memberError?.name && (
+                              <FormMessage>
+                                {memberError.name.message}
+                              </FormMessage>
+                            )}
                           </div>
-                          <Input
-                            placeholder="Enter designation"
-                            value={member.designation}
-                            onChange={(e) => {
-                              const newValue = [...field.value];
-                              newValue[index] = {
-                                ...newValue[index],
-                                designation: e.target.value,
-                              };
-                              field.onChange(newValue);
-                            }}
-                          />
+
+                          {/* Designation Field */}
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2">
+                              <FormLabel className="text-sm font-normal text-gray-600">
+                                Designation
+                              </FormLabel>
+                              <Tooltip>
+                                <TooltipTrigger>
+                                  <Info className="size-4 text-gray-400" />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  Enter designation
+                                </TooltipContent>
+                              </Tooltip>
+                            </div>
+                            <Input
+                              placeholder="Enter designation"
+                              value={member.designation}
+                              onChange={(e) => {
+                                const newValue = [...field.value];
+                                newValue[index] = {
+                                  ...newValue[index],
+                                  designation: e.target.value,
+                                };
+                                field.onChange(newValue);
+                              }}
+                            />
+                            {memberError?.designation && (
+                              <FormMessage>
+                                {memberError.designation.message}
+                              </FormMessage>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                   <Button
                     type="button"
                     variant="outline"
@@ -896,10 +811,15 @@ export default function ProjectForm({
                     Add Member
                   </Button>
                 </div>
-                <FormMessage />
+                {formState.errors?.committees?.message && (
+                  <FormMessage>
+                    {formState.errors.committees.message}
+                  </FormMessage>
+                )}
               </FormItem>
             )}
           />
+
           <FormField
             control={form.control}
             name="parameters"
@@ -973,7 +893,7 @@ export default function ProjectForm({
                         <div className="space-y-2">
                           <div className="flex items-center gap-2">
                             <FormLabel className="text-sm font-normal text-gray-600">
-                              Value
+                              Target
                             </FormLabel>
                             <Tooltip>
                               <TooltipTrigger>
@@ -1028,6 +948,24 @@ export default function ProjectForm({
                               <SelectItem value="number">Number</SelectItem>
                               <SelectItem value="currency">Currency</SelectItem>
                               <SelectItem value="time">Time</SelectItem>
+                              {/* Add more units here */}
+                              <SelectItem value="cm">Centimeter</SelectItem>
+                              <SelectItem value="m">Meter</SelectItem>
+                              <SelectItem value="kg">Kilogram</SelectItem>
+                              <SelectItem value="g">Gram</SelectItem>
+                              <SelectItem value="l">Liter</SelectItem>
+                              <SelectItem value="ml">Milliliter</SelectItem>
+                              <SelectItem value="km">Kilometer</SelectItem>
+                              <SelectItem value="mi">Mile</SelectItem>
+                              <SelectItem value="hour">Hour</SelectItem>
+                              <SelectItem value="minute">Minute</SelectItem>
+                              <SelectItem value="second">Second</SelectItem>
+                              <SelectItem value="fahrenheit">
+                                Fahrenheit
+                              </SelectItem>
+                              <SelectItem value="celsius">Celsius</SelectItem>
+                              <SelectItem value="kelvin">Kelvin</SelectItem>
+                              {/* Add more unit types if needed */}
                             </SelectContent>
                           </Select>
                         </div>
@@ -1245,6 +1183,70 @@ export default function ProjectForm({
             </div>
           </div>
 
+          {/* <FormField
+            control={form.control}
+            name="files"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="flex items-center gap-2">
+                  Files/Media
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Info className="size-4 text-muted-foreground" />
+                    </TooltipTrigger>
+                    <TooltipContent>Upload files</TooltipContent>
+                  </Tooltip>
+                </FormLabel>
+                <div className="space-y-4">
+                  <label className="block cursor-pointer rounded-lg border-2 border-dashed p-8 text-center hover:bg-muted/25">
+                    <Input
+                      type="file"
+                      accept="image/*,.pdf,.xlsx,.xls"
+                      multiple
+                      className="hidden"
+                      onChange={handleFileChange}
+                    />
+                    <div className="flex flex-col items-center gap-2">
+                      <p className="text-sm text-muted-foreground">
+                        + Upload files
+                      </p>
+                    </div>
+                  </label>
+                  {field.value?.length > 0 && (
+                    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+                      {field.value.map((file, index) => (
+                        <div
+                          key={index}
+                          className="relative aspect-square overflow-hidden rounded-lg border"
+                        >
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="absolute right-1 top-1 z-10 size-6 bg-background/80 hover:bg-background/90"
+                            onClick={() => handleRemoveFile(index)}
+                          >
+                            <X className="size-3" />
+                          </Button>
+                          {file.file.type.startsWith("image/") ? (
+                            <img
+                              src={file.preview}
+                              alt={`Preview ${index + 1}`}
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <div className="flex h-full items-center justify-center bg-muted/25 p-2 text-center text-sm text-muted-foreground">
+                              {file.file.name}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          /> */}
           <FormField
             control={form.control}
             name="files"
@@ -1274,10 +1276,9 @@ export default function ProjectForm({
                       </p>
                     </div>
                   </label>
-
-                  {files.length > 0 && (
+                  {field.value?.length > 0 && (
                     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
-                      {files.map((file, index) => (
+                      {field.value.map((file, index) => (
                         <div
                           key={index}
                           className="relative aspect-square overflow-hidden rounded-lg border"
@@ -1291,11 +1292,10 @@ export default function ProjectForm({
                             <X className="size-3" />
                           </Button>
                           {file.file.type.startsWith("image/") ? (
-                            <Image
+                            <img
                               src={file.preview}
                               alt={`Preview ${index + 1}`}
-                              fill
-                              className="object-cover"
+                              className="size-full object-cover"
                             />
                           ) : (
                             <div className="flex h-full items-center justify-center bg-muted/25 p-2 text-center text-sm text-muted-foreground">
@@ -1311,7 +1311,6 @@ export default function ProjectForm({
               </FormItem>
             )}
           />
-
           <FormField
             control={form.control}
             name="isPublic"
