@@ -555,10 +555,7 @@ export default function Details({
             Project Solution In details
           </h3>
           <p className="mb-6 text-gray-600">
-            The project aims to develop a comprehensive blood donation solution,
-            including a mobile app and web platform. The app will enable users
-            to locate nearby blood donation centers, schedule appointments, and
-            receive reminders.
+          {project?.solution}
           </p>
         </div>
         <div className="mb-8 border-b pb-8">
@@ -615,9 +612,7 @@ export default function Details({
             Funding received details
           </h3>
           <p className="text-gray-600">
-            Funding received for blood donation initiatives typically comes from
-            various sources, including government grants, corporate
-            sponsorships, fundraising events, and individual donations.
+           {project?.fundingDetails}
           </p>
         </div>
         <div className="mb-8 border-b pb-8">
