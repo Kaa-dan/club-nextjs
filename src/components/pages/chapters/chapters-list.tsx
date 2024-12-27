@@ -17,6 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import CreateChapterModal from "./create-chapter-modal";
+import Image from "next/image";
 
 interface Item {
   id: string;
@@ -99,7 +100,9 @@ export function ChaptersList({ items }: ItemGridProps) {
         {filteredItems.map((item) => (
           <Card key={item.id} className="overflow-hidden">
             <CardHeader className="p-0">
-              <img
+              <Image
+                height={500}
+                width={500}
                 src={item.avatar}
                 alt={`${item.name} avatar`}
                 className="h-32 w-full object-cover"

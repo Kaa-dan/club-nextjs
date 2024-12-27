@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Check, Building2, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/lable";
+import { withTokenAxios } from "@/lib/mainAxios";
 
 interface Club {
   id: string;
@@ -49,6 +50,22 @@ const CreateChapterModal: React.FC<CreateChapterModalProps> = ({
       onOpenChange(false);
     }
   };
+
+  // get clubs
+  const getClubs = async () => {
+    try {
+      const response = await withTokenAxios.get(
+        "/chapters/get-user-public-clubs"
+      );
+      console.log({ response });
+    } catch (error) {
+      console.error("Error fetching clubs:", error);
+    }
+  };
+
+  useEffect(() => {
+    console.log("Fetching clubs...", getClubs());
+  });
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
