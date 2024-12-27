@@ -141,32 +141,53 @@ export default function Details({
     irrelevant: project?.irrelevant || [],
   });
 
+  interface ReactionEntry {
+    user: string;
+    date: string;
+  }
+  
+  interface OptimisticReactions {
+    relevant: ReactionEntry[];
+    irrelevant: ReactionEntry[];
+  }
+  
   const handleReaction = async (action: "like" | "dislike") => {
-    if (!project?._id) return;
-
-    const userId = globalUser?._id;
-
+    if (!project?._id || !globalUser?._id) return;
+    
+    const userId = globalUser._id;
     const previousState = { ...optimisticReactions };
-
+    
     setOptimisticReactions((prev) => {
       const isLike = action === "like";
       const targetArray = isLike ? "relevant" : "irrelevant";
       const otherArray = isLike ? "irrelevant" : "relevant";
-
-      const filteredOther = prev[otherArray].filter((id) => id !== userId);
-
-      const exists = prev[targetArray].includes(userId);
+      
+      // Remove from other array if exists
+      const filteredOther = prev[otherArray].filter(
+        (entry) => entry.user !== userId
+      );
+      
+      // Check if user already reacted
+      const exists = prev[targetArray].some((entry) => entry.user === userId);
+      
+      // Update target array
       const updatedTarget = exists
-        ? prev[targetArray].filter((id) => id !== userId)
-        : [...prev[targetArray], userId];
-
+        ? prev[targetArray].filter((entry) => entry.user !== userId)
+        : [
+            ...prev[targetArray],
+            {
+              user: userId,
+              date: new Date().toISOString()
+            }
+          ];
+      
       return {
         ...prev,
         [targetArray]: updatedTarget,
         [otherArray]: filteredOther,
       };
     });
-
+    
     try {
       await ProjectApi.reactToPost(project._id, action);
     } catch (error) {
@@ -628,49 +649,49 @@ export default function Details({
 
       <div className="flex items-center justify-between border-t py-4">
         <div className="flex gap-6">
-          <button
-            onClick={() => handleReaction("like")}
-            className="flex items-center gap-1"
-          >
-            <ThumbsUp
-              className={`size-4 ${
-                optimisticReactions?.relevant?.includes(globalUser?._id)
-                  ? "fill-green-500 text-green-500"
-                  : "text-gray-500"
-              }`}
-            />
-            <span
-              className={`text-sm ${
-                optimisticReactions?.relevant?.includes(globalUser?._id)
-                  ? "text-green-500"
-                  : "text-gray-500"
-              }`}
-            >
-              {optimisticReactions?.relevant?.length || 0}
-            </span>
-          </button>
+        <button
+    onClick={() => handleReaction("like")}
+    className="flex items-center gap-1"
+  >
+    <ThumbsUp
+      className={`size-4 ${
+        optimisticReactions?.relevant?.some(entry => entry.user === globalUser?._id)
+          ? "fill-green-500 text-green-500"
+          : "text-gray-500"
+      }`}
+    />
+    <span
+      className={`text-sm ${
+        optimisticReactions?.relevant?.some(entry => entry.user === globalUser?._id)
+          ? "text-green-500"
+          : "text-gray-500"
+      }`}
+    >
+      {optimisticReactions?.relevant?.length || 0}
+    </span>
+  </button>
 
-          <button
-            onClick={() => handleReaction("dislike")}
-            className="flex items-center gap-1"
-          >
-            <ThumbsDown
-              className={`size-4 ${
-                optimisticReactions?.irrelevant?.includes(globalUser?._id)
-                  ? "fill-red-500 text-red-500"
-                  : "text-gray-500"
-              }`}
-            />
-            <span
-              className={`text-sm ${
-                optimisticReactions?.irrelevant?.includes(globalUser?._id)
-                  ? "text-red-500"
-                  : "text-gray-500"
-              }`}
-            >
-              {optimisticReactions?.irrelevant?.length || 0}
-            </span>
-          </button>
+  <button
+    onClick={() => handleReaction("dislike")}
+    className="flex items-center gap-1"
+  >
+    <ThumbsDown
+      className={`size-4 ${
+        optimisticReactions?.irrelevant?.some(entry => entry.user === globalUser?._id)
+          ? "fill-red-500 text-red-500"
+          : "text-gray-500"
+      }`}
+    />
+    <span
+      className={`text-sm ${
+        optimisticReactions?.irrelevant?.some(entry => entry.user === globalUser?._id)
+          ? "text-red-500"
+          : "text-gray-500"
+      }`}
+    >
+      {optimisticReactions?.irrelevant?.length || 0}
+    </span>
+  </button>
 
           <button className="flex items-center gap-1">
             <Share2 className="size-4 text-gray-500" />

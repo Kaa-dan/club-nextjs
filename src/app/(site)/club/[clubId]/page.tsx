@@ -38,6 +38,7 @@ import {
   CarouselPrevious, 
   CarouselNext 
 } from "@/components/ui/carousel";
+import { useTokenStore } from "@/store/store";
 
 interface FileType {
   url: string;
@@ -47,6 +48,7 @@ interface Author {
   name: string;
   title?: string;
 }
+
 type PostType = 'projects' | 'debate' | 'issues';
 
 interface BasePost {
@@ -54,8 +56,8 @@ interface BasePost {
   author: Author;
   createdAt: string;
   files?: FileType[];
-  relevantCount?: number;
-  notRelevantCount?: number;
+  relevant?: Array<{user: string, date: Date}>;
+  irrelevant?: Array<{user: string, date: Date}>;
   title: string;
 }
 
@@ -111,10 +113,53 @@ const NodePage: React.FC = () => {
     }
   }, [inView, hasMore, loading]);
 
+  const handleRelevancyUpdate = (postId: string, action: 'like' | 'dislike', userId: string) => {
+    setPosts(prevPosts => 
+      prevPosts.map(post => {
+        if (post._id !== postId) return post;
+        
+        const updatedPost = { ...post };
+        
+        // Initialize arrays if they don't exist
+        if (!updatedPost.relevant) updatedPost.relevant = [];
+        if (!updatedPost.irrelevant) updatedPost.irrelevant = [];
+        
+        if (action === 'like') {
+          const hasLiked = updatedPost.relevant.some(item => item.user === userId);
+          if (hasLiked) {
+            // Remove like
+            updatedPost.relevant = updatedPost.relevant.filter(item => item.user !== userId);
+          } else {
+            // Add like and remove dislike if exists
+            updatedPost.relevant.push({ user: userId, date: new Date() });
+            updatedPost.irrelevant = updatedPost.irrelevant.filter(item => item.user !== userId);
+          }
+        } else {
+          const hasDisliked = updatedPost.irrelevant.some(item => item.user === userId);
+          if (hasDisliked) {
+            // Remove dislike
+            updatedPost.irrelevant = updatedPost.irrelevant.filter(item => item.user !== userId);
+          } else {
+            // Add dislike and remove like if exists
+            updatedPost.irrelevant.push({ user: userId, date: new Date() });
+            updatedPost.relevant = updatedPost.relevant.filter(item => item.user !== userId);
+          }
+        }
+        
+        return updatedPost;
+      })
+    );
+  };
+
   return (
     <div className="mt-4 flex flex-col items-center gap-3 w-full px-4">
       {posts.map((post) => (
-        <PostComponent clubId={clubId} key={post._id} post={post} />
+        <PostComponent 
+          clubId={clubId} 
+          key={post._id} 
+          post={post} 
+          onRelevancyUpdate={handleRelevancyUpdate}
+        />
       ))}
       
       {loading && (
@@ -136,24 +181,36 @@ const NodePage: React.FC = () => {
 
 interface PostComponentProps {
   post: Post;
-  clubId:string
+  clubId: string;
+  onRelevancyUpdate: (postId: string, action: 'like' | 'dislike', userId: string) => void;
 }
 
-const PostComponent: React.FC<PostComponentProps> = ({ post,clubId }) => {
-  const handleEdit = (): void => {
-    // Handle edit
-  };
+const PostComponent: React.FC<PostComponentProps> = ({ post, clubId, onRelevancyUpdate }) => {
+  const {globalUser} = useTokenStore((state) => state);
+  const userId = globalUser?._id;
 
-  const handleDelete = (): void => {
-    // Handle delete
-  };
-
-  const handleReport = (): void => {
-    // Handle report
+  const handleRelevancy = async (
+    type: 'projects' | 'issues' | 'debate',
+    assetId: string,
+    action: 'like' | 'dislike',
+  ) => {
+    if (!userId) return;
+    
+    try {
+      // Optimistically update UI
+      onRelevancyUpdate(assetId, action, userId);
+      
+      // Make API call
+      await Endpoints.relevancy(type, assetId, action);
+    } catch (error) {
+      // Revert optimistic update on error
+      onRelevancyUpdate(assetId, action === 'like' ? 'dislike' : 'like', userId);
+      console.error('Error updating relevancy:', error);
+    }
   };
 
   return (
-    <Card className="w-full  max-w-md ">
+    <Card className="w-full max-w-md">
       <CardHeader className="space-y-0 pb-4">
         <div className="flex items-start justify-between">
           <div className="flex gap-3">
@@ -179,10 +236,9 @@ const PostComponent: React.FC<PostComponentProps> = ({ post,clubId }) => {
           </div>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" className="size-8">
-              <Link href={`${clubId}/${post.type}/${post._id}/view`} >
-              <Eye className="size-4" />
+              <Link href={`${clubId}/${post.type}/${post._id}/view`}>
+                <Eye className="size-4" />
               </Link>
-              
               <span className="sr-only">View count</span>
             </Button>
             <DropdownMenu>
@@ -193,32 +249,27 @@ const PostComponent: React.FC<PostComponentProps> = ({ post,clubId }) => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={handleEdit}>Edit</DropdownMenuItem>
-                <DropdownMenuItem onClick={handleDelete}>Delete</DropdownMenuItem>
-                <DropdownMenuItem onClick={handleReport}>Report</DropdownMenuItem>
+                <DropdownMenuItem>Edit</DropdownMenuItem>
+                <DropdownMenuItem >Delete</DropdownMenuItem>
+                <DropdownMenuItem>Report</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-      {post.type === 'projects' && post.projectSignificance && (
-    <p className="text-sm text-muted-foreground">
-     {post.projectSignificance || "hello"}
-    </p>
-  )}
-  {post.type === 'debate' && post.debateSignificance && (
-    <p className="text-sm text-muted-foreground">
-    {post.debateSignificance}
-    </p>
-  )}
-  {post.type === 'issues' && post.issueSignificance && (
-    <p className="text-sm text-muted-foreground">
-  {post.issueSignificance}
-    </p>
-  )}
+        {post.type === 'projects' && post.projectSignificance && (
+          <p className="text-sm text-muted-foreground">{post.projectSignificance}</p>
+        )}
+        {post.type === 'debate' && post.debateSignificance && (
+          <p className="text-sm text-muted-foreground">{post.debateSignificance}</p>
+        )}
+        {post.type === 'issues' && post.issueSignificance && (
+          <p className="text-sm text-muted-foreground">{post.issueSignificance}</p>
+        )}
+        
         {post.files && post.files.length > 0 && (
-          <Carousel className="w-full ">
+          <Carousel className="w-full">
             <CarouselContent>
               {post.files.map((file, index) => (
                 <CarouselItem key={index}>
@@ -239,15 +290,40 @@ const PostComponent: React.FC<PostComponentProps> = ({ post,clubId }) => {
             <CarouselNext className="hidden md:flex" />
           </Carousel>
         )}
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" className="gap-2">
-            <ThumbsUp className="size-4" />
-            <span className="hidden lg:inline">{post.relevantCount || '5k+'} Relevant</span>
+        {
+          post.type !== "debate" &&   <div className="flex gap-2">
+          <Button 
+            onClick={() => handleRelevancy(post.type, post._id, 'like')} 
+            variant="outline" 
+            size="sm" 
+            className="gap-2"
+          >
+            <ThumbsUp
+              className={`size-5 transition-colors ${
+                post.relevant?.some(item => item.user === userId) 
+                  ? "fill-current text-green-500" 
+                  : "text-gray-500"
+              }`}
+            />
+            <span className="hidden lg:inline">
+              {post.relevant?.length || '0'} Relevant
+            </span>
           </Button>
-          <Button variant="outline" size="sm" className="gap-2">
-            <ThumbsDown className="size-4 text-red-500" />
+          <Button 
+            onClick={() => handleRelevancy(post.type, post._id, 'dislike')} 
+            variant="outline" 
+            size="sm" 
+            className="gap-2"
+          >
+            <ThumbsDown
+              className={`size-5 transition-colors ${
+                post.irrelevant?.some(item => item.user === userId)
+                  ? "fill-current text-red-500" 
+                  : "text-gray-500"
+              }`}
+            />
             <span className="hidden text-red-500 lg:inline">
-              {post.notRelevantCount || '5k+'} Not Relevant
+              {post.irrelevant?.length || '0'} Not Relevant
             </span>
           </Button>
           <Button variant="outline" size="sm" className="gap-2">
@@ -255,8 +331,11 @@ const PostComponent: React.FC<PostComponentProps> = ({ post,clubId }) => {
             <span className="hidden lg:inline">Save</span>
           </Button>
         </div>
+        }
+      
       </CardContent>
-      <CardFooter>
+      {
+        post.type !== "debate" &&  <CardFooter>
         <div className="flex w-full items-center gap-2">
           <Input
             className="flex-1"
@@ -273,9 +352,14 @@ const PostComponent: React.FC<PostComponentProps> = ({ post,clubId }) => {
           </Button>
         </div>
       </CardFooter>
+      }
+     
     </Card>
   );
 };
+
+export default NodePage;
+
 
 const formatTimeAgo = (date: string): string => {
   const now = new Date();
@@ -288,5 +372,3 @@ const formatTimeAgo = (date: string): string => {
   if (hours < 24) return `${hours} hours ago`;
   return `${days} days ago`;
 };
-
-export default NodePage;
