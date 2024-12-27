@@ -280,7 +280,7 @@ export default function RuleForm({
         onSubmit={handleSubmit(() => setIsAlertOpen(true))}
         className="space-y-4"
       >
-        {/* Title and Domain */}xxxxxx
+        {/* Title and Domain */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <TooltipProvider>
@@ -672,38 +672,33 @@ export default function RuleForm({
             Save draft
           </Button>
 
-            <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Create New Rule</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Are you sure you want to create this rule?
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel disabled={isSubmitting}>
-                    Cancel
-                  </AlertDialogCancel>
-                  <AlertDialogAction
-                    disabled={isSubmitting}
-                    onClick={handleSubmit(onSubmit)}
-                  >
-                    {isSubmitting
-                      ? "Submitting..."
-                      : isMember
-                        ? "Propose"
-                        : "Publish"}{" "}
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+          <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Create New Rule</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to create this rule?
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={isSubmitting}>
+                  Cancel
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  disabled={isSubmitting}
+                  onClick={handleSubmit(onSubmit)}
+                >
+                  {isSubmitting ? "Submitting..." : "Publish"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
 
-            <Button type="submit" disabled={isSubmitting}>
-              {isMember ? "Propose" : "Publish"}
-            </Button>
-          </div>
-        </form>
-      </Card>
-    </>
+          <Button type="submit" disabled={isSubmitting}>
+            publish
+          </Button>
+        </div>
+      </form>
+    </Card>
   );
 }
