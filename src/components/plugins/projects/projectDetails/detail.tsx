@@ -57,7 +57,6 @@ export default function Details({
   const [openApproval, setOpenApproval] = useState(false);
   const [selectedParam, setSelectedParam] = useState(null);
   const [open, setOPen] = useState<boolean>(false);
-  const { hasPermission } = usePermission();
   const { globalUser } = useTokenStore((state) => state);
   console.log({ userId: globalUser?._id });
 
@@ -433,6 +432,8 @@ export default function Details({
 
           {selectedParam && openApproval && (
             <ContributionApprovalModal
+            reFetch={fetchProject}
+            project={project as TProjectData}
               // paramId={param._id}
               open={openApproval}
               setOpen={setOpenApproval}

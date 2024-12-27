@@ -60,7 +60,7 @@ export default function ContributionModal({
   setOpen: (open: boolean) => void;
   forumId: string;
   forum: TForum;
-  fetch: (postId: string) => void;
+  fetch: () => void;
   param: {
     _id: string;
   };
@@ -93,7 +93,7 @@ export default function ContributionModal({
 
     try {
       await ProjectApi.contribute(formData);
-      fetch(projectId);
+      fetch();
       toast.success("Contribution added successfully!");
       form.reset();
       setOpen(false);
