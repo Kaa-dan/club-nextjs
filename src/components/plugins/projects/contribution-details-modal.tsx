@@ -19,53 +19,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProjectApi } from "./projectApi";
 import Image from "next/image";
 import { format } from "date-fns";
-
-interface ContributionFile {
-  url: string;
-  originalname: string;
-  mimetype: string;
-  size: number;
-  _id?: string;
-}
-
-interface UserDetail {
-  _id: string;
-  userName: string;
-  firstName: string;
-  lastName: string;
-  profileImage: string;
-}
-
-interface Contribution {
-  _id: string;
-  value: number;
-  status: "pending" | "accepted" | "rejected";
-  files: ContributionFile[];
-  createdAt: string;
-  user: string;
-}
-
-interface ContributionGroup {
-  _id: string;
-  contributions: Contribution[];
-  totalValue: number;
-  contributionCount: number;
-  userDetails: UserDetail[];
-}
-
-interface ProjectData {
-  _id: string;
-  title: string;
-  parameters: {
-    _id: string;
-    title: string;
-    value: string;
-    unit: string;
-  };
-  contributions: ContributionGroup[];
-}
+import { useTokenStore } from "@/store/store";
 
 interface ContributionApprovalModalProps {
+  project: {
+    createdBy: {
+      _id: string;
+    };
+  };
+  reFetch: () => void,
   open: boolean;
   setOpen: (open: boolean) => void;
   param: {
@@ -76,22 +38,26 @@ interface ContributionApprovalModalProps {
 }
 
 export const ContributionApprovalModal = ({
+  reFetch,
   open,
   setOpen,
   param,
   projectId,
+  project,
 }: ContributionApprovalModalProps) => {
-  const [acceptedData, setAcceptedData] = useState<ProjectData[]>([]);
-  const [pendingData, setPendingData] = useState<ProjectData[]>([]);
+  const [acceptedData, setAcceptedData] = useState<any[]>([]);
+  const [pendingData, setPendingData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const { hasPermission } = usePermission();
+ const {globalUser} = useTokenStore((state) => state)
+  // Check if current user is the project creator
+  const isProjectCreator = project?.createdBy?._id === globalUser?._id;
 
   const fetchData = async () => {
     try {
       setIsLoading(true);
       const [acceptedRes, pendingRes] = await Promise.all([
         ProjectApi.contributions(projectId, "accepted"),
-        hasPermission("view:assetPrivateInfos")
+        isProjectCreator // Only fetch pending if user is creator
           ? ProjectApi.contributions(projectId, "pending")
           : Promise.resolve([]),
       ]);
@@ -124,6 +90,7 @@ export const ContributionApprovalModal = ({
       setIsLoading(true);
       await ProjectApi.acceptContribuion(id, isApprove);
       await fetchData();
+      reFetch()
     } catch (err) {
       console.error("Error handling contribution:", err);
     } finally {
@@ -133,10 +100,10 @@ export const ContributionApprovalModal = ({
 
   const renderContributorsList = () => {
     return acceptedData.map((project) => {
-      return project.contributions?.map((contributionGroup) => {
-        return contributionGroup.contributions.map((contribution) => {
+      return project.contributions?.map((contributionGroup: any) => {
+        return contributionGroup.contributions.map((contribution: any) => {
           const userDetail = contributionGroup.userDetails?.find(
-            (user) => user._id === contribution.user
+            (user: any) => user._id === contribution.user
           );
 
           return (
@@ -170,7 +137,7 @@ export const ContributionApprovalModal = ({
               </TableCell>
               <TableCell>
                 <div className="flex gap-2">
-                  {contribution.files?.map((file, index) => (
+                  {contribution.files?.map((file: any, index: number) => (
                     <a
                       key={file._id || index}
                       href={file.url}
@@ -192,10 +159,10 @@ export const ContributionApprovalModal = ({
 
   const renderApprovalsList = () => {
     return pendingData.map((project) => {
-      return project.contributions?.map((contributionGroup) => {
-        return contributionGroup.contributions.map((contribution) => {
+      return project.contributions?.map((contributionGroup: any) => {
+        return contributionGroup.contributions.map((contribution: any) => {
           const userDetail = contributionGroup.userDetails?.find(
-            (user) => user._id === contribution.user
+            (user: any) => user._id === contribution.user
           );
 
           return (
@@ -259,7 +226,7 @@ export const ContributionApprovalModal = ({
         <DialogHeader>
           <DialogTitle>Contributions - {param.title}</DialogTitle>
         </DialogHeader>
-        {hasPermission("view:assetPrivateInfos") ? (
+        {isProjectCreator ? (
           <Tabs defaultValue="contributors" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="contributors">Contributors</TabsTrigger>
@@ -311,3 +278,5 @@ export const ContributionApprovalModal = ({
     </Dialog>
   );
 };
+
+export default ContributionApprovalModal;
