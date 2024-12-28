@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { usePermission } from "@/lib/use-permission";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   Dialog,
   DialogContent,
@@ -20,6 +20,7 @@ import { ProjectApi } from "./projectApi";
 import Image from "next/image";
 import { format } from "date-fns";
 import { useTokenStore } from "@/store/store";
+import { FileIcon } from "lucide-react";
 
 interface ContributionApprovalModalProps {
   project: {
@@ -69,7 +70,7 @@ export const ContributionApprovalModal = ({
       const filteredPending = pendingRes.filter(
         (project: any) => project.parameters?._id === param._id
       );
-
+console.log({filteredPending})
       setAcceptedData(filteredAccepted);
       setPendingData(filteredPending);
     } catch (error) {
@@ -157,6 +158,9 @@ export const ContributionApprovalModal = ({
     });
   };
 
+
+
+
   const renderApprovalsList = () => {
     return pendingData.map((project) => {
       return project.contributions?.map((contributionGroup: any) => {
@@ -164,7 +168,7 @@ export const ContributionApprovalModal = ({
           const userDetail = contributionGroup.userDetails?.find(
             (user: any) => user._id === contribution.user
           );
-
+          
           return (
             <TableRow key={contribution._id}>
               <TableCell>
@@ -191,6 +195,41 @@ export const ContributionApprovalModal = ({
               </TableCell>
               <TableCell>{project.parameters.title}</TableCell>
               <TableCell>{contribution.value}</TableCell>
+              <TableCell>
+              {contribution?.files && contribution.files.length > 0 && (
+  <TooltipProvider>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <div className="flex items-center gap-2 cursor-pointer">
+          <FileIcon className="size-4 text-gray-500" />
+          <span className="text-sm text-blue-600 hover:text-blue-800 hover:underline">
+            View Files ({contribution.files.length})
+          </span>
+        </div>
+      </TooltipTrigger>
+      
+      <TooltipContent className="w-64 p-2">
+        <div className="flex flex-col gap-2">
+          <p className="text-sm text-white font-medium mb-1">All Files:</p>
+          {contribution.files.map((file:any, index:any) => (
+            <a
+              key={index}
+              href={file.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 hover:underline"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <FileIcon className="size-3 text-gray-500" />
+              {file.name || `File ${index + 1}`}
+            </a>
+          ))}
+        </div>
+      </TooltipContent>
+    </Tooltip>
+  </TooltipProvider>
+)}
+              </TableCell>
               <TableCell>
                 <div className="flex gap-2">
                   <Button
@@ -253,6 +292,7 @@ export const ContributionApprovalModal = ({
                     <TableHead>Contributor</TableHead>
                     <TableHead>Parameter</TableHead>
                     <TableHead>Value</TableHead>
+                    <TableHead>File</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
