@@ -31,7 +31,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useParams } from "next/navigation";
 import { TMembers } from "@/types";
 import { cn, formatDate } from "@/lib/utils";
@@ -61,7 +61,14 @@ import { SharedEndpoints } from "@/utils/endpoints/shared";
 import { useNodeCalls } from "@/hooks/apis/use-node-calls";
 import Invite from "@/components/pages/club/invite/invite";
 import { Endpoints } from "@/utils/endpoint";
-
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 export default function Page() {
   const { leaveNode, fetchNodeDetails } = useNodeCalls();
   const { globalUser } = useTokenStore((state) => state);
@@ -86,7 +93,7 @@ export default function Page() {
 
   const isModeratorOrAdminOrOwner = () =>
     ["moderator", "admin", "owner"].includes(currentUserRole!);
- const {hasPermission} =usePermission()
+  const { hasPermission } = usePermission();
   const SECTIONS = [
     {
       title: "Change to admin",
@@ -180,73 +187,37 @@ export default function Page() {
       },
     },
   ];
-  interface DesignationValue {
-    value: string;
-    isModified: boolean;
-  }
-  
-  interface Designations {
-    [key: string]: DesignationValue;
-  }
-  
-  // In your component:
-  const [designations, setDesignations] = useState<Designations>({});
-  
-  // Initialize designations with member data
-  useEffect(() => {
-    const initialDesignations: Designations = {};
-    currentNode?.members?.forEach((member: TMembers) => {
-      if (member?.user?._id) {
-        initialDesignations[member.user._id] = {
-          value: member.designation || '',
-          isModified: false
-        };
-      }
-    });
-    setDesignations(initialDesignations);
-  }, [currentNode?.members]);
-  
+  const [designations, setDesignations] = useState<{ [key: string]: string }>(
+    {}
+  );
+
   const handleInputChange = (memberId: string, value: string) => {
-    setDesignations(prev => ({
+    setDesignations((prev) => ({
       ...prev,
-      [memberId]: {
-        value,
-        isModified: true
-      }
+      [memberId]: value,
     }));
   };
-  
+
   const handleSubmit = async (memberId: string) => {
-    const designation = designations[memberId];
-    if (designation && designation.isModified) {
-      try {
-        await Endpoints.updateDesignation(memberId, designation.value, nodeId);
-        // After successful update, mark as unmodified
-        setDesignations(prev => ({
-          ...prev,
-          [memberId]: {
-            value: designation.value,
-            isModified: false
-          }
-        }));
-        toast.success("Designation updated successfully");
-      } catch (error) {
-        console.error('Failed to update designation:', error);
-        toast.error("Failed to update designation");
-      }
+    const newValue = designations[memberId];
+    try {
+      await Endpoints.updateDesignation(memberId, newValue, nodeId);
+      toast.success("designation updated");
+      // Add your API call here
+      // Optionally clear the input after successful update
+      // handleClear(memberId);
+    } catch (error) {
+      console.error("Failed to update designation:", error);
     }
   };
-  
+
   const handleClear = (memberId: string) => {
-    setDesignations(prev => ({
+    setDesignations((prev) => ({
       ...prev,
-      [memberId]: {
-        value: '',
-        isModified: true
-      }
+      [memberId]: "",
     }));
   };
-  
+
   return (
     <>
       <Card className="mx-auto w-full max-w-3xl">
@@ -413,78 +384,113 @@ export default function Page() {
           </div>
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Member&#39;s Name</TableHead>
-                <TableHead>Level</TableHead>
-                <TableHead>Contribution</TableHead>
-
-                {
-                  hasPermission('update:desingation') && 
-                  <TableHead>Designation</TableHead>
-
-                }
-                <TableHead>Join Date</TableHead>
+              <TableRow className="hover:bg-transparent">
+                <TableHead className="w-[280px]">Member's Name</TableHead>
+                <TableHead className="w-[120px]">Level</TableHead>
+                <TableHead className="w-[120px] text-center">
+                  Contribution
+                </TableHead>
+                {hasPermission("update:desingation") && (
+                  <TableHead className="w-[280px]">Designation</TableHead>
+                )}
+                <TableHead className="w-[200px]">Position</TableHead>
+                <TableHead className="w-[120px]">Join Date</TableHead>
+                {isModeratorOrAdminOrOwner() && (
+                  <TableHead className="w-[60px]" />
+                )}
               </TableRow>
             </TableHeader>
             <TableBody>
-              {currentNode?.members?.map((member: TMembers) => (
+              {currentNode?.members?.map((member) => (
                 <TableRow key={member?.user?._id}>
-                  <TableCell className="flex items-center gap-2">
-                    <Avatar>
-                      <AvatarImage src={member?.user?.profileImage} />
-                      <AvatarFallback>
-                        {member?.user?.firstName?.[0]}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <div className="font-medium">
-                        {member?.user?.firstName || ""}{" "}
-                        {member?.user?.lastName || ""}{" "}
-                        {member?.user?._id === globalUser?._id && (
-                          <span className="text-sm text-muted-foreground">
-                            (You)
-                          </span>
-                        )}
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        {member?.role}
-                        
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-8 w-8 flex-shrink-0">
+                        <AvatarImage src={member?.user?.profileImage} />
+                        <AvatarFallback>
+                          {member?.user?.firstName?.[0]}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="min-w-0">
+                        <div className="font-medium truncate">
+                          {member?.user?.firstName || ""}{" "}
+                          {member?.user?.lastName || ""}{" "}
+                          {member?.user?._id === globalUser?._id && (
+                            <span className="text-sm text-muted-foreground">
+                              (You)
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          {member?.role}
+                        </div>
                       </div>
                     </div>
                   </TableCell>
                   <TableCell>
                     <RoleBadge role={member?.role} />
                   </TableCell>
-                  <TableCell>{0}</TableCell>
-                  {hasPermission('update:desingation') && (
-            <TableCell>
-              <div className="flex w-full max-w-sm items-center space-x-2">
-              <Input
-  type="text"
-  placeholder="Enter designation"
-  value={designations[member?.user?._id]?.value ?? ''}
-  onChange={(e) => handleInputChange(member?.user?._id, e.target.value)}
-/>
-<Button 
-  onClick={() => handleSubmit(member?.user?._id)} 
-  variant="outline" 
-  size="icon"
-  disabled={!designations[member?.user?._id]?.isModified}
->
-  <Check className="h-4 w-4" />
-</Button>
-<Button 
-  onClick={() => handleClear(member?.user?._id)} 
-  variant="outline" 
-  size="icon"
->
-  <X className="h-4 w-4" />
-</Button>
-              </div>
-            </TableCell>
-          )}
-          
+                  <TableCell className="text-center">{0}</TableCell>
+                  {hasPermission("update:desingation") && (
+                    <TableCell>
+                      <div className="flex items-center space-x-2 w-[300px]">
+                        <div className="relative w-[220px]">
+                          <Input
+                            type="text"
+                            placeholder="Enter designation"
+                            value={
+                              designations[member?.user._id] ??
+                              member?.designation ??
+                              ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                member?.user?._id,
+                                e.target.value
+                              )
+                            }
+                            className="h-9 w-full"
+                          />
+                        </div>
+                        <div className="flex gap-1 flex-shrink-0">
+                          <Button
+                            onClick={() => handleSubmit(member?.user._id)}
+                            variant="outline"
+                            size="icon"
+                            className="h-9 w-9 flex-shrink-0"
+                          >
+                            <Check className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            onClick={() => handleClear(member._id)}
+                            variant="outline"
+                            size="icon"
+                            className="h-9 w-9 flex-shrink-0"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </TableCell>
+                  )}
                   <TableCell>
+                    {hasPermission("update: position") ? (
+                      <Select>
+                        <SelectTrigger className="w-48">
+                          <SelectValue placeholder="Select position" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="senior">Senior</SelectItem>
+                          <SelectItem value="junior">Junior</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <Label className="text-sm text-gray-500">
+                        Position selection not available
+                      </Label>
+                    )}
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap">
                     {new Date(member?.createdAt).toLocaleDateString()}
                   </TableCell>
                   {isModeratorOrAdminOrOwner() &&
@@ -498,9 +504,9 @@ export default function Page() {
                           }
                         >
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="size-8 p-0">
+                            <Button variant="ghost" className="h-8 w-8 p-0">
                               <span className="sr-only">Open menu</span>
-                              <MoreHorizontal className="size-4" />
+                              <MoreHorizontal className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
