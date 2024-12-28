@@ -580,5 +580,18 @@ static async relevancy ( type: 'issues' | 'debate' | 'projects',   moduleId: str
     throw error
   }
 }
-
+static async updateDesignation(memberId:string, designation:string,nodeId:string){
+  console.log({memberId});
+  
+   try {
+    const response = await withTokenAxios.patch('users/designation',{
+      memberId,
+      designation,
+      nodeId
+    })
+    return response.data
+   } catch (error) {
+    throw error
+   }
+}
 }

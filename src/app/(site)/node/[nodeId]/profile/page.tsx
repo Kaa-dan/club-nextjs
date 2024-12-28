@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { usePermission } from "@/lib/use-permission";
 import {
   Link,
   Copy,
@@ -10,6 +11,8 @@ import {
   Search,
   Filter,
   MoreHorizontal,
+  Check,
+  X,
 } from "lucide-react";
 
 import {
@@ -28,7 +31,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { TMembers } from "@/types";
 import { cn, formatDate } from "@/lib/utils";
@@ -57,6 +60,7 @@ import {
 import { SharedEndpoints } from "@/utils/endpoints/shared";
 import { useNodeCalls } from "@/hooks/apis/use-node-calls";
 import Invite from "@/components/pages/club/invite/invite";
+import { Endpoints } from "@/utils/endpoint";
 
 export default function Page() {
   const { leaveNode, fetchNodeDetails } = useNodeCalls();
@@ -82,7 +86,7 @@ export default function Page() {
 
   const isModeratorOrAdminOrOwner = () =>
     ["moderator", "admin", "owner"].includes(currentUserRole!);
-
+ const {hasPermission} =usePermission()
   const SECTIONS = [
     {
       title: "Change to admin",
@@ -176,9 +180,73 @@ export default function Page() {
       },
     },
   ];
-
-  console.log({ currentNode });
-
+  interface DesignationValue {
+    value: string;
+    isModified: boolean;
+  }
+  
+  interface Designations {
+    [key: string]: DesignationValue;
+  }
+  
+  // In your component:
+  const [designations, setDesignations] = useState<Designations>({});
+  
+  // Initialize designations with member data
+  useEffect(() => {
+    const initialDesignations: Designations = {};
+    currentNode?.members?.forEach((member: TMembers) => {
+      if (member?.user?._id) {
+        initialDesignations[member.user._id] = {
+          value: member.designation || '',
+          isModified: false
+        };
+      }
+    });
+    setDesignations(initialDesignations);
+  }, [currentNode?.members]);
+  
+  const handleInputChange = (memberId: string, value: string) => {
+    setDesignations(prev => ({
+      ...prev,
+      [memberId]: {
+        value,
+        isModified: true
+      }
+    }));
+  };
+  
+  const handleSubmit = async (memberId: string) => {
+    const designation = designations[memberId];
+    if (designation && designation.isModified) {
+      try {
+        await Endpoints.updateDesignation(memberId, designation.value, nodeId);
+        // After successful update, mark as unmodified
+        setDesignations(prev => ({
+          ...prev,
+          [memberId]: {
+            value: designation.value,
+            isModified: false
+          }
+        }));
+        toast.success("Designation updated successfully");
+      } catch (error) {
+        console.error('Failed to update designation:', error);
+        toast.error("Failed to update designation");
+      }
+    }
+  };
+  
+  const handleClear = (memberId: string) => {
+    setDesignations(prev => ({
+      ...prev,
+      [memberId]: {
+        value: '',
+        isModified: true
+      }
+    }));
+  };
+  
   return (
     <>
       <Card className="mx-auto w-full max-w-3xl">
@@ -349,6 +417,12 @@ export default function Page() {
                 <TableHead>Member&#39;s Name</TableHead>
                 <TableHead>Level</TableHead>
                 <TableHead>Contribution</TableHead>
+
+                {
+                  hasPermission('update:desingation') && 
+                  <TableHead>Designation</TableHead>
+
+                }
                 <TableHead>Join Date</TableHead>
               </TableRow>
             </TableHeader>
@@ -374,6 +448,7 @@ export default function Page() {
                       </div>
                       <div className="text-sm text-muted-foreground">
                         {member?.role}
+                        
                       </div>
                     </div>
                   </TableCell>
@@ -381,6 +456,34 @@ export default function Page() {
                     <RoleBadge role={member?.role} />
                   </TableCell>
                   <TableCell>{0}</TableCell>
+                  {hasPermission('update:desingation') && (
+            <TableCell>
+              <div className="flex w-full max-w-sm items-center space-x-2">
+              <Input
+  type="text"
+  placeholder="Enter designation"
+  value={designations[member?.user?._id]?.value ?? ''}
+  onChange={(e) => handleInputChange(member?.user?._id, e.target.value)}
+/>
+<Button 
+  onClick={() => handleSubmit(member?.user?._id)} 
+  variant="outline" 
+  size="icon"
+  disabled={!designations[member?.user?._id]?.isModified}
+>
+  <Check className="h-4 w-4" />
+</Button>
+<Button 
+  onClick={() => handleClear(member?.user?._id)} 
+  variant="outline" 
+  size="icon"
+>
+  <X className="h-4 w-4" />
+</Button>
+              </div>
+            </TableCell>
+          )}
+          
                   <TableCell>
                     {new Date(member?.createdAt).toLocaleDateString()}
                   </TableCell>
