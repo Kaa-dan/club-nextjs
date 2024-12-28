@@ -24,10 +24,6 @@ interface BookmarkItem {
   color?: string;
 }
 
-interface BookmarkProps {
-  bookmarks?: BookmarkItem[];
-}
-
 const initialBookmarks: BookmarkItem[] = [
   {
     id: "1",
@@ -43,15 +39,12 @@ const initialBookmarks: BookmarkItem[] = [
     lastUpdated: "Before 2 days",
     color: "bg-orange-50",
   },
-  // Add more initial bookmarks as needed
 ];
 
-export const BookmarkManager: React.FC<BookmarkProps> = ({
-  bookmarks = initialBookmarks,
-}) => {
+export default function BookmarksPage() {
   const [isCreateFolderOpen, setIsCreateFolderOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
-  const [items, setItems] = useState<BookmarkItem[]>(bookmarks);
+  const [items, setItems] = useState<BookmarkItem[]>(initialBookmarks);
 
   const handleCreateFolder = () => {
     if (newFolderName.trim()) {
@@ -146,6 +139,4 @@ export const BookmarkManager: React.FC<BookmarkProps> = ({
       </Dialog>
     </div>
   );
-};
-
-export default BookmarkManager;
+}

@@ -1,3 +1,4 @@
+"use client";
 import React, { useEffect } from "react";
 import { Check, Building2, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -23,31 +24,47 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/lable";
 import { withTokenAxios } from "@/lib/mainAxios";
+import Image from "next/image";
+import { useParams } from "next/navigation";
 
 interface Club {
-  id: string;
+  _id: string;
   name: string;
+  profileImage: {
+    url: string;
+  };
 }
 
 interface CreateChapterModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  clubs?: Club[];
+  // clubs?: Club[];
 }
 
 const CreateChapterModal: React.FC<CreateChapterModalProps> = ({
   open,
   onOpenChange,
-  clubs = [],
+  // clubs = [],
 }) => {
+  const [clubs, setClubs] = React.useState<Club[]>([]);
   const [selectedClub, setSelectedClub] = React.useState<Club | null>(null);
   const [openCombobox, setOpenCombobox] = React.useState(false);
+  const { nodeId } = useParams<{ nodeId: string }>();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (selectedClub) {
       console.log("Selected club:", selectedClub);
-      onOpenChange(false);
+      try {
+        const response = await withTokenAxios.post("/chapters", {
+          club: selectedClub._id,
+          node: nodeId,
+        });
+        onOpenChange(false);
+        console.log({ response });
+      } catch (error) {
+        console.error("Error creating chapter:", error);
+      }
     }
   };
 
@@ -55,8 +72,9 @@ const CreateChapterModal: React.FC<CreateChapterModalProps> = ({
   const getClubs = async () => {
     try {
       const response = await withTokenAxios.get(
-        "/chapters/get-user-public-clubs"
+        `/chapters/get-user-public-clubs?nodeId=${nodeId}`
       );
+      setClubs(response.data);
       console.log({ response });
     } catch (error) {
       console.error("Error fetching clubs:", error);
@@ -65,7 +83,7 @@ const CreateChapterModal: React.FC<CreateChapterModalProps> = ({
 
   useEffect(() => {
     console.log("Fetching clubs...", getClubs());
-  });
+  }, []);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -85,7 +103,15 @@ const CreateChapterModal: React.FC<CreateChapterModalProps> = ({
               >
                 {selectedClub ? (
                   <div className="flex items-center gap-2">
-                    <Building2 className="size-4" />
+                    {/* <Building2 className="size-4" />
+                     */}
+                    <Image
+                      src={selectedClub?.profileImage?.url}
+                      width={40}
+                      height={40}
+                      className="size-6 rounded-full"
+                      alt="club"
+                    />
                     <span>{selectedClub.name}</span>
                   </div>
                 ) : (
@@ -107,7 +133,7 @@ const CreateChapterModal: React.FC<CreateChapterModalProps> = ({
                     <CommandGroup heading="Available Clubs">
                       {clubs.map((club) => (
                         <CommandItem
-                          key={club.id}
+                          key={club._id}
                           value={club.name}
                           onSelect={() => {
                             setSelectedClub(club);
@@ -115,9 +141,15 @@ const CreateChapterModal: React.FC<CreateChapterModalProps> = ({
                           }}
                           className="flex items-center gap-2 px-4 py-2"
                         >
-                          <Building2 className="size-4" />
+                          <Image
+                            src={club.profileImage.url}
+                            width={40}
+                            height={40}
+                            className="rounded-full"
+                            alt="club"
+                          />
                           <span>{club.name}</span>
-                          {selectedClub?.id === club.id && (
+                          {selectedClub?._id === club?._id && (
                             <Check className="ml-auto size-4" />
                           )}
                         </CommandItem>

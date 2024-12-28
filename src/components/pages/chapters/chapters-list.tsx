@@ -18,40 +18,50 @@ import {
 } from "@/components/ui/dropdown-menu";
 import CreateChapterModal from "./create-chapter-modal";
 import Image from "next/image";
+import { withTokenAxios } from "@/lib/mainAxios";
+import { useParams } from "next/navigation";
 
-interface Item {
-  id: string;
+interface Chapter {
+  _id: string;
   name: string;
-  memberCount: number;
-  location: string;
-  avatar: string;
+  club: string;
+  node: string;
+  status: string;
+  proposedBy: string;
+  publishedBy: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
-interface ItemGridProps {
-  items: Item[];
-}
-
-export function ChaptersList({ items }: ItemGridProps) {
+export function ChaptersList() {
   const [searchQuery, setSearchQuery] = React.useState("");
-  const [filteredItems, setFilteredItems] = React.useState(items);
+  const [chapters, setChapters] = React.useState<Chapter[]>([]);
+  const [filteredChapters, setFilteredChapters] = React.useState<Chapter[]>([]);
   const [openCreateModal, setOpenCreateModal] = React.useState(false);
+  const { nodeId } = useParams<{ nodeId: string }>();
 
   React.useEffect(() => {
-    const filtered = items.filter(
-      (item) =>
-        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.location.toLowerCase().includes(searchQuery.toLowerCase())
+    const filtered = chapters.filter((chapter) =>
+      chapter.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
-    setFilteredItems(filtered);
-  }, [searchQuery, items]);
+    setFilteredChapters(filtered);
+  }, [searchQuery, chapters]);
 
-  const exampleClubs = [
-    { id: "1", name: "Manchester United" },
-    { id: "2", name: "Real Madrid" },
-    { id: "3", name: "Bayern Munich" },
-    { id: "4", name: "Barcelona" },
-    { id: "5", name: "Liverpool" },
-  ];
+  const getChapters = async () => {
+    try {
+      const response = await withTokenAxios.get(
+        `/chapters/get-published?nodeId=${nodeId}`
+      );
+      setChapters(response.data);
+      setFilteredChapters(response.data);
+    } catch (error) {
+      console.error("Error fetching chapters:", error);
+    }
+  };
+
+  React.useEffect(() => {
+    getChapters();
+  }, [nodeId]);
 
   return (
     <div className="container mx-auto space-y-6 p-4">
@@ -68,7 +78,6 @@ export function ChaptersList({ items }: ItemGridProps) {
           <CreateChapterModal
             open={openCreateModal}
             onOpenChange={setOpenCreateModal}
-            clubs={exampleClubs}
           />
         )}
       </div>
@@ -76,7 +85,7 @@ export function ChaptersList({ items }: ItemGridProps) {
         <div className="relative flex-1">
           <Search className="absolute left-2 top-2.5 size-4 text-muted-foreground" />
           <Input
-            placeholder={`Search for chapters...`}
+            placeholder="Search for chapters..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-8"
@@ -90,40 +99,40 @@ export function ChaptersList({ items }: ItemGridProps) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem>Filter by Location</DropdownMenuItem>
-            <DropdownMenuItem>Filter by Members</DropdownMenuItem>
+            <DropdownMenuItem>Filter by Date</DropdownMenuItem>
+            <DropdownMenuItem>Filter by Status</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-        {filteredItems.map((item) => (
-          <Card key={item.id} className="overflow-hidden">
+        {filteredChapters.map((chapter) => (
+          <Card key={chapter._id} className="overflow-hidden">
             <CardHeader className="p-0">
               <Image
                 height={500}
                 width={500}
-                src={item.avatar}
-                alt={`${item.name} avatar`}
+                src="/api/placeholder/500/500"
+                alt={`${chapter.name} placeholder`}
                 className="h-32 w-full object-cover"
               />
             </CardHeader>
             <CardContent className="p-4">
-              <h3 className="truncate font-semibold">{item.name}</h3>
+              <h3 className="truncate font-semibold">{chapter.name}</h3>
               <p className="text-sm text-muted-foreground">
-                {item.memberCount} members
+                Created: {new Date(chapter.createdAt).toLocaleDateString()}
               </p>
             </CardContent>
-            <CardFooter className="p-4 pt-0">
+            {/* <CardFooter className="p-4 pt-0">
               <p className="text-xs text-muted-foreground">
-                📍 {item.location}
+                Status: {chapter.status}
               </p>
-            </CardFooter>
+            </CardFooter> */}
           </Card>
         ))}
       </div>
 
-      {filteredItems.length === 0 && (
+      {filteredChapters.length === 0 && (
         <div className="py-8 text-center text-muted-foreground">
           No chapters found matching your search.
         </div>

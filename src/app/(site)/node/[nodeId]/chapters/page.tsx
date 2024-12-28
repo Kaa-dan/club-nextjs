@@ -28,7 +28,7 @@ export default function Page() {
   return (
     <main className="min-h-screen py-8">
       <div className="container mx-auto space-y-12 px-4">
-        <ChaptersList items={sampleClubs} />
+        <ChaptersList />
       </div>
     </main>
   );
