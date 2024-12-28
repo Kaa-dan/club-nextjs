@@ -1,5 +1,4 @@
 "use client";
-
 import {
   MoreHorizontal,
   ArrowUpDown,
@@ -170,6 +169,8 @@ export default function ProjectTable({
   loading?: boolean;
   reFetch: any;
 }) {
+ 
+
   const columns: ColumnDef<TProjectData>[] = [
     {
       accessorKey: "sno",
@@ -197,6 +198,7 @@ export default function ProjectTable({
         );
       },
     },
+  
     {
       accessorKey: "traction",
       header: ({ column }) => {
@@ -265,7 +267,6 @@ export default function ProjectTable({
         );
       },
     },
-
     {
       accessorKey: "createdBy",
       header: "Posted by",
@@ -288,6 +289,30 @@ export default function ProjectTable({
         );
       },
     },
+    ...(tab === "Proposed Project" 
+      ? [{
+          accessorKey: "message",
+          header: ({ column }:{column:any}) => {
+            return (
+              <Button
+                variant="ghost"
+                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+              >
+                Message
+                <ArrowUpDown className="ml-2 size-4" />
+              </Button>
+            );
+          },
+          cell: ({ row }:{row:any}) => {
+            console.log({hello:row})
+            return (
+              <div className="space-y-1 text-center">
+                <div className="text-sm text-muted-foreground">{row?.original?.message || "No message"}</div>
+              </div>
+            );
+          },
+        }]
+      : []),
     ...(tab !== "Proposed Project"
       ? [
           {
@@ -322,7 +347,6 @@ export default function ProjectTable({
           },
         ]
       : []),
-    // ... (previous columns remain the same)
     {
       id: "actions",
       header: "Actions",
@@ -337,8 +361,6 @@ export default function ProjectTable({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                {/* <DropdownMenuLabel>Actions</DropdownMenuLabel> */}
-                {/* View Details */}
                 <DropdownMenuItem asChild>
                   <Link
                     href={`/${forum}/${forumId}/${plugin}/${row.original._id}/view`}
@@ -347,7 +369,6 @@ export default function ProjectTable({
                     View Details
                   </Link>
                 </DropdownMenuItem>
-                {/* Accept */}
                 <DropdownMenuItem
                   onSelect={() => {
                     ProjectApi.projectAction(
@@ -361,7 +382,6 @@ export default function ProjectTable({
                 >
                   Accept
                 </DropdownMenuItem>
-                {/* Reject */}
                 <DropdownMenuItem
                   onSelect={() => {
                     ProjectApi.projectAction(
@@ -405,6 +425,8 @@ export default function ProjectTable({
       },
     },
   ];
+
+  
 
   const getFilteredColumns = () => {
     if (tab === "Proposed Project") {

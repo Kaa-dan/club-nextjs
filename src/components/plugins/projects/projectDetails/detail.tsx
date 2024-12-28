@@ -555,7 +555,14 @@ export default function Details({
             Project Solution In details
           </h3>
           <p className="mb-6 text-gray-600">
-          {project?.solution}
+          {project?.solution && (
+  <div 
+    dangerouslySetInnerHTML={{ 
+      __html: project.solution 
+    }}
+    className="prose max-w-none"
+  />
+)}
           </p>
         </div>
         <div className="mb-8 border-b pb-8">
