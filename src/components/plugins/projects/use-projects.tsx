@@ -30,6 +30,7 @@ const useProjects = (forum: TForum, forumId: string) => {
         updatedAt,
         _id,
         type,
+        message
       } = adoptedProject;
 
       return {
@@ -56,6 +57,7 @@ const useProjects = (forum: TForum, forumId: string) => {
         updatedAt: updatedAt,
         adoptedId: _id,
         type,
+        message
       };
     });
   };

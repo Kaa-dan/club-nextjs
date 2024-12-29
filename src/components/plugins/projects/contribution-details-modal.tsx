@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { usePermission } from "@/lib/use-permission";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   Dialog,
   DialogContent,
@@ -19,53 +19,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProjectApi } from "./projectApi";
 import Image from "next/image";
 import { format } from "date-fns";
-
-interface ContributionFile {
-  url: string;
-  originalname: string;
-  mimetype: string;
-  size: number;
-  _id?: string;
-}
-
-interface UserDetail {
-  _id: string;
-  userName: string;
-  firstName: string;
-  lastName: string;
-  profileImage: string;
-}
-
-interface Contribution {
-  _id: string;
-  value: number;
-  status: "pending" | "accepted" | "rejected";
-  files: ContributionFile[];
-  createdAt: string;
-  user: string;
-}
-
-interface ContributionGroup {
-  _id: string;
-  contributions: Contribution[];
-  totalValue: number;
-  contributionCount: number;
-  userDetails: UserDetail[];
-}
-
-interface ProjectData {
-  _id: string;
-  title: string;
-  parameters: {
-    _id: string;
-    title: string;
-    value: string;
-    unit: string;
-  };
-  contributions: ContributionGroup[];
-}
+import { useTokenStore } from "@/store/store";
+import { FileIcon } from "lucide-react";
 
 interface ContributionApprovalModalProps {
+  project: {
+    createdBy: {
+      _id: string;
+    };
+  };
+  reFetch: () => void,
   open: boolean;
   setOpen: (open: boolean) => void;
   param: {
@@ -76,22 +39,26 @@ interface ContributionApprovalModalProps {
 }
 
 export const ContributionApprovalModal = ({
+  reFetch,
   open,
   setOpen,
   param,
   projectId,
+  project,
 }: ContributionApprovalModalProps) => {
-  const [acceptedData, setAcceptedData] = useState<ProjectData[]>([]);
-  const [pendingData, setPendingData] = useState<ProjectData[]>([]);
+  const [acceptedData, setAcceptedData] = useState<any[]>([]);
+  const [pendingData, setPendingData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const { hasPermission } = usePermission();
+ const {globalUser} = useTokenStore((state) => state)
+  // Check if current user is the project creator
+  const isProjectCreator = project?.createdBy?._id === globalUser?._id;
 
   const fetchData = async () => {
     try {
       setIsLoading(true);
       const [acceptedRes, pendingRes] = await Promise.all([
         ProjectApi.contributions(projectId, "accepted"),
-        hasPermission("view:assetPrivateInfos")
+        isProjectCreator // Only fetch pending if user is creator
           ? ProjectApi.contributions(projectId, "pending")
           : Promise.resolve([]),
       ]);
@@ -103,7 +70,7 @@ export const ContributionApprovalModal = ({
       const filteredPending = pendingRes.filter(
         (project: any) => project.parameters?._id === param._id
       );
-
+console.log({filteredPending})
       setAcceptedData(filteredAccepted);
       setPendingData(filteredPending);
     } catch (error) {
@@ -124,6 +91,7 @@ export const ContributionApprovalModal = ({
       setIsLoading(true);
       await ProjectApi.acceptContribuion(id, isApprove);
       await fetchData();
+      reFetch()
     } catch (err) {
       console.error("Error handling contribution:", err);
     } finally {
@@ -133,10 +101,10 @@ export const ContributionApprovalModal = ({
 
   const renderContributorsList = () => {
     return acceptedData.map((project) => {
-      return project.contributions?.map((contributionGroup) => {
-        return contributionGroup.contributions.map((contribution) => {
+      return project.contributions?.map((contributionGroup: any) => {
+        return contributionGroup.contributions.map((contribution: any) => {
           const userDetail = contributionGroup.userDetails?.find(
-            (user) => user._id === contribution.user
+            (user: any) => user._id === contribution.user
           );
 
           return (
@@ -170,7 +138,7 @@ export const ContributionApprovalModal = ({
               </TableCell>
               <TableCell>
                 <div className="flex gap-2">
-                  {contribution.files?.map((file, index) => (
+                  {contribution.files?.map((file: any, index: number) => (
                     <a
                       key={file._id || index}
                       href={file.url}
@@ -190,14 +158,17 @@ export const ContributionApprovalModal = ({
     });
   };
 
+
+
+
   const renderApprovalsList = () => {
     return pendingData.map((project) => {
-      return project.contributions?.map((contributionGroup) => {
-        return contributionGroup.contributions.map((contribution) => {
+      return project.contributions?.map((contributionGroup: any) => {
+        return contributionGroup.contributions.map((contribution: any) => {
           const userDetail = contributionGroup.userDetails?.find(
-            (user) => user._id === contribution.user
+            (user: any) => user._id === contribution.user
           );
-
+          
           return (
             <TableRow key={contribution._id}>
               <TableCell>
@@ -224,6 +195,41 @@ export const ContributionApprovalModal = ({
               </TableCell>
               <TableCell>{project.parameters.title}</TableCell>
               <TableCell>{contribution.value}</TableCell>
+              <TableCell>
+              {contribution?.files && contribution.files.length > 0 && (
+  <TooltipProvider>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <div className="flex items-center gap-2 cursor-pointer">
+          <FileIcon className="size-4 text-gray-500" />
+          <span className="text-sm text-blue-600 hover:text-blue-800 hover:underline">
+            View Files ({contribution.files.length})
+          </span>
+        </div>
+      </TooltipTrigger>
+      
+      <TooltipContent className="w-64 p-2">
+        <div className="flex flex-col gap-2">
+          <p className="text-sm text-white font-medium mb-1">All Files:</p>
+          {contribution.files.map((file:any, index:any) => (
+            <a
+              key={index}
+              href={file.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 hover:underline"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <FileIcon className="size-3 text-gray-500" />
+              {file.name || `File ${index + 1}`}
+            </a>
+          ))}
+        </div>
+      </TooltipContent>
+    </Tooltip>
+  </TooltipProvider>
+)}
+              </TableCell>
               <TableCell>
                 <div className="flex gap-2">
                   <Button
@@ -259,7 +265,7 @@ export const ContributionApprovalModal = ({
         <DialogHeader>
           <DialogTitle>Contributions - {param.title}</DialogTitle>
         </DialogHeader>
-        {hasPermission("view:assetPrivateInfos") ? (
+        {isProjectCreator ? (
           <Tabs defaultValue="contributors" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="contributors">Contributors</TabsTrigger>
@@ -286,6 +292,7 @@ export const ContributionApprovalModal = ({
                     <TableHead>Contributor</TableHead>
                     <TableHead>Parameter</TableHead>
                     <TableHead>Value</TableHead>
+                    <TableHead>File</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -311,3 +318,5 @@ export const ContributionApprovalModal = ({
     </Dialog>
   );
 };
+
+export default ContributionApprovalModal;
