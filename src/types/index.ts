@@ -79,6 +79,8 @@ export interface TMembers {
   role: "member" | "admin" | "moderator" | "owner";
   status: "REQUESTED" | "APPROVED" | "REJECTED";
   createdAt: Date;
+  designation: string;
+  position: string;
 }
 
 type IssueType =
