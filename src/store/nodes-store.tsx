@@ -31,4 +31,27 @@ export const useNodeStore = create<NodeState>()((set) => ({
     set({ userRequestedNodes: userRequestedNodes }),
   setCurrentNode: (currentNode) => set({ currentNode }),
   setNodeJoinStatus: (nodeJoinStatus) => set({ nodeJoinStatus }),
+
+  updateMemberDesignation: (memberId: string, designation: string) =>
+    set((state) => {
+      if (!state.currentNode) return state;
+
+      const updatedMembers = state.currentNode.members.map((member) => {
+        if (member.user._id === memberId) {
+          return {
+            ...member,
+            designation,
+          };
+        }
+        return member;
+      });
+
+      return {
+        ...state,
+        currentNode: {
+          ...state.currentNode,
+          members: updatedMembers,
+        },
+      };
+    }),
 }));

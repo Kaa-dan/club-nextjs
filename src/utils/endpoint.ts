@@ -611,7 +611,7 @@ export class Endpoints {
   ) {
     try {
       const response = await withTokenAxios.patch(
-        `${nodeId}/members/${memberId}/position`,
+        `users/${nodeId}/members/${memberId}/position`,
         {
           position,
         }
