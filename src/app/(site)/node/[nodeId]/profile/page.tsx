@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { usePermission } from "@/lib/use-permission";
+
 import {
   Link,
   Copy,
@@ -13,6 +14,7 @@ import {
   MoreHorizontal,
   Check,
   X,
+  Pencil,
 } from "lucide-react";
 
 import {
@@ -197,17 +199,20 @@ export default function Page() {
       [memberId]: value,
     }));
   };
-
+  const [isEditing, setIsEditing] = useState<{ [key: string]: boolean }>({});
+  const updateMemberDesignation = useNodeStore(
+    (state: any) => state.updateMemberDesignation
+  );
   const handleSubmit = async (memberId: string) => {
     const newValue = designations[memberId];
     try {
       await Endpoints.updateDesignation(memberId, newValue, nodeId);
-      toast.success("designation updated");
-      // Add your API call here
-      // Optionally clear the input after successful update
-      // handleClear(memberId);
+      updateMemberDesignation(memberId, newValue);
+      setIsEditing((prev) => ({ ...prev, [memberId]: false }));
+      toast.success("Designation updated");
     } catch (error) {
       console.error("Failed to update designation:", error);
+      toast.error("Failed to update designation");
     }
   };
 
@@ -218,6 +223,32 @@ export default function Page() {
     }));
   };
 
+  const updateMemberPosition = async (
+    newPosition: string,
+    memberId: string
+  ) => {
+    try {
+      const response = await Endpoints.updatePosition(
+        nodeId,
+        memberId,
+        newPosition
+      );
+    } catch (err) {}
+  };
+
+  const handleEditClick = (userId: string) => {
+    setIsEditing((prev) => ({ ...prev, [userId]: true }));
+  };
+
+  const handleSave = async (userId: string) => {
+    await handleSubmit(userId);
+    setIsEditing((prev) => ({ ...prev, [userId]: false }));
+  };
+
+  const handleCancel = (userId: string) => {
+    handleClear(userId);
+    setIsEditing((prev) => ({ ...prev, [userId]: false }));
+  };
   return (
     <>
       <Card className="mx-auto w-full max-w-3xl">
@@ -431,51 +462,74 @@ export default function Page() {
                     <RoleBadge role={member?.role} />
                   </TableCell>
                   <TableCell className="text-center">{0}</TableCell>
-                  {hasPermission("update:desingation") && (
-                    <TableCell>
-                      <div className="flex items-center space-x-2 w-[300px]">
-                        <div className="relative w-[220px]">
-                          <Input
-                            type="text"
-                            placeholder="Enter designation"
-                            value={
-                              designations[member?.user._id] ??
-                              member?.designation ??
-                              ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                member?.user?._id,
-                                e.target.value
-                              )
-                            }
-                            className="h-9 w-full"
-                          />
+                  <TableCell>
+                    <div className="flex items-center space-x-2 w-[300px]">
+                      {isEditing[member?.user?._id] ? (
+                        <>
+                          <div className="relative w-[220px]">
+                            <Input
+                              type="text"
+                              placeholder="Enter designation"
+                              value={
+                                designations[member?.user._id] ??
+                                member?.designation ??
+                                ""
+                              }
+                              onChange={(e) =>
+                                handleInputChange(
+                                  member?.user._id,
+                                  e.target.value
+                                )
+                              }
+                              className="h-9 w-full"
+                            />
+                          </div>
+                          <div className="flex gap-1 flex-shrink-0">
+                            <Button
+                              onClick={() => handleSave(member?.user._id)}
+                              variant="outline"
+                              size="icon"
+                              className="h-9 w-9 flex-shrink-0"
+                            >
+                              <Check className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              onClick={() => handleCancel(member?.user._id)}
+                              variant="outline"
+                              size="icon"
+                              className="h-9 w-9 flex-shrink-0"
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="flex items-center justify-between w-full">
+                          <span className="text-sm">
+                            {member?.designation || "No designation set"}
+                          </span>
+                          {hasPermission("update:desingation") && (
+                            <Button
+                              onClick={() => handleEditClick(member?.user._id)}
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                          )}
                         </div>
-                        <div className="flex gap-1 flex-shrink-0">
-                          <Button
-                            onClick={() => handleSubmit(member?.user._id)}
-                            variant="outline"
-                            size="icon"
-                            className="h-9 w-9 flex-shrink-0"
-                          >
-                            <Check className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            onClick={() => handleClear(member._id)}
-                            variant="outline"
-                            size="icon"
-                            className="h-9 w-9 flex-shrink-0"
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    </TableCell>
-                  )}
+                      )}
+                    </div>
+                  </TableCell>
                   <TableCell>
                     {hasPermission("update: position") ? (
-                      <Select>
+                      <Select
+                        value={member.position}
+                        onValueChange={(newPosition) =>
+                          updateMemberPosition(newPosition, member.user._id)
+                        }
+                      >
                         <SelectTrigger className="w-48">
                           <SelectValue placeholder="Select position" />
                         </SelectTrigger>
