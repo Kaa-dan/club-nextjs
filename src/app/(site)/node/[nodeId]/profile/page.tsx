@@ -416,7 +416,7 @@ export default function Page() {
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent">
-                <TableHead className="w-[280px]">Member's Name</TableHead>
+                <TableHead className="w-[280px]">{`Member's Name`}</TableHead>
                 <TableHead className="w-[120px]">Level</TableHead>
                 <TableHead className="w-[120px] text-center">
                   Contribution
@@ -436,14 +436,14 @@ export default function Page() {
                 <TableRow key={member?.user?._id}>
                   <TableCell>
                     <div className="flex items-center gap-3">
-                      <Avatar className="h-8 w-8 flex-shrink-0">
+                      <Avatar className="size-8 shrink-0">
                         <AvatarImage src={member?.user?.profileImage} />
                         <AvatarFallback>
                           {member?.user?.firstName?.[0]}
                         </AvatarFallback>
                       </Avatar>
                       <div className="min-w-0">
-                        <div className="font-medium truncate">
+                        <div className="truncate font-medium">
                           {member?.user?.firstName || ""}{" "}
                           {member?.user?.lastName || ""}{" "}
                           {member?.user?._id === globalUser?._id && (
@@ -463,7 +463,7 @@ export default function Page() {
                   </TableCell>
                   <TableCell className="text-center">{0}</TableCell>
                   <TableCell>
-                    <div className="flex items-center space-x-2 w-[300px]">
+                    <div className="flex w-[300px] items-center space-x-2">
                       {isEditing[member?.user?._id] ? (
                         <>
                           <div className="relative w-[220px]">
@@ -484,27 +484,27 @@ export default function Page() {
                               className="h-9 w-full"
                             />
                           </div>
-                          <div className="flex gap-1 flex-shrink-0">
+                          <div className="flex shrink-0 gap-1">
                             <Button
                               onClick={() => handleSave(member?.user._id)}
                               variant="outline"
                               size="icon"
-                              className="h-9 w-9 flex-shrink-0"
+                              className="size-9 shrink-0"
                             >
-                              <Check className="h-4 w-4" />
+                              <Check className="size-4" />
                             </Button>
                             <Button
                               onClick={() => handleCancel(member?.user._id)}
                               variant="outline"
                               size="icon"
-                              className="h-9 w-9 flex-shrink-0"
+                              className="size-9 shrink-0"
                             >
-                              <X className="h-4 w-4" />
+                              <X className="size-4" />
                             </Button>
                           </div>
                         </>
                       ) : (
-                        <div className="flex items-center justify-between w-full">
+                        <div className="flex w-full items-center justify-between">
                           <span className="text-sm">
                             {member?.designation || "No designation set"}
                           </span>
@@ -513,9 +513,9 @@ export default function Page() {
                               onClick={() => handleEditClick(member?.user._id)}
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8"
+                              className="size-8"
                             >
-                              <Pencil className="h-4 w-4" />
+                              <Pencil className="size-4" />
                             </Button>
                           )}
                         </div>
@@ -558,9 +558,9 @@ export default function Page() {
                           }
                         >
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
+                            <Button variant="ghost" className="size-8 p-0">
                               <span className="sr-only">Open menu</span>
-                              <MoreHorizontal className="h-4 w-4" />
+                              <MoreHorizontal className="size-4" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">

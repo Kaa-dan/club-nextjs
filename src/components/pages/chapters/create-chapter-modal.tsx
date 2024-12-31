@@ -50,6 +50,7 @@ const CreateChapterModal: React.FC<CreateChapterModalProps> = ({
   const [selectedClub, setSelectedClub] = React.useState<Club | null>(null);
   const [openCombobox, setOpenCombobox] = React.useState(false);
   const { nodeId } = useParams<{ nodeId: string }>();
+  const [term, setTerm] = React.useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,11 +69,13 @@ const CreateChapterModal: React.FC<CreateChapterModalProps> = ({
     }
   };
 
-  // get clubs
   const getClubs = async () => {
     try {
+      // const response = await withTokenAxios.get(
+      //   `/chapters/get-public-clubs?nodeId=${nodeId}&term=dfsd`
+      // );
       const response = await withTokenAxios.get(
-        `/chapters/get-user-public-clubs?nodeId=${nodeId}`
+        `/chapters/get-public-clubs?nodeId=${nodeId}&term=${term}`
       );
       setClubs(response.data);
       console.log({ response });
