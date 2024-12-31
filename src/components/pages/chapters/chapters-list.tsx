@@ -4,12 +4,7 @@ import * as React from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,48 +15,23 @@ import CreateChapterModal from "./create-chapter-modal";
 import Image from "next/image";
 import { withTokenAxios } from "@/lib/mainAxios";
 import { useParams } from "next/navigation";
-
-interface Chapter {
-  _id: string;
-  name: string;
-  club: string;
-  node: string;
-  status: string;
-  proposedBy: string;
-  publishedBy: string;
-  createdAt: string;
-  updatedAt: string;
-}
+import { TChapter } from "@/types";
+import { useChapterStore } from "@/store/chapters-store";
 
 export function ChaptersList() {
+  const { publishedChapters } = useChapterStore((state) => state);
   const [searchQuery, setSearchQuery] = React.useState("");
-  const [chapters, setChapters] = React.useState<Chapter[]>([]);
-  const [filteredChapters, setFilteredChapters] = React.useState<Chapter[]>([]);
+  const [chapters, setChapters] = React.useState<TChapter[]>([]);
+  const [filteredChapters, setFilteredChapters] =
+    React.useState<TChapter[]>(publishedChapters);
   const [openCreateModal, setOpenCreateModal] = React.useState(false);
-  const { nodeId } = useParams<{ nodeId: string }>();
 
   React.useEffect(() => {
-    const filtered = chapters.filter((chapter) =>
+    const filtered = publishedChapters.filter((chapter) =>
       chapter.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
     setFilteredChapters(filtered);
   }, [searchQuery, chapters]);
-
-  const getChapters = async () => {
-    try {
-      const response = await withTokenAxios.get(
-        `/chapters/get-published?nodeId=${nodeId}`
-      );
-      setChapters(response.data);
-      setFilteredChapters(response.data);
-    } catch (error) {
-      console.error("Error fetching chapters:", error);
-    }
-  };
-
-  React.useEffect(() => {
-    getChapters();
-  }, [nodeId]);
 
   return (
     <div className="container mx-auto space-y-6 p-4">
@@ -112,7 +82,7 @@ export function ChaptersList() {
               <Image
                 height={500}
                 width={500}
-                src="/api/placeholder/500/500"
+                src={chapter?.profileImage?.url}
                 alt={`${chapter.name} placeholder`}
                 className="h-32 w-full object-cover"
               />
