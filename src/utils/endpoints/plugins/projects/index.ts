@@ -4,11 +4,12 @@ export class ProjectsEndpoints {
   static async fetchAllProjects(
     forum: TForum,
     forumId: string,
-    status: "published" | "proposed"
+    status: "published" | "proposed",
+    page: string
   ) {
     const queryParams = new URLSearchParams({
       status,
-      page: "1",
+      page,
       limit: "10",
       isActive: "true",
       search: "",
@@ -21,10 +22,10 @@ export class ProjectsEndpoints {
     return data;
   }
 
-  static async fetchMyProjects(forum: TForum, forumId: string) {
+  static async fetchMyProjects(forum: TForum, forumId: string, page: string) {
     const queryParams = new URLSearchParams({
       status: "published",
-      page: "1",
+      page,
       limit: "10",
       [forum === "club" ? "club" : "node"]: forumId,
     });
@@ -35,10 +36,10 @@ export class ProjectsEndpoints {
     return data;
   }
 
-  static async fetchGlobalProjects() {
+  static async fetchGlobalProjects(page: string) {
     const queryParams = new URLSearchParams({
       status: "published",
-      page: "1",
+      page,
       limit: "10",
     });
 

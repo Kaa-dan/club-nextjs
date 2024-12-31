@@ -32,8 +32,11 @@ const ProjectLayout = ({
     allProjects,
     loading,
     proposedProjects,
+    setCurrentPages,
     refetch,
     projectCounts,
+    totalPages,
+    currentPages,
   } = useProjects(forum, forumId);
   const { hasPermission } = usePermission();
 
@@ -178,6 +181,9 @@ const ProjectLayout = ({
               forum={forum}
               tab={tab.label}
               data={getData(tab)}
+              setCurrentPages={setCurrentPages}
+              totalPages={totalPages}
+              currentPages={currentPages}
             />
           </TabsContent>
         ))}

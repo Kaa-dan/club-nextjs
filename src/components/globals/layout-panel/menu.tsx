@@ -6,7 +6,16 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 
-import { Ellipsis, HomeIcon, LogOut, Pin, Plus, X } from "lucide-react";
+import {
+  Bookmark,
+  Ellipsis,
+  HomeIcon,
+  LogOut,
+  Pin,
+  Plus,
+  X,
+  BarChartHorizontalIcon,
+} from "lucide-react";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -38,6 +47,7 @@ import { PopoverClose } from "@radix-ui/react-popover";
 import CustomAlertDialog from "@/components/ui/custom/custom-alert-dialog";
 import { useClubCalls } from "@/hooks/apis/use-club-calls";
 import { useNodeCalls } from "@/hooks/apis/use-node-calls";
+import { BookmarkFilledIcon } from "@radix-ui/react-icons";
 
 interface MenuProps {
   isOpen: boolean | undefined;
@@ -612,6 +622,30 @@ export function Menu({ isOpen }: MenuProps) {
                 </li>
               )
             )}
+          <li className="flex !h-fit w-full">
+            <Button
+              variant="ghost"
+              className=" !mt-0 h-12 w-full justify-start gap-2"
+            >
+              <BarChartHorizontalIcon size={18} />
+              <p className={cn("whitespace-nowrap", !isOpen && "hidden")}>
+                My Activity
+              </p>
+            </Button>
+          </li>
+          <li className="flex w-full   ">
+            <Link href={"/bookmarks"} className="w-full">
+              <Button
+                variant="ghost"
+                className=" h-12 w-full justify-start gap-2"
+              >
+                <BookmarkFilledIcon fontSize={18} />
+                <p className={cn("whitespace-nowrap", !isOpen && "hidden")}>
+                  Bookmarks
+                </p>
+              </Button>
+            </Link>
+          </li>
           <li className="flex w-full  grow items-end ">
             <TooltipProvider disableHoverableContent>
               <Tooltip delayDuration={100}>

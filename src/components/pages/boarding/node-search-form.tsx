@@ -185,7 +185,7 @@ export const NodeSearchForm: React.FC<InterestFormProps> = ({ setStep }) => {
             </Button>
             <Button
               onClick={() => setShowAddNodeDialog(true)}
-              variant={"naked"}
+              variant={"ghost"}
               className="w-full"
             >
               + Create a node
