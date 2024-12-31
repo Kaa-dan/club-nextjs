@@ -550,4 +550,75 @@ export class Endpoints {
       throw error;
     }
   }
+
+  static async getFeeds(
+    entity: "node" | "club",
+    entityId: string,
+    page = 1,
+    limit = 10
+  ) {
+    try {
+      const response = await withTokenAxios.get("assets/feed", {
+        params: {
+          entity,
+          entityId,
+          page,
+          limit,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+  static async relevancy(
+    type: "issues" | "debate" | "projects",
+    moduleId: string,
+    action: "like" | "dislike"
+  ) {
+    try {
+      const response = await withTokenAxios.post("assets/relevancy", {
+        type,
+        moduleId,
+        action,
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+  static async updateDesignation(
+    memberId: string,
+    designation: string,
+    nodeId: string
+  ) {
+    try {
+      const response = await withTokenAxios.patch("users/designation", {
+        memberId,
+        designation,
+        nodeId,
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async updatePosition(
+    nodeId: string,
+    memberId: string,
+    position: string
+  ) {
+    try {
+      const response = await withTokenAxios.patch(
+        `users/${nodeId}/members/${memberId}/position`,
+        {
+          position,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
 }

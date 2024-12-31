@@ -3,6 +3,8 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { usePermission } from "@/lib/use-permission";
+
 import {
   Link,
   Copy,
@@ -10,6 +12,9 @@ import {
   Search,
   Filter,
   MoreHorizontal,
+  Check,
+  X,
+  Pencil,
 } from "lucide-react";
 
 import {
@@ -57,7 +62,15 @@ import {
 import { SharedEndpoints } from "@/utils/endpoints/shared";
 import { useNodeCalls } from "@/hooks/apis/use-node-calls";
 import Invite from "@/components/pages/club/invite/invite";
-
+import { Endpoints } from "@/utils/endpoint";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 export default function Page() {
   const { leaveNode, fetchNodeDetails } = useNodeCalls();
   const { globalUser } = useTokenStore((state) => state);
@@ -82,7 +95,7 @@ export default function Page() {
 
   const isModeratorOrAdminOrOwner = () =>
     ["moderator", "admin", "owner"].includes(currentUserRole!);
-
+  const { hasPermission } = usePermission();
   const SECTIONS = [
     {
       title: "Change to admin",
@@ -176,9 +189,66 @@ export default function Page() {
       },
     },
   ];
+  const [designations, setDesignations] = useState<{ [key: string]: string }>(
+    {}
+  );
 
-  console.log({ currentNode });
+  const handleInputChange = (memberId: string, value: string) => {
+    setDesignations((prev) => ({
+      ...prev,
+      [memberId]: value,
+    }));
+  };
+  const [isEditing, setIsEditing] = useState<{ [key: string]: boolean }>({});
+  const updateMemberDesignation = useNodeStore(
+    (state: any) => state.updateMemberDesignation
+  );
+  const handleSubmit = async (memberId: string) => {
+    const newValue = designations[memberId];
+    try {
+      await Endpoints.updateDesignation(memberId, newValue, nodeId);
+      updateMemberDesignation(memberId, newValue);
+      setIsEditing((prev) => ({ ...prev, [memberId]: false }));
+      toast.success("Designation updated");
+    } catch (error) {
+      console.error("Failed to update designation:", error);
+      toast.error("Failed to update designation");
+    }
+  };
 
+  const handleClear = (memberId: string) => {
+    setDesignations((prev) => ({
+      ...prev,
+      [memberId]: "",
+    }));
+  };
+
+  const updateMemberPosition = async (
+    newPosition: string,
+    memberId: string
+  ) => {
+    try {
+      const response = await Endpoints.updatePosition(
+        nodeId,
+        memberId,
+        newPosition
+      );
+    } catch (err) {}
+  };
+
+  const handleEditClick = (userId: string) => {
+    setIsEditing((prev) => ({ ...prev, [userId]: true }));
+  };
+
+  const handleSave = async (userId: string) => {
+    await handleSubmit(userId);
+    setIsEditing((prev) => ({ ...prev, [userId]: false }));
+  };
+
+  const handleCancel = (userId: string) => {
+    handleClear(userId);
+    setIsEditing((prev) => ({ ...prev, [userId]: false }));
+  };
   return (
     <>
       <Card className="mx-auto w-full max-w-3xl">
@@ -345,43 +415,136 @@ export default function Page() {
           </div>
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Member&#39;s Name</TableHead>
-                <TableHead>Level</TableHead>
-                <TableHead>Contribution</TableHead>
-                <TableHead>Join Date</TableHead>
+              <TableRow className="hover:bg-transparent">
+                <TableHead className="w-[280px]">{`Member's Name`}</TableHead>
+                <TableHead className="w-[120px]">Level</TableHead>
+                <TableHead className="w-[120px] text-center">
+                  Contribution
+                </TableHead>
+                {hasPermission("update:desingation") && (
+                  <TableHead className="w-[280px]">Designation</TableHead>
+                )}
+                <TableHead className="w-[200px]">Position</TableHead>
+                <TableHead className="w-[120px]">Join Date</TableHead>
+                {isModeratorOrAdminOrOwner() && (
+                  <TableHead className="w-[60px]" />
+                )}
               </TableRow>
             </TableHeader>
             <TableBody>
-              {currentNode?.members?.map((member: TMembers) => (
+              {currentNode?.members?.map((member) => (
                 <TableRow key={member?.user?._id}>
-                  <TableCell className="flex items-center gap-2">
-                    <Avatar>
-                      <AvatarImage src={member?.user?.profileImage} />
-                      <AvatarFallback>
-                        {member?.user?.firstName?.[0]}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <div className="font-medium">
-                        {member?.user?.firstName || ""}{" "}
-                        {member?.user?.lastName || ""}{" "}
-                        {member?.user?._id === globalUser?._id && (
-                          <span className="text-sm text-muted-foreground">
-                            (You)
-                          </span>
-                        )}
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        {member?.role}
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <Avatar className="size-8 shrink-0">
+                        <AvatarImage src={member?.user?.profileImage} />
+                        <AvatarFallback>
+                          {member?.user?.firstName?.[0]}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="min-w-0">
+                        <div className="truncate font-medium">
+                          {member?.user?.firstName || ""}{" "}
+                          {member?.user?.lastName || ""}{" "}
+                          {member?.user?._id === globalUser?._id && (
+                            <span className="text-sm text-muted-foreground">
+                              (You)
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          {member?.role}
+                        </div>
                       </div>
                     </div>
                   </TableCell>
                   <TableCell>
                     <RoleBadge role={member?.role} />
                   </TableCell>
-                  <TableCell>{0}</TableCell>
+                  <TableCell className="text-center">{0}</TableCell>
                   <TableCell>
+                    <div className="flex w-[300px] items-center space-x-2">
+                      {isEditing[member?.user?._id] ? (
+                        <>
+                          <div className="relative w-[220px]">
+                            <Input
+                              type="text"
+                              placeholder="Enter designation"
+                              value={
+                                designations[member?.user._id] ??
+                                member?.designation ??
+                                ""
+                              }
+                              onChange={(e) =>
+                                handleInputChange(
+                                  member?.user._id,
+                                  e.target.value
+                                )
+                              }
+                              className="h-9 w-full"
+                            />
+                          </div>
+                          <div className="flex shrink-0 gap-1">
+                            <Button
+                              onClick={() => handleSave(member?.user._id)}
+                              variant="outline"
+                              size="icon"
+                              className="size-9 shrink-0"
+                            >
+                              <Check className="size-4" />
+                            </Button>
+                            <Button
+                              onClick={() => handleCancel(member?.user._id)}
+                              variant="outline"
+                              size="icon"
+                              className="size-9 shrink-0"
+                            >
+                              <X className="size-4" />
+                            </Button>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="flex w-full items-center justify-between">
+                          <span className="text-sm">
+                            {member?.designation || "No designation set"}
+                          </span>
+                          {hasPermission("update:desingation") && (
+                            <Button
+                              onClick={() => handleEditClick(member?.user._id)}
+                              variant="ghost"
+                              size="icon"
+                              className="size-8"
+                            >
+                              <Pencil className="size-4" />
+                            </Button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    {hasPermission("update: position") ? (
+                      <Select
+                        value={member.position}
+                        onValueChange={(newPosition) =>
+                          updateMemberPosition(newPosition, member.user._id)
+                        }
+                      >
+                        <SelectTrigger className="w-48">
+                          <SelectValue placeholder="Select position" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="senior">Senior</SelectItem>
+                          <SelectItem value="junior">Junior</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <Label className="text-sm text-gray-500">
+                        Position selection not available
+                      </Label>
+                    )}
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap">
                     {new Date(member?.createdAt).toLocaleDateString()}
                   </TableCell>
                   {isModeratorOrAdminOrOwner() &&

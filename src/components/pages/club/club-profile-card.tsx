@@ -32,6 +32,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import env from "@/lib/env.config";
 import { useClubCalls } from "@/hooks/apis/use-club-calls";
 import { usePermission } from "@/lib/use-permission";
+import Link from "next/link";
 
 interface ProfileCardProps {
   currentPage: string;
@@ -83,7 +84,7 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
       name: "Chapters",
       icon: ICONS.NodeChaptersIcon,
       notifications: 0,
-      path: "#",
+      path: `/club/${clubId}/chapters`,
       show: hasPermission("view:chapters"),
     },
     {
@@ -291,13 +292,14 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
         </div>
         <div className=" my-3 h-auto space-y-2  pb-4">
           {SECTIONS?.filter((section) => section.show)?.map((section) => (
-            <button
+            <Link
               key={section?.name}
               className={`flex w-full items-center justify-between rounded-md p-2 ${
                 currentPage === section?.name
                   ? "border border-primary bg-green-50"
                   : "border border-white hover:bg-gray-100"
               }`}
+              href={section?.path}
               onClick={() => {
                 setCurrentPage(section?.name);
                 router.push(section?.path);
@@ -324,7 +326,7 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
                 ) : null}
                 <ChevronRight size={"1rem"} />
               </div>
-            </button>
+            </Link>
           ))}
         </div>
       </div>

@@ -1,5 +1,10 @@
 "use client";
-
+interface PageState {
+  globalProjects: number;
+  ongoingProjects: number;
+  allProjects: number;
+  myProjects: number;
+}
 import {
   MoreHorizontal,
   ArrowUpDown,
@@ -34,7 +39,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { ExpandableTableRow } from "../rules-regulations/expandable-row";
 import Image from "next/image";
 import Link from "next/link";
@@ -51,6 +56,10 @@ interface DataTableProps {
   clickTrigger: boolean;
   setClickTrigger: React.Dispatch<React.SetStateAction<boolean>>;
   loading: boolean;
+  setCurrentPages: (val: any) => void;
+  tab: TProjectLable;
+  totalPage: any;
+  currentPage: any;
 }
 
 function DataTable({
@@ -60,9 +69,12 @@ function DataTable({
   plugin,
   forum,
   clickTrigger,
-
   setClickTrigger,
   loading,
+  setCurrentPages,
+  tab,
+  currentPage,
+  totalPage,
 }: DataTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
@@ -72,6 +84,7 @@ function DataTable({
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
     state: {
       sorting,
     },
@@ -145,6 +158,107 @@ function DataTable({
           )}
         </TableBody>
       </Table>
+
+      <div className="flex items-center justify-end space-x-2 py-4">
+        <Button
+          onClick={() => {
+            setCurrentPages((prev: PageState) => {
+              switch (tab) {
+                case "Global Projects":
+                  return {
+                    ...prev,
+                    globalProjects: prev.globalProjects - 1,
+                  };
+                case "On going projects":
+                  return {
+                    ...prev,
+                    ongoingProjects: prev.ongoingProjects - 1,
+                  };
+                case "All Projects":
+                  return {
+                    ...prev,
+                    allProjects: prev.allProjects - 1,
+                  };
+                case "My Projects":
+                  return {
+                    ...prev,
+                    myProjects: prev.myProjects - 1,
+                  };
+                default:
+                  return prev;
+              }
+            });
+          }}
+          variant="outline"
+          size="sm"
+          disabled={
+            tab === "Global Projects"
+              ? currentPage.globalProjects <= 1 ||
+                currentPage.globalProjects > totalPage.globalProjects
+              : tab === "On going projects"
+                ? currentPage.ongoingProjects <= 1 ||
+                  currentPage.ongoingProjects > totalPage.ongoingProjects
+                : tab === "All Projects"
+                  ? currentPage.allProjects <= 1 ||
+                    currentPage.allProjects > totalPage.allProjects
+                  : tab === "My Projects"
+                    ? currentPage.myProjects <= 1 ||
+                      currentPage.myProjects > totalPage.myProjects
+                    : true
+          }
+        >
+          Previous
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            setCurrentPages((prev: PageState) => {
+              switch (tab) {
+                case "Global Projects":
+                  return {
+                    ...prev,
+                    globalProjects: prev.globalProjects + 1,
+                  };
+                case "On going projects":
+                  return {
+                    ...prev,
+                    ongoingProjects: prev.ongoingProjects + 1,
+                  };
+                case "All Projects":
+                  return {
+                    ...prev,
+                    allProjects: prev.allProjects + 1,
+                  };
+                case "My Projects":
+                  return {
+                    ...prev,
+                    myProjects: prev.myProjects + 1,
+                  };
+                default:
+                  return prev;
+              }
+            });
+          }}
+          disabled={
+            tab === "Global Projects"
+              ? currentPage.globalProjects >= totalPage.globalProjects ||
+                currentPage.globalProjects > totalPage.globalProjects
+              : tab === "On going projects"
+                ? currentPage.ongoingProjects >= totalPage.ongoingProjects ||
+                  currentPage.ongoingProjects > totalPage.ongoingProjects
+                : tab === "All Projects"
+                  ? currentPage.allProjects >= totalPage.allProjects ||
+                    currentPage.allProjects > totalPage.allProjects
+                  : tab === "My Projects"
+                    ? currentPage.myProjects >= totalPage.myProjects ||
+                      currentPage.myProjects > totalPage.myProjects
+                    : true
+          }
+        >
+          Next
+        </Button>
+      </div>
     </div>
   );
 }
@@ -159,6 +273,9 @@ export default function ProjectTable({
   tab,
   loading,
   reFetch,
+  setCurrentPages,
+  totalPages,
+  currentPages,
 }: {
   plugin: TPlugins;
   forum: TForum;
@@ -169,6 +286,9 @@ export default function ProjectTable({
   tab: TProjectLable;
   loading?: boolean;
   reFetch: any;
+  setCurrentPages: any;
+  totalPages: any;
+  currentPages: any;
 }) {
   const columns: ColumnDef<TProjectData>[] = [
     {
@@ -197,6 +317,7 @@ export default function ProjectTable({
         );
       },
     },
+
     {
       accessorKey: "traction",
       header: ({ column }) => {
@@ -213,7 +334,7 @@ export default function ProjectTable({
       cell: ({ row }) => {
         return (
           <div className="space-y-1">
-            <div className="font-medium">234 Adopted</div>
+            <div className="font-medium"> 234 Adopted</div>
           </div>
         );
       },
@@ -265,7 +386,6 @@ export default function ProjectTable({
         );
       },
     },
-
     {
       accessorKey: "createdBy",
       header: "Posted by",
@@ -288,6 +408,36 @@ export default function ProjectTable({
         );
       },
     },
+    ...(tab === "Proposed Project"
+      ? [
+          {
+            accessorKey: "message",
+            header: ({ column }: { column: any }) => {
+              return (
+                <Button
+                  variant="ghost"
+                  onClick={() =>
+                    column.toggleSorting(column.getIsSorted() === "asc")
+                  }
+                >
+                  Message
+                  <ArrowUpDown className="ml-2 size-4" />
+                </Button>
+              );
+            },
+            cell: ({ row }: { row: any }) => {
+              console.log({ hello: row });
+              return (
+                <div className="space-y-1 text-center">
+                  <div className="text-sm text-muted-foreground">
+                    {row?.original?.message || "No message"}
+                  </div>
+                </div>
+              );
+            },
+          },
+        ]
+      : []),
     ...(tab !== "Proposed Project"
       ? [
           {
@@ -322,7 +472,6 @@ export default function ProjectTable({
           },
         ]
       : []),
-    // ... (previous columns remain the same)
     {
       id: "actions",
       header: "Actions",
@@ -337,8 +486,6 @@ export default function ProjectTable({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                {/* <DropdownMenuLabel>Actions</DropdownMenuLabel> */}
-                {/* View Details */}
                 <DropdownMenuItem asChild>
                   <Link
                     href={`/${forum}/${forumId}/${plugin}/${row.original._id}/view`}
@@ -347,26 +494,28 @@ export default function ProjectTable({
                     View Details
                   </Link>
                 </DropdownMenuItem>
-                {/* Accept */}
                 <DropdownMenuItem
                   onSelect={() => {
-                    ProjectApi.projectAction(row.original._id, "accept").then(
-                      () => {
-                        reFetch();
-                      }
-                    );
+                    ProjectApi.projectAction(
+                      row.original._id,
+                      "accept",
+                      row.original.type
+                    ).then(() => {
+                      reFetch();
+                    });
                   }}
                 >
                   Accept
                 </DropdownMenuItem>
-                {/* Reject */}
                 <DropdownMenuItem
                   onSelect={() => {
-                    ProjectApi.projectAction(row.original._id, "reject").then(
-                      () => {
-                        reFetch();
-                      }
-                    );
+                    ProjectApi.projectAction(
+                      row.original._id,
+                      "reject",
+                      row.original.type
+                    ).then(() => {
+                      reFetch();
+                    });
                   }}
                   className="text-red-500"
                 >
@@ -422,6 +571,10 @@ export default function ProjectTable({
       clickTrigger={clickTrigger as boolean}
       setClickTrigger={setClickTrigger as any}
       loading={loading as any}
+      setCurrentPages={setCurrentPages}
+      tab={tab}
+      totalPage={totalPages}
+      currentPage={currentPages}
     />
   );
 }

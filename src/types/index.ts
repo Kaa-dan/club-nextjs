@@ -79,6 +79,8 @@ export interface TMembers {
   role: "member" | "admin" | "moderator" | "owner";
   status: "REQUESTED" | "APPROVED" | "REJECTED";
   createdAt: Date;
+  designation: string;
+  position: string;
 }
 
 type IssueType =
@@ -109,4 +111,19 @@ export type TIssue = {
     avatar: string;
   };
   relevanceScore: number;
+};
+
+export type TChapter = {
+  _id: string;
+  name: string;
+  club: string;
+  node: string;
+  status: string;
+  proposedBy: string;
+  publishedBy: string;
+  createdAt: string;
+  updatedAt: string;
+  profileImage: {
+    url: string;
+  };
 };

@@ -64,7 +64,11 @@ export const ProjectApi = {
     }
   },
 
-  adoptProject: async (data: { project: string; [key: string]: string }) => {
+  adoptProject: async (data: {
+    project: string;
+    [key: string]: string | undefined;
+    proposalMessage?: string;
+  }) => {
     try {
       const response = await withTokenAxios.post(
         `adopt-contribution/adopt-forum`,
@@ -128,11 +132,30 @@ export const ProjectApi = {
       throw error;
     }
   },
-  projectAction: async (projectId: string, type: "accept" | "reject") => {
+  projectAction: async (
+    projectId: string,
+    type: "accept" | "reject",
+    creationType: "proposed" | "creation"
+  ) => {
     try {
       const response = await withTokenAxios.put(
-        `project/accept-proposed-project/${projectId}/${type}`
+        `project/accept-proposed-project/${projectId}/${type}`,
+        {
+          creationType,
+        }
       );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  reactToPost: async (postId: string, action: "like" | "dislike") => {
+    try {
+      const response = await withTokenAxios.patch("/project/react", {
+        postId,
+        action,
+      });
       return response.data;
     } catch (error) {
       throw error;
