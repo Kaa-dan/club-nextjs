@@ -144,7 +144,7 @@ export const Navbar: React.FC = () => {
           {/* Icons and Profile */}
           {/* Message Icon */}
           <div className="z-20 flex items-center gap-4">
-            <Link
+            {/* <Link
               className=" flex items-center gap-2 rounded-md p-2 shadow-md hover:bg-gray-100"
               href="/messages"
             >
@@ -155,7 +155,7 @@ export const Navbar: React.FC = () => {
                 height={16}
               />
               Message
-            </Link>
+            </Link> */}
             <Notification ICON={ICONS?.HeaderNotificationIcon} />
             {/* Profile Dropdown */}
             <DropdownMenu>

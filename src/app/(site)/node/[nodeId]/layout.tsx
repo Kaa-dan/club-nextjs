@@ -19,15 +19,38 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   }, [params.nodeId]);
 
   return (
-    <div className="flex w-full gap-6">
-      <div className=" flex w-11/12 gap-3">
+    // <div className="flex w-full gap-6">
+    //   <div className=" flex w-11/12 gap-3">
+    //     <div className="w-1/4 shrink-0 flex-col">
+    //       <NodeProfileCard
+    //         currentPage={currentPage}
+    //         setCurrentPage={setCurrentPage}
+    //       />
+    //     </div>
+    //     <div className="flex w-3/4 flex-col ">
+    //       <ModulesBar
+    //         plugin={params?.plugin}
+    //         forum={"node"}
+    //         forumId={params.nodeId}
+    //       />
+    //       {children}
+    //     </div>
+    //   </div>
+    //   <div className="">
+    //     <TeamsSidePopover />
+    //   </div>
+    // </div>
+    <div className="flex w-full">
+      <div className="flex w-[calc(100%-3rem)] gap-6">
+        {" "}
+        {/* Changed from w-11/12 to calculated width */}
         <div className="w-1/4 shrink-0 flex-col">
           <NodeProfileCard
             currentPage={currentPage}
             setCurrentPage={setCurrentPage}
           />
         </div>
-        <div className="flex w-3/4 flex-col ">
+        <div className="flex w-3/4 flex-col">
           <ModulesBar
             plugin={params?.plugin}
             forum={"node"}
@@ -36,7 +59,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           {children}
         </div>
       </div>
-      <div className="">
+      <div className="relative">
+        {" "}
+        {/* Added fixed width container */}
         <TeamsSidePopover />
       </div>
     </div>
