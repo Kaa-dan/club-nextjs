@@ -1,5 +1,11 @@
 "use client";
-
+interface PageState {
+  globalProjects: number;
+  ongoingProjects: number;
+  allProjects: number;
+  myProjects: number;
+  offenses: number;
+}
 import { useState } from "react";
 import {
   ColumnDef,
@@ -32,7 +38,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { withTokenAxios } from "@/lib/mainAxios";
 
 // Define the type for your data
 interface ReportData {
@@ -65,6 +70,9 @@ interface DataTableProps {
   data: any[];
   forumId: string;
   plugin: string;
+  setCurrentPages: (val: any) => void;
+  totalPage: any;
+  currentPage: any;
 }
 
 // Define your columns
@@ -98,7 +106,12 @@ const columns = [
   },
 ];
 
-export function DataTable({ data }: DataTableProps) {
+export function DataTable({
+  data,
+  setCurrentPages,
+  currentPage,
+  totalPage,
+}: DataTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
   const table = useReactTable({
@@ -198,6 +211,33 @@ export function DataTable({ data }: DataTableProps) {
           )}
         </TableBody>
       </Table>
+      <div className="flex items-center justify-end space-x-2 py-4">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() =>
+            setCurrentPages((prev: PageState) => ({
+              ...prev,
+              offenses: prev.offenses - 1,
+            }))
+          }
+        >
+          Previous
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() =>
+            setCurrentPages((prev: PageState) => ({
+              ...prev,
+              offenses: prev.offenses + 1,
+            }))
+          }
+          disabled={currentPage >= totalPage}
+        >
+          Next
+        </Button>
+      </div>
     </div>
   );
 }
@@ -207,6 +247,9 @@ interface OffenceTableProps {
   forum: TForum;
   forumId: string;
   data: any[];
+  setCurrentPages: (val: any) => void;
+  totalPage: any;
+  currentPage: any;
 }
 
 export function OffenceTable({
@@ -214,6 +257,9 @@ export function OffenceTable({
   forum,
   forumId,
   data,
+  currentPage,
+  setCurrentPages,
+  totalPage,
 }: OffenceTableProps) {
   const columns: ColumnDef<any>[] = [
     {
@@ -353,6 +399,9 @@ export function OffenceTable({
 
   return (
     <DataTable
+      currentPage={currentPage}
+      setCurrentPages={setCurrentPages}
+      totalPage={totalPage}
       columns={columns}
       data={data}
       forumId={forumId}
