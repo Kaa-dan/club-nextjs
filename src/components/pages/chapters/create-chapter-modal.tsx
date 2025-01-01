@@ -26,6 +26,7 @@ import { Label } from "@/components/ui/lable";
 import { withTokenAxios } from "@/lib/mainAxios";
 import Image from "next/image";
 import { useParams } from "next/navigation";
+import useChapters from "./use-chapters";
 
 interface Club {
   _id: string;
@@ -51,6 +52,7 @@ const CreateChapterModal: React.FC<CreateChapterModalProps> = ({
   const [openCombobox, setOpenCombobox] = React.useState(false);
   const { nodeId } = useParams<{ nodeId: string }>();
   const [term, setTerm] = React.useState("");
+  const { fetchPublishedChapters, fetchProposedChapters } = useChapters();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,6 +63,8 @@ const CreateChapterModal: React.FC<CreateChapterModalProps> = ({
           club: selectedClub._id,
           node: nodeId,
         });
+        fetchPublishedChapters();
+        fetchProposedChapters();
         onOpenChange(false);
         console.log({ response });
       } catch (error) {

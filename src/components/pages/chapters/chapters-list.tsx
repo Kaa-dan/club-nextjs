@@ -1,10 +1,17 @@
 "use client";
 
 import * as React from "react";
-import { Search } from "lucide-react";
+import { Check, Eye, Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,26 +24,66 @@ import { withTokenAxios } from "@/lib/mainAxios";
 import { useParams } from "next/navigation";
 import { TChapter } from "@/types";
 import { useChapterStore } from "@/store/chapters-store";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Label } from "@/components/ui/label";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import useChapters from "./use-chapters";
+import { toast } from "sonner";
+import { usePermission } from "@/lib/use-permission";
 
 export function ChaptersList() {
-  const { publishedChapters } = useChapterStore((state) => state);
+  const { hasPermission } = usePermission();
+  const { nodeId } = useParams<{ nodeId: string }>();
+  const { fetchPublishedChapters, fetchProposedChapters } = useChapters();
+  const { publishedChapters, proposedChapters } = useChapterStore(
+    (state) => state
+  );
   const [searchQuery, setSearchQuery] = React.useState("");
   const [chapters, setChapters] = React.useState<TChapter[]>([]);
-  const [filteredChapters, setFilteredChapters] =
+  const [filteredPublishedChapters, setFilteredPublishedChapters] =
     React.useState<TChapter[]>(publishedChapters);
+  const [filteredProposedChapters, setFilteredProposedChapters] =
+    React.useState<TChapter[]>(proposedChapters);
   const [openCreateModal, setOpenCreateModal] = React.useState(false);
 
   React.useEffect(() => {
-    const filtered = publishedChapters.filter((chapter) =>
+    const filteredPublished = publishedChapters.filter((chapter) =>
       chapter.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
-    setFilteredChapters(filtered);
-  }, [searchQuery, chapters]);
+    const filteredProposed = proposedChapters.filter((chapter) =>
+      chapter.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    setFilteredPublishedChapters(filteredPublished);
+    setFilteredProposedChapters(filteredProposed);
+  }, [searchQuery, chapters, publishedChapters, proposedChapters]);
+
+  const handleChapterApproval = async (
+    chapterId: string,
+    status: "publish" | "reject"
+  ) => {
+    try {
+      await withTokenAxios.post("/chapters/publish-or-reject", {
+        chapterId,
+        status,
+        node: nodeId,
+      });
+      fetchPublishedChapters();
+      fetchProposedChapters();
+    } catch (error: any) {
+      const message =
+        status === "publish"
+          ? "something went wrong when publishing chapter"
+          : "something went wrong when rejecting chapter";
+      toast.error(error.response.data.message || message);
+      console.log(error.message);
+    }
+  };
 
   return (
     <div className="container mx-auto space-y-6 p-4">
-      <div className="flex items-center justify-between">
-        <h1 className="mb-4 text-2xl font-bold">All Chapters</h1>
+      <div className="flex items-center justify-end">
+        {/* <h1 className="mb-4 text-2xl font-bold">All Chapters</h1> */}
         <Button
           onClick={() => setOpenCreateModal(true)}
           variant="outline"
@@ -75,7 +122,92 @@ export function ChaptersList() {
         </DropdownMenu>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+      <Tabs defaultValue="published" className="grid-cols-1">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="published">Published Chapters</TabsTrigger>
+          <TabsTrigger value="proposed">Proposed Chapters</TabsTrigger>
+        </TabsList>
+        <TabsContent value="published">
+          <Card>
+            <CardContent className="h-72 space-y-2 overflow-y-scroll">
+              {filteredPublishedChapters.map((chapter) => (
+                <div
+                  key={chapter?._id}
+                  className="mt-4 flex justify-between space-y-1 rounded-lg p-3 shadow-md"
+                >
+                  <div className="flex gap-7">
+                    <div>
+                      <Avatar>
+                        <AvatarImage
+                          src={chapter?.profileImage?.url}
+                          alt="@shadcn"
+                        />
+                        <AvatarFallback>
+                          {chapter?.name?.charAt(0)}
+                        </AvatarFallback>
+                      </Avatar>
+                    </div>
+                    <div className=" flex items-center">{chapter?.name}</div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {/* <Eye className="cursor-pointer text-gray-600" /> */}
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="proposed">
+          <Card>
+            <CardContent className="h-72 space-y-2 overflow-y-scroll">
+              {filteredProposedChapters.map((chapter) => (
+                <div
+                  key={chapter?._id}
+                  className="mt-4 flex justify-between space-y-1 rounded-lg p-3 shadow-md"
+                >
+                  <div className="flex gap-4">
+                    <div>
+                      <Avatar>
+                        <AvatarImage
+                          src={chapter?.profileImage?.url}
+                          alt="@shadcn"
+                        />
+                        <AvatarFallback>
+                          {chapter?.name?.charAt(0)}
+                        </AvatarFallback>
+                      </Avatar>
+                    </div>
+                    <div className="flex items-center">{chapter?.name}</div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {/* <Eye className="cursor-pointer text-gray-600" /> */}
+                    {hasPermission("publish:chapter") && (
+                      <>
+                        <Check
+                          className="cursor-pointer text-green-500"
+                          strokeWidth={3}
+                          onClick={() =>
+                            handleChapterApproval(chapter._id, "publish")
+                          }
+                        />
+                        <X
+                          className="cursor-pointer text-red-500"
+                          strokeWidth={3}
+                          onClick={() =>
+                            handleChapterApproval(chapter._id, "reject")
+                          }
+                        />
+                      </>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+
+      {/* <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         {filteredChapters.map((chapter) => (
           <Card key={chapter._id} className="overflow-hidden">
             <CardHeader className="p-0">
@@ -93,11 +225,11 @@ export function ChaptersList() {
                 Created: {new Date(chapter.createdAt).toLocaleDateString()}
               </p>
             </CardContent>
-            {/* <CardFooter className="p-4 pt-0">
+            <CardFooter className="p-4 pt-0">
               <p className="text-xs text-muted-foreground">
                 Status: {chapter.status}
               </p>
-            </CardFooter> */}
+            </CardFooter>
           </Card>
         ))}
       </div>
@@ -106,7 +238,7 @@ export function ChaptersList() {
         <div className="py-8 text-center text-muted-foreground">
           No chapters found matching your search.
         </div>
-      )}
+      )} */}
     </div>
   );
 }
