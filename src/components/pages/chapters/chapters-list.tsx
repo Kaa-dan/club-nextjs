@@ -129,7 +129,7 @@ export function ChaptersList() {
         </TabsList>
         <TabsContent value="published">
           <Card>
-            <CardContent className="min-h-56 space-y-2">
+            <CardContent className="h-72 space-y-2 overflow-y-scroll">
               {filteredPublishedChapters.map((chapter) => (
                 <div
                   key={chapter?._id}
@@ -159,7 +159,7 @@ export function ChaptersList() {
         </TabsContent>
         <TabsContent value="proposed">
           <Card>
-            <CardContent className="min-h-56 space-y-2">
+            <CardContent className="h-72 space-y-2 overflow-y-scroll">
               {filteredProposedChapters.map((chapter) => (
                 <div
                   key={chapter?._id}
