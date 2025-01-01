@@ -1,4 +1,11 @@
 "use client";
+interface PageState {
+  globalRules: number;
+  activeRules: number;
+  allRules: number;
+  myRules: number;
+}
+
 import { Badge } from "@/components/ui/badge";
 import { useState, useEffect } from "react";
 import {
@@ -66,7 +73,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { NodeEndpoints } from "@/utils/endpoints/node";
-import { error } from "console";
 import { RulesAndRegulationsEndpoints } from "@/utils/endpoints/plugins/rules-and-regulations";
 import { toast } from "sonner";
 import {
@@ -107,6 +113,10 @@ interface DataTableProps {
   clickTrigger: boolean;
   setClickTrigger: React.Dispatch<React.SetStateAction<boolean>>;
   loading: boolean;
+  setCurrentPages: any;
+  totalPages: any;
+  currentPages: any;
+  tab: "Active" | "All Rules" | "Global Rules" | "My Rules" | "Report Offenses";
 }
 
 function DataTable({
@@ -118,6 +128,10 @@ function DataTable({
   clickTrigger,
   setClickTrigger,
   loading,
+  setCurrentPages,
+  totalPages,
+  currentPages,
+  tab,
 }: DataTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
@@ -131,7 +145,8 @@ function DataTable({
       sorting,
     },
   });
-
+  console.log({ currentPages });
+  console.log({ totalPages });
   return (
     <div className="rounded-md border">
       <Table>
@@ -282,6 +297,118 @@ function DataTable({
           )}
         </TableBody>
       </Table>
+
+      <div className="flex items-center justify-end space-x-2 py-4">
+        <Button
+          onClick={() => {
+            setCurrentPages((prev: PageState) => {
+              switch (tab) {
+                case "Active":
+                  return {
+                    ...prev,
+                    active: prev.activeRules - 1,
+                  };
+                case "All Rules":
+                  return {
+                    ...prev,
+                    allRules: prev.allRules - 1,
+                  };
+                case "Global Rules":
+                  return {
+                    ...prev,
+                    globalRules: prev.globalRules - 1,
+                  };
+                case "My Rules":
+                  return {
+                    ...prev,
+                    myRules: prev.myRules - 1,
+                  };
+                // case "Report Offenses":
+                //   return {
+                //     ...prev,
+                //     reportOffenses: prev.reportOffenses - 1,
+                //   };
+                default:
+                  return prev;
+              }
+            });
+          }}
+          variant="outline"
+          size="sm"
+          disabled={
+            tab === "Active"
+              ? currentPages.activeRules <= 1 ||
+                currentPages.activeRules > totalPages.activeRules
+              : tab === "All Rules"
+                ? currentPages.activeRules <= 1 ||
+                  currentPages.activeRules > totalPages.activeRules
+                : tab === "Global Rules"
+                  ? currentPages.globalRules <= 1 ||
+                    currentPages.globalRules > totalPages.globalRules
+                  : tab === "My Rules"
+                    ? currentPages.myRules <= 1 ||
+                      currentPages.myRules > totalPages.myRules
+                    : tab === "Report Offenses"
+                      ? currentPages.reportOffenses <= 1 ||
+                        currentPages.reportOffenses > totalPages.reportOffenses
+                      : true
+          }
+        >
+          Previous
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            setCurrentPages((prev: PageState) => {
+              switch (tab) {
+                case "Active":
+                  return {
+                    ...prev,
+                    active: prev.activeRules + 1,
+                  };
+                case "All Rules":
+                  return {
+                    ...prev,
+                    allRules: prev.allRules + 1,
+                  };
+                case "Global Rules":
+                  return {
+                    ...prev,
+                    globalRules: prev.globalRules + 1,
+                  };
+                case "My Rules":
+                  return {
+                    ...prev,
+                    myRules: prev.myRules + 1,
+                  };
+                // case "Report Offenses":
+                //   return {
+                //     ...prev,
+                //     reportOffenses: prev.reportOffenses + 1,
+                //   };
+                default:
+                  return prev;
+              }
+            });
+          }}
+          disabled={
+            tab === "Active"
+              ? currentPages.activeRules >= totalPages.activeRules
+              : tab === "All Rules"
+                ? currentPages.activeRules >= totalPages.activeRules
+                : tab === "Global Rules"
+                  ? currentPages.globalRules >= totalPages.globalRules
+                  : tab === "My Rules"
+                    ? currentPages.myRules >= totalPages.myRules
+                    : tab === "Report Offenses"
+                      ? currentPages.reportOffenses >= totalPages.reportOffenses
+                      : true
+          }
+        >
+          Next
+        </Button>
+      </div>
     </div>
   );
 }
@@ -294,6 +421,10 @@ export function RulesTable({
   clickTrigger,
   setClickTrigger,
   loading,
+  currentPage,
+  setCurrentPages,
+  tab,
+  totalPage,
 }: {
   plugin: TPlugins;
   forum: TForum;
@@ -302,6 +433,10 @@ export function RulesTable({
   clickTrigger: boolean;
   setClickTrigger: React.Dispatch<React.SetStateAction<boolean>>;
   loading: boolean;
+  setCurrentPages: (val: any) => void;
+  tab: any;
+  totalPage: any;
+  currentPage: any;
 }) {
   const columns: ColumnDef<Rule>[] = [
     {
@@ -495,6 +630,9 @@ export function RulesTable({
   return (
     <div>
       <DataTable
+        currentPages={currentPage}
+        setCurrentPages={setCurrentPages}
+        totalPages={totalPage}
         columns={columns}
         data={data}
         forumId={forumId}
@@ -503,6 +641,7 @@ export function RulesTable({
         setClickTrigger={setClickTrigger}
         clickTrigger={clickTrigger}
         loading={loading}
+        tab={tab}
       />
     </div>
   );

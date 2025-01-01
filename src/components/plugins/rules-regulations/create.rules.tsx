@@ -280,7 +280,6 @@ export default function RuleForm({
         onSubmit={handleSubmit(() => setIsAlertOpen(true))}
         className="space-y-4"
       >
-        {/* Title and Domain */}xxxxxx
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <TooltipProvider>

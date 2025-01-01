@@ -391,7 +391,6 @@ export default function ProjectTable({
       header: "Posted by",
       cell: ({ row }) => {
         const postedBy = row.getValue("createdBy") as TProjectData["createdBy"];
-        console.log(postedBy, "posted by");
         return (
           <div className="flex items-center gap-2">
             <Avatar className="size-8">
