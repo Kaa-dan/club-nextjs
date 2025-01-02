@@ -65,15 +65,15 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
     {
       name: "News Feed",
       icon: ICONS.NodeNewsFeedIcon,
-      path: "#",
+      path: `/club/${clubId}`,
       show: hasPermission("view:newsFeed"),
     },
-    {
-      name: "Modules",
-      icon: ICONS.NodeModulesIcon,
-      path: "#",
-      show: hasPermission("view:modules"),
-    },
+    // {
+    //   name: "Modules",
+    //   icon: ICONS.NodeModulesIcon,
+    //   path: "#",
+    //   show: hasPermission("view:modules"),
+    // },
     {
       name: "Profile",
       icon: ICONS.NodeProfileIcon,
@@ -100,24 +100,24 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
       path: `/club/${clubId}/approvals`,
       show: hasPermission("view:approvals"),
     },
-    {
-      name: "Insights/Analytics",
-      icon: ICONS.NodeInsightsIcon,
-      path: "#",
-      show: hasPermission("view:analytics"),
-    },
-    {
-      name: "Activities",
-      icon: ICONS.NodeActivitiesIcon,
-      path: `/club/${clubId}/activity`,
-      show: hasPermission("view:activities"),
-    },
-    {
-      name: "Preferences",
-      icon: ICONS.NodePreferencesIcon,
-      path: "#",
-      show: hasPermission("view:activities"),
-    },
+    // {
+    //   name: "Insights/Analytics",
+    //   icon: ICONS.NodeInsightsIcon,
+    //   path: "#",
+    //   show: hasPermission("view:analytics"),
+    // },
+    // {
+    //   name: "Preferences",
+    //   icon: ICONS.NodePreferencesIcon,
+    //   path: "#",
+    //   show: hasPermission("view:activities"),
+    // },
+    // {
+    //   name: "Activities",
+    //   icon: ICONS.NodeActivitiesIcon,
+    //   path: `/club/${clubId}/activity`,
+    //   show: hasPermission("view:activities"),
+    // },
   ];
   // console.log({ url: club.club.profileImage.url);
 

@@ -187,7 +187,7 @@ const NodePage: React.FC = () => {
       <div ref={ref} className="h-4" />
 
       {!hasMore && posts.length > 0 && (
-        <div className="p-4 text-center text-muted-foreground">
+        <div className=" p-4 text-center text-muted-foreground">
           No more posts to load
         </div>
       )}

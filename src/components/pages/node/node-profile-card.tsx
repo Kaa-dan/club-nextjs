@@ -44,8 +44,12 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
   const { setUserRequestedNodes } = useNodeStore((state) => state);
 
   const SECTIONS = [
-    { name: "News Feed", icon: ICONS.NodeNewsFeedIcon, path: "#" },
-    { name: "Modules", icon: ICONS.NodeModulesIcon, path: "#" },
+    {
+      name: "News Feed",
+      icon: ICONS.NodeNewsFeedIcon,
+      path: `/node/${currentNode?.node?._id}/`,
+    },
+    // { name: "Modules", icon: ICONS.NodeModulesIcon, path: "#" },
     {
       name: "Profile",
       icon: ICONS.NodeProfileIcon,
@@ -69,23 +73,23 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
       path: `/node/${currentNode?.node?._id}/approvals`,
       show: hasPermission("view:approvals"),
     },
-    {
-      name: "Insights/Analytics",
-      icon: ICONS.NodeInsightsIcon,
-      path: "#",
-      show: hasPermission("view:analytics"),
-    },
-    {
-      name: "Activities",
-      icon: ICONS.NodeActivitiesIcon,
-      path: `/node/${currentNode?.node?._id}/activity`,
-      show: hasPermission("view:activities"),
-    },
-    {
-      name: "Preferences",
-      icon: ICONS.NodePreferencesIcon,
-      path: "#",
-    },
+    // {
+    //   name: "Insights/Analytics",
+    //   icon: ICONS.NodeInsightsIcon,
+    //   path: "#",
+    //   show: hasPermission("view:analytics"),
+    // },
+    // {
+    //   name: "Activities",
+    //   icon: ICONS.NodeActivitiesIcon,
+    //   path: `/node/${currentNode?.node?._id}/activity`,
+    //   show: hasPermission("view:activities"),
+    // },
+    // {
+    //   name: "Preferences",
+    //   icon: ICONS.NodePreferencesIcon,
+    //   path: "#",
+    // },
   ];
   const router = useRouter();
   const joinToNode = async (nodeId: string) => {
@@ -141,7 +145,7 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
       });
   };
   return (
-    <div className="sticky top-16 h-fit  w-full overflow-hidden rounded-lg bg-white pb-2 text-sm shadow-md">
+    <div className="sticky top-16 mb-10 h-screen  w-full overflow-hidden rounded-lg  pb-2 text-sm shadow-md">
       {currentNode ? (
         <div className="relative">
           <Image

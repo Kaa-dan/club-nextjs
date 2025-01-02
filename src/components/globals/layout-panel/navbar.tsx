@@ -12,13 +12,16 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { ICONS } from "@/lib/constants";
-import { Cross, Search, X } from "lucide-react";
+import { Cross, LogOut, Search, X } from "lucide-react";
 import { toast } from "sonner";
 import { SharedEndpoints } from "@/utils/endpoints/shared";
 import club from "/public/icons/club-grey.icon.svg";
 import node from "/public/icons/node-grey.icon.svg";
 import Notification from "@/components/pages/notifications/Notification";
-
+import { useTokenStore } from "@/store/store";
+import CustomAlertDialog from "@/components/ui/custom/custom-alert-dialog";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 interface searchBtn {
   id: number;
   icon: string;
@@ -35,6 +38,8 @@ const searchBtns: searchBtn[] = [
 ];
 
 export const Navbar: React.FC = () => {
+  const router = useRouter();
+  const { globalUser, clearStore } = useTokenStore();
   const [isSearchModal, setIsSearchModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [clubs, setClubs] = useState<
@@ -158,19 +163,22 @@ export const Navbar: React.FC = () => {
             </Link> */}
             <Notification ICON={ICONS?.HeaderNotificationIcon} />
             {/* Profile Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-2 rounded-md p-2 shadow-md">
-                <Image
-                  src={ICONS.HeaderProfileIcon}
-                  alt="Dropdown Icon"
-                  width={16}
-                  height={16}
-                  className="ml-2"
-                />
-                <span className="font-medium text-gray-700">Esther Howard</span>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="absolute mt-2 w-48 rounded-md border border-gray-200 bg-white shadow-lg">
-                <DropdownMenuItem>
+            <div className="relative">
+              <DropdownMenu>
+                <DropdownMenuTrigger className="flex items-center gap-2 rounded-md p-2 shadow-md">
+                  <Image
+                    src={ICONS.HeaderProfileIcon}
+                    alt="Dropdown Icon"
+                    width={16}
+                    height={16}
+                    className="ml-2"
+                  />
+                  <span className="font-medium text-gray-700">
+                    {globalUser?.firstName || " "} {globalUser?.lastName || " "}
+                  </span>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="absolute mt-2 w-48 rounded-md border border-gray-200 bg-white shadow-lg">
+                  {/* <DropdownMenuItem>
                   <Link
                     className="block px-4 py-2 text-gray-700"
                     href="/profile"
@@ -185,17 +193,32 @@ export const Navbar: React.FC = () => {
                   >
                     Settings
                   </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Link
-                    className="block px-4 py-2 text-gray-700"
-                    href="/logout"
-                  >
-                    Logout
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                </DropdownMenuItem> */}
+                  <DropdownMenuItem onClick={(e) => e.preventDefault()}>
+                    <CustomAlertDialog
+                      trigger={
+                        <Button
+                          variant="outline"
+                          className="mt-5 h-12 w-full justify-center  gap-2  hover:text-red-600"
+                        >
+                          <LogOut size={18} />
+                          <p className={"whitespace-nowrap"}>Sign out</p>
+                        </Button>
+                      }
+                      title="Sign Out Confirmation"
+                      description="Are you sure you want to sign out? You'll need to sign in again to access your account."
+                      type="success"
+                      actionText="Sign out"
+                      cancelText="Cancel"
+                      onAction={() => {
+                        clearStore();
+                        router.replace("/sign-in");
+                      }}
+                    />
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
         </div>
         {isSearchModal && (

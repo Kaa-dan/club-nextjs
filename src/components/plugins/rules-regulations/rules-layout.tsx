@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search } from "lucide-react";
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
 import { RulesTable } from "./rules";
 import { OffenceTable } from "./offence-table";
 import useRules from "./use-rules";
@@ -51,7 +51,12 @@ const RulesLayout = ({
     setClickTrigger,
     offenses,
     loading,
+    currentPages,
+    totalPages,
+    setCurrentPages,
   } = useRules(forum, forumId);
+
+  const [activeTab, setActiveTab] = useState("Active");
 
   const tabs: TabData[] = [
     {
@@ -101,8 +106,12 @@ const RulesLayout = ({
     return data;
   }
 
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+  };
+
   return (
-    <div className="w-full space-y-4  p-4">
+    <div className="w-full space-y-4 p-4">
       <div className="space-y-2">
         <h2 className="text-2xl font-bold tracking-tight">
           Rules and Regulations
@@ -113,7 +122,11 @@ const RulesLayout = ({
         </p>
       </div>
 
-      <Tabs defaultValue="Active" className="w-full space-y-4 ">
+      <Tabs
+        defaultValue="Active"
+        className="w-full space-y-4"
+        onValueChange={handleTabChange}
+      >
         <TabsList className="flex h-auto flex-wrap gap-1 bg-background p-1">
           {tabs
             ?.filter((tab) => tab.show !== false)
@@ -121,7 +134,11 @@ const RulesLayout = ({
               <TabsTrigger
                 key={tab?.label}
                 value={tab?.label}
+<<<<<<< HEAD
                 className="shrink-0 rounded-md border-b-4 border-white px-3 py-1.5 text-sm data-[state=active]:border-primary  data-[state=active]:text-primary"
+=======
+                className="shrink-0 rounded-md border-primary px-3 py-1.5 text-sm data-[state=active]:border-b-4 data-[state=active]:text-primary"
+>>>>>>> bea93613148cd197c1b6bfde4faa7b64a56b1064
               >
                 {tab?.label} ({formatCount(tab?.count)})
               </TabsTrigger>
@@ -186,10 +203,14 @@ const RulesLayout = ({
               </div>
               {tab.label === "Report Offenses" ? (
                 <OffenceTable
+                  currentPage={currentPages}
+                  setCurrentPages={setCurrentPages}
+                  totalPage={totalPages}
                   forumId={forumId}
                   plugin={plugin}
                   forum={forum}
                   data={offenses}
+                  // activeTab={activeTab}
                 />
               ) : (
                 <RulesTable
@@ -200,6 +221,10 @@ const RulesLayout = ({
                   clickTrigger={clickTrigger}
                   setClickTrigger={setClickTrigger}
                   loading={loading}
+                  currentPage={currentPages}
+                  setCurrentPages={setCurrentPages}
+                  tab={activeTab}
+                  totalPage={totalPages}
                 />
               )}
             </TabsContent>

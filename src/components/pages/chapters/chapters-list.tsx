@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Check, Eye, Search, X } from "lucide-react";
+import { Check, Eye, Filter, Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -82,22 +82,6 @@ export function ChaptersList() {
 
   return (
     <div className="container mx-auto space-y-6 p-4">
-      <div className="flex items-center justify-end">
-        {/* <h1 className="mb-4 text-2xl font-bold">All Chapters</h1> */}
-        <Button
-          onClick={() => setOpenCreateModal(true)}
-          variant="outline"
-          size="default"
-        >
-          Create Chapter
-        </Button>
-        {openCreateModal && (
-          <CreateChapterModal
-            open={openCreateModal}
-            onOpenChange={setOpenCreateModal}
-          />
-        )}
-      </div>
       <div className="flex items-center gap-2">
         <div className="relative flex-1">
           <Search className="absolute left-2 top-2.5 size-4 text-muted-foreground" />
@@ -108,10 +92,11 @@ export function ChaptersList() {
             className="pl-8"
           />
         </div>
+        <div className="flex items-center gap-2"></div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="icon">
-              <Search className="size-4" />
+              <Filter className="size-4" />
               <span className="sr-only">Filter</span>
             </Button>
           </DropdownMenuTrigger>
@@ -120,6 +105,19 @@ export function ChaptersList() {
             <DropdownMenuItem>Filter by Status</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        <Button
+          onClick={() => setOpenCreateModal(true)}
+          variant="default"
+          size="default"
+        >
+          Create Chapter
+        </Button>
+        {openCreateModal && (
+          <CreateChapterModal
+            open={openCreateModal}
+            onOpenChange={setOpenCreateModal}
+          />
+        )}
       </div>
 
       <Tabs defaultValue="published" className="grid-cols-1">

@@ -31,7 +31,6 @@ const ModulesBar: React.FC<{
       icon:
         plugin === "issues" ? ICONS.BarIssuesIconGreen : ICONS.BarIssuesIcon,
     },
-    { link: "market", name: "Market Place", icon: ICONS.BarMarketPlaceIcon },
     {
       link: "debate",
       name: "Debate",
@@ -43,12 +42,13 @@ const ModulesBar: React.FC<{
       name: "Projects",
       icon: ICONS.BarFunnyIcon,
     },
-    {
-      link: "events",
-      name: "Events News",
-      icon: ICONS.BarEventsIcon,
-      notifications: 8,
-    },
+    // { link: "market", name: "Market Place", icon: ICONS.BarMarketPlaceIcon },
+    // {
+    //   link: "events",
+    //   name: "Events News",
+    //   icon: ICONS.BarEventsIcon,
+    //   notifications: 8,
+    // },
   ];
   const router = useRouter();
   return (
