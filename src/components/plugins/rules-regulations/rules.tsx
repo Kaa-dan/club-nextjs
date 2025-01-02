@@ -305,7 +305,7 @@ function DataTable({
             {tab === "Active"
               ? currentPages.activeRules
               : tab === "All Rules"
-                ? currentPages.allRules
+                ? currentPages.activeRules
                 : tab === "Global Rules"
                   ? currentPages.globalRules
                   : tab === "My Rules"
@@ -319,7 +319,7 @@ function DataTable({
             {tab === "Active"
               ? totalPages.activeRules
               : tab === "All Rules"
-                ? totalPages.allRules
+                ? totalPages.activeRules
                 : tab === "Global Rules"
                   ? totalPages.globalRules
                   : tab === "My Rules"
