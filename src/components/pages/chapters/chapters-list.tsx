@@ -30,6 +30,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import useChapters from "./use-chapters";
 import { toast } from "sonner";
 import { usePermission } from "@/lib/use-permission";
+import Link from "next/link";
 
 export function ChaptersList() {
   const { hasPermission } = usePermission();
@@ -129,7 +130,8 @@ export function ChaptersList() {
           <Card>
             <CardContent className="h-72 space-y-2 overflow-y-scroll">
               {filteredPublishedChapters.map((chapter) => (
-                <div
+                <Link
+                  href={`chapters/${chapter._id}`}
                   key={chapter?._id}
                   className="mt-4 flex justify-between space-y-1 rounded-lg p-3 shadow-md"
                 >
@@ -138,7 +140,7 @@ export function ChaptersList() {
                       <Avatar>
                         <AvatarImage
                           src={chapter?.profileImage?.url}
-                          alt="@shadcn"
+                          alt="profile"
                         />
                         <AvatarFallback>
                           {chapter?.name?.charAt(0)}
@@ -150,7 +152,7 @@ export function ChaptersList() {
                   <div className="flex items-center gap-2">
                     {/* <Eye className="cursor-pointer text-gray-600" /> */}
                   </div>
-                </div>
+                </Link>
               ))}
             </CardContent>
           </Card>

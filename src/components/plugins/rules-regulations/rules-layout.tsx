@@ -134,11 +134,7 @@ const RulesLayout = ({
               <TabsTrigger
                 key={tab?.label}
                 value={tab?.label}
-<<<<<<< HEAD
                 className="shrink-0 rounded-md border-b-4 border-white px-3 py-1.5 text-sm data-[state=active]:border-primary  data-[state=active]:text-primary"
-=======
-                className="shrink-0 rounded-md border-primary px-3 py-1.5 text-sm data-[state=active]:border-b-4 data-[state=active]:text-primary"
->>>>>>> bea93613148cd197c1b6bfde4faa7b64a56b1064
               >
                 {tab?.label} ({formatCount(tab?.count)})
               </TabsTrigger>
