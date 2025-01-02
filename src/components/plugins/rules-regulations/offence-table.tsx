@@ -212,9 +212,19 @@ export function DataTable({
         </TableBody>
       </Table>
       <div className="flex items-center justify-end space-x-2 py-4">
+        <div className="flex items-center gap-1 text-sm text-muted-foreground">
+          <span>Page</span>
+          <span className="font-medium">{currentPage.offenses ?? 1}</span>
+          <span>of</span>
+          <span className="font-medium">{totalPage.offenses ?? 1}</span>
+        </div>
         <Button
           variant="outline"
           size="sm"
+          disabled={
+            currentPage.offenses <= 1 ||
+            currentPage.offenses > totalPage.offenses
+          }
           onClick={() =>
             setCurrentPages((prev: PageState) => ({
               ...prev,
@@ -225,6 +235,7 @@ export function DataTable({
           Previous
         </Button>
         <Button
+          disabled={currentPage.offenses >= totalPage.offenses}
           variant="outline"
           size="sm"
           onClick={() =>
@@ -233,7 +244,6 @@ export function DataTable({
               offenses: prev.offenses + 1,
             }))
           }
-          disabled={currentPage >= totalPage}
         >
           Next
         </Button>

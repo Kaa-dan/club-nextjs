@@ -299,6 +299,36 @@ function DataTable({
       </Table>
 
       <div className="flex items-center justify-end space-x-2 py-4">
+        <div className="flex items-center gap-1 text-sm text-muted-foreground">
+          <span>Page</span>
+          <span className="font-medium">
+            {tab === "Active"
+              ? currentPages.activeRules
+              : tab === "All Rules"
+                ? currentPages.allRules
+                : tab === "Global Rules"
+                  ? currentPages.globalRules
+                  : tab === "My Rules"
+                    ? currentPages.myRules
+                    : tab === "Report Offenses"
+                      ? currentPages.reportOffenses
+                      : 1}
+          </span>
+          <span>of</span>
+          <span className="font-medium">
+            {tab === "Active"
+              ? totalPages.activeRules
+              : tab === "All Rules"
+                ? totalPages.allRules
+                : tab === "Global Rules"
+                  ? totalPages.globalRules
+                  : tab === "My Rules"
+                    ? totalPages.myRules
+                    : tab === "Report Offenses"
+                      ? totalPages.reportOffenses
+                      : 1}
+          </span>
+        </div>
         <Button
           onClick={() => {
             setCurrentPages((prev: PageState) => {
@@ -324,10 +354,10 @@ function DataTable({
                     myRules: prev.myRules - 1,
                   };
                 // case "Report Offenses":
-                //   return {
-                //     ...prev,
-                //     reportOffenses: prev.reportOffenses - 1,
-                //   };
+                // return {
+                // ...prev,
+                // reportOffenses: prev.reportOffenses - 1,
+                // };
                 default:
                   return prev;
               }
@@ -383,10 +413,10 @@ function DataTable({
                     myRules: prev.myRules + 1,
                   };
                 // case "Report Offenses":
-                //   return {
-                //     ...prev,
-                //     reportOffenses: prev.reportOffenses + 1,
-                //   };
+                // return {
+                // ...prev,
+                // reportOffenses: prev.reportOffenses + 1,
+                // };
                 default:
                   return prev;
               }
@@ -401,9 +431,7 @@ function DataTable({
                   ? currentPages.globalRules >= totalPages.globalRules
                   : tab === "My Rules"
                     ? currentPages.myRules >= totalPages.myRules
-                    : tab === "Report Offenses"
-                      ? currentPages.reportOffenses >= totalPages.reportOffenses
-                      : true
+                    : true
           }
         >
           Next
