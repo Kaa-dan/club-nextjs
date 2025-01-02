@@ -6,7 +6,7 @@ const ChapterPage = async ({
   params: Promise<{ chapterId: string; nodeId: string }>;
 }) => {
   const { chapterId, nodeId } = await params;
-  return <div>ChapterPage ss {chapterId}</div>;
+  return <div className="ml-6 pt-5 text-xl text-gray-600 ">Chapter Feeds </div>;
 };
 
 export default ChapterPage;

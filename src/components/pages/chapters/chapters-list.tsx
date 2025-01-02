@@ -111,8 +111,13 @@ export function ChaptersList() {
           variant="default"
           size="default"
         >
-          Create Chapter
+          {hasPermission("create:chapter")
+            ? "Create Chapter"
+            : hasPermission("propose:chapter")
+              ? "Propose Chapter"
+              : null}
         </Button>
+
         {openCreateModal && (
           <CreateChapterModal
             open={openCreateModal}
@@ -170,7 +175,7 @@ export function ChaptersList() {
                       <Avatar>
                         <AvatarImage
                           src={chapter?.profileImage?.url}
-                          alt="@shadcn"
+                          alt="profile"
                         />
                         <AvatarFallback>
                           {chapter?.name?.charAt(0)}

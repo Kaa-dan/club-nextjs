@@ -119,11 +119,17 @@ export type TChapter = {
   club: string;
   node: string;
   status: string;
+  about: string;
   proposedBy: string;
   publishedBy: string;
   createdAt: string;
   updatedAt: string;
+  description: string;
   profileImage: {
     url: string;
   };
+  coverImage: {
+    url: string;
+  };
+  chapterMembers: any[];
 };

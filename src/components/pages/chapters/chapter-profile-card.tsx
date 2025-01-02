@@ -22,6 +22,8 @@ import { ImageSkeleton } from "../club/club-profile-card";
 import env from "@/lib/env.config";
 import { useNodeCalls } from "@/hooks/apis/use-node-calls";
 import { usePermission } from "@/lib/use-permission";
+import { useChapterCalls } from "@/hooks/apis/use-chapter-calls";
+import { useChapterStore } from "@/store/chapters-store";
 
 interface ProfileCardProps {
   currentPage: string;
@@ -37,10 +39,10 @@ const ChaptersProfileCard: React.FC<ProfileCardProps> = ({
     nodeId: string;
     chapterId: string;
   }>();
-  const { currentNode, nodeJoinStatus, setNodeJoinStatus } = useNodeStore(
-    (state) => state
-  );
-  const { fetchNodeJoinStatus } = useNodeCalls();
+  const { currentChapter, chapterMembers } = useChapterStore((state) => state);
+
+  // const { fetchNodeJoinStatus } = useNodeCalls();
+  const { fetchChapterDetails } = useChapterCalls();
   const recaptchaRef = useRef(null);
 
   const { setUserRequestedNodes } = useNodeStore((state) => state);
@@ -49,7 +51,7 @@ const ChaptersProfileCard: React.FC<ProfileCardProps> = ({
     {
       name: "News Feed",
       icon: ICONS.NodeNewsFeedIcon,
-      path: `/node/${nodeId}/`,
+      path: `/node/${nodeId}/chapters/${chapterId}`,
     },
     // { name: "Modules", icon: ICONS.NodeModulesIcon, path: "#" },
     {
@@ -60,7 +62,7 @@ const ChaptersProfileCard: React.FC<ProfileCardProps> = ({
     {
       name: "Members",
       icon: ICONS.NodeMembersIcon,
-      path: `/node/${nodeId}/chapters/${chapterId}/members`,
+      path: `/node/${nodeId}/chapters/${chapterId}`,
     },
     {
       name: "Approvals",
@@ -88,12 +90,12 @@ const ChaptersProfileCard: React.FC<ProfileCardProps> = ({
     // },
   ];
   const router = useRouter();
-  const joinToNode = async (nodeId: string) => {
+  const joinChapter = async (nodeId: string) => {
     try {
       const response = await Endpoints.requestToJoinNode(nodeId);
       const requestedNodes = await NodeEndpoints.fetchUserRequestedNodes();
-      setUserRequestedNodes(requestedNodes);
-      setNodeJoinStatus(response.status);
+      // setUserRequestedNodes(requestedNodes);
+      // setNodeJoinStatus(response.status);
     } catch (error) {
       console.log({ error });
     }
@@ -114,7 +116,7 @@ const ChaptersProfileCard: React.FC<ProfileCardProps> = ({
       setUserRequestedNodes(requestedNodes);
       console.log(response);
       toast.success("Request Cancelled");
-      fetchNodeJoinStatus(nodeId);
+      // fetchNodeJoinStatus(nodeId);
     } catch (error) {
       console.log(error);
       toast.error("Error while cancelling request");
@@ -129,7 +131,7 @@ const ChaptersProfileCard: React.FC<ProfileCardProps> = ({
     Endpoints.recaptcha(token)
       .then((res) => {
         if (res) {
-          joinToNode(currentNode?.node?._id as string);
+          joinChapter(currentChapter?._id as string);
         }
       })
       .catch((err) => {
@@ -140,12 +142,17 @@ const ChaptersProfileCard: React.FC<ProfileCardProps> = ({
         setRecaptcha(false);
       });
   };
+
+  useEffect(() => {
+    if (chapterId) fetchChapterDetails(chapterId);
+  }, [chapterId]);
+
   return (
     <div className="sticky top-16 mb-10 h-screen  w-full overflow-hidden rounded-lg  pb-2 text-sm shadow-md">
-      {currentNode ? (
+      {currentChapter ? (
         <div className="relative">
           <Image
-            src={currentNode?.node?.coverImage?.url}
+            src={currentChapter?.coverImage?.url}
             alt="Cover"
             width={300}
             height={120}
@@ -154,7 +161,7 @@ const ChaptersProfileCard: React.FC<ProfileCardProps> = ({
           />
           <div className="absolute -bottom-6 left-4">
             <Image
-              src={currentNode?.node?.profileImage?.url as string}
+              src={currentChapter?.profileImage?.url as string}
               alt="Avatar"
               width={60}
               height={60}
@@ -167,13 +174,13 @@ const ChaptersProfileCard: React.FC<ProfileCardProps> = ({
       )}
       <div className="px-4">
         <div className="pt-8">
-          <h2 className="text-lg font-bold">{currentNode?.node?.name}</h2>
-          <p className="text-xs text-gray-600">{currentNode?.node?.about}</p>
+          <h2 className="text-lg font-bold">{currentChapter?.name}</h2>
+          <p className="text-xs text-gray-600">{currentChapter?.about}</p>
           <p className="mb-1 flex gap-2 text-xs text-gray-500">
-            {currentNode?.node?.location}
-            <span>•</span>
+            {/* {currentChapter?.location}
+            <span>•</span> */}
             <span>
-              {currentNode?.members?.length}
+              {chapterMembers?.length || 0}
               {"  Members"}
             </span>
           </p>
@@ -191,7 +198,7 @@ const ChaptersProfileCard: React.FC<ProfileCardProps> = ({
         )}
 
         <div className="flex flex-col gap-2">
-          <Button
+          {/* <Button
             onClick={() => setRecaptcha(true)}
             className="h-8 w-full border border-gray-500 bg-transparent text-gray-800 hover:bg-transparent"
             disabled={
@@ -201,8 +208,8 @@ const ChaptersProfileCard: React.FC<ProfileCardProps> = ({
             {nodeJoinStatus === "VISITOR" && "Request to Join"}
             {nodeJoinStatus === "MEMBER" && "Joined"}
             {nodeJoinStatus === "REQUESTED" && "Request Pending"}
-          </Button>
-          {nodeJoinStatus === "REQUESTED" && (
+          </Button> */}
+          {/* {nodeJoinStatus === "REQUESTED" && (
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button className="h-8 w-full border border-white bg-red-500 text-white hover:bg-red-500">
@@ -225,7 +232,7 @@ const ChaptersProfileCard: React.FC<ProfileCardProps> = ({
                 </div>
               </AlertDialogContent>
             </AlertDialog>
-          )}
+          )} */}
         </div>
         <div className=" my-3 h-auto  space-y-2 pb-4">
           {SECTIONS?.filter((section) => section.show !== false)?.map(
