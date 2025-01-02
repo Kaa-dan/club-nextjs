@@ -75,7 +75,7 @@ const ForumSidebar: React.FC<ForumSidebarProps> = ({
       name: "Chapters",
       icon: ICONS.NodeChaptersIcon,
       path: `${basePath}/chapters`,
-      show: hasPermission("view:chapters"),
+      show: type === "node" && hasPermission("view:chapters"),
     },
     {
       name: "Members",
