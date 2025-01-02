@@ -53,6 +53,9 @@ const DebateLayout = ({
     setClickTrigger,
     clickTrigger,
     loading,
+    currentPages,
+    totalPages,
+    setCurrentPages,
   } = useDebates(forum, forumId);
 
   const tabs: TabData[] = [
@@ -195,6 +198,9 @@ const DebateLayout = ({
               tab={tab.label}
               forum={forum}
               plugin={plugin}
+              currentPage={currentPages}
+              setCurrentPages={setCurrentPages}
+              totalPage={totalPages}
             />
           </TabsContent>
         ))}

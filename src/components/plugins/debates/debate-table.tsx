@@ -125,6 +125,9 @@ interface DebateTableProps {
   tab: string;
   setClickTrigger: React.Dispatch<React.SetStateAction<boolean>>;
   clickTrigger: boolean;
+  setCurrentPages: (val: any) => void;
+  totalPage: any;
+  currentPage: any;
 }
 
 export default function DebateTable({
@@ -135,6 +138,9 @@ export default function DebateTable({
   forumId,
   setClickTrigger,
   clickTrigger,
+  currentPage,
+  setCurrentPages,
+  totalPage,
 }: DebateTableProps) {
   console.log({ all: data });
 
@@ -501,19 +507,147 @@ export default function DebateTable({
         </Table>
       </div>
       <div className="flex items-center justify-end space-x-2 py-4">
+        <div className="flex items-center gap-1 text-sm text-muted-foreground">
+          <span>Page</span>
+          <span className="font-medium">
+            {tab === "Global Debates"
+              ? currentPage?.globalDebates
+              : tab === "Ongoing Debates"
+                ? currentPage?.ongoingDebates
+                : tab === "All Debates"
+                  ? currentPage?.allDebates
+                  : tab === "My Debates"
+                    ? currentPage?.myDebates
+                    : tab === "Proposed Debates"
+                      ? currentPage?.proposed
+                      : 1}
+          </span>
+          <span>of</span>
+          <span className="font-medium">
+            {tab === "Global Debates"
+              ? totalPage?.globalDebates
+              : tab === "Ongoing Debates"
+                ? totalPage?.ongoingDebates
+                : tab === "All Debates"
+                  ? totalPage?.allDebates
+                  : tab === "My Debates"
+                    ? totalPage?.myDebates
+                    : tab === "Proposed Debates"
+                      ? totalPage?.proposed
+                      : 1}
+          </span>
+        </div>
         <Button
+          onClick={() => {
+            setCurrentPages((prev: any) => {
+              switch (tab) {
+                case "Global Debates":
+                  return {
+                    ...prev,
+                    globalDebates: prev.globalDebates - 1,
+                  };
+                case "Ongoing Debates":
+                  return {
+                    ...prev,
+                    ongoingDebates: prev.ongoingDebates - 1,
+                  };
+                case "All Debates":
+                  return {
+                    ...prev,
+                    allDebates: prev.allDebates - 1,
+                  };
+                case "My Debates":
+                  return {
+                    ...prev,
+                    myDebates: prev.myDebates - 1,
+                  };
+                case "Proposed Debates":
+                  return {
+                    ...prev,
+                    proposed: prev.proposed - 1,
+                  };
+                default:
+                  return prev;
+              }
+            });
+          }}
           variant="outline"
           size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
+          disabled={
+            tab === "Global Debates"
+              ? currentPage?.globalDebates <= 1 ||
+                currentPage?.globalDebates > totalPage?.globalDebates
+              : tab === "Ongoing Debates"
+                ? currentPage?.ongoingDebates <= 1 ||
+                  currentPage?.ongoingDebates > totalPage?.ongoingDebates
+                : tab === "All Debates"
+                  ? currentPage?.allDebates <= 1 ||
+                    currentPage?.allDebates > totalPage?.allDebates
+                  : tab === "My Debates"
+                    ? currentPage?.myDebates <= 1 ||
+                      currentPage?.myDebates > totalPage?.myDebates
+                    : tab === "Proposed Debates"
+                      ? currentPage?.proposed <= 1 ||
+                        currentPage?.proposed > totalPage?.proposed
+                      : true
+          }
         >
           Previous
         </Button>
         <Button
           variant="outline"
           size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
+          onClick={() => {
+            setCurrentPages((prev: any) => {
+              switch (tab) {
+                case "Global Debates":
+                  return {
+                    ...prev,
+                    globalDebates: prev.globalDebates + 1,
+                  };
+                case "Ongoing Debates":
+                  return {
+                    ...prev,
+                    ongoingDebates: prev.ongoingDebates + 1,
+                  };
+                case "All Debates":
+                  return {
+                    ...prev,
+                    allDebates: prev.allDebates + 1,
+                  };
+                case "My Debates":
+                  return {
+                    ...prev,
+                    myDebates: prev.myDebates + 1,
+                  };
+                case "Proposed Debates":
+                  return {
+                    ...prev,
+                    proposed: prev.proposed + 1,
+                  };
+                default:
+                  return prev;
+              }
+            });
+          }}
+          disabled={
+            tab === "Global Debates"
+              ? currentPage?.globalDebates >= totalPage?.globalDebates ||
+                currentPage?.globalDebates > totalPage?.globalDebates
+              : tab === "Ongoing Debates"
+                ? currentPage?.ongoingDebates >= totalPage?.ongoingDebates ||
+                  currentPage?.ongoingDebates > totalPage?.ongoingDebates
+                : tab === "All Debates"
+                  ? currentPage?.allDebates >= totalPage?.allDebates ||
+                    currentPage?.allDebates > totalPage?.allDebates
+                  : tab === "My Debates"
+                    ? currentPage?.myDebates >= totalPage?.myDebates ||
+                      currentPage?.myDebates > totalPage?.myDebates
+                    : tab === "Proposed Debates"
+                      ? currentPage?.proposed >= totalPage?.proposed ||
+                        currentPage?.proposed > totalPage?.proposed
+                      : true
+          }
         >
           Next
         </Button>
