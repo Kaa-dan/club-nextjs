@@ -144,71 +144,77 @@ export function ChaptersList() {
           <TabsTrigger value="proposed">Proposed Chapters</TabsTrigger>
         </TabsList>
         <TabsContent value="published">
-          <Card className="grid grid-cols-1 gap-4 p-4 md:grid-cols-2 lg:grid-cols-3">
-            {filteredPublishedChapters?.map((chapter) => (
-              <Card className="h-full" key={chapter._id}>
-                <Link
-                  href={`/node/${nodeId}/chapters/${chapter?._id}`}
-                  key={chapter._id}
-                >
-                  <div className="relative h-40 w-full cursor-pointer">
-                    <Image
-                      src={
-                        chapter?.coverImage?.url || "/api/placeholder/400/320"
-                      }
-                      width={400}
-                      height={320}
-                      alt={chapter.name}
-                      className="size-full rounded-t-lg object-cover"
-                    />
-                    <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/60 to-transparent p-4">
-                      <div className="flex items-center gap-3">
-                        <Avatar className="border-2 border-white">
-                          <AvatarImage
-                            src={chapter?.profileImage?.url}
-                            alt={chapter.name}
-                          />
-                          <AvatarFallback>
-                            {chapter?.name?.charAt(0)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <h3 className="truncate font-semibold text-white">
-                          {chapter.name}
-                        </h3>
+          {filteredPublishedChapters?.length === 0 ? (
+            <Card className="mt-6 h-72 py-8 text-center text-muted-foreground">
+              No published chapters found
+            </Card>
+          ) : (
+            <Card className="grid grid-cols-1 gap-4 p-4 md:grid-cols-2 lg:grid-cols-3">
+              {filteredPublishedChapters?.map((chapter) => (
+                <Card className="h-full" key={chapter._id}>
+                  <Link
+                    href={`/node/${nodeId}/chapters/${chapter?._id}`}
+                    key={chapter._id}
+                  >
+                    <div className="relative h-40 w-full cursor-pointer">
+                      <Image
+                        src={
+                          chapter?.coverImage?.url || "/api/placeholder/400/320"
+                        }
+                        width={400}
+                        height={320}
+                        alt={chapter.name}
+                        className="size-full rounded-t-lg object-cover"
+                      />
+                      <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/60 to-transparent p-4">
+                        <div className="flex items-center gap-3">
+                          <Avatar className="border-2 border-white">
+                            <AvatarImage
+                              src={chapter?.profileImage?.url}
+                              alt={chapter.name}
+                            />
+                            <AvatarFallback>
+                              {chapter?.name?.charAt(0)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <h3 className="truncate font-semibold text-white">
+                            {chapter?.name}
+                          </h3>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </Link>
+                  </Link>
 
-                <CardContent className="mt-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <Users size={16} />
-                      <span>{chapter.members?.length || 0} members</span>
+                  <CardContent className="mt-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <Users size={16} />
+                        <span>{chapter?.members?.length || 0} members</span>
+                      </div>
+                      {!isUserMember(chapter) && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-primary hover:bg-primary/10"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            joinChapter(chapter._id, nodeId);
+                            fetchPublishedChapters();
+                          }}
+                        >
+                          Join
+                        </Button>
+                      )}
                     </div>
-                    {!isUserMember(chapter) && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="text-primary hover:bg-primary/10"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          joinChapter(chapter._id, nodeId);
-                          fetchPublishedChapters();
-                        }}
-                      >
-                        Join
-                      </Button>
-                    )}
-                  </div>
 
-                  <p className="line-clamp-2 text-sm text-gray-600">
-                    {chapter.about}
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
-          </Card>
+                    <p className="line-clamp-2 text-sm text-gray-600">
+                      {chapter.about}
+                    </p>
+                  </CardContent>
+                </Card>
+              ))}
+            </Card>
+          )}
         </TabsContent>
         <TabsContent value="proposed">
           <Card>
