@@ -151,20 +151,23 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
   };
 
   const onRecaptchaChange = (token: any) => {
+    console.log("1");
     if (!token) {
       toast.error("Please complete the reCAPTCHA to proceed.");
       return;
     }
+    console.log("2");
     Endpoints.recaptcha(token)
       .then((res) => {
         if (res) {
           joinToClub(clubId);
           setRecaptcha(false);
+          console.log("3");
         }
       })
       .catch((err) => {
         console.log({ err });
-
+        console.log("4");
         toast.error("something went wrong!!");
       });
   };
