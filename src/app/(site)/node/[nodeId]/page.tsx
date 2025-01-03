@@ -169,10 +169,10 @@ const NodePage: React.FC = () => {
 
   return (
     <div className="mt-4 flex w-full flex-col items-start gap-3  px-4">
-      {posts.map((post) => (
+      {posts.map((post, index) => (
         <PostComponent
           clubId={nodeId}
-          key={post._id}
+          key={`${post._id}-${index}`}
           post={post}
           onRelevancyUpdate={handleRelevancyUpdate}
         />
@@ -189,6 +189,12 @@ const NodePage: React.FC = () => {
       {!hasMore && posts.length > 0 && (
         <div className=" p-4 text-center text-muted-foreground">
           No more posts to load
+        </div>
+      )}
+
+      {!loading && posts.length === 0 && (
+        <div className="text-center text-muted-foreground p-4">
+          No posts available
         </div>
       )}
     </div>
@@ -303,26 +309,28 @@ const PostComponent: React.FC<PostComponentProps> = ({
         )}
 
         {post.files && post.files.length > 0 && (
-          <Carousel className="w-full">
-            <CarouselContent>
-              {post.files.map((file, index) => (
-                <CarouselItem key={index}>
-                  <div className="relative aspect-[4/3] w-full cursor-zoom-in">
-                    <Image
-                      src={file.url}
-                      alt={`Post image ${index + 1}`}
-                      className="rounded-md object-contain"
-                      width={768}
-                      height={576}
-                      priority={index === 0}
-                    />
-                  </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious className="hidden md:flex" />
-            <CarouselNext className="hidden md:flex" />
-          </Carousel>
+          <div className="p-8">
+            <Carousel className="w-full bg-green-400">
+              <CarouselContent>
+                {post.files.map((file, index) => (
+                  <CarouselItem key={`${file.url}-${index}`}>
+                    <div className="relative aspect-[4/3] w-full cursor-zoom-in">
+                      <Image
+                        src={file.url}
+                        alt={`Post image ${index + 1}`}
+                        className="rounded-md object-contain"
+                        width={768}
+                        height={576}
+                        priority={index === 0}
+                      />
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="hidden md:flex" />
+              <CarouselNext className="hidden md:flex" />
+            </Carousel>
+          </div>
         )}
         {post.type !== "debate" && (
           <div className="flex gap-2">
