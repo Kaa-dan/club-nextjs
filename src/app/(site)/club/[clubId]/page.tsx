@@ -179,7 +179,7 @@ const NodePage: React.FC = () => {
       ))}
 
       {loading && (
-        <div className="flex justify-center p-4">
+        <div className="flex justify-center p-4 item-center w-full">
           <div className="size-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
         </div>
       )}
@@ -309,26 +309,28 @@ const PostComponent: React.FC<PostComponentProps> = ({
         )}
 
         {post.files && post.files.length > 0 && (
-          <Carousel className="w-full">
-            <CarouselContent>
-              {post.files.map((file, index) => (
-                <CarouselItem key={index}>
-                  <div className="relative aspect-[4/3] w-full cursor-zoom-in">
-                    <Image
-                      src={file.url}
-                      alt={`Post image ${index + 1}`}
-                      className="rounded-md object-contain"
-                      width={768}
-                      height={576}
-                      priority={index === 0}
-                    />
-                  </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious className="hidden md:flex" />
-            <CarouselNext className="hidden md:flex" />
-          </Carousel>
+          <div className="p-8">
+            <Carousel className="w-full ">
+              <CarouselContent>
+                {post.files.map((file, index) => (
+                  <CarouselItem key={index}>
+                    <div className="relative aspect-[4/3] w-full cursor-zoom-in">
+                      <Image
+                        src={file.url}
+                        alt={`Post image ${index + 1}`}
+                        className="rounded-md object-contain"
+                        width={768}
+                        height={576}
+                        priority={index === 0}
+                      />
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="hidden md:flex" />
+              <CarouselNext className="hidden md:flex" />
+            </Carousel>
+          </div>
         )}
         {post.type !== "debate" && (
           <div className="flex gap-2">
