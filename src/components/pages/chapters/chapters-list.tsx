@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Check, Eye, Filter, Search, X } from "lucide-react";
+import { Check, Eye, Filter, Search, Users, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -132,35 +132,54 @@ export function ChaptersList() {
           <TabsTrigger value="proposed">Proposed Chapters</TabsTrigger>
         </TabsList>
         <TabsContent value="published">
-          <Card>
-            <CardContent className="h-72 space-y-2 overflow-y-scroll">
-              {filteredPublishedChapters.map((chapter) => (
-                <Link
-                  href={`chapters/${chapter._id}`}
-                  key={chapter?._id}
-                  className="mt-4 flex justify-between space-y-1 rounded-lg p-3 shadow-md"
-                >
-                  <div className="flex gap-7">
-                    <div>
-                      <Avatar>
-                        <AvatarImage
-                          src={chapter?.profileImage?.url}
-                          alt="profile"
-                        />
-                        <AvatarFallback>
-                          {chapter?.name?.charAt(0)}
-                        </AvatarFallback>
-                      </Avatar>
+          <div className="grid grid-cols-1 gap-4 p-4 md:grid-cols-2 lg:grid-cols-3">
+            {filteredPublishedChapters?.map((chapter) => (
+              <Link
+                href={`chapters/${chapter._id}`}
+                key={chapter._id}
+                className="block transition-transform duration-200 hover:scale-105"
+              >
+                <Card className="h-full">
+                  <div className="relative h-40 w-full">
+                    <Image
+                      src={
+                        chapter?.coverImage?.url || "/api/placeholder/400/320"
+                      }
+                      alt={chapter.name}
+                      className="size-full rounded-t-lg object-cover"
+                    />
+                    <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/60 to-transparent p-4">
+                      <div className="flex items-center gap-3">
+                        <Avatar className="border-2 border-white">
+                          <AvatarImage
+                            src={chapter?.profileImage?.url}
+                            alt={chapter.name}
+                          />
+                          <AvatarFallback>
+                            {chapter?.name?.charAt(0)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <h3 className="truncate font-semibold text-white">
+                          {chapter.name}
+                        </h3>
+                      </div>
                     </div>
-                    <div className=" flex items-center">{chapter?.name}</div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    {/* <Eye className="cursor-pointer text-gray-600" /> */}
-                  </div>
-                </Link>
-              ))}
-            </CardContent>
-          </Card>
+
+                  <CardContent className="mt-4 space-y-3">
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <Users size={16} />
+                      <span>{chapter.members?.length || 0} members</span>
+                    </div>
+
+                    <p className="line-clamp-2 text-sm text-gray-600">
+                      {chapter.about}
+                    </p>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </div>
         </TabsContent>
         <TabsContent value="proposed">
           <Card>

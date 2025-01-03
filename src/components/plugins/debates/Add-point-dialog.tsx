@@ -23,6 +23,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { ImagePlus, X } from "lucide-react";
 import { Endpoints } from "@/utils/endpoint";
+import Image from "next/image";
 
 // Schema definition
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -201,7 +202,9 @@ export function AddPointDialog({
                     <div className="space-y-4">
                       {preview ? (
                         <div className="relative">
-                          <img
+                          <Image
+                            width={200}
+                            height={200}
                             src={preview}
                             alt="Preview"
                             className="max-h-48 w-full rounded-lg object-contain"

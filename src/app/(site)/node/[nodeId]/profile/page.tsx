@@ -421,9 +421,9 @@ export default function Page() {
                 <TableHead className="w-[120px] text-center">
                   Contribution
                 </TableHead>
-                {hasPermission("update:desingation") && (
-                  <TableHead className="w-[280px]">Designation</TableHead>
-                )}
+                <TableHead className="w-[120px]">Designation</TableHead>
+                {/* {hasPermission("update:designation") && (
+                )} */}
                 <TableHead className="w-[200px]">Position</TableHead>
                 <TableHead className="w-[120px]">Join Date</TableHead>
                 {isModeratorOrAdminOrOwner() && (
@@ -508,7 +508,7 @@ export default function Page() {
                           <span className="text-sm">
                             {member?.designation || "No designation set"}
                           </span>
-                          {hasPermission("update:desingation") && (
+                          {hasPermission("update:designation") && (
                             <Button
                               onClick={() => handleEditClick(member?.user._id)}
                               variant="ghost"
@@ -523,7 +523,7 @@ export default function Page() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    {hasPermission("update: position") ? (
+                    {hasPermission("update:position") ? (
                       <Select
                         value={member.position}
                         onValueChange={(newPosition) =>
@@ -540,7 +540,7 @@ export default function Page() {
                       </Select>
                     ) : (
                       <Label className="text-sm text-gray-500">
-                        Position selection not available
+                        {member.position || " - "}
                       </Label>
                     )}
                   </TableCell>
