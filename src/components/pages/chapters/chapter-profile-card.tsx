@@ -148,7 +148,7 @@ const ChaptersProfileCard: React.FC<ProfileCardProps> = ({
   }, [chapterId]);
 
   return (
-    <div className="sticky top-16 mb-10 h-screen  w-full overflow-hidden rounded-lg  pb-2 text-sm shadow-md">
+    <div className="sticky top-16 mb-10 h-[97vh]  w-full overflow-hidden rounded-lg  pb-2 text-sm shadow-md">
       {currentChapter ? (
         <div className="relative">
           <Image
@@ -175,7 +175,9 @@ const ChaptersProfileCard: React.FC<ProfileCardProps> = ({
       <div className="px-4">
         <div className="pt-8">
           <h2 className="text-lg font-bold">{currentChapter?.name}</h2>
-          <p className="text-xs text-gray-600">{currentChapter?.about}</p>
+          <p className="line-clamp-3 text-xs text-gray-600">
+            {currentChapter?.about}
+          </p>
           <p className="mb-1 flex gap-2 text-xs text-gray-500">
             {/* {currentChapter?.location}
             <span>•</span> */}
