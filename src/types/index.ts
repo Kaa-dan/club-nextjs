@@ -120,7 +120,6 @@ export type TChapter = {
   node: string;
   status: string;
   about: string;
-  proposedBy: string;
   publishedBy: string;
   createdAt: string;
   updatedAt: string;
@@ -132,4 +131,5 @@ export type TChapter = {
     url: string;
   };
   members?: any[];
+  proposedBy: TUser;
 };
