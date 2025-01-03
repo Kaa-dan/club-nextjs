@@ -33,6 +33,9 @@ const IssuesLayout = ({
     proposedIssues,
     clickTrigger,
     loading,
+    currentPages,
+    setCurrentPages,
+    totalPages,
   } = useIssues(forum, forumId);
 
   const { hasPermission } = usePermission();
@@ -180,6 +183,9 @@ const IssuesLayout = ({
               clickTrigger={clickTrigger}
               setClickTrigger={setClickTrigger}
               loading={loading}
+              currentPages={currentPages}
+              setCurrentPages={setCurrentPages}
+              totalPages={totalPages}
             />
           </TabsContent>
         ))}
