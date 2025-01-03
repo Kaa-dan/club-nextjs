@@ -153,8 +153,6 @@ export function ChaptersList() {
                 >
                   <div className="relative h-40 w-full cursor-pointer">
                     <Image
-                      height={400}
-                      width={350}
                       src={
                         chapter?.coverImage?.url || "/api/placeholder/400/320"
                       }

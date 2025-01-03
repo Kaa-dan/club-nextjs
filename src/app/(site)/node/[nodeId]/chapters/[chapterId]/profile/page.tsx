@@ -79,7 +79,7 @@ export default function ProfilePage() {
   const { currentNode, currentUserRole, nodeJoinStatus } = useNodeStore(
     (state) => state
   );
-  const { leaveChapter } = useChapterCalls();
+  const { leaveChapter, fetchChapterDetails } = useChapterCalls();
   const { chapterMembers, currentChapter } = useChapterStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { nodeId } = useParams<{ nodeId: string }>();
@@ -106,13 +106,13 @@ export default function ProfilePage() {
         `Are you sure you want to make ${member?.user?.firstName} ${member?.user?.lastName} to Admin?`,
       onClickFunction: async (accessToUserId: string) => {
         const data = {
-          entityId: nodeId,
-          entity: "node",
+          entityId: currentChapter?._id,
+          entity: "chapter",
           accessToUserId,
         };
         try {
           await SharedEndpoints.makeAdmin(data);
-          fetchNodeDetails(nodeId);
+          fetchChapterDetails(currentChapter?._id);
         } catch (error) {
           console.log(error, "error");
           toast.error("something went wrong when making admin");
@@ -129,13 +129,13 @@ export default function ProfilePage() {
         `Are you sure you want to make ${member?.user?.firstName} ${member?.user?.lastName} to Moderator?`,
       onClickFunction: async (accessToUserId: string) => {
         const data = {
-          entityId: nodeId,
-          entity: "node",
+          entityId: currentChapter?._id,
+          entity: "chapter",
           accessToUserId,
         };
         try {
           await SharedEndpoints.makeModerator(data);
-          fetchNodeDetails(nodeId);
+          fetchChapterDetails(currentChapter?._id);
         } catch (error) {
           console.log(error, "error");
           toast.error("something went wrong when making moderator");
@@ -152,13 +152,13 @@ export default function ProfilePage() {
         `Are you sure you want to make ${member?.user?.firstName} ${member?.user?.lastName} to Member?`,
       onClickFunction: async (accessToUserId: string) => {
         const data = {
-          entityId: nodeId,
-          entity: "node",
+          entityId: currentChapter?._id,
+          entity: "chapter",
           accessToUserId,
         };
         try {
           await SharedEndpoints.makeMember(data);
-          fetchNodeDetails(nodeId);
+          fetchChapterDetails(currentChapter?._id);
         } catch (error) {
           toast.error("something went wrong when making member");
           console.log(error, "error");
@@ -175,13 +175,13 @@ export default function ProfilePage() {
         `Are you sure you want to remove ${member?.user?.firstName} ${member?.user?.lastName}?`,
       onClickFunction: async (accessToUserId: string) => {
         const data = {
-          entityId: nodeId,
-          entity: "node",
+          entityId: currentChapter?._id,
+          entity: "chapter",
           accessToUserId,
         };
         try {
           await SharedEndpoints.removeMember(data);
-          fetchNodeDetails(nodeId);
+          fetchChapterDetails(currentChapter?._id);
         } catch (error) {
           console.log(error, "error");
           toast.error("something went wrong when removing member");
@@ -588,7 +588,7 @@ export default function ProfilePage() {
           </Table>
           <div className="mt-4 flex items-center justify-between">
             <div className="text-sm text-muted-foreground">
-              Total {currentNode?.members?.length} Members
+              Total {chapterMembers?.length} Members
             </div>
             <div className="flex items-center gap-2">
               <Button variant="outline" size="sm" disabled>
