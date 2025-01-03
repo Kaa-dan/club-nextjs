@@ -110,7 +110,6 @@ const ROLES = {
     "propose:asset",
 
     //Chapters
-    "create:chapter",
     "view:chapter",
     "view:proposedChapters",
     "propose:chapter",

@@ -7,9 +7,12 @@ import { useTokenStore } from "@/store/store";
 import { useClubStore } from "@/store/clubs-store";
 import { useChapterStore } from "@/store/chapters-store";
 import { ChapterEndpoints } from "@/utils/endpoints/chapters";
+import { toast } from "sonner";
 
 interface IUseChapterCalls {
   fetchChapterDetails: (chapterId: string) => Promise<void>;
+  joinChapter: (chapterId: string, nodeId: string) => Promise<void>;
+  leaveChapter: (chapterId: string) => Promise<void>;
   error: Error | null;
 }
 
@@ -45,24 +48,36 @@ export const useChapterCalls = (): IUseChapterCalls => {
     [setCurrentChapter, setCurrentUserChapterRole]
   );
 
-  // CRUD Operations
-  //   const leaveNode = useCallback(
-  //     async (nodeId: string) => {
-  //       try {
-  //         await Endpoints.leaveNode(nodeId);
-  //         await fetchNodeJoinStatus(nodeId);
-  //         await fetchUserNodes();
-  //         await fetchNodeDetails(nodeId);
-  //       } catch (error) {
-  //         console.error("Error leaving node:", error);
-  //         throw error;
-  //       }
-  //     },
-  //     [fetchUserNodes]
-  //   );
+  const joinChapter = useCallback(
+    async (chapter: string, nodeId: string) => {
+      try {
+        await ChapterEndpoints.joinChapter(chapter, nodeId);
+      } catch (error) {
+        console.error("Error joining node:", error);
+        throw error;
+      }
+    },
+    [fetchChapterDetails]
+  );
+
+  const leaveChapter = useCallback(
+    async (chapterId: string) => {
+      try {
+        await ChapterEndpoints.leaveChapter(chapterId);
+        await fetchChapterDetails(chapterId);
+        toast.success("You have left the chapter");
+      } catch (error) {
+        console.error("Error leaving node:", error);
+        throw error;
+      }
+    },
+    [fetchChapterDetails]
+  );
 
   return {
     fetchChapterDetails,
+    joinChapter,
+    leaveChapter,
     error: null,
   };
 };

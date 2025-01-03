@@ -72,12 +72,14 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { useChapterStore } from "@/store/chapters-store";
+import { useChapterCalls } from "@/hooks/apis/use-chapter-calls";
 export default function ProfilePage() {
-  const { leaveNode, fetchNodeDetails } = useNodeCalls();
+  const { fetchNodeDetails } = useNodeCalls();
   const { globalUser } = useTokenStore((state) => state);
   const { currentNode, currentUserRole, nodeJoinStatus } = useNodeStore(
     (state) => state
   );
+  const { leaveChapter } = useChapterCalls();
   const { chapterMembers, currentChapter } = useChapterStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { nodeId } = useParams<{ nodeId: string }>();
@@ -97,7 +99,6 @@ export default function ProfilePage() {
 
   const isModeratorOrAdminOrOwner = () =>
     ["moderator", "admin", "owner"].includes(currentUserRole!);
-  const { hasPermission } = usePermission();
   const SECTIONS = [
     {
       title: "Change to admin",
@@ -195,12 +196,6 @@ export default function ProfilePage() {
     {}
   );
 
-  const handleInputChange = (memberId: string, value: string) => {
-    setDesignations((prev) => ({
-      ...prev,
-      [memberId]: value,
-    }));
-  };
   const [isEditing, setIsEditing] = useState<{ [key: string]: boolean }>({});
   const updateMemberDesignation = useNodeStore(
     (state: any) => state.updateMemberDesignation
@@ -251,9 +246,15 @@ export default function ProfilePage() {
     handleClear(userId);
     setIsEditing((prev) => ({ ...prev, [userId]: false }));
   };
+
+  // chheck if the globalUser._id present in chapter.members
+  const chapterJoinStatus = chapterMembers?.some(
+    (member: TMembers) => member?.user?._id === globalUser?._id
+  );
+
   return (
     <>
-      <Card className="mx-auto w-full max-w-3xl">
+      <Card className="ml-5 mt-5 w-full max-w-3xl">
         <CardHeader className="space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-2">
@@ -298,12 +299,12 @@ export default function ProfilePage() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              {nodeJoinStatus === "MEMBER" && currentUserRole !== "owner" && (
+              {chapterJoinStatus && (
                 <>
                   {/* <Button className="gap-2">
                     <span>+ Invite</span>
                   </Button> */}
-                  <Invite entityId={nodeId} type={"node"} />
+                  {/* <Invite entityId={nodeId} type={"node"} /> */}
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button
@@ -311,16 +312,16 @@ export default function ProfilePage() {
                         className="gap-2 text-red-500 hover:text-red-600"
                       >
                         <LogOut className="size-4" />
-                        <span>Leave Node</span>
+                        <span>Leave Chapter</span>
                       </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
                         <AlertDialogTitle>
-                          Are you sure you want to leave the Node?
+                          Are you sure you want to leave the Chapter?
                         </AlertDialogTitle>
                         <AlertDialogDescription>
-                          This action cannot be undone. Leaving the club will
+                          This action cannot be undone. Leaving the Chapter will
                           remove you from the members list and you will lose
                           access to all club activities and resources.
                         </AlertDialogDescription>
@@ -328,10 +329,10 @@ export default function ProfilePage() {
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
                         <AlertDialogAction
-                          onClick={() => leaveNode(nodeId)}
+                          onClick={() => leaveChapter(currentChapter?._id)}
                           className="bg-red-500 text-white hover:bg-red-600"
                         >
-                          Leave Node
+                          Leave Chapter
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>

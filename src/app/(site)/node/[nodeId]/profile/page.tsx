@@ -251,7 +251,7 @@ export default function Page() {
   };
   return (
     <>
-      <Card className="mx-auto w-full max-w-3xl">
+      <Card className="ml-5 mt-5 w-full max-w-3xl">
         <CardHeader className="space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-2">
