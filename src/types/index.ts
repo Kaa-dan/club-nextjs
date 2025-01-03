@@ -131,5 +131,5 @@ export type TChapter = {
   coverImage: {
     url: string;
   };
-  chapterMembers: any[];
+  members?: any[];
 };
