@@ -19,6 +19,7 @@ import {
 import { ICONS } from "@/lib/constants";
 import env from "@/lib/env.config";
 import { usePermission } from "@/lib/use-permission";
+import { Endpoints } from "@/utils/endpoint";
 
 interface ForumSidebarProps {
   type: "node" | "club";
@@ -97,18 +98,30 @@ const ForumSidebar: React.FC<ForumSidebarProps> = ({
       return;
     }
 
-    fetch("/api/recaptcha", {
-      method: "POST",
-      body: JSON.stringify({ token }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success) {
+    Endpoints.recaptcha(token)
+      .then((res) => {
+        if (res) {
           onJoin(forumId);
         }
       })
-      .catch(() => toast.error("Something went wrong!"))
+      .catch((err) => {
+        console.log({ err });
+        toast.error("something went wrong!!");
+      })
       .finally(() => setShowRecaptcha(false));
+
+    // fetch("/api/recaptcha", {
+    //   method: "POST",
+    //   body: JSON.stringify({ token }),
+    // })
+    //   .then((res) => res.json())
+    //   .then((data) => {
+    //     if (data.success) {
+    //       onJoin(forumId);
+    //     }
+    //   })
+    //   .catch(() => toast.error("Something went wrong!"))
+    //   .finally(() => setShowRecaptcha(false));
   };
 
   const renderSkeleton = () => (
