@@ -142,6 +142,8 @@ export function ChaptersList() {
                 <Card className="h-full">
                   <div className="relative h-40 w-full">
                     <Image
+                      height={400}
+                      width={350}
                       src={
                         chapter?.coverImage?.url || "/api/placeholder/400/320"
                       }
