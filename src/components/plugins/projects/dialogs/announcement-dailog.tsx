@@ -24,6 +24,7 @@ import { X, FileIcon, Image as ImageIcon, FileText } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ProjectApi } from "../projectApi";
 import { toast } from "sonner";
+import Image from "next/image";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_FILE_TYPES = [
@@ -238,9 +239,11 @@ const AnnouncementDialog = ({
                     <X className="size-4" />
                   </Button>
                   {file.file.type.startsWith("image/") ? (
-                    <img
+                    <Image
                       src={file.preview}
                       alt="preview"
+                      width={200}
+                      height={200}
                       className="h-20 w-full rounded object-cover"
                     />
                   ) : (

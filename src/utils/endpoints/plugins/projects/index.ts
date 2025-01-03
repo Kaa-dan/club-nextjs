@@ -5,14 +5,16 @@ export class ProjectsEndpoints {
     forum: TForum,
     forumId: string,
     status: "published" | "proposed",
-    page: string
+    page: string,
+    search: string
   ) {
+    console.log({ search });
     const queryParams = new URLSearchParams({
       status,
       page,
       limit: "10",
       isActive: "true",
-      search: "",
+      search,
       [forum === "club" ? "club" : "node"]: forumId,
     });
 
@@ -22,7 +24,12 @@ export class ProjectsEndpoints {
     return data;
   }
 
-  static async fetchMyProjects(forum: TForum, forumId: string, page: string) {
+  static async fetchMyProjects(
+    forum: TForum,
+    forumId: string,
+    page: string,
+    search: string
+  ) {
     const queryParams = new URLSearchParams({
       status: "published",
       page,

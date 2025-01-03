@@ -33,6 +33,9 @@ const IssuesLayout = ({
     proposedIssues,
     clickTrigger,
     loading,
+    currentPages,
+    setCurrentPages,
+    totalPages,
   } = useIssues(forum, forumId);
 
   const { hasPermission } = usePermission();
@@ -114,7 +117,7 @@ const IssuesLayout = ({
             <TabsTrigger
               key={tab.label}
               value={tab.label}
-              className="shrink-0 rounded-md border-primary px-3 py-1.5 text-sm data-[state=active]:border-b-4  data-[state=active]:text-primary"
+              className="shrink-0 rounded-md border-b-4 border-white px-3 py-1.5 text-sm data-[state=active]:border-primary  data-[state=active]:text-primary"
             >
               {tab.label} ({formatCount(tab.count)})
             </TabsTrigger>
@@ -125,7 +128,7 @@ const IssuesLayout = ({
           <TabsContent key={tab.label} value={tab.label} className="space-y-4">
             <div className="flex items-center gap-4">
               <Link href="issues/create">
-                <Button className="bg-primary hover:bg-emerald-600 text-white">
+                <Button className="bg-primary text-white hover:bg-emerald-600">
                   Add a new issue
                 </Button>
               </Link>
@@ -180,6 +183,9 @@ const IssuesLayout = ({
               clickTrigger={clickTrigger}
               setClickTrigger={setClickTrigger}
               loading={loading}
+              currentPages={currentPages}
+              setCurrentPages={setCurrentPages}
+              totalPages={totalPages}
             />
           </TabsContent>
         ))}

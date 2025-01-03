@@ -5,24 +5,41 @@ import { useEffect } from "react";
 
 const useChapters = () => {
   const { nodeId } = useParams<{ nodeId: string }>();
-  const { setPublishedChapters } = useChapterStore((state) => state);
+  const { setPublishedChapters, setProposedChapters } = useChapterStore(
+    (state) => state
+  );
 
   const fetchPublishedChapters = async () => {
     try {
       const response = await withTokenAxios.get(
         `/chapters/get-published?nodeId=${nodeId}`
       );
-      setPublishedChapters(response.data);
+      console.log({ response });
+      setPublishedChapters(response?.data);
     } catch (error) {
       console.error("Error fetching chapters:", error);
     }
   };
+
+  const fetchProposedChapters = async () => {
+    try {
+      const response = await withTokenAxios.get(
+        `/chapters/get-proposed?nodeId=${nodeId}`
+      );
+      setProposedChapters(response?.data);
+    } catch (error) {
+      console.error("Error fetching chapters:", error);
+    }
+  };
+
   useEffect(() => {
     fetchPublishedChapters();
+    fetchProposedChapters();
   }, []);
 
   return {
     fetchPublishedChapters,
+    fetchProposedChapters,
   };
 };
 

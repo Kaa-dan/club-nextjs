@@ -490,6 +490,14 @@ const useProjects = (forum: TForum, forumId: string) => {
     proposedProjects: false,
   });
 
+  const [searchQueries, setSearchQueries] = useState({
+    allProjects: "",
+    activeProjects: "",
+    proposedProjects: "",
+    globalProjects: "",
+    myProjects: "",
+  });
+
   // Helper function to transform adopted projects
   const transformAdoptedProjects = (adoptedProjects: any) => {
     return adoptedProjects.map((adoptedProject: any) => {
@@ -547,11 +555,13 @@ const useProjects = (forum: TForum, forumId: string) => {
   const fetchAllProjects = useCallback(async () => {
     setLoading((prev) => ({ ...prev, allProjects: true }));
     try {
+      console.log({ searchQueries });
       const response = await ProjectsEndpoints.fetchAllProjects(
         forum,
         forumId,
         "published",
-        String(currentPages.allProjects)
+        String(currentPages.allProjects),
+        searchQueries.allProjects
       );
 
       const combined = sortProjects([
@@ -584,7 +594,8 @@ const useProjects = (forum: TForum, forumId: string) => {
         forum,
         forumId,
         "published",
-        String(currentPages.activeProjects)
+        String(currentPages.activeProjects),
+        searchQueries.allProjects
       );
 
       const combined = sortProjects([
@@ -617,7 +628,8 @@ const useProjects = (forum: TForum, forumId: string) => {
         forum,
         forumId,
         "proposed",
-        String(currentPages.proposedProjects)
+        String(currentPages.proposedProjects),
+        searchQueries.allProjects
       );
 
       const combined = sortProjects([
@@ -676,7 +688,8 @@ const useProjects = (forum: TForum, forumId: string) => {
       const response = await ProjectsEndpoints.fetchMyProjects(
         forum,
         forumId,
-        String(currentPages.myProjects)
+        String(currentPages.myProjects),
+        searchQueries.allProjects
       );
 
       const combined = sortProjects([
@@ -714,7 +727,7 @@ const useProjects = (forum: TForum, forumId: string) => {
   // Effects to handle individual pagination changes
   useEffect(() => {
     fetchAllProjects();
-  }, [currentPages.allProjects]);
+  }, [currentPages.allProjects, searchQueries.allProjects]);
 
   useEffect(() => {
     fetchActiveProjects();
@@ -743,6 +756,8 @@ const useProjects = (forum: TForum, forumId: string) => {
     totalPages,
     loading,
     setCurrentPages,
+    setSearchQueries,
+    searchQueries,
     refetch: {
       fetchAllProjects,
       fetchActiveProjects,

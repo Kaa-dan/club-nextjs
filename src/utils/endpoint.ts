@@ -176,10 +176,16 @@ export class Endpoints {
     }
   }
 
-  static async getActiveRules(type: string, Id: string) {
+  static async getActiveRules(type: string, Id: string, page: string) {
     try {
+      const queryParams = new URLSearchParams({
+        type: type,
+        from: Id,
+        page: page,
+      }).toString();
+
       const response = await withTokenAxios.get(
-        `rules-regulations/get-all-active-rules?type=${type}&from=${Id}`
+        `rules-regulations/get-all-active-rules?${queryParams}`
       );
       return response.data;
     } catch (error) {
@@ -187,9 +193,14 @@ export class Endpoints {
     }
   }
 
-  static async getGlobalRules() {
+  static async getGlobalRules(page: string) {
     try {
-      const response = await withTokenAxios.get(`rules-regulations`);
+      const queryParams = new URLSearchParams({
+        page,
+      }).toString();
+      const response = await withTokenAxios.get(
+        `rules-regulations?${queryParams}`
+      );
       return response.data;
     } catch (error) {
       throw error;
@@ -338,10 +349,10 @@ export class Endpoints {
     }
   }
 
-  static async fetchMyDebate(entity: string, entityId: string) {
+  static async fetchMyDebate(entity: string, entityId: string, page: string) {
     try {
       const response = await withTokenAxios.get(
-        `debate/my-debates?entityId=${entityId}&entity=${entity}`
+        `debate/my-debates?entityId=${entityId}&entity=${entity}&page=${page}`
       );
       return response.data;
     } catch (error) {
@@ -349,10 +360,10 @@ export class Endpoints {
     }
   }
 
-  static async fetchAllDebates(entity: string, entityId: string) {
+  static async fetchAllDebates(entity: string, entityId: string, page: string) {
     try {
       const response = await withTokenAxios.get(
-        `debate/all-debates?entityId=${entityId}&entity=${entity}`
+        `debate/all-debates?entityId=${entityId}&entity=${entity}&page=${page}`
       );
       return response.data;
     } catch (error) {
@@ -360,19 +371,27 @@ export class Endpoints {
     }
   }
 
-  static async fetchOnGoingDebates(entity: string, entityId: string) {
+  static async fetchOnGoingDebates(
+    entity: string,
+    entityId: string,
+    page: string
+  ) {
     try {
       const response = await withTokenAxios.get(
-        `debate/ongoing?entityId=${entityId}&entity=${entity}`
+        `debate/ongoing?entityId=${entityId}&entity=${entity}&page=${page}`
       );
       return response.data;
     } catch (error) {
       return error;
     }
   }
-  static async fetchGlobalDebates(entity: string, entityId: string) {
+  static async fetchGlobalDebates(
+    entity: string,
+    entityId: string,
+    page: string
+  ) {
     try {
-      const response = await withTokenAxios.get("debate/global");
+      const response = await withTokenAxios.get(`debate/global?page=${page}`);
       return response.data;
     } catch (error) {
       return error;
@@ -441,10 +460,14 @@ export class Endpoints {
       throw error;
     }
   }
-  static async fetchProposedDebate(entityId: string, forum: TForum) {
+  static async fetchProposedDebate(
+    entityId: string,
+    forum: TForum,
+    page: string
+  ) {
     try {
       const response = await withTokenAxios.get(
-        `/debate/proposed/${entityId}/${forum}`
+        `/debate/proposed/${entityId}/${forum}/${page}`
       );
       return response.data;
     } catch (error) {

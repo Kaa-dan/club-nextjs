@@ -24,11 +24,19 @@ const ROLES = {
     // Roles
     "update:makeAdmin",
     "update:removeUser",
-    "update:desingation",
-    "update: position",
+    "update:designation",
+    "update:position",
 
     // Rules
     "view:rulesReportOffense",
+
+    //Chapters
+    "create:chapter",
+    "view:chapter",
+    "view:proposedChapters",
+    "update:chapter",
+    "delete:chapter",
+    "publish:chapter",
   ] as const,
   admin: [
     // Common
@@ -45,7 +53,7 @@ const ROLES = {
     // Roles
     "update:removeUser",
     "update:desingation",
-    "update: position",
+    "update:position",
 
     // Asset
     "view:proposedAsset",
@@ -59,6 +67,14 @@ const ROLES = {
     "view:debates",
     "view:clubs",
     "view:members",
+
+    //Chapters
+    "create:chapter",
+    "view:chapter",
+    "view:proposedChapters",
+    "update:chapter",
+    "delete:chapter",
+    "publish:chapter",
   ] as const,
   moderator: [
     // Common
@@ -74,6 +90,14 @@ const ROLES = {
     "view:proposedAsset",
     "create:asset",
     "adopt:asset",
+
+    //Chapters
+    "create:chapter",
+    "view:chapter",
+    "view:proposedChapters",
+    "update:chapter",
+    "delete:chapter",
+    "publish:chapter",
   ] as const,
   member: [
     "view:profile",
@@ -84,6 +108,11 @@ const ROLES = {
 
     // Asset
     "propose:asset",
+
+    //Chapters
+    "view:chapter",
+    "view:proposedChapters",
+    "propose:chapter",
   ] as const,
   VISITOR: ["view:newsFeed", "view:modules", "view:members"],
 } as const;
