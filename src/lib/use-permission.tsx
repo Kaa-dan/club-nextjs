@@ -24,8 +24,8 @@ const ROLES = {
     // Roles
     "update:makeAdmin",
     "update:removeUser",
-    "update:desingation",
-    "update: position",
+    "update:designation",
+    "update:position",
 
     // Rules
     "view:rulesReportOffense",
@@ -53,7 +53,7 @@ const ROLES = {
     // Roles
     "update:removeUser",
     "update:desingation",
-    "update: position",
+    "update:position",
 
     // Asset
     "view:proposedAsset",

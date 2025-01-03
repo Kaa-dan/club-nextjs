@@ -1292,8 +1292,10 @@ export default function ProjectForm({
                             <X className="size-3" />
                           </Button>
                           {file.file.type.startsWith("image/") ? (
-                            <img
-                              src={file.preview}
+                            <Image
+                              width={200}
+                              height={200}
+                              src={file?.preview!}
                               alt={`Preview ${index + 1}`}
                               className="size-full object-cover"
                             />
