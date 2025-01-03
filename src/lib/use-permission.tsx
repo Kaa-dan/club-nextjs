@@ -113,6 +113,7 @@ const ROLES = {
     "create:chapter",
     "view:chapter",
     "view:proposedChapters",
+    "propose:chapter",
   ] as const,
   VISITOR: ["view:newsFeed", "view:modules", "view:members"],
 } as const;

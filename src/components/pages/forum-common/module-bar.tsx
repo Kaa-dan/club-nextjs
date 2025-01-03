@@ -31,7 +31,6 @@ const ModulesBar: React.FC<{
       icon:
         plugin === "issues" ? ICONS.BarIssuesIconGreen : ICONS.BarIssuesIcon,
     },
-    { link: "market", name: "Market Place", icon: ICONS.BarMarketPlaceIcon },
     {
       link: "debate",
       name: "Debate",
@@ -43,12 +42,13 @@ const ModulesBar: React.FC<{
       name: "Projects",
       icon: ICONS.BarFunnyIcon,
     },
-    {
-      link: "events",
-      name: "Events News",
-      icon: ICONS.BarEventsIcon,
-      notifications: 8,
-    },
+    // { link: "market", name: "Market Place", icon: ICONS.BarMarketPlaceIcon },
+    // {
+    //   link: "events",
+    //   name: "Events News",
+    //   icon: ICONS.BarEventsIcon,
+    //   notifications: 8,
+    // },
   ];
   const router = useRouter();
   return (
@@ -59,7 +59,7 @@ const ModulesBar: React.FC<{
             // onClick={() => {
             //   router.push(`/${forum}/${forumId}/${module.link}`);
             // }}
-            className="relative flex cursor-pointer flex-col items-center gap-1 rounded-sm  p-1 px-4 hover:bg-slate-50"
+            className="relative flex  h-11 cursor-pointer flex-col items-center justify-end gap-2 rounded-sm  p-1 px-4 hover:bg-slate-50"
           >
             {/* Icon with Badge */}
             <div className="relative size-fit ">
@@ -77,7 +77,7 @@ const ModulesBar: React.FC<{
             </div>
 
             {/* Label */}
-            <p className=" mt-1 text-gray-700">{module.name}</p>
+            <p className=" text-gray-700">{module.name}</p>
           </div>
         </Link>
       ))}
