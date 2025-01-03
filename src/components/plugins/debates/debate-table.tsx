@@ -142,8 +142,6 @@ export default function DebateTable({
   setCurrentPages,
   totalPage,
 }: DebateTableProps) {
-  console.log({ all: data });
-
   const router = useRouter();
   const isMyDebates = tab === "My Debates";
   const isGlobalDebates = tab === "Global Debates";
