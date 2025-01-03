@@ -179,7 +179,7 @@ const NodePage: React.FC = () => {
       ))}
 
       {loading && (
-        <div className="flex justify-center p-4">
+        <div className="flex justify-center item-center p-4  w-full">
           <div className="size-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
         </div>
       )}
