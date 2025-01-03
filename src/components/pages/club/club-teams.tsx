@@ -163,22 +163,22 @@ import { Ellipsis, ChevronLeft } from "lucide-react";
 const TeamsSidePopover = () => {
   return (
     <Popover>
-      <PopoverTrigger asChild className="absolute -right-5 w-fit">
+      <PopoverTrigger asChild>
         <Button
           variant="ghost"
           size="sm"
-          className="group  flex w-fit items-center justify-between rounded-full rounded-r-none  bg-green-100 p-3 py-5 text-gray-700  "
+          className="group fixed mr-10 flex items-center justify-between rounded-l-full bg-green-100 p-3 py-5 pr-10 text-gray-700"
         >
-          <div className="flex items-center gap-2 ">
+          <div className="flex items-center gap-2">
             <ChevronLeft className="size-4 transition-transform group-data-[state=open]:rotate-90" />
-            <span className="text-xl font-semibold">Teams</span>
+            <span className=" text-xl font-semibold">Teams</span>
           </div>
         </Button>
       </PopoverTrigger>
       <PopoverContent
         className="w-80 p-0"
         align="start"
-        side="right"
+        side="left" // Changed to left
         sideOffset={5}
       >
         <div className="w-full rounded-lg bg-white">

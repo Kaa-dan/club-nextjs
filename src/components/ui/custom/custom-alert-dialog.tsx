@@ -54,7 +54,8 @@ const dialogStyles: Record<
   success: {
     icon: CheckCircle2,
     iconColor: "text-green-500",
-    actionButtonClass: "bg-green-600 hover:bg-green-700 focus:ring-green-500",
+    actionButtonClass:
+      "bg-primary text-white hover:bg-green-600 focus:ring-green-500",
   },
 };
 

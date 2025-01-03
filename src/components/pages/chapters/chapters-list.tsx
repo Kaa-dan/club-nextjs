@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Check, Eye, Search, X } from "lucide-react";
+import { Check, Eye, Filter, Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,6 +30,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import useChapters from "./use-chapters";
 import { toast } from "sonner";
 import { usePermission } from "@/lib/use-permission";
+import Link from "next/link";
 
 export function ChaptersList() {
   const { hasPermission } = usePermission();
@@ -82,22 +83,6 @@ export function ChaptersList() {
 
   return (
     <div className="container mx-auto space-y-6 p-4">
-      <div className="flex items-center justify-end">
-        {/* <h1 className="mb-4 text-2xl font-bold">All Chapters</h1> */}
-        <Button
-          onClick={() => setOpenCreateModal(true)}
-          variant="outline"
-          size="default"
-        >
-          Create Chapter
-        </Button>
-        {openCreateModal && (
-          <CreateChapterModal
-            open={openCreateModal}
-            onOpenChange={setOpenCreateModal}
-          />
-        )}
-      </div>
       <div className="flex items-center gap-2">
         <div className="relative flex-1">
           <Search className="absolute left-2 top-2.5 size-4 text-muted-foreground" />
@@ -108,10 +93,11 @@ export function ChaptersList() {
             className="pl-8"
           />
         </div>
+        <div className="flex items-center gap-2"></div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="icon">
-              <Search className="size-4" />
+              <Filter className="size-4" />
               <span className="sr-only">Filter</span>
             </Button>
           </DropdownMenuTrigger>
@@ -120,6 +106,24 @@ export function ChaptersList() {
             <DropdownMenuItem>Filter by Status</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        <Button
+          onClick={() => setOpenCreateModal(true)}
+          variant="default"
+          size="default"
+        >
+          {hasPermission("create:chapter")
+            ? "Create Chapter"
+            : hasPermission("propose:chapter")
+              ? "Propose Chapter"
+              : null}
+        </Button>
+
+        {openCreateModal && (
+          <CreateChapterModal
+            open={openCreateModal}
+            onOpenChange={setOpenCreateModal}
+          />
+        )}
       </div>
 
       <Tabs defaultValue="published" className="grid-cols-1">
@@ -131,7 +135,8 @@ export function ChaptersList() {
           <Card>
             <CardContent className="h-72 space-y-2 overflow-y-scroll">
               {filteredPublishedChapters.map((chapter) => (
-                <div
+                <Link
+                  href={`chapters/${chapter._id}`}
                   key={chapter?._id}
                   className="mt-4 flex justify-between space-y-1 rounded-lg p-3 shadow-md"
                 >
@@ -140,7 +145,7 @@ export function ChaptersList() {
                       <Avatar>
                         <AvatarImage
                           src={chapter?.profileImage?.url}
-                          alt="@shadcn"
+                          alt="profile"
                         />
                         <AvatarFallback>
                           {chapter?.name?.charAt(0)}
@@ -152,7 +157,7 @@ export function ChaptersList() {
                   <div className="flex items-center gap-2">
                     {/* <Eye className="cursor-pointer text-gray-600" /> */}
                   </div>
-                </div>
+                </Link>
               ))}
             </CardContent>
           </Card>
@@ -170,7 +175,7 @@ export function ChaptersList() {
                       <Avatar>
                         <AvatarImage
                           src={chapter?.profileImage?.url}
-                          alt="@shadcn"
+                          alt="profile"
                         />
                         <AvatarFallback>
                           {chapter?.name?.charAt(0)}

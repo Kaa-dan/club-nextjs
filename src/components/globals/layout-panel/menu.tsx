@@ -654,7 +654,7 @@ export function Menu({ isOpen }: MenuProps) {
                     trigger={
                       <Button
                         variant="outline"
-                        className="mt-5 h-12 w-full justify-center  gap-2 hover:bg-red-50 hover:text-red-600"
+                        className="mt-5 h-12 w-full justify-center  gap-2  hover:text-red-600"
                       >
                         <LogOut size={18} />
                         <p
@@ -669,7 +669,7 @@ export function Menu({ isOpen }: MenuProps) {
                     }
                     title="Sign Out Confirmation"
                     description="Are you sure you want to sign out? You'll need to sign in again to access your account."
-                    type="error"
+                    type="success"
                     actionText="Sign out"
                     cancelText="Cancel"
                     onAction={() => {
