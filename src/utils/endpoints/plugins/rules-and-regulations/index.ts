@@ -16,9 +16,19 @@ export class RulesAndRegulationsEndpoints {
     return response.data;
   }
 
-  static async fetchMyRulesOnNodeOrClub(forum: TForum, entityId: string) {
+  static async fetchMyRulesOnNodeOrClub(
+    forum: TForum,
+    entityId: string,
+    page: string
+  ) {
+    const queryParams = new URLSearchParams({
+      type: forum,
+      entity: entityId,
+      page: page,
+    }).toString();
+
     const response = await withTokenAxios.get(
-      `/rules-regulations/get-my-rules?type=${forum}&entity=${entityId}`
+      `/rules-regulations/get-my-rules?${queryParams}`
     );
     return response.data;
   }

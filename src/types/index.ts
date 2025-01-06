@@ -76,9 +76,11 @@ export interface TMembers {
   _id: string;
   club: TClub;
   user: TUser;
-  role: "member" | "admin" | "moderator";
+  role: "member" | "admin" | "moderator" | "owner";
   status: "REQUESTED" | "APPROVED" | "REJECTED";
   createdAt: Date;
+  designation: string;
+  position: string;
 }
 
 type IssueType =
@@ -109,4 +111,25 @@ export type TIssue = {
     avatar: string;
   };
   relevanceScore: number;
+};
+
+export type TChapter = {
+  _id: string;
+  name: string;
+  club: string;
+  node: string;
+  status: string;
+  about: string;
+  publishedBy: string;
+  createdAt: string;
+  updatedAt: string;
+  description: string;
+  profileImage: {
+    url: string;
+  };
+  coverImage: {
+    url: string;
+  };
+  members?: any[];
+  proposedBy: TUser;
 };

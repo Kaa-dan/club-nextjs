@@ -49,8 +49,10 @@ export type Issue = {
   publishedStatus: string;
   createdAt: string;
   createdBy: {
-    name: string;
-    avatar: string;
+    _id: string;
+    firstName: string;
+    lastName: string;
+    profileImage: string;
   };
   relevant: any[];
   irrelevant: any[];
@@ -65,6 +67,10 @@ interface DataTableProps {
   clickTrigger: boolean;
   setClickTrigger: React.Dispatch<React.SetStateAction<boolean>>;
   loading: boolean;
+  totalPages: any;
+  setCurrentPages: any;
+  currentPages: any;
+  tab: TIssuesLabel;
 }
 
 function DataTable({
@@ -76,6 +82,10 @@ function DataTable({
   clickTrigger,
   setClickTrigger,
   loading,
+  currentPages,
+  setCurrentPages,
+  totalPages,
+  tab,
 }: DataTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
@@ -91,7 +101,7 @@ function DataTable({
   });
 
   return (
-    <div className="rounded-md border">
+    <div className="rounded-md border ">
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -156,6 +166,140 @@ function DataTable({
           )}
         </TableBody>
       </Table>
+      <div className="flex items-center justify-end space-x-2 py-4">
+        <div className="flex items-center gap-1 text-sm text-muted-foreground">
+          <span>Page</span>
+          <span className="font-medium">
+            {tab === "All Issues"
+              ? currentPages.allIssues
+              : tab === "Global Library"
+                ? currentPages.globalIssues
+                : tab === "Live Issues"
+                  ? currentPages.liveIssues
+                  : tab === "My Issues"
+                    ? currentPages.myIssues
+                    : 1}
+          </span>
+          <span>of</span>
+          <span className="font-medium">
+            {tab === "All Issues"
+              ? totalPages.allProjects
+              : tab === "Global Library"
+                ? totalPages.globalIssues
+                : tab === "Live Issues"
+                  ? totalPages.liveIssues
+                  : tab === "My Issues"
+                    ? totalPages.myProjects
+                    : tab === "Proposed Issues"
+                      ? totalPages.proposedProjects
+                      : 1}
+          </span>
+        </div>
+        <Button
+          onClick={() => {
+            setCurrentPages((prev: any) => {
+              switch (tab) {
+                case "Global Library":
+                  return {
+                    ...prev,
+                    globalIssues: Math.max(1, prev.globalIssues - 1),
+                  };
+                case "Live Issues":
+                  return {
+                    ...prev,
+                    liveIssues: Math.max(1, prev.liveIssues - 1),
+                  };
+                case "All Issues":
+                  return {
+                    ...prev,
+                    allIssues: Math.max(1, prev.allIssues - 1),
+                  };
+                case "My Issues":
+                  return {
+                    ...prev,
+                    myIssues: Math.max(1, prev.myIssues - 1),
+                  };
+                case "Proposed Issues":
+                  return {
+                    ...prev,
+                    proposedIssues: Math.max(1, prev.proposedIssues - 1),
+                  };
+                default:
+                  return prev;
+              }
+            });
+          }}
+          variant="outline"
+          size="sm"
+          disabled={
+            tab === "Global Library"
+              ? currentPages.globalIssues <= 1 ||
+                currentPages.globalIssues > totalPages.globalIssues
+              : tab === "Live Issues"
+                ? currentPages.liveIssues <= 1 ||
+                  currentPages.liveIssues > totalPages.liveIssues
+                : tab === "All Issues"
+                  ? currentPages.allIssues <= 1 ||
+                    currentPages.allIssues > totalPages.allIssues
+                  : tab === "My Issues"
+                    ? currentPages.myIssues <= 1 ||
+                      currentPages.myIssues > totalPages.myIssues
+                    : true
+          }
+        >
+          Previous
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            setCurrentPages((prev: any) => {
+              switch (tab) {
+                case "Global Library":
+                  return {
+                    ...prev,
+                    globalIssues: Math.max(1, prev.globalIssues + 1),
+                  };
+                case "Live Issues":
+                  return {
+                    ...prev,
+                    liveIssues: Math.max(1, prev.liveIssues + 1),
+                  };
+                case "All Issues":
+                  return {
+                    ...prev,
+                    allIssues: Math.max(1, prev.allIssues + 1),
+                  };
+                case "My Issues":
+                  return {
+                    ...prev,
+                    myIssues: Math.max(1, prev.myIssues + 1),
+                  };
+                case "Proposed Issues":
+                  return {
+                    ...prev,
+                    proposedIssues: Math.max(1, prev.proposedIssues - 1),
+                  };
+                default:
+                  return prev;
+              }
+            });
+          }}
+          disabled={
+            tab === "Global Library"
+              ? currentPages.globalIssues >= totalPages.globalIssues
+              : tab === "Live Issues"
+                ? currentPages.liveIssues >= totalPages.liveIssues
+                : tab === "All Issues"
+                  ? currentPages.allIssues >= totalPages.allIssues
+                  : tab === "My Issues"
+                    ? currentPages.myIssues >= totalPages.myIssues
+                    : true
+          }
+        >
+          Next
+        </Button>
+      </div>
     </div>
   );
 }
@@ -169,6 +313,9 @@ export default function IssueTable({
   setClickTrigger,
   tab,
   loading,
+  currentPages,
+  setCurrentPages,
+  totalPages,
 }: {
   plugin: TPlugins;
   forum: TForum;
@@ -178,6 +325,9 @@ export default function IssueTable({
   setClickTrigger: React.Dispatch<React.SetStateAction<boolean>>;
   tab: TIssuesLabel;
   loading: boolean;
+  totalPages: any;
+  setCurrentPages: any;
+  currentPages: any;
 }) {
   // const [sorting, setSorting] = useState<SortingState>([]);
 
@@ -285,15 +435,18 @@ export default function IssueTable({
             <Avatar className="size-8">
               <AvatarImage
                 src={
-                  postedBy?.avatar ||
+                  postedBy?.profileImage ||
                   "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWdu-qOixArQruGnl8wz6iK-ygXGGGOSQytg&s"
                 }
                 alt="Avatar"
               />
-              <AvatarFallback>{postedBy?.name?.[0] || "U"}</AvatarFallback>
+              <AvatarFallback>
+                {postedBy?.firstName?.trim()?.[0] || "U"}
+              </AvatarFallback>
             </Avatar>
             <span className="text-sm text-muted-foreground">
-              {postedBy?.name}
+              {postedBy?.firstName || ""}
+              {postedBy?.lastName || ""}
             </span>
           </div>
         );
@@ -313,13 +466,11 @@ export default function IssueTable({
         );
       },
       cell: ({ row }) => {
-        // const relevanceScore = parseFloat(row.getValue("relevant"));
         return (
           console.log(row, "relevanceScore"),
           (
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
               <div className="flex items-center gap-1">
-                {/* <ThumbsUp className="size-4" /> */}
                 <ThumbsUp
                   className={cn("size-4  cursor-pointer text-primary")}
                 />
@@ -332,7 +483,6 @@ export default function IssueTable({
                   )}
                 />
                 <span>{row?.original?.irrelevant?.length}</span>
-                {/* <MessageCircle className="size-4" /> */}
               </div>
             </div>
           )
@@ -382,6 +532,9 @@ export default function IssueTable({
 
   return (
     <DataTable
+      currentPages={currentPages}
+      setCurrentPages={setCurrentPages}
+      totalPages={totalPages}
       columns={getFilteredColumns()}
       data={data}
       forumId={forumId}
@@ -390,6 +543,7 @@ export default function IssueTable({
       clickTrigger={clickTrigger}
       setClickTrigger={setClickTrigger}
       loading={loading}
+      tab={tab}
     />
   );
 }

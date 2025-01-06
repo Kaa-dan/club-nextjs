@@ -165,14 +165,14 @@ const DetailsForm: React.FC<DetailsFormProps> = ({ setStep }) => {
                     placeholder="Enter username"
                     {...field}
                     onChange={(e) => {
-                      const value = e.target.value;
+                      const value = e.target?.value?.toLowerCase();
                       const formattedName = formatName(value, {
                         makeFirstLetterUppercase: false,
-                        allowUppercaseInBetween: true,
+                        allowUppercaseInBetween: false,
                         allowNumbers: true,
                       });
-                      field.onChange(formattedName);
-                      form.setValue("userName", formattedName);
+                      field.onChange(formattedName?.toLowerCase());
+                      form.setValue("userName", formattedName?.toLowerCase());
                     }}
                   />
                 </FormControl>

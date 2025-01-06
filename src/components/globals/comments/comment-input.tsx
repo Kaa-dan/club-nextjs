@@ -1,4 +1,5 @@
-import React, { useState, useRef } from "react";
+"use client";
+import React, { useState, useRef, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,7 +23,28 @@ import FilePreview from "./file-preview";
 import { useCommentsStore } from "@/store/comments-store";
 import { useProfanity } from "@/hooks/use-profanity";
 import CustomAlertDialog from "@/components/ui/custom/custom-alert-dialog";
+import { useSocketStore } from "@/hooks/use-socket-store";
+import { useTokenStore } from "@/store/store";
 const CommentInput = () => {
+  const { socket, isConnected, connect, disconnect, sendComment } =
+    useSocketStore();
+
+  const { globalUser } = useTokenStore((state) => state);
+  useEffect(() => {
+    connect();
+
+    socket.on("commentAdded", (comment) => {
+      // setComments((prev) => [...prev, comment]);
+      console.log({ comment });
+    });
+
+    // Cleanup
+    return () => {
+      socket.off("commentAdded");
+      disconnect();
+    };
+  }, [socket, connect, disconnect]);
+
   const { postId, plugin } = useParams<{ postId: string; plugin: TPlugins }>();
   const { setComments } = useCommentsStore((state) => state);
   const { checkProfanity, hasProfanity, profanityScore } = useProfanity({
@@ -81,6 +103,22 @@ const CommentInput = () => {
         });
         setComments(res.data);
       }
+      sendComment({
+        _id: globalUser?._id!,
+        content: comment,
+        coverImage: globalUser?.coverImage!,
+        dislike: [],
+        like: [],
+        createdAt: new Date().toISOString(),
+        email: globalUser?.email!,
+        firstName: globalUser?.firstName!,
+        lastName: globalUser?.lastName!,
+        profileImage: globalUser?.profileImage!,
+        interests: globalUser?.interests!,
+        replies: [],
+        userName: globalUser?.userName!,
+        // ...globalUser,
+      });
 
       setComment("");
       checkProfanity("");

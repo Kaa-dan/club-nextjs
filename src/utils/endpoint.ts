@@ -1,7 +1,6 @@
-import { withTokenAxios } from "@/lib/mainAxios";
 import { error } from "console";
 import { type } from "os";
-
+import { withTokenAxios } from "@/lib/mainAxios";
 export class Endpoints {
   static async fetchNodeDetails(nodeId: string) {
     const { data } = await withTokenAxios.get("/node/" + nodeId);
@@ -20,6 +19,7 @@ export class Endpoints {
   static async fetchUserJoinedNodes() {
     try {
       const { data } = await withTokenAxios.get("/node/user-nodes");
+      console.log({ joindedNodess: data });
       return data;
     } catch (error) {
       console.log({ error });
@@ -63,7 +63,7 @@ export class Endpoints {
   static async fetchUserJoinedClubs() {
     try {
       const response = await withTokenAxios.get(`/clubs/user-clubs`);
-      console.log({ response });
+      console.log({ joinedClubs: response });
 
       return response.data;
     } catch (error) {
@@ -80,11 +80,9 @@ export class Endpoints {
       throw error;
     }
   }
-  static async fetchClubUserStatus(clubdId: string) {
+  static async fetchClubUserStatus(clubId: string) {
     try {
-      const response = await withTokenAxios.get(
-        `clubs/check-status/${clubdId}`
-      );
+      const response = await withTokenAxios.get(`clubs/check-status/${clubId}`);
       return response.data;
     } catch (error) {
       throw error;
@@ -178,10 +176,16 @@ export class Endpoints {
     }
   }
 
-  static async getActiveRules(type: string, Id: string) {
+  static async getActiveRules(type: string, Id: string, page: string) {
     try {
+      const queryParams = new URLSearchParams({
+        type: type,
+        from: Id,
+        page: page,
+      }).toString();
+
       const response = await withTokenAxios.get(
-        `rules-regulations/get-all-active-rules?type=${type}&from=${Id}`
+        `rules-regulations/get-all-active-rules?${queryParams}`
       );
       return response.data;
     } catch (error) {
@@ -189,9 +193,14 @@ export class Endpoints {
     }
   }
 
-  static async getGlobalRules() {
+  static async getGlobalRules(page: string) {
     try {
-      const response = await withTokenAxios.get(`rules-regulations`);
+      const queryParams = new URLSearchParams({
+        page,
+      }).toString();
+      const response = await withTokenAxios.get(
+        `rules-regulations?${queryParams}`
+      );
       return response.data;
     } catch (error) {
       throw error;
@@ -340,10 +349,10 @@ export class Endpoints {
     }
   }
 
-  static async fetchMyDebate(entity: string, entityId: string) {
+  static async fetchMyDebate(entity: string, entityId: string, page: string) {
     try {
       const response = await withTokenAxios.get(
-        `debate/my-debates?entityId=${entityId}&entity=${entity}`
+        `debate/my-debates?entityId=${entityId}&entity=${entity}&page=${page}`
       );
       return response.data;
     } catch (error) {
@@ -351,10 +360,10 @@ export class Endpoints {
     }
   }
 
-  static async fetchAllDebates(entity: string, entityId: string) {
+  static async fetchAllDebates(entity: string, entityId: string, page: string) {
     try {
       const response = await withTokenAxios.get(
-        `debate/all-debates?entityId=${entityId}&entity=${entity}`
+        `debate/all-debates?entityId=${entityId}&entity=${entity}&page=${page}`
       );
       return response.data;
     } catch (error) {
@@ -362,19 +371,27 @@ export class Endpoints {
     }
   }
 
-  static async fetchOnGoingDebates(entity: string, entityId: string) {
+  static async fetchOnGoingDebates(
+    entity: string,
+    entityId: string,
+    page: string
+  ) {
     try {
       const response = await withTokenAxios.get(
-        `debate/ongoing?entityId=${entityId}&entity=${entity}`
+        `debate/ongoing?entityId=${entityId}&entity=${entity}&page=${page}`
       );
       return response.data;
     } catch (error) {
       return error;
     }
   }
-  static async fetchGlobalDebates(entity: string, entityId: string) {
+  static async fetchGlobalDebates(
+    entity: string,
+    entityId: string,
+    page: string
+  ) {
     try {
-      const response = await withTokenAxios.get("debate/global");
+      const response = await withTokenAxios.get(`debate/global?page=${page}`);
       return response.data;
     } catch (error) {
       return error;
@@ -405,8 +422,6 @@ export class Endpoints {
     clubId?: string,
     nodeId?: string
   ) {
-    console.log({ debateId });
-
     try {
       const response = await withTokenAxios.post("debate/adopt", {
         debateId,
@@ -414,6 +429,216 @@ export class Endpoints {
         clubId,
         nodeId,
       });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+  static async fetchDebateArgs(debateId: string) {
+    try {
+      const response = await withTokenAxios.get(`debate/argument/${debateId}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+  static async postArgument(data: any) {
+    const response = await withTokenAxios.post("debate/create-argument", data);
+    return response.data;
+  }
+
+  static async toggleVote(
+    debateId: string,
+    voteType: "relevant" | "irrelevant"
+  ) {
+    try {
+      const response = await withTokenAxios.post(`debate/vote/${debateId}`, {
+        voteType,
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+  static async fetchProposedDebate(
+    entityId: string,
+    forum: TForum,
+    page: string
+  ) {
+    try {
+      const response = await withTokenAxios.get(
+        `/debate/proposed/${entityId}/${forum}/${page}`
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+  static async acceptDebate(debateId: string) {
+    try {
+      const response = await withTokenAxios.put(`/debate/accept/${debateId}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async rejectDebate(debateId: string) {
+    try {
+      const response = await withTokenAxios.put(`debate/reject/${debateId}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async checkParticipationStatus(
+    debateId: string,
+    entityType: TForum,
+    entity: string
+  ) {
+    try {
+      const response = await withTokenAxios.post("debate/check-status", {
+        debateId,
+        entityType,
+        entity,
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async replyToDebateArgument(parentId: string, content: string) {
+    try {
+      const response = await withTokenAxios.post(
+        "debate/" + parentId + "/reply",
+        {
+          content,
+        }
+      );
+      console.log("Reply successful:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Error posting reply:", error);
+      throw error;
+    }
+  }
+  static async getRepliesForDebateArgument(parentId: string) {
+    try {
+      const response = await withTokenAxios.get(`debate/replies/${parentId}`);
+
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching replies:", error);
+      throw error;
+    }
+  }
+
+  static async pin(id: string) {
+    try {
+      const response = await withTokenAxios.post(`debate/pin/${id}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async unpin(id: string) {
+    try {
+      const response = await withTokenAxios.post(`debate/unpin/${id}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+  static async deleteDebateArgument(argumentId: string) {
+    try {
+      const response = await withTokenAxios.delete(
+        `debate/argument/${argumentId}`
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async createDebtaView(debateId: string) {
+    try {
+      const response = await withTokenAxios.put("debate/create-views", {
+        debateId,
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async getFeeds(
+    entity: "node" | "club",
+    entityId: string,
+    page = 1,
+    limit = 10
+  ) {
+    try {
+      const response = await withTokenAxios.get("assets/feed", {
+        params: {
+          entity,
+          entityId,
+          page,
+          limit,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+  static async relevancy(
+    type: "issues" | "debate" | "projects",
+    moduleId: string,
+    action: "like" | "dislike"
+  ) {
+    try {
+      const response = await withTokenAxios.post("assets/relevancy", {
+        type,
+        moduleId,
+        action,
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+  static async updateDesignation(
+    memberId: string,
+    designation: string,
+    nodeId: string
+  ) {
+    try {
+      const response = await withTokenAxios.patch("users/designation", {
+        memberId,
+        designation,
+        nodeId,
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async updatePosition(
+    nodeId: string,
+    memberId: string,
+    position: string
+  ) {
+    try {
+      const response = await withTokenAxios.patch(
+        `users/${nodeId}/members/${memberId}/position`,
+        {
+          position,
+        }
+      );
       return response.data;
     } catch (error) {
       throw error;

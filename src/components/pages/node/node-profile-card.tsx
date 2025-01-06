@@ -18,9 +18,12 @@ import {
 } from "@/components/ui/alert-dialog";
 import { NodeEndpoints } from "@/utils/endpoints/node";
 import { toast } from "sonner";
-import { DialogHeader } from "@/components/ui/dialog";
+import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { ImageSkeleton } from "../club/club-profile-card";
+import env from "@/lib/env.config";
+import { useNodeCalls } from "@/hooks/apis/use-node-calls";
+import { usePermission } from "@/lib/use-permission";
 
 interface ProfileCardProps {
   currentPage: string;
@@ -31,20 +34,22 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
   currentPage,
   setCurrentPage,
 }) => {
-  const { currentNode, currentUserRole } = useNodeStore((state) => state);
-  const [joinStatus, setJoinStatus] = useState<String>("");
-  const [cancelRequestTriggered, setCancelRequestTriggered] = useState(false);
+  const { hasPermission } = usePermission();
+  const { currentNode, nodeJoinStatus, setNodeJoinStatus } = useNodeStore(
+    (state) => state
+  );
+  const { fetchNodeJoinStatus } = useNodeCalls();
   const recaptchaRef = useRef(null);
 
   const { setUserRequestedNodes } = useNodeStore((state) => state);
 
-  const isAdmin = () => currentUserRole === "admin";
-  const isModeratorOrAdminOrOwner = () =>
-    ["moderator", "admin", "owner"].includes(currentUserRole.toLowerCase());
-
   const SECTIONS = [
-    { name: "News Feed", icon: ICONS.NodeNewsFeedIcon, path: "#" },
-    { name: "Modules", icon: ICONS.NodeModulesIcon, path: "#" },
+    {
+      name: "News Feed",
+      icon: ICONS.NodeNewsFeedIcon,
+      path: `/node/${currentNode?.node?._id}/`,
+    },
+    // { name: "Modules", icon: ICONS.NodeModulesIcon, path: "#" },
     {
       name: "Profile",
       icon: ICONS.NodeProfileIcon,
@@ -54,7 +59,7 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
       name: "Chapters",
       icon: ICONS.NodeChaptersIcon,
       notifications: 0,
-      path: "#",
+      path: `/node/${currentNode?.node._id}/chapters`,
     },
     {
       name: "Members",
@@ -66,24 +71,25 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
       icon: ICONS.NodeApprovalsIcon,
       notifications: 0,
       path: `/node/${currentNode?.node?._id}/approvals`,
-      show: isModeratorOrAdminOrOwner, // Only show for moderator and admin
+      show: hasPermission("view:approvals"),
     },
-    {
-      name: "Insights/Analytics",
-      icon: ICONS.NodeInsightsIcon,
-      path: "#",
-      show: isAdmin, // Only show for admin
-    },
-    {
-      name: "Activities",
-      icon: ICONS.NodeActivitiesIcon,
-      path: `/node/${currentNode?.node?._id}/activity`, // Fixed the path from approvals to activity
-    },
-    {
-      name: "Preferences",
-      icon: ICONS.NodePreferencesIcon,
-      path: "#",
-    },
+    // {
+    //   name: "Insights/Analytics",
+    //   icon: ICONS.NodeInsightsIcon,
+    //   path: "#",
+    //   show: hasPermission("view:analytics"),
+    // },
+    // {
+    //   name: "Activities",
+    //   icon: ICONS.NodeActivitiesIcon,
+    //   path: `/node/${currentNode?.node?._id}/activity`,
+    //   show: hasPermission("view:activities"),
+    // },
+    // {
+    //   name: "Preferences",
+    //   icon: ICONS.NodePreferencesIcon,
+    //   path: "#",
+    // },
   ];
   const router = useRouter();
   const joinToNode = async (nodeId: string) => {
@@ -91,7 +97,7 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
       const response = await Endpoints.requestToJoinNode(nodeId);
       const requestedNodes = await NodeEndpoints.fetchUserRequestedNodes();
       setUserRequestedNodes(requestedNodes);
-      setJoinStatus(response.status);
+      setNodeJoinStatus(response.status);
     } catch (error) {
       console.log({ error });
     }
@@ -112,26 +118,12 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
       setUserRequestedNodes(requestedNodes);
       console.log(response);
       toast.success("Request Cancelled");
-      // Toggle the cancel request flag to allow the user to re-request
-      setCancelRequestTriggered(!cancelRequestTriggered);
+      fetchNodeJoinStatus(nodeId);
     } catch (error) {
       console.log(error);
       toast.error("Error while cancelling request");
     }
   };
-
-  useEffect(() => {
-    if (currentNode?.node?._id) {
-      Endpoints.fetchNodeUserStatus(currentNode?.node?._id as string)
-        .then((res) => {
-          setJoinStatus(res.status);
-          console.log("user status", res.status);
-        })
-        .catch((err) => {
-          console.log({ err });
-        });
-    }
-  }, [currentNode?.node?._id, cancelRequestTriggered]);
 
   const onRecaptchaChange = (token: any) => {
     if (!token) {
@@ -146,7 +138,6 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
       })
       .catch((err) => {
         console.log({ err });
-
         toast.error("something went wrong!!");
       })
       .finally(() => {
@@ -154,7 +145,7 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
       });
   };
   return (
-    <div className="sticky top-16 h-fit  w-full overflow-hidden rounded-lg bg-white pb-2 text-sm shadow-md">
+    <div className="sticky top-16 mb-10 h-screen  w-full overflow-hidden rounded-lg  pb-2 text-sm shadow-md">
       {currentNode ? (
         <div className="relative">
           <Image
@@ -191,45 +182,31 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
             </span>
           </p>
         </div>
-        {recaptcha && (
-          <div>
-            <Dialog open={recaptcha} onOpenChange={setRecaptcha}>
-              <DialogContent
-                className="pointer-events-auto"
-                onInteractOutside={(e) => {
-                  e.preventDefault();
-                }}
-              >
-                <DialogHeader>
-                  {recaptcha ? (
-                    <ReCAPTCHA
-                      className="z-50 flex justify-center"
-                      ref={recaptchaRef}
-                      sitekey={
-                        process.env.NEXT_PUBLIC_RECAPTCHA_CLIENT as string
-                      }
-                      onChange={onRecaptchaChange}
-                    />
-                  ) : (
-                    "Loading..."
-                  )}
-                </DialogHeader>
-              </DialogContent>
-            </Dialog>
-          </div>
+
+        {recaptcha ? (
+          <ReCAPTCHA
+            className="z-50 flex justify-center"
+            ref={recaptchaRef}
+            sitekey={env.RECAPTCHA_CLIENT as string}
+            onChange={onRecaptchaChange}
+          />
+        ) : (
+          ""
         )}
 
         <div className="flex flex-col gap-2">
           <Button
             onClick={() => setRecaptcha(true)}
             className="h-8 w-full border border-gray-500 bg-transparent text-gray-800 hover:bg-transparent"
-            disabled={joinStatus === "REQUESTED" || joinStatus === "MEMBER"} // Disable when requested or joined
+            disabled={
+              nodeJoinStatus === "REQUESTED" || nodeJoinStatus === "MEMBER"
+            } // Disable when requested or joined
           >
-            {joinStatus === "VISITOR" && "Request to Join"}
-            {joinStatus === "MEMBER" && "Joined"}
-            {joinStatus === "REQUESTED" && "Request Pending"}
+            {nodeJoinStatus === "VISITOR" && "Request to Join"}
+            {nodeJoinStatus === "MEMBER" && "Joined"}
+            {nodeJoinStatus === "REQUESTED" && "Request Pending"}
           </Button>
-          {joinStatus === "REQUESTED" && (
+          {nodeJoinStatus === "REQUESTED" && (
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button className="h-8 w-full border border-white bg-red-500 text-white hover:bg-red-500">
@@ -255,7 +232,7 @@ const NodeProfileCard: React.FC<ProfileCardProps> = ({
           )}
         </div>
         <div className=" my-3 h-auto  space-y-2 pb-4">
-          {SECTIONS?.filter((section) => !section.show || section.show())?.map(
+          {SECTIONS?.filter((section) => section.show !== false)?.map(
             (section) => (
               <button
                 key={section.name}

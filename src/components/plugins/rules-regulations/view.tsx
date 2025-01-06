@@ -34,6 +34,16 @@ import { Button } from "@/components/ui/button";
 import { useTokenStore } from "@/store/store";
 import { ICONS } from "@/lib/constants";
 import Image from "next/image";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+//importing images
+import ClubIcon from "@public/icons/club-grey.icon.svg";
+import NodeIcon from "@public/icons/node-grey.icon.svg";
 interface Item {
   _id: string;
   name: string;
@@ -133,7 +143,9 @@ const View = ({ forum }: { forum: TForum }) => {
         <div className="flex items-center gap-2">
           <span className="text-sm text-gray-500">9545/35</span>
           <div className="flex items-center gap-1">
-            <span className="text-sm text-gray-500">Private</span>
+            <span className="text-sm text-gray-500">
+              {rule?.isPublic ? "Public" : "Private"}
+            </span>
             <MoreVertical className="size-4 text-gray-500" />
           </div>
         </div>
@@ -215,15 +227,59 @@ const View = ({ forum }: { forum: TForum }) => {
             <Eye className="size-4" />
             <span>{`${rule?.views.length} Viewer's`}</span>
           </div>
-          <div className="flex items-center gap-2 text-sm text-gray-600">
+          {/* <div className="flex items-center gap-2 text-sm text-gray-600">
             <UserCheck className="size-4" />
-            <span>{rule?.adobtedClubs ? rule.adobtedClubs : "0"} Adopted</span>
-          </div>
+            <span>
+              {(rule?.adoptedClubs.length || 0) +
+                (rule?.adoptedNodes.length || 0)}{" "}
+              Adopted
+            </span>
+          </div> */}
+
+          {/* tooltip for adopted */}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <UserCheck className="size-4" />
+                  <span>
+                    {" "}
+                    {(rule?.adobtedClubs?.length || 0) +
+                      (rule?.adobtedNodes?.length || 0)}{" "}
+                    Adopted
+                  </span>
+                </div>
+              </TooltipTrigger>
+
+              <TooltipContent className="bg-white border text-black w-[200px] flex justify-between items-center  ">
+                <div>
+                  <span className="flex justify-between">
+                    <Image src={ClubIcon} alt="club" className="mr-2" />
+                    {rule?.adobtedClubs?.length}{" "}
+                    <span className="ml-2">Clubs </span>
+                  </span>
+                </div>
+                <div className="h-[5px] w-[5px] rounded-full bg-gray-500"></div>
+                <div>
+                  <span className="flex justify-between">
+                    <Image src={NodeIcon} alt="node" className="mr-2" />
+                    {rule?.adobtedNodes?.length}{" "}
+                    <span className="ml-2">Nodes</span>
+                  </span>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
           <Dialog>
             <DialogTrigger asChild>
-              <button className="rounded-md bg-green-500 px-4 py-1.5 text-sm text-white">
-                Adopt
-              </button>
+              {rule?.isPublic ? (
+                <button className="rounded-md bg-green-500 px-4 py-1.5 text-sm text-white">
+                  Adopt
+                </button>
+              ) : (
+                <div className="text-red-500 font-semibold">Private</div>
+              )}
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
@@ -289,13 +345,25 @@ const View = ({ forum }: { forum: TForum }) => {
       </div>
 
       {/* Main Content */}
-      <div className="mb-8 space-y-4">
+      <div className="quill-content">
+        <style>{`
+        .quill-content ol {
+          list-style-type: decimal;
+          padding-left: 1.5rem;
+          margin: 1rem 0;
+        }
+        .quill-content li {
+          padding: 0.25rem 0;
+        }
+        .quill-content .ql-ui {
+          display: none;
+        }
+      `}</style>
         <div
           dangerouslySetInnerHTML={{
-            __html: rule?.description
-              ? sanitizeHtmlContent(rule.description)
-              : "",
+            __html: sanitizeHtmlContent(rule?.description as string),
           }}
+          className="prose prose-slate max-w-none"
         />
       </div>
 

@@ -3,15 +3,17 @@ import { TMembers } from "@/types";
 import { useClubStore } from "@/store/clubs-store";
 import { Endpoints } from "@/utils/endpoint";
 import { ClubEndpoints } from "@/utils/endpoints/club";
-import { fetchSpecificClub } from "./endpoint";
+import { fetchSpecificClub } from "../../components/pages/club/endpoint";
 import { toast } from "sonner";
 import { useTokenStore } from "@/store/store";
+import { useNodeStore } from "@/store/nodes-store";
 
 interface UseClubCallsReturn {
   // Fetch operations
   fetchClubDetails: (clubId: string) => Promise<void>;
   fetchJoinedClubs: () => Promise<void>;
   fetchRequestedClubs: () => Promise<void>;
+  fetchClubJoinStatus: (clubId: string) => Promise<void>;
 
   // operations
   leaveClub: (clubId: string) => Promise<void>;
@@ -28,7 +30,9 @@ export const useClubCalls = (): UseClubCallsReturn => {
     setCurrentUserRole,
     setUserJoinedClubs,
     setUserRequestedClubs,
+    setClubJoinStatus,
   } = useClubStore();
+  const { setCurrentUserRole: setNodeUserRole } = useNodeStore();
 
   const fetchClubDetails = useCallback(
     async (clubId: string) => {
@@ -49,6 +53,8 @@ export const useClubCalls = (): UseClubCallsReturn => {
       } catch (error) {
         console.error("Error fetching club details:", error);
         throw error;
+      } finally {
+        setNodeUserRole(null);
       }
     },
     [setCurrentClub, setCurrentUserRole]
@@ -74,12 +80,31 @@ export const useClubCalls = (): UseClubCallsReturn => {
     }
   }, [setUserRequestedClubs]);
 
-  // Membership operations
+  const fetchClubJoinStatus = useCallback(
+    async (clubId: string) => {
+      if (!clubId) return;
+
+      try {
+        const response = await Endpoints.fetchClubUserStatus(clubId);
+
+        setClubJoinStatus(response?.status || "VISITOR");
+        return response?.status;
+      } catch (error) {
+        console.error("Error fetching club details:", error);
+        throw error;
+      }
+    },
+    [setClubJoinStatus]
+  );
+
+  // operations
   const leaveClub = useCallback(
     async (clubId: string) => {
       try {
         const response = await Endpoints.leaveClub(clubId);
-        await fetchJoinedClubs(); // Refresh the clubs list
+        await fetchJoinedClubs();
+        await fetchClubJoinStatus(clubId);
+        await fetchClubDetails(clubId);
         toast.warning(response.message);
       } catch (error) {
         toast.error("Failed to leave club");
@@ -94,6 +119,7 @@ export const useClubCalls = (): UseClubCallsReturn => {
     fetchClubDetails,
     fetchRequestedClubs,
     fetchJoinedClubs,
+    fetchClubJoinStatus,
     leaveClub,
     error: null,
   };

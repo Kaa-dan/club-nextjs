@@ -11,14 +11,17 @@ import { Endpoints } from "./endpoints";
 import CommentInput from "./comment-input";
 import Comment from "./comment";
 import { useCommentsStore } from "@/store/comments-store";
+import { useSocketStore } from "@/hooks/use-socket-store";
 
 const CommentsSection: React.FC<{
   plugin: TPlugins;
   postId: string;
 }> = ({ plugin, postId }) => {
+  const { socket, isConnected, connect, disconnect, sendComment } =
+    useSocketStore();
+
   const [sortBy, setSortBy] = useState("relevance");
   const { comments, setComments } = useCommentsStore((state) => state);
-
   const sortComments = (type: string) => {
     setSortBy(type);
     const sortedComments = [...comments];
@@ -67,6 +70,24 @@ const CommentsSection: React.FC<{
   useEffect(() => {
     getComments();
   }, []);
+
+  useEffect(() => {
+    connect();
+
+    socket.on("commentAdded", (comment: TCommentType) => {
+      // setComments((prev) => [...prev, comment]);
+      // console.log("commentAdding ", comment);
+      // console.log("comments ", comments);
+      // setComments([comment, ...comments]);
+      getComments();
+    });
+
+    // Cleanup
+    return () => {
+      socket.off("commentAdded");
+      disconnect();
+    };
+  }, [socket, connect, disconnect]);
 
   return (
     <div className="mx-auto w-full max-w-2xl">

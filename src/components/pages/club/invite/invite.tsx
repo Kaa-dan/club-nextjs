@@ -31,7 +31,8 @@ interface User {
 
 // Component props interface
 interface InviteProps {
-  clubId: string;
+  entityId: string;
+  type: "node" | "club";
 }
 
 // API response interfaces
@@ -49,7 +50,7 @@ interface ApiError {
   message?: string;
 }
 
-export default function Invite({ clubId }: InviteProps): JSX.Element {
+export default function Invite({ entityId, type }: InviteProps): JSX.Element {
   const [inviteOpen, setInviteOpen] = useState<boolean>(false);
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [search, setSearch] = useState<string>("");
@@ -57,7 +58,8 @@ export default function Invite({ clubId }: InviteProps): JSX.Element {
   // Get or search users
   const getUsersHandler = async (search: string): Promise<void> => {
     try {
-      const response: User[] = await searchUser(search);
+      const response: User[] = await searchUser(search, type, entityId);
+      console.log({ allUsersNotInTheEntity: response });
       setAllUsers(response);
     } catch (error) {
       console.log({ error });
@@ -67,17 +69,22 @@ export default function Invite({ clubId }: InviteProps): JSX.Element {
 
   // Send invitation handler
   const sentInvitationHandler = async (
-    clubId: string,
-    inviteId: string
+    entityId: string,
+    inviteId: string,
+    type: string
   ): Promise<void> => {
+    console.log({ entityId, inviteId, type });
+
     try {
       const response: InvitationResponse = await sentInvitation(
-        clubId,
-        inviteId
+        entityId,
+        inviteId,
+        type
       );
       if (response.success === true) {
         toast.success(response.message);
       }
+      getUsersHandler(search);
     } catch (error: unknown) {
       console.log({ error });
       const apiError = error as ApiError;
@@ -98,8 +105,8 @@ export default function Invite({ clubId }: InviteProps): JSX.Element {
   return (
     <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
       <DialogTrigger asChild>
-        <Button className="gap-2">
-          <span>+ Invite</span>
+        <Button className="gap-2 ">
+          <span>+ Invite </span>
         </Button>
       </DialogTrigger>
       <DialogContent
@@ -113,7 +120,7 @@ export default function Invite({ clubId }: InviteProps): JSX.Element {
         </DialogHeader>
         <hr />
 
-        <div className="grid gap-4 py-4">
+        <div className="grid gap-4 py-4 ">
           <div className="relative flex gap-5">
             <Search className="absolute left-2 top-2.5 size-4 text-muted-foreground" />
             <Input
@@ -150,8 +157,11 @@ export default function Invite({ clubId }: InviteProps): JSX.Element {
             </Select>
           </div>
           <div className="max-h-[200px] space-y-4 overflow-y-auto">
-            {allUsers?.map((user: User) => (
-              <div key={user._id} className="flex items-center justify-between">
+            {allUsers?.map((user, idx) => (
+              <div
+                key={idx}
+                className="flex items-center  w-[95%] justify-between"
+              >
                 <div className="flex gap-4">
                   <div className="size-16">
                     <Avatar>
@@ -179,8 +189,10 @@ export default function Invite({ clubId }: InviteProps): JSX.Element {
                   </div>
                 </div>
                 <button
-                  onClick={() => sentInvitationHandler(clubId, user._id)}
-                  className="rounded-md bg-green-300 px-2 py-1 text-white"
+                  onClick={() =>
+                    sentInvitationHandler(entityId, user?._id, type)
+                  }
+                  className="rounded-md  px-2 py-1 bg-green-400  text-white"
                 >
                   Invite
                 </button>

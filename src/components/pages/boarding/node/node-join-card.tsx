@@ -7,42 +7,30 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { useClubStore } from "@/store/clubs-store";
 import { useTokenStore } from "@/store/store";
 import { TNodeData } from "@/types";
 import { Endpoints } from "@/utils/endpoint";
-import { request } from "http";
 import { Loader2, MapPin, Users } from "lucide-react";
 import Image from "next/image";
-import React, { useEffect } from "react";
+import React from "react";
 
 const NodeJoinCard: React.FC<{
   node: TNodeData;
   requested: boolean;
   isLoading: boolean;
   onJoin: (id: string) => void;
+  reCAPTCHA: boolean;
 }> = ({
   node: { name, profileImage, members, coverImage, location, ...node },
   requested,
   onJoin,
   isLoading,
+  reCAPTCHA,
 }) => {
+  const { clubJoinStatus } = useClubStore();
   const [isDailogOpen, setIsDailogOpen] = React.useState(false);
-  const [isRequested, setIsRequested] = React.useState(false);
-
   const { globalUser } = useTokenStore((state) => state);
-
-  const handleDailog = async () => {
-    // if (!isDailogOpen) {
-    const response = await Endpoints.fetchNodeUserStatus(node._id);
-    console.log(response, "response");
-    setIsRequested(response?.status === "REQUESTED");
-    // }
-    // setIsDailogOpen(!isDailogOpen);
-  };
-
-  useEffect(() => {
-    handleDailog();
-  }, [node]);
 
   return (
     <Card className="flex w-36 flex-col gap-1 rounded-sm p-3 text-xs">
@@ -62,7 +50,7 @@ const NodeJoinCard: React.FC<{
         <MapPin size={"1rem"} className="text-red-500" />
         <span className="truncate">{`${location}`}</span>
       </div>
-      {isRequested ? (
+      {clubJoinStatus ? (
         <div className="pointer-events-none rounded-sm bg-[#22b573] text-center text-white opacity-60">
           Requested
         </div>
@@ -96,11 +84,11 @@ const NodeJoinCard: React.FC<{
               Request to join this node?
             </span>
             <Button
-              disabled={isLoading || isRequested || requested}
+              disabled={isLoading || clubJoinStatus || requested}
               className="mx-auto w-1/3"
               onClick={() => onJoin(node._id)}
             >
-              {isRequested ? (
+              {clubJoinStatus ? (
                 "Requested"
               ) : isLoading ? (
                 <Loader2 className="animate-spin text-white" />

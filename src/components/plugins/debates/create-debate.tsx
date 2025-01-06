@@ -36,22 +36,28 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { DialogHeader } from "@/components/ui/dialog";
 
-import { url } from "inspector";
 import {
   AlertDialogHeader,
   AlertDialogFooter,
 } from "@/components/ui/alert-dialog";
+import { useClubStore } from "@/store/clubs-store";
+import { useNodeStore } from "@/store/nodes-store";
+import Link from "next/link";
+import {
+  TooltipProvider,
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
 
 const formSchema = z.object({
   topic: z.string().min(1, "Debate topic is required"),
   closingDate: z.string().optional(),
   significance: z.string().min(1, "Significance is required"),
   targetAudience: z.string().min(1, "Target audience is required"),
-  tags: z.array(z.string()),
-  openingCommentsFor: z.string().min(1, "Opening comments (For) are required"),
-  openingCommentsAgainst: z
-    .string()
-    .min(1, "Opening comments (Against) are required"),
+  startingComment: z.string().min(1, "Starting comment is required"),
+
+  tags: z.array(z.string()).min(1, "At least one tag is required"), // Make tags required
   isPublic: z.boolean().default(false),
   files: z.array(z.any()).optional(),
 });
@@ -59,6 +65,8 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 const DebateForm = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
+  const { currentUserRole: clubUserRole } = useClubStore((state) => state);
+  const { currentUserRole: nodeUserRole } = useNodeStore((state) => state);
   const [files, setFiles] = React.useState<File[]>([]);
   const router = useRouter();
   const form = useForm<FormValues>({
@@ -69,12 +77,12 @@ const DebateForm = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
       significance: "",
       targetAudience: "",
       tags: [],
-      openingCommentsFor: "",
-      openingCommentsAgainst: "",
+      startingComment: "",
       isPublic: false,
       files: [],
     },
   });
+  console.log(form.getValues());
 
   const [open, setOpen] = useState<boolean>(false);
   // Form submission
@@ -107,13 +115,13 @@ const DebateForm = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
       const response = await Endpoints.postDebate(formDataToSend);
       toast.success(response.message || "Debate successfully created");
 
+      form.reset();
       router.push(`/${forum}/${forumId}/debate`);
     } catch (error) {
       console.error("Error submitting form:", error);
-      toast.error("Failed to submit rule. Please try again.");
+      toast.error("Failed to submit debate. Please try again.");
     } finally {
       setOpen(false);
-      form.reset();
     }
   };
 
@@ -163,6 +171,9 @@ const DebateForm = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
       form.getValues("tags").filter((tag) => tag !== tagToRemove)
     );
   };
+  const isMember =
+    (forum === "club" && clubUserRole === "member") ||
+    (forum === "node" && nodeUserRole === "member");
 
   return (
     <Card className="mx-auto max-w-5xl">
@@ -180,7 +191,16 @@ const DebateForm = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
                   <FormItem>
                     <FormLabel className="flex items-center">
                       Debate Topic
-                      <div className="ml-1 text-gray-400">ⓘ</div>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="ml-1 text-gray-400">ⓘ</div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Debate Topic</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </FormLabel>
                     <FormControl>
                       <Input {...field} className="h-9" />
@@ -197,11 +217,25 @@ const DebateForm = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
                   <FormItem>
                     <FormLabel className="flex items-center">
                       Closing date
-                      <div className="ml-1 text-gray-400">ⓘ</div>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="ml-1 text-gray-400">ⓘ</div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Closing date</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </FormLabel>
                     <FormControl>
                       <div className="relative">
-                        <Input {...field} type="date" className="h-9 pl-10" />
+                        <Input
+                          {...field}
+                          type="date"
+                          className="h-9 pl-10"
+                          min={new Date().toISOString().split("T")[0]} // Set minimum date to today
+                        />
                         <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                       </div>
                     </FormControl>
@@ -217,7 +251,16 @@ const DebateForm = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
                   <FormItem>
                     <FormLabel className="flex items-center">
                       Significance
-                      <div className="ml-1 text-gray-400">ⓘ</div>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="ml-1 text-gray-400">ⓘ</div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Significance</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </FormLabel>
                     <FormControl>
                       <Textarea
@@ -237,7 +280,16 @@ const DebateForm = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
                   <FormItem>
                     <FormLabel className="flex items-center">
                       Target Audience
-                      <div className="ml-1 text-gray-400">ⓘ</div>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="ml-1 text-gray-400">ⓘ</div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Target Audience</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </FormLabel>
                     <FormControl>
                       <Input {...field} className="h-9" />
@@ -254,7 +306,16 @@ const DebateForm = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
                   <FormItem>
                     <FormLabel className="flex items-center">
                       Tags
-                      <div className="ml-1 text-gray-400">ⓘ</div>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="ml-1 text-gray-400">ⓘ</div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Tags</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </FormLabel>
                     <FormControl>
                       <div>
@@ -296,7 +357,16 @@ const DebateForm = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
                   <FormItem>
                     <FormLabel className="flex items-center">
                       Files/Media
-                      <div className="ml-1 text-gray-400">ⓘ</div>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="ml-1 text-gray-400">ⓘ</div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>File/Media</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </FormLabel>
                     <FormControl>
                       <div
@@ -360,16 +430,25 @@ const DebateForm = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-6">
+            <div>
               <Controller
-                name="openingCommentsFor"
+                name="startingComment"
                 control={form.control}
                 render={({ field }) => (
                   <div>
                     <FormItem>
                       <FormLabel className="flex items-center">
-                        CommentsFor
-                        <div className="ml-1 text-gray-400">ⓘ</div>
+                        {"Starting comment"}
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="ml-1 text-gray-400">ⓘ</div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Starting comment</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>{" "}
                       </FormLabel>
                       <ReactQuill
                         theme="snow"
@@ -378,39 +457,12 @@ const DebateForm = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
                         onChange={(content) => field.onChange(content)}
                       />
                     </FormItem>
-                    {/* Uncomment and update error handling when needed */}
-                    {/* {errors.openingCommentsFor && (
-          <p className="mt-2 text-sm text-red-500">
-            {errors.openingCommentsFor.message}
-          </p>
-        )} */}
-                  </div>
-                )}
-              />
-
-              <Controller
-                name="openingCommentsAgainst"
-                control={form.control}
-                render={({ field }) => (
-                  <div>
-                    <FormItem>
-                      <FormLabel className="flex items-center">
-                        CommentsAgainst
-                        <div className="ml-1 text-gray-400">ⓘ</div>
-                      </FormLabel>
-                      <ReactQuill
-                        id=""
-                        theme="snow"
-                        placeholder="Write something amazing..."
-                        {...field}
-                        onChange={(content) => field.onChange(content)}
-                      />
-                      {/* {errors. && (
+                    {/* Error handling */}
+                    {form.formState.errors.startingComment && (
                       <p className="mt-2 text-sm text-red-500">
-                        {errors.description.message}
+                        {form.formState.errors.startingComment.message}
                       </p>
-                    )} */}
-                    </FormItem>
+                    )}
                   </div>
                 )}
               />
@@ -436,22 +488,23 @@ const DebateForm = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
               />
 
               <div className="flex space-x-2">
-                <Button
-                  disabled={form.formState.isSubmitting}
-                  type="button"
-                  variant="ghost"
-                  className="text-red-500 hover:bg-red-50 hover:text-red-600"
-                  onClick={() => form.reset()}
-                >
-                  Cancel
-                </Button>
+                <Link href={`/${forum}/${forumId}/debate`}>
+                  <Button
+                    disabled={form.formState.isSubmitting}
+                    type="button"
+                    variant="ghost"
+                    className="text-red-500 hover:bg-red-50 hover:text-red-600"
+                    onClick={() => form.reset()}
+                  >
+                    Cancel
+                  </Button>
+                </Link>
+
                 <Button
                   disabled={form.formState.isSubmitting}
                   type="button"
                   variant="outline"
-                  onClick={() => {
-                    // Handle save draft logic
-                  }}
+                  onClick={() => {}}
                 >
                   Save draft
                 </Button>
@@ -460,7 +513,7 @@ const DebateForm = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
                   type="submit"
                   className="bg-emerald-500 hover:bg-emerald-600"
                 >
-                  Publish
+                  {isMember ? "Propose" : "Publish"}
                 </Button>
               </div>
             </div>
@@ -484,7 +537,11 @@ const DebateForm = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
               disabled={form.formState.isSubmitting}
               onClick={form.handleSubmit(onSubmit)}
             >
-              {form.formState.isSubmitting ? "Submitting..." : "Publish"}
+              {form.formState.isSubmitting
+                ? "Submitting..."
+                : isMember
+                  ? "Propose"
+                  : "Publish"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

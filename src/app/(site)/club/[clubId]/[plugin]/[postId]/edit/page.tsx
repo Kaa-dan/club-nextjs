@@ -17,7 +17,7 @@ const Page = async ({
   return (
     <div className=" min-w-full">
       <div className="flex flex-col gap-4">
-        <div>
+        <div className="">
           <h1 className="text-xl">Rules & Regulations</h1>
         </div>
         <div>

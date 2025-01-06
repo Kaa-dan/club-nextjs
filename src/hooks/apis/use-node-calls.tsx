@@ -4,12 +4,14 @@ import { useNodeStore } from "@/store/nodes-store";
 import { NodeEndpoints } from "@/utils/endpoints/node";
 import { Endpoints } from "@/utils/endpoint";
 import { useTokenStore } from "@/store/store";
+import { useClubStore } from "@/store/clubs-store";
 
 interface UseNodeDataReturn {
   // Fetch operations
   fetchNodeDetails: (nodeId: string) => Promise<void>;
   fetchJoinedNodes: () => Promise<void>;
   fetchRequestedNodes: () => Promise<void>;
+  fetchNodeJoinStatus: (nodeId: string) => Promise<void>;
 
   // operations
   leaveNode: (nodeId: string) => Promise<void>;
@@ -25,8 +27,9 @@ export const useNodeCalls = (): UseNodeDataReturn => {
     setCurrentUserRole,
     setUserJoinedNodes,
     setUserRequestedNodes,
-    userJoinedNodes,
+    setNodeJoinStatus,
   } = useNodeStore();
+  const { setCurrentUserRole: setClubUserRole } = useClubStore();
 
   const fetchNodeDetails = useCallback(
     async (nodeId: string) => {
@@ -45,6 +48,8 @@ export const useNodeCalls = (): UseNodeDataReturn => {
       } catch (error) {
         console.error("Error fetching node details:", error);
         throw error;
+      } finally {
+        setClubUserRole(null);
       }
     },
     [setCurrentNode, setCurrentUserRole]
@@ -54,6 +59,7 @@ export const useNodeCalls = (): UseNodeDataReturn => {
     try {
       // Fetch joined nodes
       const joinedNodes = await Endpoints.fetchUserJoinedNodes();
+      console.log("joinedNodes", joinedNodes);
       setUserJoinedNodes(joinedNodes);
 
       // Fetch requested nodes
@@ -86,11 +92,29 @@ export const useNodeCalls = (): UseNodeDataReturn => {
     }
   }, [setUserRequestedNodes]);
 
+  const fetchNodeJoinStatus = useCallback(
+    async (nodeId: string) => {
+      if (!nodeId) return;
+
+      try {
+        const response = await Endpoints.fetchNodeUserStatus(nodeId);
+
+        setNodeJoinStatus(response?.status || "VISITOR");
+        return response?.status;
+      } catch (error) {
+        console.error("Error fetching club details:", error);
+        throw error;
+      }
+    },
+    [setNodeJoinStatus]
+  );
+
   // CRUD Operations
   const leaveNode = useCallback(
     async (nodeId: string) => {
       try {
         await Endpoints.leaveNode(nodeId);
+        await fetchNodeJoinStatus(nodeId);
         await fetchUserNodes();
         await fetchNodeDetails(nodeId);
       } catch (error) {
@@ -105,6 +129,7 @@ export const useNodeCalls = (): UseNodeDataReturn => {
     fetchNodeDetails,
     fetchJoinedNodes,
     fetchRequestedNodes,
+    fetchNodeJoinStatus,
     // createNode,
     // updateNode,
     // deleteNode,

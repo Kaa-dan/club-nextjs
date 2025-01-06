@@ -117,7 +117,7 @@ const Page = () => {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <div className="mt-2 rounded-lg bg-white p-6 shadow-lg">
+      <div className="mt-2 rounded-lg bg-white p-6 shadow-lg w-full">
         <h2 className="mb-4 text-lg font-semibold">All Members request</h2>
         <div className="space-y-4">
           {alertVisible && (

@@ -6,7 +6,16 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 
-import { Ellipsis, HomeIcon, LogOut, Pin, Plus, X } from "lucide-react";
+import {
+  Bookmark,
+  Ellipsis,
+  HomeIcon,
+  LogOut,
+  Pin,
+  Plus,
+  X,
+  BarChartHorizontalIcon,
+} from "lucide-react";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -31,16 +40,14 @@ import { useEffect, useState } from "react";
 import { pinClub } from "@/components/pages/club/endpoint";
 import { toast } from "sonner";
 import { useTokenStore } from "@/store/store";
-import { Endpoints } from "@/utils/endpoint";
 import { useClubStore } from "@/store/clubs-store";
 import Link from "next/link";
 import { useNodeStore } from "@/store/nodes-store";
 import { PopoverClose } from "@radix-ui/react-popover";
-import { ClubEndpoints } from "@/utils/endpoints/club";
-import { NodeEndpoints } from "@/utils/endpoints/node";
 import CustomAlertDialog from "@/components/ui/custom/custom-alert-dialog";
-import { useClubCalls } from "@/components/pages/club/use-club-calls";
-import { useNodeCalls } from "@/components/pages/node/use-node-calls";
+import { useClubCalls } from "@/hooks/apis/use-club-calls";
+import { useNodeCalls } from "@/hooks/apis/use-node-calls";
+import { BookmarkFilledIcon } from "@radix-ui/react-icons";
 
 interface MenuProps {
   isOpen: boolean | undefined;
@@ -329,7 +336,7 @@ export function Menu({ isOpen }: MenuProps) {
                                                     ? "node"
                                                     : "club"
                                                 }/${node?._id}`}
-                                                key={node._id}
+                                                key={node?._id}
                                                 className="flex flex-col items-center gap-1 rounded-lg  p-1 text-center hover:bg-muted"
                                               >
                                                 <PopoverClose>
@@ -392,15 +399,15 @@ export function Menu({ isOpen }: MenuProps) {
                                             see it here!
                                           </p>
                                         )}
+                                        <div className="px-4 pt-2 text-sm font-semibold">
+                                          {"Requested "}
+                                          {groupLabel === "Nodes"
+                                            ? "Nodes"
+                                            : "Clubs"}
+                                        </div>
                                         {requestedMenuItems &&
                                         requestedMenuItems?.length > 0 ? (
                                           <>
-                                            <div className="px-4 pt-2 text-sm font-semibold">
-                                              {"Requested "}
-                                              {groupLabel === "Nodes"
-                                                ? "Nodes"
-                                                : "Clubs"}
-                                            </div>
                                             <div className="grid grid-cols-5 gap-3 p-2">
                                               {requestedMenuItems?.map(
                                                 (node: any) => (
@@ -615,6 +622,30 @@ export function Menu({ isOpen }: MenuProps) {
                 </li>
               )
             )}
+          <li className="flex !h-fit w-full">
+            <Button
+              variant="ghost"
+              className=" !mt-0 h-12 w-full justify-start gap-2"
+            >
+              <BarChartHorizontalIcon size={18} />
+              <p className={cn("whitespace-nowrap", !isOpen && "hidden")}>
+                My Activity
+              </p>
+            </Button>
+          </li>
+          <li className="flex w-full   ">
+            <Link href={"/bookmarks"} className="w-full">
+              <Button
+                variant="ghost"
+                className=" h-12 w-full justify-start gap-2"
+              >
+                <BookmarkFilledIcon fontSize={18} />
+                <p className={cn("whitespace-nowrap", !isOpen && "hidden")}>
+                  Bookmarks
+                </p>
+              </Button>
+            </Link>
+          </li>
           <li className="flex w-full  grow items-end ">
             <TooltipProvider disableHoverableContent>
               <Tooltip delayDuration={100}>
@@ -623,7 +654,7 @@ export function Menu({ isOpen }: MenuProps) {
                     trigger={
                       <Button
                         variant="outline"
-                        className="mt-5 h-12 w-full justify-center  gap-2 hover:bg-red-50 hover:text-red-600"
+                        className="mt-5 h-12 w-full justify-center  gap-2  hover:text-red-600"
                       >
                         <LogOut size={18} />
                         <p
@@ -638,7 +669,7 @@ export function Menu({ isOpen }: MenuProps) {
                     }
                     title="Sign Out Confirmation"
                     description="Are you sure you want to sign out? You'll need to sign in again to access your account."
-                    type="error"
+                    type="success"
                     actionText="Sign out"
                     cancelText="Cancel"
                     onAction={() => {

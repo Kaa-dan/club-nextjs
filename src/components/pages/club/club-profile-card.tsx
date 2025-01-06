@@ -29,6 +29,10 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import env from "@/lib/env.config";
+import { useClubCalls } from "@/hooks/apis/use-club-calls";
+import { usePermission } from "@/lib/use-permission";
+import Link from "next/link";
 
 interface ProfileCardProps {
   currentPage: string;
@@ -44,62 +48,76 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
   const {
     setUserJoinedClubs,
     setUserRequestedClubs,
-    currentUserRole,
     currentClub,
+    clubJoinStatus,
   } = useClubStore((state) => state);
+  const { hasPermission } = usePermission();
+  const { fetchClubJoinStatus } = useClubCalls();
   const [recaptcha, setRecaptcha] = useState(false);
   const recaptchaRef = useRef(null);
-  const [joinStatus, setJoinStatus] = useState<String>("");
   const [cancelRequestTriggered, setCancelRequestTriggered] = useState(false);
 
   const router = useRouter();
 
-  const isAdmin = () => currentUserRole === "admin";
-  const isModeratorOrAdmin = () =>
-    ["moderator", "admin"].includes(currentUserRole.toLowerCase());
+  console.log("apprr ,", hasPermission("view:assetPrivateInfos"));
 
   const SECTIONS = [
-    { name: "News Feed", icon: ICONS.NodeNewsFeedIcon, path: "#" },
-    { name: "Modules", icon: ICONS.NodeModulesIcon, path: "#" },
+    {
+      name: "News Feed",
+      icon: ICONS.NodeNewsFeedIcon,
+      path: `/club/${clubId}`,
+      show: hasPermission("view:newsFeed"),
+    },
+    // {
+    //   name: "Modules",
+    //   icon: ICONS.NodeModulesIcon,
+    //   path: "#",
+    //   show: hasPermission("view:modules"),
+    // },
     {
       name: "Profile",
       icon: ICONS.NodeProfileIcon,
       path: `/club/${clubId}/profile`,
+      show: hasPermission("view:profile"),
     },
     {
       name: "Chapters",
       icon: ICONS.NodeChaptersIcon,
       notifications: 0,
-      path: "#",
+      path: `/club/${clubId}/chapters`,
+      show: hasPermission("view:chapters"),
     },
     {
       name: "Members",
       icon: ICONS.NodeMembersIcon,
       path: `/club/${clubId}/members`,
+      show: hasPermission("view:members"),
     },
     {
       name: "Approvals",
       icon: ICONS.NodeApprovalsIcon,
       notifications: 0,
       path: `/club/${clubId}/approvals`,
-      show: isModeratorOrAdmin, // Only show for moderator and admin
+      show: hasPermission("view:approvals"),
     },
-    {
-      name: "Insights/Analytics",
-      icon: ICONS.NodeInsightsIcon,
-      path: "#",
-      show: isAdmin, // Only show for admin
-    },
-    {
-      name: "Activities",
-      icon: ICONS.NodeActivitiesIcon,
-      path: `/club/${clubId}/activity`,
-    },
-    {
-      name: "Preferences",
-      icon: ICONS.NodePreferencesIcon,
-      path: "#",
-    },
+    // {
+    //   name: "Insights/Analytics",
+    //   icon: ICONS.NodeInsightsIcon,
+    //   path: "#",
+    //   show: hasPermission("view:analytics"),
+    // },
+    // {
+    //   name: "Preferences",
+    //   icon: ICONS.NodePreferencesIcon,
+    //   path: "#",
+    //   show: hasPermission("view:activities"),
+    // },
+    // {
+    //   name: "Activities",
+    //   icon: ICONS.NodeActivitiesIcon,
+    //   path: `/club/${clubId}/activity`,
+    //   show: hasPermission("view:activities"),
+    // },
   ];
   // console.log({ url: club.club.profileImage.url);
 
@@ -110,7 +128,8 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
       const requestedClubs = await ClubEndpoints.fetchUserRequestedClubs();
       setUserJoinedClubs(joinedClubs);
       setUserRequestedClubs(requestedClubs);
-      setJoinStatus(response.status);
+      // setJoinStatus(response.status);
+      fetchClubJoinStatus(clubId);
     } catch (error) {
       console.log({ error });
     }
@@ -121,6 +140,7 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
       const response = await ClubEndpoints.cancelJoinRequest(clubId);
       const requestedClubs = await ClubEndpoints.fetchUserRequestedClubs();
       setUserRequestedClubs(requestedClubs);
+      fetchClubJoinStatus(clubId);
       console.log(response);
       toast.success("Request Cancelled");
       setCancelRequestTriggered(!cancelRequestTriggered);
@@ -130,31 +150,24 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
     }
   };
 
-  useEffect(() => {
-    Endpoints.fetchClubUserStatus(clubId as string)
-      .then((res) => {
-        setJoinStatus(res.status);
-        console.log(res.status, "join status");
-      })
-      .catch((err) => {
-        console.log({ err });
-      });
-  }, [clubId, cancelRequestTriggered]);
   const onRecaptchaChange = (token: any) => {
+    console.log("1");
     if (!token) {
       toast.error("Please complete the reCAPTCHA to proceed.");
       return;
     }
+    console.log("2");
     Endpoints.recaptcha(token)
       .then((res) => {
         if (res) {
           joinToClub(clubId);
           setRecaptcha(false);
+          console.log("3");
         }
       })
       .catch((err) => {
         console.log({ err });
-
+        console.log("4");
         toast.error("something went wrong!!");
       });
   };
@@ -217,31 +230,15 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
             • {currentClub?.members?.length} Members
           </div>
 
-          {recaptcha && (
-            <Dialog open={recaptcha} onOpenChange={setRecaptcha}>
-              <DialogTitle>Recaptcha</DialogTitle>
-              <DialogContent
-                className="pointer-events-auto"
-                onInteractOutside={(e) => {
-                  e.preventDefault();
-                }}
-              >
-                <DialogHeader>
-                  {recaptcha ? (
-                    <ReCAPTCHA
-                      className="z-50 flex justify-center"
-                      ref={recaptchaRef}
-                      sitekey={
-                        process.env.NEXT_PUBLIC_RECAPTCHA_CLIENT as string
-                      }
-                      onChange={onRecaptchaChange}
-                    />
-                  ) : (
-                    "Loading..."
-                  )}
-                </DialogHeader>
-              </DialogContent>
-            </Dialog>
+          {recaptcha ? (
+            <ReCAPTCHA
+              className="z-50 flex justify-center"
+              ref={recaptchaRef}
+              sitekey={env.RECAPTCHA_CLIENT as string}
+              onChange={onRecaptchaChange}
+            />
+          ) : (
+            <></>
           )}
 
           <div className="flex flex-col gap-2">
@@ -251,24 +248,26 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
                 setRecaptcha(true);
               }}
               className="h-8 w-full border border-gray-500 bg-transparent text-gray-800 hover:bg-transparent"
-              disabled={joinStatus === "REQUESTED" || joinStatus === "MEMBER"} // Disable when requested or joined
+              disabled={
+                clubJoinStatus === "REQUESTED" || clubJoinStatus === "MEMBER"
+              } // Disable when requested or joined
             >
               {!currentClub ? (
                 <Skeleton className="h-4 w-1/2" />
               ) : (
                 <>
                   {currentClub?.club?.isPublic &&
-                    joinStatus === "VISITOR" &&
+                    clubJoinStatus === "VISITOR" &&
                     "Join"}
                   {!currentClub?.club?.isPublic &&
-                    joinStatus === "VISITOR" &&
+                    clubJoinStatus === "VISITOR" &&
                     "Request to Join"}
-                  {joinStatus === "MEMBER" && "Joined"}
-                  {joinStatus === "REQUESTED" && "Request Pending"}
+                  {clubJoinStatus === "MEMBER" && "Joined"}
+                  {clubJoinStatus === "REQUESTED" && "Request Pending"}
                 </>
               )}
             </Button>
-            {joinStatus === "REQUESTED" && (
+            {clubJoinStatus === "REQUESTED" && (
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button className="h-8 w-full border border-white bg-red-500 text-white hover:bg-red-500">
@@ -295,44 +294,43 @@ const ClubProfileCard: React.FC<ProfileCardProps> = ({
           </div>
         </div>
         <div className=" my-3 h-auto space-y-2  pb-4">
-          {SECTIONS?.filter((section) => !section.show || section.show())?.map(
-            (section) => (
-              <button
-                key={section?.name}
-                className={`flex w-full items-center justify-between rounded-md p-2 ${
-                  currentPage === section?.name
-                    ? "border border-primary bg-green-50"
-                    : "border border-white hover:bg-gray-100"
-                }`}
-                onClick={() => {
-                  setCurrentPage(section?.name);
-                  router.push(section?.path);
-                }}
-              >
-                <span className="flex items-center space-x-2">
-                  <Image
-                    src={section?.icon}
-                    alt={section?.name}
-                    height={30}
-                    width={30}
-                    className="size-4"
-                  />
-                  <span>{section?.name}</span>
-                </span>
-                <div className="flex gap-2">
-                  {section?.notifications ? (
-                    <span
-                      className="flex size-5 items-center justify-center rounded-full bg-orange-500 text-xs
+          {SECTIONS?.filter((section) => section.show)?.map((section) => (
+            <Link
+              key={section?.name}
+              className={`flex w-full items-center justify-between rounded-md p-2 ${
+                currentPage === section?.name
+                  ? "border border-primary bg-green-50"
+                  : "border border-white hover:bg-gray-100"
+              }`}
+              href={section?.path}
+              onClick={() => {
+                setCurrentPage(section?.name);
+                router.push(section?.path);
+              }}
+            >
+              <span className="flex items-center space-x-2">
+                <Image
+                  src={section?.icon}
+                  alt={section?.name}
+                  height={30}
+                  width={30}
+                  className="size-4"
+                />
+                <span>{section?.name}</span>
+              </span>
+              <div className="flex gap-2">
+                {section?.notifications ? (
+                  <span
+                    className="flex size-5 items-center justify-center rounded-full bg-orange-500 text-xs
                    font-medium text-white"
-                    >
-                      {section?.notifications}
-                    </span>
-                  ) : null}
-                  <ChevronRight size={"1rem"} />
-                </div>
-              </button>
-            )
-          )}
+                  >
+                    {section?.notifications}
+                  </span>
+                ) : null}
+                <ChevronRight size={"1rem"} />
+              </div>
+            </Link>
+          ))}
         </div>
       </div>
     </div>

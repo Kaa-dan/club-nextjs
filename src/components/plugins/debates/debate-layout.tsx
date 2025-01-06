@@ -14,6 +14,9 @@ import Link from "next/link";
 import React, { ReactNode } from "react";
 import DebateTable from "./debate-table";
 import useDebates from "./use-debate";
+import { useClubStore } from "@/store/clubs-store";
+import { useNodeStore } from "@/store/nodes-store";
+import { usePermission } from "@/lib/use-permission";
 
 interface TabData {
   label: string;
@@ -29,13 +32,30 @@ const DebateLayout = ({
   forum: TForum;
   forumId: string;
 }) => {
+  const { hasPermission } = usePermission();
+  const { currentUserRole: currentUserClubRole, clubJoinStatus } = useClubStore(
+    (state) => state
+  );
+
+  const { currentUserRole: currentUserNodeRole, nodeJoinStatus } = useNodeStore(
+    (state) => state
+  );
+  console.log({ club: currentUserClubRole });
+  console.log({ node: currentUserNodeRole });
+
   const {
     allDebates,
     ongoingDebates,
     myDebates,
     globalDebates,
+    proposed,
+
     setClickTrigger,
+    clickTrigger,
     loading,
+    currentPages,
+    totalPages,
+    setCurrentPages,
   } = useDebates(forum, forumId);
 
   const tabs: TabData[] = [
@@ -55,7 +75,16 @@ const DebateLayout = ({
       label: "My Debates",
       count: myDebates?.length || 0,
     },
+    ...(hasPermission("view:proposedAsset")
+      ? [
+          {
+            label: "Proposed Debates",
+            count: proposed?.length || 0,
+          },
+        ]
+      : []),
   ];
+
   const formatCount = (count: number) => {
     if (count >= 1000000) return `${(count / 1000000).toFixed(0)}M`;
     if (count >= 1000) return `${(count / 1000).toFixed(2)}k`;
@@ -75,6 +104,9 @@ const DebateLayout = ({
         break;
       case "My Debates":
         data = myDebates;
+        break;
+      case "Proposed Debates":
+        data = proposed;
         break;
 
       default:
@@ -98,7 +130,7 @@ const DebateLayout = ({
             <TabsTrigger
               key={tab.label}
               value={tab.label}
-              className="shrink-0 rounded-md border-primary px-3 py-1.5 text-sm data-[state=active]:border-b-4  data-[state=active]:text-primary"
+              className="shrink-0 rounded-md border-b-4 border-white px-3 py-1.5 text-sm data-[state=active]:border-primary  data-[state=active]:text-primary"
             >
               {tab?.label} ({formatCount(tab?.count)})
             </TabsTrigger>
@@ -108,11 +140,14 @@ const DebateLayout = ({
         {tabs.map((tab) => (
           <TabsContent key={tab.label} value={tab.label} className="space-y-4">
             <div className="flex items-center gap-4">
-              <Link href="debate/create">
-                <Button className="bg-primary hover:bg-emerald-600">
-                  Add a new Debate
-                </Button>
-              </Link>
+              {(clubJoinStatus === "MEMBER" || nodeJoinStatus === "MEMBER") && (
+                <Link href="debate/create">
+                  <Button className="bg-primary text-white  hover:bg-emerald-600">
+                    Add a new Debate
+                  </Button>
+                </Link>
+              )}
+
               <div className="relative flex-1">
                 <Search className="absolute left-2 top-2.5 size-4 text-muted-foreground" />
                 <Input placeholder="Search for rules..." className="pl-8" />
@@ -156,10 +191,16 @@ const DebateLayout = ({
               </Button>
             </div>
             <DebateTable
+              clickTrigger={clickTrigger}
+              setClickTrigger={setClickTrigger}
               forumId={forumId}
               data={getData(tab)}
+              tab={tab.label}
               forum={forum}
               plugin={plugin}
+              currentPage={currentPages}
+              setCurrentPages={setCurrentPages}
+              totalPage={totalPages}
             />
           </TabsContent>
         ))}

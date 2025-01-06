@@ -3,6 +3,8 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { usePermission } from "@/lib/use-permission";
+
 import {
   Link,
   Copy,
@@ -10,6 +12,9 @@ import {
   Search,
   Filter,
   MoreHorizontal,
+  Check,
+  X,
+  Pencil,
 } from "lucide-react";
 
 import {
@@ -55,12 +60,23 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SharedEndpoints } from "@/utils/endpoints/shared";
-import { useNodeCalls } from "@/components/pages/node/use-node-calls";
-
+import { useNodeCalls } from "@/hooks/apis/use-node-calls";
+import Invite from "@/components/pages/club/invite/invite";
+import { Endpoints } from "@/utils/endpoint";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 export default function Page() {
-  const { leaveNode } = useNodeCalls();
+  const { leaveNode, fetchNodeDetails } = useNodeCalls();
   const { globalUser } = useTokenStore((state) => state);
-  const { currentNode, currentUserRole } = useNodeStore((state) => state);
+  const { currentNode, currentUserRole, nodeJoinStatus } = useNodeStore(
+    (state) => state
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { nodeId } = useParams<{ nodeId: string }>();
   const [clickTrigger, setClickTrigger] = useState<boolean>(false);
@@ -73,11 +89,13 @@ export default function Page() {
 
   const isOwner = () => currentUserRole === "owner";
 
-  const isOWnerOrAdmin = () => ["owner", "admin"].includes(currentUserRole);
+  const isOWnerOrAdmin = () => ["owner", "admin"].includes(currentUserRole!);
+
+  type UserRole = "member" | "admin" | "moderator" | "owner";
 
   const isModeratorOrAdminOrOwner = () =>
-    ["moderator", "admin", "owner"].includes(currentUserRole);
-
+    ["moderator", "admin", "owner"].includes(currentUserRole!);
+  const { hasPermission } = usePermission();
   const SECTIONS = [
     {
       title: "Change to admin",
@@ -91,13 +109,13 @@ export default function Page() {
         };
         try {
           await SharedEndpoints.makeAdmin(data);
-          setClickTrigger(!clickTrigger);
+          fetchNodeDetails(nodeId);
         } catch (error) {
           console.log(error, "error");
           toast.error("something went wrong when making admin");
         }
       },
-      show: (role: "member" | "admin" | "moderator") => {
+      show: (role: UserRole) => {
         return role !== "admin" && isOwner();
       },
     },
@@ -114,13 +132,13 @@ export default function Page() {
         };
         try {
           await SharedEndpoints.makeModerator(data);
-          setClickTrigger(!clickTrigger);
+          fetchNodeDetails(nodeId);
         } catch (error) {
           console.log(error, "error");
           toast.error("something went wrong when making moderator");
         }
       },
-      show: (role: "member" | "admin" | "moderator") => {
+      show: (role: UserRole) => {
         return role !== "moderator" && isOwner();
       },
     },
@@ -137,13 +155,13 @@ export default function Page() {
         };
         try {
           await SharedEndpoints.makeMember(data);
-          setClickTrigger(!clickTrigger);
+          fetchNodeDetails(nodeId);
         } catch (error) {
           toast.error("something went wrong when making member");
           console.log(error, "error");
         }
       },
-      show: (role: "member" | "admin" | "moderator") => {
+      show: (role: UserRole) => {
         return role !== "member" && isOwner();
       },
     },
@@ -160,21 +178,80 @@ export default function Page() {
         };
         try {
           await SharedEndpoints.removeMember(data);
-          setClickTrigger(!clickTrigger);
+          fetchNodeDetails(nodeId);
         } catch (error) {
           console.log(error, "error");
           toast.error("something went wrong when removing member");
         }
       },
-      show: isOWnerOrAdmin,
+      show: (role: UserRole) => {
+        return role !== "owner" && isOWnerOrAdmin();
+      },
     },
   ];
+  const [designations, setDesignations] = useState<{ [key: string]: string }>(
+    {}
+  );
 
-  console.log({ currentNode });
+  const handleInputChange = (memberId: string, value: string) => {
+    setDesignations((prev) => ({
+      ...prev,
+      [memberId]: value,
+    }));
+  };
+  const [isEditing, setIsEditing] = useState<{ [key: string]: boolean }>({});
+  const updateMemberDesignation = useNodeStore(
+    (state: any) => state.updateMemberDesignation
+  );
+  const handleSubmit = async (memberId: string) => {
+    const newValue = designations[memberId];
+    try {
+      await Endpoints.updateDesignation(memberId, newValue, nodeId);
+      updateMemberDesignation(memberId, newValue);
+      setIsEditing((prev) => ({ ...prev, [memberId]: false }));
+      toast.success("Designation updated");
+    } catch (error) {
+      console.error("Failed to update designation:", error);
+      toast.error("Failed to update designation");
+    }
+  };
 
+  const handleClear = (memberId: string) => {
+    setDesignations((prev) => ({
+      ...prev,
+      [memberId]: "",
+    }));
+  };
+
+  const updateMemberPosition = async (
+    newPosition: string,
+    memberId: string
+  ) => {
+    try {
+      const response = await Endpoints.updatePosition(
+        nodeId,
+        memberId,
+        newPosition
+      );
+    } catch (err) {}
+  };
+
+  const handleEditClick = (userId: string) => {
+    setIsEditing((prev) => ({ ...prev, [userId]: true }));
+  };
+
+  const handleSave = async (userId: string) => {
+    await handleSubmit(userId);
+    setIsEditing((prev) => ({ ...prev, [userId]: false }));
+  };
+
+  const handleCancel = (userId: string) => {
+    handleClear(userId);
+    setIsEditing((prev) => ({ ...prev, [userId]: false }));
+  };
   return (
     <>
-      <Card className="mx-auto w-full max-w-3xl">
+      <Card className="ml-5 mt-5 w-full max-w-3xl">
         <CardHeader className="space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-2">
@@ -221,13 +298,12 @@ export default function Page() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              {currentNode?.members?.some(
-                (member: any) => member?.user?._id == globalUser?._id
-              ) && (
+              {nodeJoinStatus === "MEMBER" && currentUserRole !== "owner" && (
                 <>
-                  <Button className="gap-2">
+                  {/* <Button className="gap-2">
                     <span>+ Invite</span>
-                  </Button>
+                  </Button> */}
+                  <Invite entityId={nodeId} type={"node"} />
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button
@@ -323,7 +399,7 @@ export default function Page() {
           <DialogHeader>
             <DialogTitle>All Members</DialogTitle>
           </DialogHeader>
-          <div className="my-4 flex items-center justify-between gap-4">
+          <div className="my-1 flex items-center justify-between gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-2 top-2.5 size-4 text-muted-foreground" />
               <Input placeholder="Search for Members..." className="pl-8" />
@@ -339,48 +415,141 @@ export default function Page() {
           </div>
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Member&#39;s Name</TableHead>
-                <TableHead>Level</TableHead>
-                <TableHead>Contribution</TableHead>
-                <TableHead>Join Date</TableHead>
+              <TableRow className="hover:bg-transparent">
+                <TableHead className="w-[280px]">{`Member's Name`}</TableHead>
+                <TableHead className="w-[120px]">Level</TableHead>
+                <TableHead className="w-[120px] text-center">
+                  Contribution
+                </TableHead>
+                <TableHead className="w-[120px]">Designation</TableHead>
+                {/* {hasPermission("update:designation") && (
+                )} */}
+                <TableHead className="w-[200px]">Position</TableHead>
+                <TableHead className="w-[120px]">Join Date</TableHead>
+                {isModeratorOrAdminOrOwner() && (
+                  <TableHead className="w-[60px]" />
+                )}
               </TableRow>
             </TableHeader>
             <TableBody>
-              {currentNode?.members?.map((member: TMembers) => (
+              {currentNode?.members?.map((member) => (
                 <TableRow key={member?.user?._id}>
-                  <TableCell className="flex items-center gap-2">
-                    <Avatar>
-                      <AvatarImage src={member?.user?.profileImage} />
-                      <AvatarFallback>
-                        {member?.user?.firstName?.[0]}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <div className="font-medium">
-                        {member?.user?.firstName || ""}{" "}
-                        {member?.user?.lastName || ""}{" "}
-                        {member?.user?._id === globalUser?._id && (
-                          <span className="text-sm text-muted-foreground">
-                            (You)
-                          </span>
-                        )}
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        {member?.role}
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <Avatar className="size-8 shrink-0">
+                        <AvatarImage src={member?.user?.profileImage} />
+                        <AvatarFallback>
+                          {member?.user?.firstName?.[0]}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="min-w-0">
+                        <div className="truncate font-medium">
+                          {member?.user?.firstName || ""}{" "}
+                          {member?.user?.lastName || ""}{" "}
+                          {member?.user?._id === globalUser?._id && (
+                            <span className="text-sm text-muted-foreground">
+                              (You)
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          {member?.role}
+                        </div>
                       </div>
                     </div>
                   </TableCell>
                   <TableCell>
                     <RoleBadge role={member?.role} />
                   </TableCell>
-                  <TableCell>{0}</TableCell>
+                  <TableCell className="text-center">{0}</TableCell>
                   <TableCell>
+                    <div className="flex w-[300px] items-center space-x-2">
+                      {isEditing[member?.user?._id] ? (
+                        <>
+                          <div className="relative w-[220px]">
+                            <Input
+                              type="text"
+                              placeholder="Enter designation"
+                              value={
+                                designations[member?.user._id] ??
+                                member?.designation ??
+                                ""
+                              }
+                              onChange={(e) =>
+                                handleInputChange(
+                                  member?.user._id,
+                                  e.target.value
+                                )
+                              }
+                              className="h-9 w-full"
+                            />
+                          </div>
+                          <div className="flex shrink-0 gap-1">
+                            <Button
+                              onClick={() => handleSave(member?.user._id)}
+                              variant="outline"
+                              size="icon"
+                              className="size-9 shrink-0"
+                            >
+                              <Check className="size-4" />
+                            </Button>
+                            <Button
+                              onClick={() => handleCancel(member?.user._id)}
+                              variant="outline"
+                              size="icon"
+                              className="size-9 shrink-0"
+                            >
+                              <X className="size-4" />
+                            </Button>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="flex w-full items-center justify-between">
+                          <span className="text-sm">
+                            {member?.designation || "No designation set"}
+                          </span>
+                          {hasPermission("update:designation") && (
+                            <Button
+                              onClick={() => handleEditClick(member?.user._id)}
+                              variant="ghost"
+                              size="icon"
+                              className="size-8"
+                            >
+                              <Pencil className="size-4" />
+                            </Button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    {hasPermission("update:position") ? (
+                      <Select
+                        value={member.position}
+                        onValueChange={(newPosition) =>
+                          updateMemberPosition(newPosition, member.user._id)
+                        }
+                      >
+                        <SelectTrigger className="w-48">
+                          <SelectValue placeholder="Select position" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="senior">Senior</SelectItem>
+                          <SelectItem value="junior">Junior</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <Label className="text-sm text-gray-500">
+                        {member.position || " - "}
+                      </Label>
+                    )}
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap">
                     {new Date(member?.createdAt).toLocaleDateString()}
                   </TableCell>
                   {isModeratorOrAdminOrOwner() &&
-                    isOwner() &&
-                    member?.user?._id !== globalUser?._id && (
+                    member?.user?._id !== globalUser?._id &&
+                    member?.role !== "owner" && (
                       <TableCell>
                         <DropdownMenu
                           open={dropdownOpen === member?.user?._id}
@@ -418,7 +587,7 @@ export default function Page() {
           </Table>
           <div className="mt-4 flex items-center justify-between">
             <div className="text-sm text-muted-foreground">
-              Total 85 Members
+              Total {currentNode?.members?.length} Members
             </div>
             <div className="flex items-center gap-2">
               <Button variant="outline" size="sm" disabled>

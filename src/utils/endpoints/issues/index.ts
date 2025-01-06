@@ -16,32 +16,38 @@ export class IssuesEndpoints {
     return response.data;
   }
 
-  static async fetchMyIssues(forum: TForum, nodeOrclub: string) {
+  static async fetchMyIssues(forum: TForum, nodeOrclub: string, page: string) {
     const response = await withTokenAxios.get(
-      `/issues/get-my-issues?entity=${forum}&entityId=${nodeOrclub}`
+      `/issues/get-my-issues?entity=${forum}&entityId=${nodeOrclub}&page=${page}`
     );
     console.log(response.data, "response my issue");
     return response.data;
   }
 
-  static async fetchAllIssues(forum: TForum, nodeOrclub: string) {
+  static async fetchAllIssues(forum: TForum, nodeOrclub: string, page: string) {
     const response = await withTokenAxios.get(
-      `/issues/all-issues?entity=${forum}&entityId=${nodeOrclub}`
+      `/issues/all-issues?entity=${forum}&entityId=${nodeOrclub}&page=${page}`
     );
     console.log(response.data, "response all issue");
     return response.data;
   }
 
-  static async fetchGlobalIssues() {
-    const response = await withTokenAxios.get(`/issues/global-active-issues`);
+  static async fetchGlobalIssues(page: string) {
+    const response = await withTokenAxios.get(
+      `/issues/global-active-issues?page=${page}`
+    );
     console.log(response.data, "response global issue");
     return response.data;
   }
 
-  static async fetchAllLiveIssues(forum: TForum, nodeOrclub: string) {
+  static async fetchAllLiveIssues(
+    forum: TForum,
+    nodeOrclub: string,
+    page: string
+  ) {
     console.log("nic", forum, nodeOrclub);
     const response = await withTokenAxios.get(
-      `/issues/get-all-active-issues?entity=${forum}&entityId=${nodeOrclub}`
+      `/issues/get-all-active-issues?entity=${forum}&entityId=${nodeOrclub}&page=${page}`
     );
     console.log(response.data, "response all live issue");
     return response.data;
@@ -77,9 +83,13 @@ export class IssuesEndpoints {
     return response.data;
   }
 
-  static async fetchProposedIssues(entity: TForum, entityId: string) {
+  static async fetchProposedIssues(
+    entity: TForum,
+    entityId: string,
+    page: string
+  ) {
     const response = await withTokenAxios.get(
-      `/issues/proposed-issues/${entity}/${entityId}`
+      `/issues/proposed-issues/${entity}/${entityId}/${page}`
     );
     return response.data;
   }

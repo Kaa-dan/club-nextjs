@@ -32,6 +32,7 @@ const SearchResults = ({
   const [requestedNodes, setRequestedNodes] = useState<string[]>([]);
   const [filteredNodes, setFilteredNodes] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [reCAPTCHA, setRecaptcha] = useState(false);
 
   useEffect(() => {
     getNodes().then((res) => {
@@ -66,6 +67,25 @@ const SearchResults = ({
       setLoading(false);
     }
   };
+
+  const onRecaptchaChange = (token: any, nodeId: string) => {
+    if (!token) {
+      toast.error("Please complete the reCAPTCHA to proceed.");
+      return;
+    }
+    Endpoints.recaptcha(token)
+      .then((res) => {
+        if (res) {
+          requestToJoinNode(nodeId);
+          setRecaptcha(false);
+        }
+      })
+      .catch((err) => {
+        console.log({ err });
+
+        toast.error("something went wrong!!");
+      });
+  };
   return (
     <div className="flex flex-col gap-2 px-8">
       <h2 className="text-lg font-semibold">Search node</h2>
@@ -97,6 +117,7 @@ const SearchResults = ({
               requested={false}
               key={index}
               node={node}
+              reCAPTCHA={reCAPTCHA}
             />
           );
         })}
@@ -164,7 +185,7 @@ export const NodeSearchForm: React.FC<InterestFormProps> = ({ setStep }) => {
             </Button>
             <Button
               onClick={() => setShowAddNodeDialog(true)}
-              variant={"naked"}
+              variant={"ghost"}
               className="w-full"
             >
               + Create a node
