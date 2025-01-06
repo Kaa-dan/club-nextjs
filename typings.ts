@@ -222,6 +222,7 @@ interface TProjectData {
     mimetype: string;
     size: number;
   };
+  adoptionCount: any;
   committees: Committee[];
   contributions: any[];
   champions: Champion[];
@@ -256,7 +257,7 @@ interface TProjectData {
   relevant: any[];
   irrelevant: any[];
   type: "proposed" | "creation";
-  message:string
+  message: string;
 }
 
 interface Committee {
@@ -284,19 +285,16 @@ type TAdoptionOption = {
   }[];
 };
 
-
-
-
- interface Author {
+interface Author {
   name: string;
   email: string;
   title?: string;
 }
 
- interface Post {
+interface Post {
   _id: string;
   author: Author;
-  content: string; 
+  content: string;
   type: string;
   createdAt: string;
   relevantCount?: number;
@@ -304,7 +302,7 @@ type TAdoptionOption = {
   viewCount?: number;
 }
 
- interface FeedResponse {
+interface FeedResponse {
   items: Post[];
   hasMore: boolean;
   total: number;
