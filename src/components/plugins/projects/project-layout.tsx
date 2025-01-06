@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search } from "lucide-react";
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react"; // Added useState
 import ProjectTable from "./project-table";
 import { useClubStore } from "@/store/clubs-store";
 import { usePermission } from "@/lib/use-permission";
@@ -25,6 +25,10 @@ const ProjectLayout = ({
   forum: TForum;
   forumId: string;
 }) => {
+  // Add state for selected tab
+  const [selectedTab, setSelectedTab] =
+    useState<TProjectLable>("On going projects");
+
   const {
     activeProjects,
     globalProjects,
@@ -37,7 +41,10 @@ const ProjectLayout = ({
     projectCounts,
     totalPages,
     currentPages,
+    setSearchQueries,
+    searchQueries,
   } = useProjects(forum, forumId);
+
   const { hasPermission } = usePermission();
 
   const tabs: TabData[] = [
@@ -97,12 +104,50 @@ const ProjectLayout = ({
       default:
         data = [];
     }
-
     return data;
   }
 
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const searchTerm = e.target.value;
+    console.log("fff", searchTerm);
+    switch (selectedTab) {
+      case "All Projects":
+        setSearchQueries((prev) => ({
+          ...prev,
+          allProjects: searchTerm,
+        }));
+        break;
+      case "On going projects":
+        setSearchQueries((prev) => ({
+          ...prev,
+          activeProjects: searchTerm,
+        }));
+        break;
+      case "Global Projects":
+        setSearchQueries((prev) => ({
+          ...prev,
+          globalProjects: searchTerm,
+        }));
+        break;
+      case "My Projects":
+        setSearchQueries((prev) => ({
+          ...prev,
+          myProjects: searchTerm,
+        }));
+        break;
+      case "Proposed Project":
+        setSearchQueries((prev) => ({
+          ...prev,
+          proposedProjects: searchTerm,
+        }));
+        break;
+    }
+  };
+
+  // Helper function to get current search value based on selected tab
+
   return (
-    <div className="w-full space-y-4  p-4">
+    <div className="w-full space-y-4 p-4">
       <div className="space-y-2">
         <h2 className="text-2xl font-bold tracking-tight">Project</h2>
         <p className="text-muted-foreground">
@@ -111,13 +156,17 @@ const ProjectLayout = ({
         </p>
       </div>
 
-      <Tabs defaultValue="On going projects" className="w-full space-y-4 ">
+      <Tabs
+        defaultValue="On going projects"
+        className="w-full space-y-4"
+        onValueChange={(value) => setSelectedTab(value as TProjectLable)}
+      >
         <TabsList className="flex h-auto flex-wrap gap-1 bg-background p-1">
           {getFilteredTabs()?.map((tab) => (
             <TabsTrigger
               key={tab.label}
               value={tab.label}
-              className="shrink-0 rounded-md border-primary px-3 py-1.5 text-sm data-[state=active]:border-b-4  data-[state=active]:text-primary"
+              className="shrink-0 rounded-md border-primary px-3 py-1.5 text-sm data-[state=active]:border-b-4 data-[state=active]:text-primary"
             >
               {tab.label} ({formatCount(tab.count)})
             </TabsTrigger>
@@ -134,7 +183,11 @@ const ProjectLayout = ({
               </Link>
               <div className="relative flex-1">
                 <Search className="absolute left-2 top-2.5 size-4 text-muted-foreground" />
-                <Input placeholder="Search for rules..." className="pl-8" />
+                <Input
+                  placeholder="Search for rules..."
+                  className="pl-8"
+                  onChange={handleSearch}
+                />
               </div>
               <Button variant="outline" size="icon">
                 <span className="sr-only">Filter</span>

@@ -1,7 +1,7 @@
 "use client";
 interface PageState {
   globalProjects: number;
-  ongoingProjects: number;
+  activeProjects: number;
   allProjects: number;
   myProjects: number;
 }
@@ -160,6 +160,34 @@ function DataTable({
       </Table>
 
       <div className="flex items-center justify-end space-x-2 py-4">
+        <div className="flex items-center gap-1 text-sm text-muted-foreground">
+          <span>Page</span>
+          <span className="font-medium">
+            {tab === "All Projects"
+              ? currentPage.allProjects
+              : tab === "On going projects"
+                ? currentPage.activeProjects
+                : tab === "Global Projects"
+                  ? currentPage.globalProjects
+                  : tab === "My Projects"
+                    ? currentPage.myProjects
+                    : 1}
+          </span>
+          <span>of</span>
+          <span className="font-medium">
+            {tab === "All Projects"
+              ? totalPage.allProjects
+              : tab === "On going projects"
+                ? totalPage.activeProjects
+                : tab === "Global Projects"
+                  ? totalPage.globalProjects
+                  : tab === "My Projects"
+                    ? totalPage.myProjects
+                    : tab === "Proposed Project"
+                      ? totalPage.proposedProjects
+                      : 1}
+          </span>
+        </div>
         <Button
           onClick={() => {
             setCurrentPages((prev: PageState) => {
@@ -172,7 +200,7 @@ function DataTable({
                 case "On going projects":
                   return {
                     ...prev,
-                    ongoingProjects: prev.ongoingProjects - 1,
+                    activeProjects: prev.activeProjects - 1,
                   };
                 case "All Projects":
                   return {
@@ -196,8 +224,8 @@ function DataTable({
               ? currentPage.globalProjects <= 1 ||
                 currentPage.globalProjects > totalPage.globalProjects
               : tab === "On going projects"
-                ? currentPage.ongoingProjects <= 1 ||
-                  currentPage.ongoingProjects > totalPage.ongoingProjects
+                ? currentPage.activeProjects <= 1 ||
+                  currentPage.activeProjects > totalPage.activeProjects
                 : tab === "All Projects"
                   ? currentPage.allProjects <= 1 ||
                     currentPage.allProjects > totalPage.allProjects
@@ -223,7 +251,7 @@ function DataTable({
                 case "On going projects":
                   return {
                     ...prev,
-                    ongoingProjects: prev.ongoingProjects + 1,
+                    activeProjects: prev.activeProjects + 1,
                   };
                 case "All Projects":
                   return {
@@ -245,8 +273,8 @@ function DataTable({
               ? currentPage.globalProjects >= totalPage.globalProjects ||
                 currentPage.globalProjects > totalPage.globalProjects
               : tab === "On going projects"
-                ? currentPage.ongoingProjects >= totalPage.ongoingProjects ||
-                  currentPage.ongoingProjects > totalPage.ongoingProjects
+                ? currentPage.activeProjects >= totalPage.activeProjects ||
+                  currentPage.activeProjects > totalPage.activeProjects
                 : tab === "All Projects"
                   ? currentPage.allProjects >= totalPage.allProjects ||
                     currentPage.allProjects > totalPage.allProjects
@@ -391,7 +419,6 @@ export default function ProjectTable({
       header: "Posted by",
       cell: ({ row }) => {
         const postedBy = row.getValue("createdBy") as TProjectData["createdBy"];
-        console.log(postedBy, "posted by");
         return (
           <div className="flex items-center gap-2">
             <Avatar className="size-8">

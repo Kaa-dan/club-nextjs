@@ -112,3 +112,24 @@ export type TIssue = {
   };
   relevanceScore: number;
 };
+
+export type TChapter = {
+  _id: string;
+  name: string;
+  club: string;
+  node: string;
+  status: string;
+  about: string;
+  publishedBy: string;
+  createdAt: string;
+  updatedAt: string;
+  description: string;
+  profileImage: {
+    url: string;
+  };
+  coverImage: {
+    url: string;
+  };
+  members?: any[];
+  proposedBy: TUser;
+};

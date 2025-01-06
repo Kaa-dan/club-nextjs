@@ -53,6 +53,9 @@ const DebateLayout = ({
     setClickTrigger,
     clickTrigger,
     loading,
+    currentPages,
+    totalPages,
+    setCurrentPages,
   } = useDebates(forum, forumId);
 
   const tabs: TabData[] = [
@@ -127,7 +130,7 @@ const DebateLayout = ({
             <TabsTrigger
               key={tab.label}
               value={tab.label}
-              className="shrink-0 rounded-md border-primary px-3 py-1.5 text-sm data-[state=active]:border-b-4  data-[state=active]:text-primary"
+              className="shrink-0 rounded-md border-b-4 border-white px-3 py-1.5 text-sm data-[state=active]:border-primary  data-[state=active]:text-primary"
             >
               {tab?.label} ({formatCount(tab?.count)})
             </TabsTrigger>
@@ -139,7 +142,7 @@ const DebateLayout = ({
             <div className="flex items-center gap-4">
               {(clubJoinStatus === "MEMBER" || nodeJoinStatus === "MEMBER") && (
                 <Link href="debate/create">
-                  <Button className="bg-primary hover:bg-emerald-600  text-white">
+                  <Button className="bg-primary text-white  hover:bg-emerald-600">
                     Add a new Debate
                   </Button>
                 </Link>
@@ -195,6 +198,9 @@ const DebateLayout = ({
               tab={tab.label}
               forum={forum}
               plugin={plugin}
+              currentPage={currentPages}
+              setCurrentPages={setCurrentPages}
+              totalPage={totalPages}
             />
           </TabsContent>
         ))}

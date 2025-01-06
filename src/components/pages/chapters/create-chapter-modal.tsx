@@ -26,6 +26,8 @@ import { Label } from "@/components/ui/lable";
 import { withTokenAxios } from "@/lib/mainAxios";
 import Image from "next/image";
 import { useParams } from "next/navigation";
+import useChapters from "./use-chapters";
+import { usePermission } from "@/lib/use-permission";
 
 interface Club {
   _id: string;
@@ -50,6 +52,9 @@ const CreateChapterModal: React.FC<CreateChapterModalProps> = ({
   const [selectedClub, setSelectedClub] = React.useState<Club | null>(null);
   const [openCombobox, setOpenCombobox] = React.useState(false);
   const { nodeId } = useParams<{ nodeId: string }>();
+  const [term, setTerm] = React.useState("");
+  const { fetchPublishedChapters, fetchProposedChapters } = useChapters();
+  const { hasPermission } = usePermission();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,6 +65,8 @@ const CreateChapterModal: React.FC<CreateChapterModalProps> = ({
           club: selectedClub._id,
           node: nodeId,
         });
+        fetchPublishedChapters();
+        fetchProposedChapters();
         onOpenChange(false);
         console.log({ response });
       } catch (error) {
@@ -68,11 +75,13 @@ const CreateChapterModal: React.FC<CreateChapterModalProps> = ({
     }
   };
 
-  // get clubs
   const getClubs = async () => {
     try {
+      // const response = await withTokenAxios.get(
+      //   `/chapters/get-public-clubs?nodeId=${nodeId}&term=dfsd`
+      // );
       const response = await withTokenAxios.get(
-        `/chapters/get-user-public-clubs?nodeId=${nodeId}`
+        `/chapters/get-public-clubs?nodeId=${nodeId}&term=${term}`
       );
       setClubs(response.data);
       console.log({ response });
@@ -89,7 +98,14 @@ const CreateChapterModal: React.FC<CreateChapterModalProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[450px]">
         <DialogHeader>
-          <DialogTitle>Create Chapter</DialogTitle>
+          <DialogTitle>
+            {" "}
+            {hasPermission("create:chapter")
+              ? "Create Chapter"
+              : hasPermission("propose:chapter")
+                ? "Propose Chapter"
+                : null}
+          </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <Popover open={openCombobox} onOpenChange={setOpenCombobox}>
@@ -174,7 +190,11 @@ const CreateChapterModal: React.FC<CreateChapterModalProps> = ({
               disabled={!selectedClub}
               className="bg-green-600 text-white hover:bg-green-700"
             >
-              Create
+              {hasPermission("create:chapter")
+                ? "Create"
+                : hasPermission("propose:chapter")
+                  ? "Propose"
+                  : null}
             </Button>
           </div>
         </form>
