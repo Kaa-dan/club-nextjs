@@ -4,23 +4,11 @@ import { ICONS } from "@/lib/constants";
 import { ChevronRight } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { Endpoints } from "@/utils/endpoint";
-import { useNodeStore } from "@/store/nodes-store";
 import { Button } from "@/components/ui/button";
 import ReCAPTCHA from "react-google-recaptcha";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { NodeEndpoints } from "@/utils/endpoints/node";
 import { toast } from "sonner";
 import { ImageSkeleton } from "../club/club-profile-card";
 import env from "@/lib/env.config";
-import { useNodeCalls } from "@/hooks/apis/use-node-calls";
 import { usePermission } from "@/lib/use-permission";
 import { useChapterCalls } from "@/hooks/apis/use-chapter-calls";
 import { useChapterStore } from "@/store/chapters-store";
@@ -30,22 +18,25 @@ interface ProfileCardProps {
   setCurrentPage: (page: string) => void;
 }
 
-const ChaptersProfileCard: React.FC<ProfileCardProps> = ({
+const ChapterSidebar: React.FC<ProfileCardProps> = ({
   currentPage,
   setCurrentPage,
 }) => {
   const { hasPermission } = usePermission();
+
   const { nodeId, chapterId } = useParams<{
     nodeId: string;
     chapterId: string;
   }>();
-  const { currentChapter, chapterMembers } = useChapterStore((state) => state);
+  const {
+    currentChapter,
+    chapterMembers,
+    chapterJoinStatus,
+    currentUserChapterRole,
+  } = useChapterStore((state) => state);
 
-  // const { fetchNodeJoinStatus } = useNodeCalls();
-  const { fetchChapterDetails } = useChapterCalls();
+  const { fetchChapterDetails, joinChapter } = useChapterCalls();
   const recaptchaRef = useRef(null);
-
-  const { setUserRequestedNodes } = useNodeStore((state) => state);
 
   const SECTIONS = [
     {
@@ -90,38 +81,7 @@ const ChaptersProfileCard: React.FC<ProfileCardProps> = ({
     // },
   ];
   const router = useRouter();
-  const joinChapter = async (nodeId: string) => {
-    try {
-      const response = await Endpoints.requestToJoinNode(nodeId);
-      const requestedNodes = await NodeEndpoints.fetchUserRequestedNodes();
-      // setUserRequestedNodes(requestedNodes);
-      // setNodeJoinStatus(response.status);
-    } catch (error) {
-      console.log({ error });
-    }
-  };
   const [recaptcha, setRecaptcha] = useState(false);
-
-  /**
-   * Cancels a join request to a node
-   * @param nodeId The id of the node to cancel the request for
-   * @returns A promise that resolves when the request has been cancelled
-   */
-
-  const cancelJoinRequest = async (nodeId: string) => {
-    try {
-      const response = await NodeEndpoints.cancelJoinRequest(nodeId);
-      // Fetch the user's requested nodes again to update the state
-      const requestedNodes = await NodeEndpoints.fetchUserRequestedNodes();
-      setUserRequestedNodes(requestedNodes);
-      console.log(response);
-      toast.success("Request Cancelled");
-      // fetchNodeJoinStatus(nodeId);
-    } catch (error) {
-      console.log(error);
-      toast.error("Error while cancelling request");
-    }
-  };
 
   const onRecaptchaChange = (token: any) => {
     if (!token) {
@@ -131,7 +91,7 @@ const ChaptersProfileCard: React.FC<ProfileCardProps> = ({
     Endpoints.recaptcha(token)
       .then((res) => {
         if (res) {
-          joinChapter(currentChapter?._id as string);
+          joinChapter(currentChapter?._id as string, nodeId);
         }
       })
       .catch((err) => {
@@ -182,8 +142,7 @@ const ChaptersProfileCard: React.FC<ProfileCardProps> = ({
             {/* {currentChapter?.location}
             <span>•</span> */}
             <span>
-              {chapterMembers?.length || 0}
-              {"  Members"}
+              {`${chapterMembers?.length || 0} ${chapterMembers?.length === 1 ? "Member" : "Members"}`}
             </span>
           </p>
         </div>
@@ -200,41 +159,17 @@ const ChaptersProfileCard: React.FC<ProfileCardProps> = ({
         )}
 
         <div className="flex flex-col gap-2">
-          {/* <Button
+          <Button
             onClick={() => setRecaptcha(true)}
-            className="h-8 w-full border border-gray-500 bg-transparent text-gray-800 hover:bg-transparent"
+            className="h-8 w-full border border-gray-500 bg-transparent capitalize text-gray-800 hover:bg-transparent"
             disabled={
-              nodeJoinStatus === "REQUESTED" || nodeJoinStatus === "MEMBER"
-            } // Disable when requested or joined
+              chapterJoinStatus === "REQUESTED" ||
+              chapterJoinStatus === "MEMBER"
+            }
           >
-            {nodeJoinStatus === "VISITOR" && "Request to Join"}
-            {nodeJoinStatus === "MEMBER" && "Joined"}
-            {nodeJoinStatus === "REQUESTED" && "Request Pending"}
-          </Button> */}
-          {/* {nodeJoinStatus === "REQUESTED" && (
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button className="h-8 w-full border border-white bg-red-500 text-white hover:bg-red-500">
-                  Cancel Request
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle className="text-center">
-                    Are you absolutely sure?
-                  </AlertDialogTitle>
-                </AlertDialogHeader>
-                <div className="flex w-full justify-center gap-4">
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={() => cancelJoinRequest(currentNode?.node?._id!)}
-                  >
-                    Continue
-                  </AlertDialogAction>
-                </div>
-              </AlertDialogContent>
-            </AlertDialog>
-          )} */}
+            {chapterJoinStatus === "VISITOR" && "Request to Join"}
+            {chapterJoinStatus === "MEMBER" && currentUserChapterRole}
+          </Button>
         </div>
         <div className=" my-3 h-auto  space-y-2 pb-4">
           {SECTIONS?.filter((section) => section.show !== false)?.map(
@@ -281,4 +216,4 @@ const ChaptersProfileCard: React.FC<ProfileCardProps> = ({
   );
 };
 
-export default ChaptersProfileCard;
+export default ChapterSidebar;

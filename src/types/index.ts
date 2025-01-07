@@ -113,6 +113,12 @@ export type TIssue = {
   relevanceScore: number;
 };
 
+export type TChapterVote = {
+  user: string;
+  date: string;
+  _id: string;
+};
+
 export type TChapter = {
   _id: string;
   name: string;
@@ -132,4 +138,6 @@ export type TChapter = {
   };
   members?: any[];
   proposedBy: TUser;
+  upvotes: TChapterVote[];
+  downvotes: TChapterVote[];
 };
