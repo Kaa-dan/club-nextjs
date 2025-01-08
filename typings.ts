@@ -2,7 +2,7 @@ type TUserRole = "admin" | "member" | "owner" | "moderator";
 type TPlugins = "rules" | "issues" | "debate" | "projects";
 type TForum = "node" | "club";
 type TFileType = "image" | "video" | "document" | "pdf" | "unknown";
-type TJoinStatus = "VISITOR" | "MEMBER" | "REQUESTED";
+type TJoinStatus = "VISITOR" | "MEMBER" | "REQUESTED" | "BLOCKED";
 type TIssuesLabel =
   | "Live Issues"
   | "All Issues"

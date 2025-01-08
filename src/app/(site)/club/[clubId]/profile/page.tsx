@@ -95,17 +95,6 @@ export default function Page() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              {/* <Dialog>
-                <DialogTrigger>
-                  <Button variant="outline" className="gap-2">
-                    <Copy className="size-4" />
-
-                    <span>Copy Link</span>
-                  </Button>
-                </DialogTrigger>
-                <CopyLink />
-              </Dialog> */}
-
               {currentClub?.members?.some(
                 (member: any) => member?.user?._id == globalUser?._id
               ) && (
