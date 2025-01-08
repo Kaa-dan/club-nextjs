@@ -6,27 +6,27 @@ import ProjectLayout from "@/components/plugins/projects/project-layout";
 const PluginPage = async ({
   params,
 }: {
-  params: Promise<{ plugin: string; clubId: string }>;
+  params: Promise<{ plugin: string; chapterId: string }>;
 }) => {
-  const { plugin, clubId } = await params;
+  const { plugin, chapterId } = await params;
 
   const renderPluginContent = () => {
     switch (plugin) {
       case "issues":
         return (
-          <IssuesLayout forum={"chapter"} forumId={clubId} plugin={plugin} />
+          <IssuesLayout forum={"chapter"} forumId={chapterId} plugin={plugin} />
         );
       case "rules":
         return (
-          <RulesLayout forum={"chapter"} forumId={clubId} plugin={plugin} />
+          <RulesLayout forum={"chapter"} forumId={chapterId} plugin={plugin} />
         );
       case "debate":
         return (
-          <DebateLayout forumId={clubId} forum="chapter" plugin={plugin} />
+          <DebateLayout forumId={chapterId} forum="chapter" plugin={plugin} />
         );
       case "projects":
         return (
-          <ProjectLayout forum="chapter" forumId={clubId} plugin={plugin} />
+          <ProjectLayout forum="chapter" forumId={chapterId} plugin={plugin} />
         );
       default:
         return (
