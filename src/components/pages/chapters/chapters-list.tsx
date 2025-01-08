@@ -54,16 +54,21 @@ export function ChaptersList() {
   const { hasPermission } = usePermission();
   const { globalUser } = useTokenStore((state) => state);
   const { nodeId } = useParams<{ nodeId: string }>();
-  const { fetchPublishedChapters, fetchProposedChapters } = useChapters();
-  const { publishedChapters, proposedChapters } = useChapterStore(
-    (state) => state
-  );
+  const {
+    fetchPublishedChapters,
+    fetchProposedChapters,
+    fetchRejectedChapters,
+  } = useChapters();
+  const { publishedChapters, proposedChapters, rejectedChapters } =
+    useChapterStore((state) => state);
   const { joinChapter, downvoteChapter, upvoteChapter } = useChapterCalls();
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredPublishedChapters, setFilteredPublishedChapters] =
     useState<TChapter[]>(publishedChapters);
   const [filteredProposedChapters, setFilteredProposedChapters] =
     useState<TChapter[]>(proposedChapters);
+  const [filteredRejectedChapters, setFilteredRejectedChapters] =
+    useState<TChapter[]>(rejectedChapters);
   const [openCreateModal, setOpenCreateModal] = useState(false);
   const [rejectedReason, setRejectedReason] = useState("");
   const [isReasonModelOpen, setIsReasonModelOpen] = useState(false);
@@ -76,10 +81,14 @@ export function ChaptersList() {
     const filteredProposed = proposedChapters.filter((chapter) =>
       chapter.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
+    const filteredRejected = rejectedChapters.filter((chapter) =>
+      chapter.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     setFilteredPublishedChapters(filteredPublished);
     setFilteredProposedChapters(filteredProposed);
-  }, [searchQuery, publishedChapters, proposedChapters]);
+    setFilteredRejectedChapters(filteredRejected);
+  }, [searchQuery, publishedChapters, proposedChapters, rejectedChapters]);
 
   const handleChapterApproval = async (
     chapterId: string,
@@ -112,6 +121,7 @@ export function ChaptersList() {
       setRejectedReason("");
       fetchPublishedChapters();
       fetchProposedChapters();
+      fetchRejectedChapters();
     } catch (error: any) {
       const message =
         status === "publish"
@@ -180,9 +190,10 @@ export function ChaptersList() {
       </div>
 
       <Tabs defaultValue="published" className="grid-cols-1">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="published">Published Chapters</TabsTrigger>
           <TabsTrigger value="proposed">Proposed Chapters</TabsTrigger>
+          <TabsTrigger value="rejected">Rejected Chapters</TabsTrigger>
         </TabsList>
         <TabsContent value="published">
           {filteredPublishedChapters?.length === 0 ? (
@@ -451,42 +462,56 @@ export function ChaptersList() {
             </CardContent>
           </Card>
         </TabsContent>
-      </Tabs>
+        <TabsContent value="rejected">
+          <Card>
+            <CardContent className="h-72 space-y-2 overflow-y-scroll">
+              <div className="h-72 space-y-2 overflow-y-scroll p-4">
+                {filteredRejectedChapters.map((chapter) => (
+                  <div
+                    key={chapter?._id}
+                    className="mt-4 flex flex-col rounded-lg p-4 shadow-md"
+                  >
+                    <div className="flex justify-between">
+                      <div className="flex gap-4">
+                        <div>
+                          <Avatar>
+                            <AvatarImage
+                              src={chapter?.profileImage?.url}
+                              alt="profile"
+                            />
+                            <AvatarFallback>
+                              {chapter?.name?.charAt(0)}
+                            </AvatarFallback>
+                          </Avatar>
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="font-medium">{chapter?.name}</span>
+                          <span className="text-sm text-muted-foreground">
+                            Rejected by: {chapter?.rejectedBy?.firstName}{" "}
+                            {chapter?.rejectedBy?.lastName}
+                          </span>
+                          <span className="text-sm text-muted-foreground">
+                            Reason:{" "}
+                            {chapter?.rejectedReason?.length > 30
+                              ? `${chapter?.rejectedReason?.slice(0, 30)}...`
+                              : chapter?.rejectedReason}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
 
-      {/* <Dialog open={isReasonModelOpen} onOpenChange={setIsReasonModelOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Reject Reason</DialogTitle>
-            <DialogDescription>
-              Please provide a reason for rejecting this chapter.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-1 items-center gap-4">
-              <Label htmlFor="reason" className="text-left">
-                Reason
-              </Label>
-              <Textarea
-                placeholder="Type your reason here."
-                className="col-span-3"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              className="text-red-500"
-              onClick={() => setIsReasonModelOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button type="button" className="text-white">
-              Submit
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog> */}
+                {filteredProposedChapters.length === 0 && (
+                  <div className="py-8 text-center text-muted-foreground">
+                    No rejected chapters found.
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
 
       {/* <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         {filteredChapters.map((chapter) => (
