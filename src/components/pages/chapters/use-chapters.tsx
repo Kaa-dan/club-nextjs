@@ -5,9 +5,8 @@ import { useEffect } from "react";
 
 const useChapters = () => {
   const { nodeId } = useParams<{ nodeId: string }>();
-  const { setPublishedChapters, setProposedChapters } = useChapterStore(
-    (state) => state
-  );
+  const { setPublishedChapters, setProposedChapters, setRejectedChapters } =
+    useChapterStore((state) => state);
 
   const fetchPublishedChapters = async () => {
     try {
@@ -17,7 +16,7 @@ const useChapters = () => {
       console.log({ response });
       setPublishedChapters(response?.data);
     } catch (error) {
-      console.error("Error fetching chapters:", error);
+      console.error("Error fetching published chapters:", error);
     }
   };
 
@@ -28,18 +27,31 @@ const useChapters = () => {
       );
       setProposedChapters(response?.data);
     } catch (error) {
-      console.error("Error fetching chapters:", error);
+      console.error("Error fetching proposed chapters:", error);
+    }
+  };
+
+  const fetchRejectedChapters = async () => {
+    try {
+      const response = await withTokenAxios.get(
+        `/chapters/get-rejected?nodeId=${nodeId}`
+      );
+      setRejectedChapters(response?.data);
+    } catch (error) {
+      console.log("Error fetching rejected chapters:", error);
     }
   };
 
   useEffect(() => {
     fetchPublishedChapters();
     fetchProposedChapters();
+    fetchRejectedChapters();
   }, []);
 
   return {
     fetchPublishedChapters,
     fetchProposedChapters,
+    fetchRejectedChapters,
   };
 };
 
