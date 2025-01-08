@@ -49,6 +49,11 @@ import { useChapterCalls } from "@/hooks/apis/use-chapter-calls";
 import { format } from "date-fns";
 import { useTokenStore } from "@/store/store";
 import { Label } from "@radix-ui/react-label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 export function ChaptersList() {
   const { hasPermission } = usePermission();
@@ -131,6 +136,7 @@ export function ChaptersList() {
       console.log(error.message);
     } finally {
       setIsSubmitting(false);
+      setIsReasonModelOpen(false);
     }
   };
 
@@ -492,9 +498,32 @@ export function ChaptersList() {
                           </span>
                           <span className="text-sm text-muted-foreground">
                             Reason:{" "}
-                            {chapter?.rejectedReason?.length > 30
-                              ? `${chapter?.rejectedReason?.slice(0, 30)}...`
-                              : chapter?.rejectedReason}
+                            {chapter?.rejectedReason?.length > 30 ? (
+                              <>
+                                {chapter?.rejectedReason?.slice(0, 30)}
+                                <span>...</span>{" "}
+                                <span className="cursor-pointer text-xs text-blue-600">
+                                  <Popover>
+                                    <PopoverTrigger asChild>
+                                      <button className="font-semibold">
+                                        read more
+                                      </button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-80">
+                                      <div className="grid gap-4">
+                                        <div className="space-y-2">
+                                          <p className="text-sm text-muted-foreground">
+                                            {chapter?.rejectedReason}
+                                          </p>
+                                        </div>
+                                      </div>
+                                    </PopoverContent>
+                                  </Popover>
+                                </span>
+                              </>
+                            ) : (
+                              chapter?.rejectedReason
+                            )}
                           </span>
                         </div>
                       </div>
@@ -502,7 +531,7 @@ export function ChaptersList() {
                   </div>
                 ))}
 
-                {filteredProposedChapters.length === 0 && (
+                {filteredRejectedChapters.length === 0 && (
                   <div className="py-8 text-center text-muted-foreground">
                     No rejected chapters found.
                   </div>
