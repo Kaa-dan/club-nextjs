@@ -2,7 +2,7 @@ import React, { useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronRight, Globe2, Lock } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import ReCAPTCHA from "react-google-recaptcha";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -21,17 +21,7 @@ import env from "@/lib/env.config";
 import { usePermission } from "@/lib/use-permission";
 import { Endpoints } from "@/utils/endpoint";
 
-interface ForumSidebarProps {
-  type: "node" | "club";
-  currentPage: string;
-  setCurrentPage: (page: string) => void;
-  forumId: string;
-  currentForum: any;
-  joinStatus: TJoinStatus;
-  onJoin: (id: string) => Promise<void>;
-  onCancelRequest: (id: string) => Promise<void>;
-  members: any[];
-}
+type ForumType = "node" | "club" | "chapter";
 
 interface NavigationSection {
   name: string;
@@ -41,23 +31,48 @@ interface NavigationSection {
   show?: boolean;
 }
 
+interface ForumSidebarProps {
+  type: ForumType;
+  currentPage: string;
+  setCurrentPage: (page: string) => void;
+  forumId: string;
+  nodeId?: string;
+  currentForum: any;
+  joinStatus: TJoinStatus;
+  onJoin: (forumId: string, nodeId?: string) => Promise<void>; //the nodeId is only for chapter
+  onCancelRequest?: (id: string) => Promise<void>;
+  members: any[];
+  currentUserRole?: TUserRole | null;
+}
+
 const ForumSidebar: React.FC<ForumSidebarProps> = ({
   type,
   currentPage,
   setCurrentPage,
   forumId,
+  nodeId,
   currentForum,
   joinStatus,
   onJoin,
   onCancelRequest,
   members,
+  currentUserRole,
 }) => {
   const { hasPermission } = usePermission();
   const recaptchaRef = useRef(null);
   const router = useRouter();
   const [showRecaptcha, setShowRecaptcha] = useState(false);
 
-  const basePath = `/${type}/${forumId}`;
+  const getBasePath = () => {
+    switch (type) {
+      case "chapter":
+        return `/node/${nodeId}/chapters/${forumId}`;
+      default:
+        return `/${type}/${forumId}`;
+    }
+  };
+
+  const basePath = getBasePath();
 
   const SECTIONS: NavigationSection[] = [
     {
@@ -92,37 +107,38 @@ const ForumSidebar: React.FC<ForumSidebarProps> = ({
     },
   ];
 
-  const handleRecaptchaChange = (token: string | null) => {
+  const handleRecaptchaChange = async (token: string | null) => {
     if (!token) {
       toast.error("Please complete the reCAPTCHA to proceed.");
       return;
     }
 
-    Endpoints.recaptcha(token)
-      .then((res) => {
-        if (res) {
-          onJoin(forumId);
-        }
-      })
-      .catch((err) => {
-        console.log({ err });
-        toast.error("something went wrong!!");
-      })
-      .finally(() => setShowRecaptcha(false));
-
-    // fetch("/api/recaptcha", {
-    //   method: "POST",
-    //   body: JSON.stringify({ token }),
-    // })
-    //   .then((res) => res.json())
-    //   .then((data) => {
-    //     if (data.success) {
-    //       onJoin(forumId);
-    //     }
-    //   })
-    //   .catch(() => toast.error("Something went wrong!"))
-    //   .finally(() => setShowRecaptcha(false));
+    try {
+      const res = await Endpoints.recaptcha(token);
+      if (res) {
+        await onJoin(forumId, currentForum?.node?._id);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Something went wrong!");
+    } finally {
+      setShowRecaptcha(false);
+    }
   };
+
+  const getForumData = () => {
+    if (!currentForum) return null;
+    switch (type) {
+      case "club":
+        return currentForum.club;
+      case "chapter":
+        return currentForum;
+      default:
+        return currentForum.node;
+    }
+  };
+
+  const forumData = getForumData();
 
   const renderSkeleton = () => (
     <div className="relative">
@@ -134,14 +150,12 @@ const ForumSidebar: React.FC<ForumSidebarProps> = ({
   );
 
   const renderHeader = () => {
-    if (!currentForum) return renderSkeleton();
-
-    const forum = type === "club" ? currentForum.club : currentForum.node;
+    if (!forumData) return renderSkeleton();
 
     return (
       <div className="relative">
         <Image
-          src={forum?.coverImage?.url}
+          src={forumData.coverImage?.url}
           alt="Cover"
           width={300}
           height={120}
@@ -150,7 +164,7 @@ const ForumSidebar: React.FC<ForumSidebarProps> = ({
         />
         <div className="absolute -bottom-6 left-4">
           <Image
-            src={forum?.profileImage?.url}
+            src={forumData.profileImage?.url}
             alt="Avatar"
             width={60}
             height={60}
@@ -163,28 +177,28 @@ const ForumSidebar: React.FC<ForumSidebarProps> = ({
 
   const renderJoinButton = () => {
     const isDisabled = joinStatus === "REQUESTED" || joinStatus === "MEMBER";
-    const isPublic = type === "club" && currentForum?.club?.isPublic;
-
+    const isPublic = type === "club" && forumData?.isPublic;
+    console.log({ currentUserRole });
     return (
       <div className="flex flex-col gap-2">
         <Button
           onClick={() => setShowRecaptcha(true)}
-          className="h-8 w-full border border-gray-500 bg-transparent text-gray-800 hover:bg-transparent"
+          className="h-8 w-full border border-gray-500 bg-transparent capitalize text-gray-800 hover:bg-transparent"
           disabled={isDisabled}
         >
-          {!currentForum ? (
+          {!forumData ? (
             <Skeleton className="h-4 w-1/2" />
           ) : (
             <>
               {joinStatus === "VISITOR" &&
                 (isPublic ? "Join" : "Request to Join")}
-              {joinStatus === "MEMBER" && "Joined"}
+              {joinStatus === "MEMBER" && currentUserRole}
               {joinStatus === "REQUESTED" && "Request Pending"}
             </>
           )}
         </Button>
 
-        {joinStatus === "REQUESTED" && (
+        {joinStatus === "REQUESTED" && onCancelRequest && (
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button className="h-8 w-full border border-white bg-red-500 text-white hover:bg-red-500">
@@ -210,30 +224,20 @@ const ForumSidebar: React.FC<ForumSidebarProps> = ({
     );
   };
 
-  console.log("curry ", currentForum?.node?.location);
-
   return (
     <div className="sticky top-16 h-fit w-full overflow-hidden rounded-lg bg-white pb-2 shadow-md">
       {renderHeader()}
 
       <div className="mt-6 px-4">
         <div className="flex flex-col justify-center gap-1">
-          {currentForum ? (
+          {forumData ? (
             <>
-              <h2 className="text-lg font-bold">
-                {type === "club"
-                  ? currentForum.club?.name
-                  : currentForum.node?.name}
-              </h2>
-              <p className="text-xs text-gray-500">
-                {type === "club"
-                  ? currentForum.club?.about
-                  : currentForum.node?.about}
-              </p>
-              <div className=" flex text-xs font-medium text-gray-700">
+              <h2 className="text-lg font-bold">{forumData.name}</h2>
+              <p className="text-xs text-gray-500">{forumData.about}</p>
+              <div className="flex text-xs font-medium text-gray-700">
                 {type === "club" && (
                   <span className="flex items-center gap-1">
-                    {currentForum.club?.isPublic ? (
+                    {forumData.isPublic ? (
                       <>
                         <Globe2 size="0.8rem" />
                         Public
@@ -247,42 +251,17 @@ const ForumSidebar: React.FC<ForumSidebarProps> = ({
                     {" • "}
                   </span>
                 )}
-                {type === "node" && (
-                  <span className="text-gray-500">
-                    {currentForum?.node?.location} •{" "}
-                  </span>
-                )}
-                <span className="text-gray-500">{members?.length} Members</span>
+                {(type === "node" || type === "chapter") &&
+                  forumData.location && (
+                    <span className="text-gray-500">
+                      {forumData.location} •{" "}
+                    </span>
+                  )}
+                <span className="text-gray-500">
+                  {members?.length}{" "}
+                  {members?.length === 1 ? "Member" : "Members"}
+                </span>
               </div>
-              {/* <div className="mt-2 flex text-xs font-medium text-gray-700">
-            <span className="flex items-center gap-1">
-              {currentClub?.club?.isPublic ? (
-                <>
-                  <Globe2 size={"0.8rem"} />
-                  Public{" "}
-                </>
-              ) : (
-                <>
-                  <Lock size={"0.8rem"} />
-                  Private{" "}
-                </>
-              )}{" "}
-            </span>{" "}
-            • {currentClub?.members?.length} Members
-          </div> */}
-
-              {/* <div className="pt-8">
-          <h2 className="text-lg font-bold">{currentNode?.node?.name}</h2>
-          <p className="text-xs text-gray-600">{currentNode?.node?.about}</p>
-          <p className="mb-1 flex gap-2 text-xs text-gray-500">
-            {currentNode?.node?.location}
-            <span>•</span>
-            <span>
-              {currentNode?.members?.length}
-              {"  Members"}
-            </span>
-          </p>
-        </div> */}
             </>
           ) : (
             <>

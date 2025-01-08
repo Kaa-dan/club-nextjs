@@ -1,17 +1,20 @@
 "use client";
 
-import * as React from "react";
-import { Check, Eye, Filter, Search, Users, X } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import {
+  Check,
+  Eye,
+  Filter,
+  Search,
+  ThumbsDown,
+  ThumbsUp,
+  User,
+  Users,
+  X,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,10 +25,9 @@ import CreateChapterModal from "./create-chapter-modal";
 import Image from "next/image";
 import { withTokenAxios } from "@/lib/mainAxios";
 import { useParams } from "next/navigation";
-import { TChapter } from "@/types";
+import { TChapter, TChapterVote } from "@/types";
 import { useChapterStore } from "@/store/chapters-store";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import useChapters from "./use-chapters";
 import { toast } from "sonner";
@@ -34,6 +36,7 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { useTokenStore } from "@/store/store";
 import { useChapterCalls } from "@/hooks/apis/use-chapter-calls";
+import { cn } from "@/lib/utils";
 
 export function ChaptersList() {
   const { hasPermission } = usePermission();
@@ -43,16 +46,15 @@ export function ChaptersList() {
   const { publishedChapters, proposedChapters } = useChapterStore(
     (state) => state
   );
-  const { joinChapter } = useChapterCalls();
-  const [searchQuery, setSearchQuery] = React.useState("");
-  const [chapters, setChapters] = React.useState<TChapter[]>([]);
+  const { joinChapter, downvoteChapter, upvoteChapter } = useChapterCalls();
+  const [searchQuery, setSearchQuery] = useState("");
   const [filteredPublishedChapters, setFilteredPublishedChapters] =
-    React.useState<TChapter[]>(publishedChapters);
+    useState<TChapter[]>(publishedChapters);
   const [filteredProposedChapters, setFilteredProposedChapters] =
-    React.useState<TChapter[]>(proposedChapters);
-  const [openCreateModal, setOpenCreateModal] = React.useState(false);
+    useState<TChapter[]>(proposedChapters);
+  const [openCreateModal, setOpenCreateModal] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const filteredPublished = publishedChapters.filter((chapter) =>
       chapter.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
@@ -62,7 +64,7 @@ export function ChaptersList() {
 
     setFilteredPublishedChapters(filteredPublished);
     setFilteredProposedChapters(filteredProposed);
-  }, [searchQuery, chapters, publishedChapters, proposedChapters]);
+  }, [searchQuery, publishedChapters, proposedChapters]);
 
   const handleChapterApproval = async (
     chapterId: string,
@@ -92,6 +94,12 @@ export function ChaptersList() {
   const isUserMember = (chapter: TChapter) => {
     return chapter.members?.some((member) => member._id === globalUser?._id);
   };
+
+  const hasUserVoted = (votes: TChapterVote[], userId: string) => {
+    return votes.some((vote) => vote.user === userId);
+  };
+
+  console.log({ proposedChapters });
 
   return (
     <div className="container mx-auto space-y-6 p-4">
@@ -144,71 +152,83 @@ export function ChaptersList() {
           <TabsTrigger value="proposed">Proposed Chapters</TabsTrigger>
         </TabsList>
         <TabsContent value="published">
-          <Card className="grid grid-cols-1 gap-4 p-4 md:grid-cols-2 lg:grid-cols-3">
-            {filteredPublishedChapters?.map((chapter) => (
-              <Card className="h-full" key={chapter._id}>
-                <Link
-                  href={`/node/${nodeId}/chapters/${chapter?._id}`}
-                  key={chapter._id}
-                >
-                  <div className="relative h-40 w-full cursor-pointer">
-                    <Image
-                      src={
-                        chapter?.coverImage?.url || "/api/placeholder/400/320"
-                      }
-                      width={400}
-                      height={320}
-                      alt={chapter.name}
-                      className="size-full rounded-t-lg object-cover"
-                    />
-                    <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/60 to-transparent p-4">
-                      <div className="flex items-center gap-3">
-                        <Avatar className="border-2 border-white">
-                          <AvatarImage
-                            src={chapter?.profileImage?.url}
-                            alt={chapter.name}
-                          />
-                          <AvatarFallback>
-                            {chapter?.name?.charAt(0)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <h3 className="truncate font-semibold text-white">
-                          {chapter.name}
-                        </h3>
+          {filteredPublishedChapters?.length === 0 ? (
+            <Card className="mt-6 h-72 py-8 text-center text-muted-foreground">
+              No published chapters found
+            </Card>
+          ) : (
+            <Card className="grid grid-cols-1 gap-4 p-4 md:grid-cols-2 lg:grid-cols-3">
+              {filteredPublishedChapters?.map((chapter) => (
+                <Card className="h-full" key={chapter._id}>
+                  <Link
+                    href={`/node/${nodeId}/chapters/${chapter?._id}`}
+                    key={chapter._id}
+                  >
+                    <div className="relative h-40 w-full cursor-pointer">
+                      <Image
+                        src={
+                          chapter?.coverImage?.url || "/api/placeholder/400/320"
+                        }
+                        width={400}
+                        height={320}
+                        alt={chapter.name}
+                        className="size-full rounded-t-lg object-cover"
+                      />
+                      <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/60 to-transparent p-4">
+                        <div className="flex items-center gap-3">
+                          <Avatar className="border-2 border-white">
+                            <AvatarImage
+                              src={chapter?.profileImage?.url}
+                              alt={chapter.name}
+                            />
+                            <AvatarFallback>
+                              {chapter?.name?.charAt(0)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <h3 className="truncate font-semibold text-white">
+                            {chapter?.name}
+                          </h3>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </Link>
+                  </Link>
 
-                <CardContent className="mt-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <Users size={16} />
-                      <span>{chapter.members?.length || 0} members</span>
+                  <CardContent className="mt-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        {chapter?.members?.length === 1 ? (
+                          <User size={16} />
+                        ) : (
+                          <Users size={16} />
+                        )}
+                        <span>
+                          {`${chapter?.members?.length || 0} ${chapter?.members?.length === 1 ? "member" : "members"}`}
+                        </span>
+                      </div>
+                      {!isUserMember(chapter) && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-primary hover:bg-primary/10"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            joinChapter(chapter._id, nodeId);
+                            fetchPublishedChapters();
+                          }}
+                        >
+                          Join
+                        </Button>
+                      )}
                     </div>
-                    {!isUserMember(chapter) && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="text-primary hover:bg-primary/10"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          joinChapter(chapter._id, nodeId);
-                          fetchPublishedChapters();
-                        }}
-                      >
-                        Join
-                      </Button>
-                    )}
-                  </div>
 
-                  <p className="line-clamp-2 text-sm text-gray-600">
-                    {chapter.about}
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
-          </Card>
+                    <p className="line-clamp-2 text-sm text-gray-600">
+                      {chapter.about}
+                    </p>
+                  </CardContent>
+                </Card>
+              ))}
+            </Card>
+          )}
         </TabsContent>
         <TabsContent value="proposed">
           <Card>
@@ -247,28 +267,80 @@ export function ChaptersList() {
                         </div>
                       </div>
 
-                      {hasPermission("publish:chapter") && (
-                        <div className="flex gap-2">
-                          <Button
-                            variant="outline"
-                            className="bg-green-50 text-green-600 hover:bg-green-100 hover:text-green-700"
-                            onClick={() =>
-                              handleChapterApproval(chapter._id, "publish")
-                            }
-                          >
-                            Approve
-                          </Button>
-                          <Button
-                            variant="outline"
-                            className="bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700"
-                            onClick={() =>
-                              handleChapterApproval(chapter._id, "reject")
-                            }
-                          >
-                            Reject
-                          </Button>
+                      <div className="flex items-center gap-4">
+                        {/* Vote Section */}
+                        <div className="flex items-center gap-4 border-r pr-4">
+                          <div className="flex items-center gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="size-8 hover:bg-green-50 hover:text-green-600"
+                              onClick={() => upvoteChapter(chapter._id)}
+                            >
+                              <ThumbsUp
+                                size={18}
+                                className={cn(
+                                  "text-muted-foreground",
+                                  hasUserVoted(
+                                    chapter.upvotes,
+                                    globalUser?._id!
+                                  ) && "fill-green-600 text-green-600"
+                                )}
+                              />
+                            </Button>
+                            <span className="text-sm text-muted-foreground">
+                              {chapter.upvotes.length}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="size-8 hover:bg-red-50 hover:text-red-600"
+                              onClick={() => downvoteChapter(chapter._id)}
+                            >
+                              <ThumbsDown
+                                size={18}
+                                className={cn(
+                                  "text-muted-foreground",
+                                  hasUserVoted(
+                                    chapter.downvotes,
+                                    globalUser?._id!
+                                  ) && "fill-red-600 text-red-600"
+                                )}
+                              />
+                            </Button>
+                            <span className="text-sm text-muted-foreground">
+                              {chapter.downvotes.length}
+                            </span>
+                          </div>
                         </div>
-                      )}
+
+                        {/* Approval Buttons */}
+                        {hasPermission("publish:chapter") && (
+                          <div className="flex gap-2">
+                            <Button
+                              variant="outline"
+                              className="bg-green-50 text-green-600 hover:bg-green-100 hover:text-green-700"
+                              onClick={() =>
+                                handleChapterApproval(chapter._id, "publish")
+                              }
+                            >
+                              Approve
+                            </Button>
+                            <Button
+                              variant="outline"
+                              className="bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700"
+                              onClick={() =>
+                                handleChapterApproval(chapter._id, "reject")
+                              }
+                            >
+                              Reject
+                            </Button>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -283,39 +355,6 @@ export function ChaptersList() {
           </Card>
         </TabsContent>
       </Tabs>
-
-      {/* <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-        {filteredChapters.map((chapter) => (
-          <Card key={chapter._id} className="overflow-hidden">
-            <CardHeader className="p-0">
-              <Image
-                height={500}
-                width={500}
-                src={chapter?.profileImage?.url}
-                alt={`${chapter.name} placeholder`}
-                className="h-32 w-full object-cover"
-              />
-            </CardHeader>
-            <CardContent className="p-4">
-              <h3 className="truncate font-semibold">{chapter.name}</h3>
-              <p className="text-sm text-muted-foreground">
-                Created: {new Date(chapter.createdAt).toLocaleDateString()}
-              </p>
-            </CardContent>
-            <CardFooter className="p-4 pt-0">
-              <p className="text-xs text-muted-foreground">
-                Status: {chapter.status}
-              </p>
-            </CardFooter>
-          </Card>
-        ))}
-      </div>
-
-      {filteredChapters.length === 0 && (
-        <div className="py-8 text-center text-muted-foreground">
-          No chapters found matching your search.
-        </div>
-      )} */}
     </div>
   );
 }
