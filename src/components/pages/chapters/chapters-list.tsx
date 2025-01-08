@@ -131,6 +131,7 @@ export function ChaptersList() {
       console.log(error.message);
     } finally {
       setIsSubmitting(false);
+      setIsReasonModelOpen(false);
     }
   };
 
