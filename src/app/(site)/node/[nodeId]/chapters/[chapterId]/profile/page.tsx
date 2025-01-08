@@ -451,7 +451,7 @@ export default function ProfilePage() {
                             </span>
                           )}
                         </div>
-                        <div className="text-sm text-muted-foreground">
+                        <div className="text-sm capitalize text-muted-foreground">
                           {member?.role}
                         </div>
                       </div>
