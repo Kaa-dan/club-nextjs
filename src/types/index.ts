@@ -127,6 +127,7 @@ export type TChapter = {
   status: string;
   about: string;
   publishedBy: string;
+  rejectedReason: string;
   createdAt: string;
   updatedAt: string;
   description: string;
@@ -138,6 +139,7 @@ export type TChapter = {
   };
   members?: any[];
   proposedBy: TUser;
+  rejectedBy: TUser;
   upvotes: TChapterVote[];
   downvotes: TChapterVote[];
 };
