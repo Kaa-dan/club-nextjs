@@ -5,6 +5,7 @@ import {
   Check,
   Eye,
   Filter,
+  Loader2,
   Search,
   ThumbsDown,
   ThumbsUp,
@@ -33,26 +34,45 @@ import useChapters from "./use-chapters";
 import { toast } from "sonner";
 import { usePermission } from "@/lib/use-permission";
 import Link from "next/link";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
+import { useChapterCalls } from "@/hooks/apis/use-chapter-calls";
 import { format } from "date-fns";
 import { useTokenStore } from "@/store/store";
-import { useChapterCalls } from "@/hooks/apis/use-chapter-calls";
-import { cn } from "@/lib/utils";
+import { Label } from "@radix-ui/react-label";
 
 export function ChaptersList() {
   const { hasPermission } = usePermission();
-  const { nodeId } = useParams<{ nodeId: string }>();
   const { globalUser } = useTokenStore((state) => state);
-  const { fetchPublishedChapters, fetchProposedChapters } = useChapters();
-  const { publishedChapters, proposedChapters } = useChapterStore(
-    (state) => state
-  );
+  const { nodeId } = useParams<{ nodeId: string }>();
+  const {
+    fetchPublishedChapters,
+    fetchProposedChapters,
+    fetchRejectedChapters,
+  } = useChapters();
+  const { publishedChapters, proposedChapters, rejectedChapters } =
+    useChapterStore((state) => state);
   const { joinChapter, downvoteChapter, upvoteChapter } = useChapterCalls();
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredPublishedChapters, setFilteredPublishedChapters] =
     useState<TChapter[]>(publishedChapters);
   const [filteredProposedChapters, setFilteredProposedChapters] =
     useState<TChapter[]>(proposedChapters);
+  const [filteredRejectedChapters, setFilteredRejectedChapters] =
+    useState<TChapter[]>(rejectedChapters);
   const [openCreateModal, setOpenCreateModal] = useState(false);
+  const [rejectedReason, setRejectedReason] = useState("");
+  const [isReasonModelOpen, setIsReasonModelOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const filteredPublished = publishedChapters.filter((chapter) =>
@@ -61,26 +81,47 @@ export function ChaptersList() {
     const filteredProposed = proposedChapters.filter((chapter) =>
       chapter.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
+    const filteredRejected = rejectedChapters.filter((chapter) =>
+      chapter.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     setFilteredPublishedChapters(filteredPublished);
     setFilteredProposedChapters(filteredProposed);
-  }, [searchQuery, publishedChapters, proposedChapters]);
+    setFilteredRejectedChapters(filteredRejected);
+  }, [searchQuery, publishedChapters, proposedChapters, rejectedChapters]);
 
   const handleChapterApproval = async (
     chapterId: string,
     status: "publish" | "reject"
   ) => {
     try {
-      await withTokenAxios.put("/chapters/publish-or-reject", {
+      if (status === "reject" && rejectedReason?.trim() === "") {
+        toast.error("Please provide a reason for rejecting this chapter");
+        return;
+      }
+
+      setIsSubmitting(true);
+
+      const postData: {
+        chapterId: string;
+        status: "publish" | "reject";
+        node: string;
+        rejectedReason?: string;
+      } = {
         chapterId,
         status,
         node: nodeId,
-      });
-      if (status === "publish") toast.success("Chapter published successfully");
-      if (status === "reject") toast.success("Chapter rejected successfully");
+      };
 
+      if (status === "reject") {
+        postData.rejectedReason = rejectedReason?.trim();
+      }
+
+      await withTokenAxios.put("/chapters/publish-or-reject", postData);
+      setRejectedReason("");
       fetchPublishedChapters();
       fetchProposedChapters();
+      fetchRejectedChapters();
     } catch (error: any) {
       const message =
         status === "publish"
@@ -88,6 +129,8 @@ export function ChaptersList() {
           : "something went wrong when rejecting chapter";
       toast.error(error.response.data.message || message);
       console.log(error.message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -147,9 +190,10 @@ export function ChaptersList() {
       </div>
 
       <Tabs defaultValue="published" className="grid-cols-1">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="published">Published Chapters</TabsTrigger>
           <TabsTrigger value="proposed">Proposed Chapters</TabsTrigger>
+          <TabsTrigger value="rejected">Rejected Chapters</TabsTrigger>
         </TabsList>
         <TabsContent value="published">
           {filteredPublishedChapters?.length === 0 ? (
@@ -333,11 +377,75 @@ export function ChaptersList() {
                               variant="outline"
                               className="bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700"
                               onClick={() =>
-                                handleChapterApproval(chapter._id, "reject")
+                                // handleChapterApproval(chapter._id, "reject")
+                                setIsReasonModelOpen(true)
                               }
                             >
                               Reject
                             </Button>
+
+                            <Dialog
+                              open={isReasonModelOpen}
+                              onOpenChange={setIsReasonModelOpen}
+                            >
+                              <DialogContent className="sm:max-w-[425px]">
+                                <DialogHeader>
+                                  <DialogTitle>Reject Reason</DialogTitle>
+                                  <DialogDescription>
+                                    Please provide a reason for rejecting this
+                                    chapter.
+                                  </DialogDescription>
+                                </DialogHeader>
+                                <div className="grid gap-4 py-4">
+                                  <div className="grid grid-cols-1 items-center gap-4">
+                                    <Label
+                                      htmlFor="reason"
+                                      className="text-left"
+                                    >
+                                      Reason
+                                    </Label>
+                                    <Textarea
+                                      placeholder="Type your reason here."
+                                      className="col-span-3"
+                                      value={rejectedReason}
+                                      onChange={(e) =>
+                                        setRejectedReason(e.target.value)
+                                      }
+                                    />
+                                  </div>
+                                </div>
+                                <DialogFooter>
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    disabled={isSubmitting}
+                                    className="bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700"
+                                    onClick={() => {
+                                      setIsReasonModelOpen(false);
+                                    }}
+                                  >
+                                    Cancel
+                                  </Button>
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    disabled={isSubmitting}
+                                    className="bg-green-50 text-green-600 hover:bg-green-100 hover:text-green-700"
+                                    onClick={() =>
+                                      handleChapterApproval(
+                                        chapter._id,
+                                        "reject"
+                                      )
+                                    }
+                                  >
+                                    {isSubmitting && (
+                                      <Loader2 className="animate-spin" />
+                                    )}
+                                    Submit
+                                  </Button>
+                                </DialogFooter>
+                              </DialogContent>
+                            </Dialog>
                           </div>
                         )}
                       </div>
@@ -354,7 +462,89 @@ export function ChaptersList() {
             </CardContent>
           </Card>
         </TabsContent>
+        <TabsContent value="rejected">
+          <Card>
+            <CardContent className="h-72 space-y-2 overflow-y-scroll">
+              <div className="h-72 space-y-2 overflow-y-scroll p-4">
+                {filteredRejectedChapters.map((chapter) => (
+                  <div
+                    key={chapter?._id}
+                    className="mt-4 flex flex-col rounded-lg p-4 shadow-md"
+                  >
+                    <div className="flex justify-between">
+                      <div className="flex gap-4">
+                        <div>
+                          <Avatar>
+                            <AvatarImage
+                              src={chapter?.profileImage?.url}
+                              alt="profile"
+                            />
+                            <AvatarFallback>
+                              {chapter?.name?.charAt(0)}
+                            </AvatarFallback>
+                          </Avatar>
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="font-medium">{chapter?.name}</span>
+                          <span className="text-sm text-muted-foreground">
+                            Rejected by: {chapter?.rejectedBy?.firstName}{" "}
+                            {chapter?.rejectedBy?.lastName}
+                          </span>
+                          <span className="text-sm text-muted-foreground">
+                            Reason:{" "}
+                            {chapter?.rejectedReason?.length > 30
+                              ? `${chapter?.rejectedReason?.slice(0, 30)}...`
+                              : chapter?.rejectedReason}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {filteredProposedChapters.length === 0 && (
+                  <div className="py-8 text-center text-muted-foreground">
+                    No rejected chapters found.
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
+
+      {/* <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+        {filteredChapters.map((chapter) => (
+          <Card key={chapter._id} className="overflow-hidden">
+            <CardHeader className="p-0">
+              <Image
+                height={500}
+                width={500}
+                src={chapter?.profileImage?.url}
+                alt={`${chapter.name} placeholder`}
+                className="h-32 w-full object-cover"
+              />
+            </CardHeader>
+            <CardContent className="p-4">
+              <h3 className="truncate font-semibold">{chapter.name}</h3>
+              <p className="text-sm text-muted-foreground">
+                Created: {new Date(chapter.createdAt).toLocaleDateString()}
+              </p>
+            </CardContent>
+            <CardFooter className="p-4 pt-0">
+              <p className="text-xs text-muted-foreground">
+                Status: {chapter.status}
+              </p>
+            </CardFooter>
+          </Card>
+        ))}
+      </div>
+
+      {filteredChapters.length === 0 && (
+        <div className="py-8 text-center text-muted-foreground">
+          No chapters found matching your search.
+        </div>
+      )} */}
     </div>
   );
 }
