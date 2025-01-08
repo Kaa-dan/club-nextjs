@@ -5,6 +5,7 @@ import {
   Check,
   Eye,
   Filter,
+  Loader2,
   Search,
   ThumbsDown,
   ThumbsUp,
@@ -45,10 +46,13 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { useChapterCalls } from "@/hooks/apis/use-chapter-calls";
-import { format } from "path";
+import { format } from "date-fns";
+import { useTokenStore } from "@/store/store";
+import { Label } from "@radix-ui/react-label";
 
 export function ChaptersList() {
   const { hasPermission } = usePermission();
+  const { globalUser } = useTokenStore((state) => state);
   const { nodeId } = useParams<{ nodeId: string }>();
   const { fetchPublishedChapters, fetchProposedChapters } = useChapters();
   const { publishedChapters, proposedChapters } = useChapterStore(
@@ -61,6 +65,9 @@ export function ChaptersList() {
   const [filteredProposedChapters, setFilteredProposedChapters] =
     useState<TChapter[]>(proposedChapters);
   const [openCreateModal, setOpenCreateModal] = useState(false);
+  const [rejectedReason, setRejectedReason] = useState("");
+  const [isReasonModelOpen, setIsReasonModelOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const filteredPublished = publishedChapters.filter((chapter) =>
@@ -79,16 +86,18 @@ export function ChaptersList() {
     status: "publish" | "reject"
   ) => {
     try {
-      if (status === "reject" && reason?.trim() === "") {
+      if (status === "reject" && rejectedReason?.trim() === "") {
         toast.error("Please provide a reason for rejecting this chapter");
         return;
       }
+
+      setIsSubmitting(true);
 
       const postData: {
         chapterId: string;
         status: "publish" | "reject";
         node: string;
-        reason?: string;
+        rejectedReason?: string;
       } = {
         chapterId,
         status,
@@ -96,12 +105,11 @@ export function ChaptersList() {
       };
 
       if (status === "reject") {
-        postData.reason = reason?.trim();
+        postData.rejectedReason = rejectedReason?.trim();
       }
 
-      console.log(postData, "postData");
-
-      await withTokenAxios.post("/chapters/publish-or-reject", postData);
+      await withTokenAxios.put("/chapters/publish-or-reject", postData);
+      setRejectedReason("");
       fetchPublishedChapters();
       fetchProposedChapters();
     } catch (error: any) {
@@ -111,6 +119,8 @@ export function ChaptersList() {
           : "something went wrong when rejecting chapter";
       toast.error(error.response.data.message || message);
       console.log(error.message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -356,11 +366,75 @@ export function ChaptersList() {
                               variant="outline"
                               className="bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700"
                               onClick={() =>
-                                handleChapterApproval(chapter._id, "reject")
+                                // handleChapterApproval(chapter._id, "reject")
+                                setIsReasonModelOpen(true)
                               }
                             >
                               Reject
                             </Button>
+
+                            <Dialog
+                              open={isReasonModelOpen}
+                              onOpenChange={setIsReasonModelOpen}
+                            >
+                              <DialogContent className="sm:max-w-[425px]">
+                                <DialogHeader>
+                                  <DialogTitle>Reject Reason</DialogTitle>
+                                  <DialogDescription>
+                                    Please provide a reason for rejecting this
+                                    chapter.
+                                  </DialogDescription>
+                                </DialogHeader>
+                                <div className="grid gap-4 py-4">
+                                  <div className="grid grid-cols-1 items-center gap-4">
+                                    <Label
+                                      htmlFor="reason"
+                                      className="text-left"
+                                    >
+                                      Reason
+                                    </Label>
+                                    <Textarea
+                                      placeholder="Type your reason here."
+                                      className="col-span-3"
+                                      value={rejectedReason}
+                                      onChange={(e) =>
+                                        setRejectedReason(e.target.value)
+                                      }
+                                    />
+                                  </div>
+                                </div>
+                                <DialogFooter>
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    disabled={isSubmitting}
+                                    className="bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700"
+                                    onClick={() => {
+                                      setIsReasonModelOpen(false);
+                                    }}
+                                  >
+                                    Cancel
+                                  </Button>
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    disabled={isSubmitting}
+                                    className="bg-green-50 text-green-600 hover:bg-green-100 hover:text-green-700"
+                                    onClick={() =>
+                                      handleChapterApproval(
+                                        chapter._id,
+                                        "reject"
+                                      )
+                                    }
+                                  >
+                                    {isSubmitting && (
+                                      <Loader2 className="animate-spin" />
+                                    )}
+                                    Submit
+                                  </Button>
+                                </DialogFooter>
+                              </DialogContent>
+                            </Dialog>
                           </div>
                         )}
                       </div>
