@@ -56,7 +56,7 @@ interface ClubAndNodesData {
   nodes: Item[];
 }
 const IssueView = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
-  console.log("hehehe ");
+  console.log({ forumId, forum, nithin: "hey i am nithin " });
   const { currentUserRole } = useClubStore((state) => state);
   const { globalUser } = useTokenStore((state) => state);
   const router = useRouter();
@@ -146,11 +146,9 @@ const IssueView = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
         !file.mimetype.includes("image") && file.mimetype !== "application/pdf"
     ) || [];
 
-  console.log({ issue });
-
   return (
     <>
-      <div className="max-w-full  p-4">
+      <div className="max-w-full    p-4">
         {/* Header with ID and Privacy */}
         <div className="mb-2 flex items-center justify-between">
           <h1 className="text-xl font-medium">{issue?.title}</h1>
@@ -484,7 +482,12 @@ const IssueView = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
 
         {/* Comment Input */}
         {!["draft", "proposed"]?.includes(issue?.publishedStatus || "") && (
-          <CommentsSection plugin={plugin} postId={postId} />
+          <CommentsSection
+            plugin={plugin}
+            forumId={forumId}
+            postId={postId}
+            forum={forum}
+          />
         )}
       </div>
       <IssueWhoShouldAddresList
