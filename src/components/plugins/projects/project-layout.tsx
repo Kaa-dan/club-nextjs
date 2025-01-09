@@ -7,13 +7,13 @@ import { Search } from "lucide-react";
 import Link from "next/link";
 import React, { useState } from "react"; // Added useState
 import ProjectTable from "./project-table";
-import { useClubStore } from "@/store/clubs-store";
 import { usePermission } from "@/lib/use-permission";
 import useProjects from "./use-projects";
 
 interface TabData {
   label: TProjectLable;
   count: number;
+  show: boolean;
 }
 
 const ProjectLayout = ({
@@ -43,39 +43,43 @@ const ProjectLayout = ({
     currentPages,
     setSearchQueries,
     searchQueries,
+    clubProjectsForChapter,
   } = useProjects(forum, forumId);
 
   const { hasPermission } = usePermission();
 
   const tabs: TabData[] = [
     {
+      label: "Club Projects",
+      count: projectCounts?.clubProjectsForChapter || 0,
+      show: forum === "chapter",
+    },
+    {
       label: "On going projects",
       count: projectCounts?.activeProjects || 0,
+      show: true,
     },
     {
       label: "All Projects",
       count: projectCounts?.allProjects || 0,
+      show: true,
     },
     {
       label: "Global Projects",
       count: projectCounts?.globalProjects || 0,
+      show: forum !== "chapter",
     },
     {
       label: "My Projects",
       count: projectCounts?.myProjects || 0,
+      show: true,
+    },
+    {
+      label: "Proposed Project",
+      count: proposedProjects.length,
+      show: forum !== "chapter" && hasPermission("view:proposedAsset"),
     },
   ];
-
-  const getFilteredTabs = (): TabData[] => {
-    const _tabs = tabs;
-    if (hasPermission("view:proposedAsset")) {
-      _tabs.push({
-        label: "Proposed Project",
-        count: proposedProjects.length,
-      });
-    }
-    return _tabs;
-  };
 
   const formatCount = (count: number) => {
     if (count >= 1000000) return `${(count / 1000000).toFixed(0)}M`;
@@ -86,6 +90,9 @@ const ProjectLayout = ({
   function getData(tab: TabData): any[] {
     let data: any[] = [];
     switch (tab.label) {
+      case "Club Projects":
+        data = clubProjectsForChapter;
+        break;
       case "On going projects":
         data = activeProjects;
         break;
@@ -144,10 +151,8 @@ const ProjectLayout = ({
     }
   };
 
-  // Helper function to get current search value based on selected tab
-
   return (
-    <div className="w-full space-y-4 p-4">
+    <div className="w-full space-y-4 p-4 ">
       <div className="space-y-2">
         <h2 className="text-2xl font-bold tracking-tight">Project</h2>
         <p className="text-muted-foreground">
@@ -162,84 +167,92 @@ const ProjectLayout = ({
         onValueChange={(value) => setSelectedTab(value as TProjectLable)}
       >
         <TabsList className="flex h-auto flex-wrap gap-1 bg-background p-1">
-          {getFilteredTabs()?.map((tab) => (
-            <TabsTrigger
-              key={tab.label}
-              value={tab.label}
-              className="shrink-0 rounded-md border-primary px-3 py-1.5 text-sm data-[state=active]:border-b-4 data-[state=active]:text-primary"
-            >
-              {tab.label} ({formatCount(tab.count)})
-            </TabsTrigger>
-          ))}
+          {tabs
+            ?.filter((tab) => tab?.show)
+            ?.map((tab) => (
+              <TabsTrigger
+                key={tab.label}
+                value={tab.label}
+                className="shrink-0 rounded-md border-primary px-3 py-1.5 text-sm data-[state=active]:border-b-4 data-[state=active]:text-primary"
+              >
+                {tab.label} ({formatCount(tab.count)})
+              </TabsTrigger>
+            ))}
         </TabsList>
 
-        {tabs?.map((tab) => (
-          <TabsContent key={tab.label} value={tab.label} className="space-y-4">
-            <div className="flex items-center gap-4">
-              <Link href="projects/create">
-                <Button className="bg-primary hover:bg-emerald-600 text-white">
-                  Add a new Project
+        {tabs
+          ?.filter((tab) => tab?.show)
+          ?.map((tab) => (
+            <TabsContent
+              key={tab.label}
+              value={tab.label}
+              className="space-y-4 "
+            >
+              <div className="flex items-center gap-4">
+                <Link href="projects/create">
+                  <Button className="bg-primary text-white hover:bg-emerald-600">
+                    Add a new Project
+                  </Button>
+                </Link>
+                <div className="relative flex-1">
+                  <Search className="absolute left-2 top-2.5 size-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search for rules..."
+                    className="pl-8"
+                    onChange={handleSearch}
+                  />
+                </div>
+                <Button variant="outline" size="icon">
+                  <span className="sr-only">Filter</span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="size-4"
+                  >
+                    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+                  </svg>
                 </Button>
-              </Link>
-              <div className="relative flex-1">
-                <Search className="absolute left-2 top-2.5 size-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search for rules..."
-                  className="pl-8"
-                  onChange={handleSearch}
-                />
+                <Button variant="outline" size="icon">
+                  <span className="sr-only">View options</span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="size-4"
+                  >
+                    <rect width="7" height="7" x="3" y="3" rx="1" />
+                    <rect width="7" height="7" x="14" y="3" rx="1" />
+                    <rect width="7" height="7" x="14" y="14" rx="1" />
+                    <rect width="7" height="7" x="3" y="14" rx="1" />
+                  </svg>
+                </Button>
               </div>
-              <Button variant="outline" size="icon">
-                <span className="sr-only">Filter</span>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="size-4"
-                >
-                  <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-                </svg>
-              </Button>
-              <Button variant="outline" size="icon">
-                <span className="sr-only">View options</span>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="size-4"
-                >
-                  <rect width="7" height="7" x="3" y="3" rx="1" />
-                  <rect width="7" height="7" x="14" y="3" rx="1" />
-                  <rect width="7" height="7" x="14" y="14" rx="1" />
-                  <rect width="7" height="7" x="3" y="14" rx="1" />
-                </svg>
-              </Button>
-            </div>
-            <ProjectTable
-              reFetch={refetch}
-              forumId={forumId}
-              plugin={plugin}
-              forum={forum}
-              tab={tab.label}
-              data={getData(tab)}
-              setCurrentPages={setCurrentPages}
-              totalPages={totalPages}
-              currentPages={currentPages}
-            />
-          </TabsContent>
-        ))}
+              <ProjectTable
+                reFetch={refetch}
+                forumId={forumId}
+                plugin={plugin}
+                forum={forum}
+                tab={tab.label}
+                data={getData(tab)}
+                setCurrentPages={setCurrentPages}
+                totalPages={totalPages}
+                currentPages={currentPages}
+              />
+            </TabsContent>
+          ))}
       </Tabs>
     </div>
   );

@@ -251,7 +251,7 @@ const View = ({ forum }: { forum: TForum }) => {
                 </div>
               </TooltipTrigger>
 
-              <TooltipContent className="bg-white border text-black w-[200px] flex justify-between items-center  ">
+              <TooltipContent className="flex w-[200px] items-center justify-between border bg-white text-black  ">
                 <div>
                   <span className="flex justify-between">
                     <Image src={ClubIcon} alt="club" className="mr-2" />
@@ -259,7 +259,7 @@ const View = ({ forum }: { forum: TForum }) => {
                     <span className="ml-2">Clubs </span>
                   </span>
                 </div>
-                <div className="h-[5px] w-[5px] rounded-full bg-gray-500"></div>
+                <div className="size-[5px] rounded-full bg-gray-500"></div>
                 <div>
                   <span className="flex justify-between">
                     <Image src={NodeIcon} alt="node" className="mr-2" />
@@ -278,7 +278,7 @@ const View = ({ forum }: { forum: TForum }) => {
                   Adopt
                 </button>
               ) : (
-                <div className="text-red-500 font-semibold">Private</div>
+                <div className="font-semibold text-red-500">Private</div>
               )}
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
@@ -455,7 +455,7 @@ const View = ({ forum }: { forum: TForum }) => {
       </div>
 
       {/* Comment Input */}
-      <CommentsSection plugin={plugin} postId={postId} />
+      {/* <CommentsSection plugin={plugin} postId={postId} forum={forum} forumId={forumId} /> */}
     </div>
   );
 };

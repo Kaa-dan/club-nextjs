@@ -3,13 +3,20 @@
 import React, { useCallback, useRef, useState } from "react";
 import ReactQuill from "react-quill-new";
 import "react-quill-new/dist/quill.snow.css";
-import { useForm, Controller, Form } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { Info, Upload, X, FileIcon } from "lucide-react";
+import { toast } from "sonner";
+
+// UI Components
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -17,15 +24,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-
-import { Info, Upload, X, FileIcon } from "lucide-react";
-import Image from "next/image";
-import { toast } from "sonner";
-import {
-  AlertDialogHeader,
-  AlertDialogFooter,
-} from "@/components/ui/alert-dialog";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -33,38 +31,49 @@ import {
   AlertDialogDescription,
   AlertDialogCancel,
   AlertDialogAction,
+  AlertDialogHeader,
+  AlertDialogFooter,
 } from "@/components/ui/alert-dialog";
-import { Endpoints } from "@/utils/endpoint";
 import {
   TooltipProvider,
   Tooltip,
   TooltipTrigger,
   TooltipContent,
 } from "@/components/ui/tooltip";
-import { useRouter } from "next/navigation";
-import {
-  BreadcrumbItemType,
-  CustomBreadcrumb,
-} from "@/components/globals/breadcrumb-component";
+
+// Custom Components
+import { BreadcrumbItemType } from "@/components/globals/breadcrumb-component";
+
+// Store
 import { useClubStore } from "@/store/clubs-store";
 import { useNodeStore } from "@/store/nodes-store";
 
-// Types
-// interface FileWithPreview {
-//   file: File;
-//   preview?: string;
-// }
+// Utils
+import { Endpoints } from "@/utils/endpoint";
 
 // Constants
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
-const MAX_FILES = 5;
-const ACCEPTED_FILE_TYPES = [
-  "image/jpeg",
-  "image/png",
-  "application/pdf",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-] as const;
+const FILE_CONSTRAINTS = {
+  MAX_SIZE: 5 * 1024 * 1024, // 5 MB
+  MAX_COUNT: 5,
+  ACCEPTED_TYPES: [
+    "image/jpeg",
+    "image/png",
+    "application/pdf",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  ] as const,
+};
+
+// Types
+interface FileWithPreview {
+  file: File;
+  preview?: string;
+}
+
+interface RuleFormProps {
+  forumId: string;
+  forum: TForum;
+}
 
 // Schema
 const formSchema = z.object({
@@ -74,19 +83,12 @@ const formSchema = z.object({
   applicableFor: z.string().min(1, "Applicable for is required"),
   significance: z.string().min(1, "Significance is required"),
   tags: z.array(z.string()).min(1, "Tags cannot be empty"),
-
   description: z
     .string()
     .min(1, "Rule description is required")
-    .refine(
-      (val) => {
-        return val !== "<p><br></p>" && val.trim() !== "";
-      },
-      {
-        message: "Description cannot be empty.",
-      }
-    ),
-
+    .refine((val) => val !== "<p><br></p>" && val.trim() !== "", {
+      message: "Description cannot be empty.",
+    }),
   isPublic: z.boolean(),
   files: z
     .array(
@@ -94,47 +96,41 @@ const formSchema = z.object({
         file: z
           .instanceof(File)
           .refine(
-            (file) => file.size <= MAX_FILE_SIZE,
+            (file) => file.size <= FILE_CONSTRAINTS.MAX_SIZE,
             `File size should be less than 5MB`
           )
           .refine(
-            (file) => ACCEPTED_FILE_TYPES.includes(file.type as any),
-            `File type must be one of: ${ACCEPTED_FILE_TYPES.join(", ")}`
+            (file) =>
+              FILE_CONSTRAINTS.ACCEPTED_TYPES.includes(file.type as any),
+            `File type must be one of: ${FILE_CONSTRAINTS.ACCEPTED_TYPES.join(", ")}`
           ),
         preview: z.string().optional(),
       })
     )
-    .max(MAX_FILES, `You can only upload up to ${MAX_FILES} files`)
+    .max(
+      FILE_CONSTRAINTS.MAX_COUNT,
+      `You can only upload up to ${FILE_CONSTRAINTS.MAX_COUNT} files`
+    )
     .optional()
     .default([]),
 });
 
 type FormData = z.infer<typeof formSchema>;
 
-export default function RuleForm({
-  forumId,
-  forum,
-}: {
-  forumId: string;
-  forum: TForum;
-}) {
-  const { currentUserRole: clubUserRole } = useClubStore((state) => state);
-  const { currentUserRole: nodeUserRole } = useNodeStore((state) => state);
-  const breadcrumbItems: BreadcrumbItemType[] = [
-    {
-      label: "Rules",
-      href: `/${forum}/${forumId}/issues`,
-    },
-    {
-      label: "Create",
-    },
-  ];
+export default function RuleForm({ forumId, forum }: RuleFormProps) {
+  // Hooks
+  const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [inputValue, setInputValue] = useState("");
+  const { currentUserRole: clubUserRole } = useClubStore();
+  const { currentUserRole: nodeUserRole } = useNodeStore();
+
   const {
     control,
     handleSubmit,
     getValues,
     formState: { errors, isSubmitting },
-    reset,
     setValue,
     watch,
   } = useForm<FormData>({
@@ -153,14 +149,16 @@ export default function RuleForm({
   });
 
   const files = watch("files") || [];
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isAlertOpen, setIsAlertOpen] = useState<boolean>(false);
-  const router = useRouter();
+  const tags = watch("tags");
+
+  // File handling
   const handleFiles = useCallback(
     (newFiles: File[]) => {
       const currentFiles = files;
-      if (currentFiles.length + newFiles.length > MAX_FILES) {
-        toast.warning(`You can only upload a maximum of ${MAX_FILES} files.`);
+      if (currentFiles.length + newFiles.length > FILE_CONSTRAINTS.MAX_COUNT) {
+        toast.warning(
+          `You can only upload a maximum of ${FILE_CONSTRAINTS.MAX_COUNT} files.`
+        );
         return;
       }
 
@@ -199,19 +197,16 @@ export default function RuleForm({
 
   const removeFile = useCallback(
     (index: number) => {
-      const currentFiles = [...files]; // Create a new array copy
+      const currentFiles = [...files];
       const fileToRemove = currentFiles[index];
 
-      // Revoke the preview URL if it exists
       if (fileToRemove.preview) {
         URL.revokeObjectURL(fileToRemove.preview);
       }
 
-      // Remove the file from the array
       currentFiles.splice(index, 1);
       setValue("files", currentFiles, { shouldValidate: true });
 
-      // Reset the file input value
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
@@ -219,9 +214,7 @@ export default function RuleForm({
     [files, setValue]
   );
 
-  const [inputValue, setInputValue] = useState("");
-  const tags = watch("tags");
-
+  // Tag handling
   const handleAddTag = () => {
     if (inputValue.trim() !== "" && !tags.includes(inputValue.trim())) {
       setValue("tags", [...tags, inputValue.trim()]);
@@ -235,10 +228,10 @@ export default function RuleForm({
       tags.filter((tag) => tag !== tagToRemove)
     );
   };
+
   // Form submission
   const onSubmit = async (data: FormData) => {
     try {
-      console.log(data, "data fund");
       const formDataToSend = new FormData();
 
       Object.entries(data).forEach(([key, value]) => {
@@ -256,30 +249,58 @@ export default function RuleForm({
       const response = await Endpoints.addRulesAndRegulations(formDataToSend);
       toast.success(response.message || "Rules successfully created");
 
-      // Clean up previews before reset
+      // Clean up previews
       data.files?.forEach((fileObj) => {
         if (fileObj.preview) {
           URL.revokeObjectURL(fileObj.preview);
         }
       });
+
       router.push(`/${forum}/${forumId}/rules`);
     } catch (error) {
       console.error("Error submitting form:", error);
       toast.error("Failed to submit rule. Please try again.");
-    } finally {
-      // setIsAlertOpen(false);
-      // reset();
     }
   };
+
+  const handleSaveDraft = async () => {
+    const data = getValues();
+    const formDataToSend = new FormData();
+
+    Object.entries(data).forEach(([key, value]) => {
+      if (key !== "files") {
+        formDataToSend.append(key, value.toString());
+      }
+    });
+
+    data.files?.forEach((fileObj: any) => {
+      formDataToSend.append("file", fileObj.file);
+    });
+
+    formDataToSend.append("forum", forumId);
+    formDataToSend.append("publishedStatus", "draft");
+
+    try {
+      const response = await Endpoints.saveDraft(formDataToSend);
+      if (!response.isActive) {
+        toast.success("saved to draft successfully");
+      }
+    } catch (error) {
+      toast.error("Failed to save draft");
+    }
+  };
+
   const isMember =
     (forum === "club" && clubUserRole === "member") ||
     (forum === "node" && nodeUserRole === "member");
+
   return (
     <Card className="min-w-full max-w-3xl p-6">
       <form
         onSubmit={handleSubmit(() => setIsAlertOpen(true))}
         className="space-y-4"
       >
+        {/* Title and Domain */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <TooltipProvider>
@@ -303,7 +324,7 @@ export default function RuleForm({
               )}
             />
             {errors.title && (
-              <p className="text-sm text-red-500">{errors?.title?.message}</p>
+              <p className="text-sm text-red-500">{errors.title.message}</p>
             )}
           </div>
 
@@ -342,6 +363,7 @@ export default function RuleForm({
             )}
           </div>
         </div>
+
         {/* Category and Applicable For */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
@@ -402,6 +424,7 @@ export default function RuleForm({
             )}
           </div>
         </div>
+
         {/* Significance and Tags */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
@@ -435,69 +458,68 @@ export default function RuleForm({
               </p>
             )}
           </div>
-          <div className="space-y-2">
-            <div className="space-y-2">
-              <TooltipProvider>
-                <div className="flex items-center gap-2">
-                  <Label htmlFor="tags">Tags</Label>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Info className="size-4 cursor-pointer text-muted-foreground" />
-                    </TooltipTrigger>
-                    <TooltipContent side="top">
-                      <p className="text-white">Enter Tags for your rule</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
-              </TooltipProvider>
 
-              <div className="flex min-h-[40px] flex-wrap items-center gap-1 rounded-md border border-input bg-background p-1">
-                {tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="text-secondary-foreground flex items-center rounded bg-gray-300 px-1.5 py-0.5 text-xs"
-                  >
-                    {tag}
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="ml-1 h-auto p-0"
-                      onClick={() => handleRemoveTag(tag)}
-                    >
-                      <X className="size-3" />
-                      <span className="sr-only">Remove {tag}</span>
-                    </Button>
-                  </span>
-                ))}
-                <Controller
-                  name="tags"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      {...field}
-                      value={inputValue}
-                      onChange={(e) => setInputValue(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          handleAddTag();
-                        }
-                      }}
-                      id="tags"
-                      placeholder="Enter Tags"
-                      className="h-6 flex-1 border-0 px-1 text-sm"
-                    />
-                  )}
-                />
+          <div className="space-y-2">
+            <TooltipProvider>
+              <div className="flex items-center gap-2">
+                <Label htmlFor="tags">Tags</Label>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="size-4 cursor-pointer text-muted-foreground" />
+                  </TooltipTrigger>
+                  <TooltipContent side="top">
+                    <p className="text-white">Enter Tags for your rule</p>
+                  </TooltipContent>
+                </Tooltip>
               </div>
+            </TooltipProvider>
+
+            <div className="flex min-h-[40px] flex-wrap items-center gap-1 rounded-md border border-input bg-background p-1">
+              {tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="text-secondary-foreground flex items-center rounded bg-gray-300 px-1.5 py-0.5 text-xs"
+                >
+                  {tag}
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="ml-1 h-auto p-0"
+                    onClick={() => handleRemoveTag(tag)}
+                  >
+                    <X className="size-3" />
+                    <span className="sr-only">Remove {tag}</span>
+                  </Button>
+                </span>
+              ))}
+              <Controller
+                name="tags"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleAddTag();
+                      }
+                    }}
+                    id="tags"
+                    placeholder="Enter Tags"
+                    className="h-6 flex-1 border-0 px-1 text-sm"
+                  />
+                )}
+              />
             </div>
             {errors.tags && (
               <p className="text-sm text-destructive">{errors.tags.message}</p>
             )}
           </div>
         </div>
-        {/* Rule Description */}
+
+        {/* Description */}
         <div className="space-y-2">
           <TooltipProvider>
             <div className="flex items-center gap-2">
@@ -535,6 +557,7 @@ export default function RuleForm({
             )}
           />
         </div>
+
         {/* File Upload */}
         <div className="space-y-2">
           <TooltipProvider>
@@ -557,6 +580,7 @@ export default function RuleForm({
               </Tooltip>
             </div>
           </TooltipProvider>
+
           <div
             onDragOver={(e) => e.preventDefault()}
             onDrop={handleDrop}
@@ -569,7 +593,7 @@ export default function RuleForm({
               onChange={handleFileInput}
               className="hidden"
               id="file-upload"
-              accept={ACCEPTED_FILE_TYPES.join(",")}
+              accept={FILE_CONSTRAINTS.ACCEPTED_TYPES.join(",")}
             />
             <label
               htmlFor="file-upload"
@@ -577,13 +601,16 @@ export default function RuleForm({
             >
               <Upload className="size-8 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">
-                + Drag or Upload files (max 5 files, 5 MB each)
+                + Drag or Upload files (max {FILE_CONSTRAINTS.MAX_COUNT} files,{" "}
+                {FILE_CONSTRAINTS.MAX_SIZE / (1024 * 1024)}MB each)
               </span>
             </label>
           </div>
+
           {errors.files && (
             <p className="text-sm text-red-500">{errors.files.message}</p>
           )}
+
           {files.length > 0 && (
             <div className="mt-2 grid grid-cols-2 gap-2">
               {files.map((fileObj, index) => (
@@ -622,6 +649,7 @@ export default function RuleForm({
             </div>
           )}
         </div>
+
         {/* Public Switch */}
         <div className="flex items-center space-x-2">
           <Controller
@@ -637,37 +665,13 @@ export default function RuleForm({
           />
           <Label htmlFor="isPublic">Make this rule Public</Label>
         </div>
+
         {/* Form Actions */}
         <div className="flex justify-end gap-2 pt-4">
           <Button type="button" variant="outline">
             Cancel
           </Button>
-          <Button
-            type="button"
-            onClick={() => {
-              const data = getValues();
-              const formDataToSend = new FormData();
-
-              Object.entries(data).forEach(([key, value]) => {
-                if (key !== "files") {
-                  formDataToSend.append(key, value.toString());
-                }
-              });
-
-              data.files?.forEach((fileObj: any) => {
-                formDataToSend.append("file", fileObj.file);
-              });
-
-              formDataToSend.append("forum", forumId);
-              formDataToSend.append("publishedStatus", "draft");
-              Endpoints.saveDraft(formDataToSend).then((res) => {
-                if (!res.isActive) {
-                  toast.success("saved to draft successfully");
-                }
-              });
-            }}
-            variant="outline"
-          >
+          <Button type="button" onClick={handleSaveDraft} variant="outline">
             Save draft
           </Button>
 
@@ -691,7 +695,7 @@ export default function RuleForm({
                     ? "Submitting..."
                     : isMember
                       ? "Propose"
-                      : "Publish"}{" "}
+                      : "Publish"}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>

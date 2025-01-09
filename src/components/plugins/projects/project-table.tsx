@@ -77,7 +77,7 @@ function DataTable({
   totalPage,
 }: DataTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
-
+  console.log({ dataTable: data });
   const table = useReactTable({
     data,
     columns,
@@ -91,7 +91,7 @@ function DataTable({
   });
 
   return (
-    <div className="rounded-md border">
+    <div className="rounded-md border ">
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -318,6 +318,7 @@ export default function ProjectTable({
   totalPages: any;
   currentPages: any;
 }) {
+  console.log({ projectTableData: data });
   const columns: ColumnDef<TProjectData>[] = [
     {
       accessorKey: "sno",
@@ -360,9 +361,10 @@ export default function ProjectTable({
         );
       },
       cell: ({ row }) => {
+        console.log({ row });
         return (
           <div className="space-y-1">
-            <div className="font-medium"> 234 Adopted</div>
+            <div className="font-medium"> {row?.original?.adoptionCount}</div>
           </div>
         );
       },

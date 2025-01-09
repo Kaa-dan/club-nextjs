@@ -1,8 +1,8 @@
 type TUserRole = "admin" | "member" | "owner" | "moderator";
 type TPlugins = "rules" | "issues" | "debate" | "projects";
-type TForum = "node" | "club";
+type TForum = "node" | "club" | "chapter";
 type TFileType = "image" | "video" | "document" | "pdf" | "unknown";
-type TJoinStatus = "VISITOR" | "MEMBER" | "REQUESTED";
+type TJoinStatus = "VISITOR" | "MEMBER" | "REQUESTED" | "BLOCKED";
 type TIssuesLabel =
   | "Live Issues"
   | "All Issues"
@@ -11,6 +11,7 @@ type TIssuesLabel =
   | "Proposed Issues";
 
 type TProjectLable =
+  | "Club Projects"
   | "On going projects"
   | "All Projects"
   | "Global Projects"
@@ -222,6 +223,7 @@ interface TProjectData {
     mimetype: string;
     size: number;
   };
+  adoptionCount: any;
   committees: Committee[];
   contributions: any[];
   champions: Champion[];
@@ -256,7 +258,7 @@ interface TProjectData {
   relevant: any[];
   irrelevant: any[];
   type: "proposed" | "creation";
-  message:string
+  message: string;
 }
 
 interface Committee {
@@ -284,19 +286,16 @@ type TAdoptionOption = {
   }[];
 };
 
-
-
-
- interface Author {
+interface Author {
   name: string;
   email: string;
   title?: string;
 }
 
- interface Post {
+interface Post {
   _id: string;
   author: Author;
-  content: string; 
+  content: string;
   type: string;
   createdAt: string;
   relevantCount?: number;
@@ -304,7 +303,7 @@ type TAdoptionOption = {
   viewCount?: number;
 }
 
- interface FeedResponse {
+interface FeedResponse {
   items: Post[];
   hasMore: boolean;
   total: number;
