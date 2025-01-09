@@ -1,5 +1,4 @@
 "use client";
-import NodeProfileCard from "@/components/pages/node/node-profile-card";
 import React, { useEffect, useState } from "react";
 import { useParams, usePathname } from "next/navigation";
 import TeamsSidePopover from "@/components/pages/club/club-teams";
@@ -20,6 +19,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     nodeJoinStatus,
     setNodeJoinStatus,
     setUserRequestedNodes,
+    currentUserRole,
   } = useNodeStore((state) => state);
   const params = useParams<{ nodeId: string; plugin?: TPlugins }>();
   const pathname = usePathname();
@@ -75,6 +75,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             joinStatus={nodeJoinStatus!}
             onJoin={joinToNode}
             onCancelRequest={cancelJoinRequest}
+            currentUserRole={currentUserRole}
             members={currentNode?.members || []}
           />
         </div>
