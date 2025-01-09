@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
+  CheckCircle2,
   ChevronDown,
   ChevronRight,
   MoreHorizontal,
@@ -17,6 +18,12 @@ import AttachmentRenderComponent from "./attachment-component";
 import { useTokenStore } from "@/store/store";
 import { cn } from "@/lib/utils";
 import UserHoverCard from "../user-hover-card";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@radix-ui/react-dropdown-menu";
 
 const processCommentText = (text: string) => {
   return text?.split(" ")?.map((word, index) => {
@@ -38,7 +45,12 @@ interface InteractionState {
   isDisLiked: boolean;
 }
 
-const Comment: React.FC<{ comment: TCommentType }> = ({ comment }) => {
+const Comment: React.FC<{
+  comment: TCommentType;
+  forumId: string;
+  forum: string;
+  // postId:string
+}> = ({ comment, forumId, forum }) => {
   const { setComments, comments } = useCommentsStore((state) => state);
   const { globalUser } = useTokenStore((state) => state);
   const { postId, plugin } = useParams<{ postId: string; plugin: TPlugins }>();
@@ -111,6 +123,23 @@ const Comment: React.FC<{ comment: TCommentType }> = ({ comment }) => {
     }
   };
 
+  //make solution handler
+  const handleMakeSolution = async (commentId: string) => {
+    try {
+      // forum forumId commentId postId
+      const bodyObj = {
+        forum,
+        forumId,
+        commentId,
+        postId,
+      };
+      const response = await Endpoints.createSolution(bodyObj);
+      toast.success("Comment marked as solution!");
+    } catch (error) {
+      console.error("Error marking as solution:", error);
+      toast.error("Failed to mark as solution");
+    }
+  };
   const handleReplySubmit = async () => {
     if (!replyText?.trim()) return;
 
@@ -204,9 +233,24 @@ const Comment: React.FC<{ comment: TCommentType }> = ({ comment }) => {
               })}
             </span>
           </div>
-          <button>
-            <MoreHorizontal className="size-4 text-gray-500" />
-          </button>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button>
+                <MoreHorizontal className="size-4 text-gray-500" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                onClick={() => handleMakeSolution(comment?._id)}
+                className="gap-2"
+              >
+                <span className="cursor-pointer text-sm font-thin  mt-6 bg-green-400 text-white">
+                  Make Solution
+                </span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         <p className="mt-1 whitespace-pre-wrap text-sm">
@@ -311,7 +355,7 @@ const Comment: React.FC<{ comment: TCommentType }> = ({ comment }) => {
                             })}
                           </span>
                         </div>
-                        <button>
+                        <button className="bg-yellow-400">
                           <MoreHorizontal className="size-4 text-gray-500" />
                         </button>
                       </div>

@@ -152,7 +152,7 @@ const ProjectLayout = ({
   };
 
   return (
-    <div className="w-full space-y-4 p-4">
+    <div className="w-full space-y-4 p-4 ">
       <div className="space-y-2">
         <h2 className="text-2xl font-bold tracking-tight">Project</h2>
         <p className="text-muted-foreground">

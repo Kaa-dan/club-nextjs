@@ -184,7 +184,7 @@ const useProjects = (forum: TForum, forumId: string) => {
         String(currentPages.activeProjects),
         searchQueries.allProjects
       );
-
+      console.log({ responsefromfetch: response });
       const combined = sortProjects([
         ...response?.projects,
         ...transformAdoptedProjects(response?.adoptedProjects),
