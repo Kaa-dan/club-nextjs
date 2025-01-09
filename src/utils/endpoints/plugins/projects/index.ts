@@ -25,6 +25,28 @@ export class ProjectsEndpoints {
 
     return data;
   }
+  static async fetchAllClubProjectsWithChapterId(
+    forum: TForum,
+    forumId: string,
+    status: "published" | "proposed",
+    page: string,
+    search: string
+  ) {
+    const queryParams = new URLSearchParams({
+      status,
+      page,
+      limit: "10",
+      isActive: "true",
+      search,
+      chapter: forumId,
+    });
+
+    const { data } = await withTokenAxios.get(
+      `/project/chapter-all-club-projects?${queryParams.toString()}`
+    );
+
+    return data;
+  }
 
   static async fetchMyProjects(
     forum: TForum,

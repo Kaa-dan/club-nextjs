@@ -3,6 +3,7 @@ import { ProjectsEndpoints } from "@/utils/endpoints/plugins/projects";
 
 const useProjects = (forum: TForum, forumId: string) => {
   const [activeProjects, setActiveProjects] = useState([]);
+  const [clubProjectsForChapter, setClubProjectsForChapter] = useState([]);
   const [allProjects, setAllProjects] = useState([]);
   const [globalProjects, setGlobalProjects] = useState([]);
   const [myProjects, setMyProjects] = useState([]);
@@ -14,6 +15,7 @@ const useProjects = (forum: TForum, forumId: string) => {
     activeProjects: 1,
     myProjects: 1,
     proposedProjects: 1,
+    clubProjectsForChapter: 1,
   });
 
   const [totalPages, setTotalPages] = useState({
@@ -22,6 +24,7 @@ const useProjects = (forum: TForum, forumId: string) => {
     activeProjects: 1,
     myProjects: 1,
     proposedProjects: 1,
+    clubProjectsForChapter: 1,
   });
 
   const [projectCounts, setProjectCounts] = useState({
@@ -30,6 +33,7 @@ const useProjects = (forum: TForum, forumId: string) => {
     globalProjects: 0,
     myProjects: 0,
     proposedProjects: 0,
+    clubProjectsForChapter: 0,
   });
 
   const [loading, setLoading] = useState({
@@ -137,6 +141,39 @@ const useProjects = (forum: TForum, forumId: string) => {
     }
   }, [forum, forumId, currentPages.allProjects]);
 
+  const fetchAllClubProjectsWithChapterId = useCallback(async () => {
+    setLoading((prev) => ({ ...prev, allProjects: true }));
+    try {
+      console.log({ searchQueries });
+      const response =
+        await ProjectsEndpoints.fetchAllClubProjectsWithChapterId(
+          forum,
+          forumId,
+          "published",
+          String(currentPages.allProjects),
+          searchQueries.allProjects
+        );
+
+      setProjectCounts((prev) => ({
+        ...prev,
+        clubProjectsForChapter: response?.total,
+      }));
+
+      setTotalPages((prev) => ({
+        ...prev,
+        clubProjectsForChapter: response?.totalPages || 1,
+      }));
+
+      console.log({ respoo: response?.projects });
+
+      setClubProjectsForChapter(response?.projects);
+    } catch (err) {
+      console.error("Error fetching all projects:", err);
+    } finally {
+      setLoading((prev) => ({ ...prev, allProjects: false }));
+    }
+  }, [forum, forumId, currentPages.allProjects]);
+
   const fetchActiveProjects = useCallback(async () => {
     setLoading((prev) => ({ ...prev, activeProjects: true }));
     try {
@@ -206,6 +243,7 @@ const useProjects = (forum: TForum, forumId: string) => {
   }, [forum, forumId, currentPages.proposedProjects]);
 
   const fetchGlobalProjects = useCallback(async () => {
+    if (forum === "chapter") return;
     setLoading((prev) => ({ ...prev, globalProjects: true }));
     try {
       const response = await ProjectsEndpoints.fetchGlobalProjects(
@@ -265,12 +303,12 @@ const useProjects = (forum: TForum, forumId: string) => {
     }
   }, [forum, forumId, currentPages.myProjects]);
 
-  // Effect to fetch data when component mounts
   useEffect(() => {
     fetchAllProjects();
     fetchActiveProjects();
     fetchProposedProjects();
-    fetchGlobalProjects();
+    if (forum !== "chapter") fetchGlobalProjects();
+    if (forum === "chapter") fetchAllClubProjectsWithChapterId();
     fetchMyProjects();
   }, [forumId]);
 
@@ -308,6 +346,7 @@ const useProjects = (forum: TForum, forumId: string) => {
     setCurrentPages,
     setSearchQueries,
     searchQueries,
+    clubProjectsForChapter,
     refetch: {
       fetchAllProjects,
       fetchActiveProjects,
