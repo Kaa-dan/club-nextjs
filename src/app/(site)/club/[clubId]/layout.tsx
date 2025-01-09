@@ -22,6 +22,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     setUserRequestedClubs,
     currentClub,
     clubJoinStatus,
+    currentUserRole,
   } = useClubStore((state) => state);
   useEffect(() => {
     if (params?.clubId) {
@@ -77,6 +78,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               currentForum={currentClub}
               joinStatus={clubJoinStatus!}
               onJoin={joinToClub}
+              currentUserRole={currentUserRole}
               onCancelRequest={cancelJoinRequest}
               members={currentClub?.members || []}
             />
