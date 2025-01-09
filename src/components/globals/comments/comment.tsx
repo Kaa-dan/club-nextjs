@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
+  CheckCircle2,
   ChevronDown,
   ChevronRight,
   MoreHorizontal,
@@ -17,6 +18,12 @@ import AttachmentRenderComponent from "./attachment-component";
 import { useTokenStore } from "@/store/store";
 import { cn } from "@/lib/utils";
 import UserHoverCard from "../user-hover-card";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@radix-ui/react-dropdown-menu";
 
 const processCommentText = (text: string) => {
   return text?.split(" ")?.map((word, index) => {
@@ -111,6 +118,17 @@ const Comment: React.FC<{ comment: TCommentType }> = ({ comment }) => {
     }
   };
 
+  //make solution handler
+  const handleMakeSolution = async (id: string) => {
+    try {
+      // Add your API call here to mark the comment as a solution
+      // Example: await Endpoints.markAsSolution(comment._id);
+      toast.success("Comment marked as solution!");
+    } catch (error) {
+      console.error("Error marking as solution:", error);
+      toast.error("Failed to mark as solution");
+    }
+  };
   const handleReplySubmit = async () => {
     if (!replyText?.trim()) return;
 
@@ -204,9 +222,23 @@ const Comment: React.FC<{ comment: TCommentType }> = ({ comment }) => {
               })}
             </span>
           </div>
-          <button>
-            <MoreHorizontal className="size-4 text-gray-500" />
-          </button>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button>
+                <MoreHorizontal className="size-4 text-gray-500" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                onClick={() => handleMakeSolution(comment?._id)}
+                className="gap-2"
+              >
+                <CheckCircle2 className="size-4" />
+                <span>Make Solution</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         <p className="mt-1 whitespace-pre-wrap text-sm">
@@ -311,7 +343,7 @@ const Comment: React.FC<{ comment: TCommentType }> = ({ comment }) => {
                             })}
                           </span>
                         </div>
-                        <button>
+                        <button className="bg-yellow-400">
                           <MoreHorizontal className="size-4 text-gray-500" />
                         </button>
                       </div>

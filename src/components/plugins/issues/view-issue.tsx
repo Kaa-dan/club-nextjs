@@ -150,7 +150,7 @@ const IssueView = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
 
   return (
     <>
-      <div className="max-w-full bg-white p-4">
+      <div className="max-w-full  p-4">
         {/* Header with ID and Privacy */}
         <div className="mb-2 flex items-center justify-between">
           <h1 className="text-xl font-medium">{issue?.title}</h1>
@@ -169,28 +169,8 @@ const IssueView = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
         {/* Description */}
         <p className="mb-4 text-sm text-gray-600">{issue?.significance}</p>
 
-        {/* Tags */}
-        {/* <div className="mb-4">
-        <div className="mb-1 text-sm text-gray-500">Tags:</div>
-        <div className="flex gap-2">
-          {issue?.tags?.map(
-            (tag, index) => (
-              console.log(issue?.tags, "tags"),
-              (
-                <span
-                  key={index}
-                  className="rounded-full bg-gray-100 px-3 py-1 text-sm"
-                >
-                  {tag}
-                </span>
-              )
-            )
-          )}
-        </div>
-      </div> */}
-
         {/* Categories */}
-        <div className="mb-6 flex gap-4 text-sm">
+        <div className="mb-6 flex gap-4 text-sm ">
           <div className="max-w-max rounded-md border border-gray-200 px-5 py-1">
             <div className="text-gray-500">Issue Type</div>
             <div>{issue?.issueType}</div>
@@ -392,7 +372,7 @@ const IssueView = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
           {issue?.files?.map((file) => (
             <div
               key={file._id}
-              className="mb-4 flex cursor-pointer items-center gap-4 rounded-sm bg-gray-100 px-2 py-1"
+              className="mb-4  flex cursor-pointer items-center gap-4 rounded-sm  px-2 py-1"
             >
               <div className="flex items-center gap-2">
                 <div className="flex size-8 items-center justify-center rounded">

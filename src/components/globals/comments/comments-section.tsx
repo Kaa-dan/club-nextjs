@@ -17,6 +17,7 @@ const CommentsSection: React.FC<{
   plugin: TPlugins;
   postId: string;
 }> = ({ plugin, postId }) => {
+  console.log({ plugin, nithin: "nithin" });
   const { socket, isConnected, connect, disconnect, sendComment } =
     useSocketStore();
 
@@ -90,7 +91,7 @@ const CommentsSection: React.FC<{
   }, [socket, connect, disconnect]);
 
   return (
-    <div className="mx-auto w-full max-w-2xl">
+    <div className="mx-auto  w-full max-w-2xl">
       <CommentInput />
       <div className="flex justify-between border-b p-4">
         <div className="font-medium">Comments ({comments?.length || 0})</div>
