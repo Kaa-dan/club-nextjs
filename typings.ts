@@ -222,6 +222,7 @@ interface TProjectData {
     mimetype: string;
     size: number;
   };
+  adoptionCount: any;
   committees: Committee[];
   contributions: any[];
   champions: Champion[];

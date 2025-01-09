@@ -8,7 +8,7 @@ export class ProjectsEndpoints {
     page: string,
     search: string
   ) {
-    console.log({ search });
+    console.log({ search, forum, forumId, status, page });
     const queryParams = new URLSearchParams({
       status,
       page,
