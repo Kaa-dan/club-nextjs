@@ -404,12 +404,6 @@ export function ChaptersList() {
                                 </DialogHeader>
                                 <div className="grid gap-4 py-4">
                                   <div className="grid grid-cols-1 items-center gap-4">
-                                    <Label
-                                      htmlFor="reason"
-                                      className="text-left"
-                                    >
-                                      Reason
-                                    </Label>
                                     <Textarea
                                       placeholder="Type your reason here."
                                       className="col-span-3"
@@ -509,7 +503,7 @@ export function ChaptersList() {
                                         read more
                                       </button>
                                     </PopoverTrigger>
-                                    <PopoverContent className="w-80">
+                                    <PopoverContent className="w-96">
                                       <div className="grid gap-4">
                                         <div className="space-y-2">
                                           <p className="text-sm text-muted-foreground">
