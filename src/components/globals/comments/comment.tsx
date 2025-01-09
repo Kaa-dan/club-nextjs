@@ -126,7 +126,6 @@ const Comment: React.FC<{
   //make solution handler
   const handleMakeSolution = async (commentId: string) => {
     try {
-      // forum forumId commentId postId
       const bodyObj = {
         forum,
         forumId,
@@ -134,6 +133,7 @@ const Comment: React.FC<{
         postId,
       };
       const response = await Endpoints.createSolution(bodyObj);
+
       toast.success("Comment marked as solution!");
     } catch (error) {
       console.error("Error marking as solution:", error);
