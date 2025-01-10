@@ -44,6 +44,7 @@ import plugin from "tailwindcss";
 import { map } from "zod";
 import { formatDate, formatTimeAgo } from "@/lib/utils";
 import { useClubStore } from "@/store/clubs-store";
+import { usePermission } from "@/lib/use-permission";
 interface Item {
   _id: string;
   name: string;
@@ -65,6 +66,7 @@ const IssueView = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
     plugin: TPlugins;
     postId: string;
   }>();
+  const { hasPermission } = usePermission();
 
   const [clubAndNodes, setClubAndNodes] = useState<ClubAndNodesData>();
   const [searchTerm, setSearchTerm] = useState("");
@@ -333,7 +335,7 @@ const IssueView = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
                                   size="sm"
                                   onClick={() => adopt(item as any)}
                                 >
-                                  {item.userRole === "admin"
+                                  {["admin", "owner"]?.includes(item.userRole)
                                     ? "Adopt"
                                     : "Propose"}
                                 </Button>
