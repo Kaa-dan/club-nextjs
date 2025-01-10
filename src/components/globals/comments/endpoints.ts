@@ -44,4 +44,13 @@ export class Endpoints {
       throw error;
     }
   }
+  static async createSolution(obj: {
+    forum: string;
+    forumId: string;
+    commentId: string;
+    postId: string;
+  }) {
+    const res = await withTokenAxios.post(`issues/create-solution`, obj);
+    return res;
+  }
 }

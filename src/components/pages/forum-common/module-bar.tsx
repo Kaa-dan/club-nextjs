@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import { ICONS } from "@/lib/constants";
 import { Plus } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 
 interface Module {
@@ -13,11 +13,29 @@ interface Module {
   notifications?: number;
 }
 
-const ModulesBar: React.FC<{
+interface ModulesBarProps {
   forumId: string;
   forum: TForum;
   plugin?: TPlugins;
-}> = ({ forumId, plugin, forum }) => {
+}
+
+const ModulesBar: React.FC<ModulesBarProps> = ({ forumId, plugin, forum }) => {
+  const pathname = usePathname();
+  const isChapterPath = pathname.includes("/chapters/");
+
+  // Extract nodeId and chapterId if in chapter path
+  const getBasePath = () => {
+    if (!isChapterPath) return `/${forum}/${forumId}`;
+
+    const pathParts = pathname.split("/");
+    const nodeIndex = pathParts.indexOf("node");
+    const chapterIndex = pathParts.indexOf("chapters");
+
+    if (nodeIndex === -1 || chapterIndex === -1) return `/${forum}/${forumId}`;
+
+    return `${pathParts.slice(0, chapterIndex + 2).join("/")}`;
+  };
+
   const modules: Module[] = [
     {
       link: "rules",
@@ -27,7 +45,7 @@ const ModulesBar: React.FC<{
     },
     {
       link: "issues",
-      name: "issues",
+      name: "Issues",
       icon:
         plugin === "issues" ? ICONS.BarIssuesIconGreen : ICONS.BarIssuesIcon,
     },
@@ -42,27 +60,16 @@ const ModulesBar: React.FC<{
       name: "Projects",
       icon: ICONS.BarFunnyIcon,
     },
-    // { link: "market", name: "Market Place", icon: ICONS.BarMarketPlaceIcon },
-    // {
-    //   link: "events",
-    //   name: "Events News",
-    //   icon: ICONS.BarEventsIcon,
-    //   notifications: 8,
-    // },
   ];
-  const router = useRouter();
+
+  const basePath = getBasePath();
+
   return (
-    <div className=" mb-2 ml-5 flex w-10/12 max-w-screen-lg items-center overflow-x-auto rounded-lg bg-white   p-4  text-xs shadow-md">
+    <div className="mb-2 ml-5 flex w-10/12 max-w-screen-lg items-center overflow-x-auto rounded-lg bg-white p-4 text-xs shadow-md">
       {modules.map((module, index) => (
-        <Link key={index} href={`/${forum}/${forumId}/${module.link}`}>
-          <div
-            // onClick={() => {
-            //   router.push(`/${forum}/${forumId}/${module.link}`);
-            // }}
-            className="relative flex  h-11 cursor-pointer flex-col items-center justify-end gap-2 rounded-sm  p-1 px-4 hover:bg-slate-50"
-          >
-            {/* Icon with Badge */}
-            <div className="relative size-fit ">
+        <Link key={index} href={`${basePath}/${module.link}`}>
+          <div className="relative flex h-11 cursor-pointer flex-col items-center justify-end gap-2 rounded-sm p-1 px-4 hover:bg-slate-50">
+            <div className="relative size-fit">
               <Image
                 src={module.icon}
                 alt={`${module.name} icon`}
@@ -75,14 +82,11 @@ const ModulesBar: React.FC<{
                 </Badge>
               )}
             </div>
-
-            {/* Label */}
-            <p className=" text-gray-700">{module.name}</p>
+            <p className="text-gray-700">{module.name}</p>
           </div>
         </Link>
       ))}
 
-      {/* Add Module Button */}
       <div className="flex flex-col items-center text-green-500">
         <button className="flex items-center">
           <Plus />

@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect } from "react";
-import { Check, Building2, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown, Loader } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Dialog,
@@ -49,6 +49,7 @@ const CreateChapterModal: React.FC<CreateChapterModalProps> = ({
   // clubs = [],
 }) => {
   const [clubs, setClubs] = React.useState<Club[]>([]);
+  const [loading, setLoading] = React.useState(false);
   const [selectedClub, setSelectedClub] = React.useState<Club | null>(null);
   const [openCombobox, setOpenCombobox] = React.useState(false);
   const { nodeId } = useParams<{ nodeId: string }>();
@@ -58,6 +59,7 @@ const CreateChapterModal: React.FC<CreateChapterModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     if (selectedClub) {
       console.log("Selected club:", selectedClub);
       try {
@@ -71,6 +73,8 @@ const CreateChapterModal: React.FC<CreateChapterModalProps> = ({
         console.log({ response });
       } catch (error) {
         console.error("Error creating chapter:", error);
+      } finally {
+        setLoading(false);
       }
     }
   };
@@ -187,14 +191,17 @@ const CreateChapterModal: React.FC<CreateChapterModalProps> = ({
             <Button
               type="submit"
               variant={selectedClub ? "default" : "outline"}
-              disabled={!selectedClub}
-              className="bg-green-600 text-white hover:bg-green-700"
+              disabled={!selectedClub || loading}
+              className="flex items-center justify-center gap-2 bg-green-600 text-white hover:bg-green-700"
             >
-              {hasPermission("create:chapter")
-                ? "Create"
-                : hasPermission("propose:chapter")
-                  ? "Propose"
-                  : null}
+              {loading && <Loader className="size-4 animate-spin" />}
+              {loading
+                ? "Creating..."
+                : hasPermission("create:chapter")
+                  ? "Create"
+                  : hasPermission("propose:chapter")
+                    ? "Propose"
+                    : null}
             </Button>
           </div>
         </form>

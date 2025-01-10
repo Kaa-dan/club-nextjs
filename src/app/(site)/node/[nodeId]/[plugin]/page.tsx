@@ -22,7 +22,7 @@ const PluginPage = async ({
         return <DebateLayout forumId={nodeId} forum="node" plugin={plugin} />;
 
       case "projects":
-        return <ProjectLayout forum="club" forumId={nodeId} plugin={plugin} />;
+        return <ProjectLayout forum="node" forumId={nodeId} plugin={plugin} />;
       default:
         return (
           <div className="flex h-full items-center justify-center">

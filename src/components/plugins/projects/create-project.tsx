@@ -677,6 +677,7 @@ export default function ProjectForm({
                 <div className="space-y-6">
                   {field.value.map((member, index) => {
                     const memberError = formState.errors?.committees?.[index];
+
                     return (
                       <div key={index} className="relative">
                         <div className="mb-2 flex items-center justify-between">

@@ -338,11 +338,6 @@ export default function Page() {
                   </AlertDialog>
                 </>
               )}
-
-              {/* <Button variant="outline" className="gap-2">
-                <Copy className="size-4" />
-                <span>Copy Link</span>
-              </Button> */}
             </div>
           </div>
 
@@ -397,7 +392,13 @@ export default function Page() {
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="max-w-4xl">
           <DialogHeader>
-            <DialogTitle>All Members</DialogTitle>
+            <DialogTitle>
+              All Members{" "}
+              <span className="text-sm text-gray-500">
+                ({currentNode?.members?.length || 0}{" "}
+                {currentNode?.members?.length === 1 ? "Member" : "Members"})
+              </span>
+            </DialogTitle>
           </DialogHeader>
           <div className="my-1 flex items-center justify-between gap-4">
             <div className="relative flex-1">
@@ -407,9 +408,6 @@ export default function Page() {
             <div className="flex gap-2">
               <Button variant="outline" size="icon">
                 <Filter className="size-4" />
-              </Button>
-              <Button variant="outline" size="icon">
-                <Copy className="size-4" />
               </Button>
             </div>
           </div>
@@ -586,21 +584,21 @@ export default function Page() {
             </TableBody>
           </Table>
           <div className="mt-4 flex items-center justify-between">
-            <div className="text-sm text-muted-foreground">
-              Total {currentNode?.members?.length} Members
-            </div>
-            <div className="flex items-center gap-2">
+            <div className="flex w-full items-center justify-end gap-2">
               <Button variant="outline" size="sm" disabled>
                 Previous
               </Button>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" disabled>
                 Next
               </Button>
-              <select className="rounded-md border px-2 py-1">
-                <option>10 / page</option>
-                <option>20 / page</option>
-                <option>50 / page</option>
-              </select>
+              <Select>
+                <SelectTrigger className="w-fit px-4">10 / page</SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="10">10 / page</SelectItem>
+                  <SelectItem value="20">20 / page</SelectItem>
+                  <SelectItem value="50">50 / page</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </DialogContent>

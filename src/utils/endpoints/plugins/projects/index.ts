@@ -8,19 +8,21 @@ export class ProjectsEndpoints {
     page: string,
     search: string
   ) {
-    console.log({ search });
+    console.log({ search, forum, forumId, status, page });
     const queryParams = new URLSearchParams({
       status,
       page,
       limit: "10",
       isActive: "true",
       search,
-      [forum === "club" ? "club" : "node"]: forumId,
+      [forum === "club" ? "club" : forum === "node" ? "node" : "chapter"]:
+        forumId,
     });
 
     const { data } = await withTokenAxios.get(
-      `/project/all-projects?${queryParams.toString()}`
+      `/project/${forum === "chapter" ? `chapter-all-projects` : `all-projects`}?${queryParams.toString()}`
     );
+
     return data;
   }
 

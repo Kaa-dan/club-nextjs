@@ -147,7 +147,7 @@ const ProjectLayout = ({
   // Helper function to get current search value based on selected tab
 
   return (
-    <div className="w-full space-y-4 p-4">
+    <div className="w-full space-y-4 p-4 ">
       <div className="space-y-2">
         <h2 className="text-2xl font-bold tracking-tight">Project</h2>
         <p className="text-muted-foreground">
@@ -174,10 +174,10 @@ const ProjectLayout = ({
         </TabsList>
 
         {tabs?.map((tab) => (
-          <TabsContent key={tab.label} value={tab.label} className="space-y-4">
+          <TabsContent key={tab.label} value={tab.label} className="space-y-4 ">
             <div className="flex items-center gap-4">
               <Link href="projects/create">
-                <Button className="bg-primary hover:bg-emerald-600 text-white">
+                <Button className="bg-primary text-white hover:bg-emerald-600">
                   Add a new Project
                 </Button>
               </Link>
