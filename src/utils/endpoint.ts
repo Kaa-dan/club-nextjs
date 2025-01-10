@@ -474,9 +474,11 @@ export class Endpoints {
       throw error;
     }
   }
-  static async acceptDebate(debateId: string) {
+  static async acceptDebate(debateId: string, type: string) {
     try {
-      const response = await withTokenAxios.put(`/debate/accept/${debateId}`);
+      const response = await withTokenAxios.put(
+        `/debate/accept/${debateId}/${type}`
+      );
       return response.data;
     } catch (error) {
       throw error;

@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
+import { useSearchParams } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -73,6 +74,7 @@ export function AddPointDialog({
   endingDate,
   fetchArg,
 }: AddPointDialogProps) {
+  const searchParams = useSearchParams();
   const [open, setOpen] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const [participationStatus, setParticipationStatus] =
@@ -106,22 +108,29 @@ export function AddPointDialog({
 
   // Fetch participation status when component mounts
   useEffect(() => {
-    Endpoints.checkParticipationStatus(debateId, entityType, entity).then(
-      (res) => {
-        setParticipationStatus(res.isAllowed);
-      }
-    );
-  }, [debateId, entityType, entity]);
+    const type = searchParams.get("type");
+    const adoptedId = searchParams.get("adoptedId");
+    const idToCheck = type === "adopted" ? adoptedId : debateId;
 
+    if (idToCheck) {
+      Endpoints.checkParticipationStatus(idToCheck, entityType, entity).then(
+        (res) => {
+          setParticipationStatus(res.isAllowed);
+        }
+      );
+    }
+  }, [debateId, entityType, entity, searchParams]);
   const onSubmit = async (data: AddPointFormData) => {
     try {
-      console.log({ point: data });
+      const type = searchParams.get("type");
+      const adoptedId = searchParams.get("adoptedId");
+      const idToCheck = type === "adopted" ? adoptedId : debateId;
 
       // Create FormData for multipart/form-data submission
       const formData = new FormData();
       formData.append("content", data.content);
       formData.append("side", side);
-      formData.append("debateId", debateId);
+      formData.append("debateId", idToCheck as string);
 
       if (data.image) {
         formData.append("file", data.image);
