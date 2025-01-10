@@ -45,7 +45,7 @@ export class Endpoints {
     }
   }
   static async createSolution(obj: {
-    forum: string;
+    forum: string | undefined;
     forumId: string;
     commentId: string;
     postId: string;

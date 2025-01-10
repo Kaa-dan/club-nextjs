@@ -136,7 +136,7 @@ const View = ({ forum }: { forum: TForum }) => {
     ) || [];
 
   return (
-    <div className="max-w-full bg-white p-4">
+    <div className="max-w-full  p-4">
       {/* Header with ID and Privacy */}
       <div className="mb-2 flex items-center justify-between">
         <h1 className="text-xl font-medium">{rule?.title}</h1>
@@ -455,7 +455,7 @@ const View = ({ forum }: { forum: TForum }) => {
       </div>
 
       {/* Comment Input */}
-      <CommentsSection plugin={plugin} postId={postId} />
+      <CommentsSection plugin={plugin} postId={postId} forum={forum} />
     </div>
   );
 };
