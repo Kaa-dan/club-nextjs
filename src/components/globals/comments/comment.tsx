@@ -48,7 +48,7 @@ interface InteractionState {
 
 const Comment: React.FC<{
   comment: TCommentType;
-  forumId: string;
+  forumId?: string;
   forum: string | undefined;
   // postId:string
 }> = ({ comment, forumId, forum }) => {
