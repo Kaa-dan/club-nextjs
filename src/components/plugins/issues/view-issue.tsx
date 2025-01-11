@@ -49,7 +49,7 @@ interface Item {
   _id: string;
   name: string;
   description: string;
-  userRole: string;
+  role: string;
 }
 
 interface ClubAndNodesData {
@@ -113,6 +113,7 @@ const IssueView = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
   function fetchNodesAndClubs() {
     IssuesEndpoints.getClubsNodesNotAdopted(postId as string).then((res) => {
       console.log("effect1");
+      console.log({ responseNithin: res });
       setClubAndNodes(res);
     });
   }
@@ -335,7 +336,7 @@ const IssueView = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
                                   size="sm"
                                   onClick={() => adopt(item as any)}
                                 >
-                                  {["admin", "owner"]?.includes(item.userRole)
+                                  {["admin", "owner"]?.includes(item.role)
                                     ? "Adopt"
                                     : "Propose"}
                                 </Button>
