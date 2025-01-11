@@ -646,4 +646,39 @@ export class Endpoints {
       throw error;
     }
   }
+
+  static async createBookmark(title: { title: string }) {
+    try {
+      const response = await withTokenAxios.post("bookmarks/create", title);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async fetchFolders() {
+    try {
+      const response = await withTokenAxios.get("/bookmarks");
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async addToBookmark(
+    entityType: string,
+    entityId: string,
+    folderId: string
+  ) {
+    try {
+      const response = await withTokenAxios.post("bookmarks/add", {
+        entityType,
+        entityId,
+        folderId,
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
 }

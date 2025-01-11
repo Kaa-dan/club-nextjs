@@ -1,11 +1,12 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,51 +17,59 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MoreVertical } from "lucide-react";
 
-interface BookmarkItem {
-  id: string;
-  title: string;
-  postsCount: number;
-  lastUpdated: string;
-  color?: string;
-}
+import { Form, FormProvider, useForm } from "react-hook-form";
+import { z } from "zod";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Endpoints } from "@/utils/endpoint";
+import { toast } from "sonner";
 
-const initialBookmarks: BookmarkItem[] = [
-  {
-    id: "1",
-    title: "Lorem ipsum",
-    postsCount: 256,
-    lastUpdated: "Before 2 days",
-    color: "bg-purple-50",
-  },
-  {
-    id: "2",
-    title: "Lorem ipsum",
-    postsCount: 256,
-    lastUpdated: "Before 2 days",
-    color: "bg-orange-50",
-  },
-];
+const schema = z.object({
+  title: z
+    .string()
+    .trim() // Automatically trims leading and trailing spaces
+    .min(1, { message: "Title is required and cannot be blank" }) // Ensure non-empty
+    .refine((value: string) => !/^\s+$/.test(value), {
+      message: "Title must not contain only spaces", // Prevent only spaces
+    }),
+});
 
 export default function BookmarksPage() {
+  const form = useForm({
+    defaultValues: {
+      title: "",
+    },
+    resolver: zodResolver(schema),
+  });
   const [isCreateFolderOpen, setIsCreateFolderOpen] = useState(false);
-  const [newFolderName, setNewFolderName] = useState("");
-  const [items, setItems] = useState<BookmarkItem[]>(initialBookmarks);
+  const [items, setItems] = useState([]);
+  const fetchFolders = () => {
+    Endpoints.fetchFolders().then((res) => {
+      setItems(res);
+    });
+  };
+  useEffect(() => {
+    fetchFolders();
+  }, []);
 
-  const handleCreateFolder = () => {
-    if (newFolderName.trim()) {
-      const newFolder: BookmarkItem = {
-        id: Date.now().toString(),
-        title: newFolderName,
-        postsCount: 0,
-        lastUpdated: "Just now",
-        color: "bg-green-50",
-      };
-      setItems([...items, newFolder]);
-      setNewFolderName("");
+  const onSubmit = async (data: { title: string }) => {
+    try {
+      const response = await Endpoints.createBookmark(data);
+
+      toast.success(response.message);
+      form.reset();
       setIsCreateFolderOpen(false);
+      fetchFolders();
+    } catch (error) {
+      console.log({ error });
+      toast.error("error while creating folder");
     }
   };
-
   return (
     <div className="p-6">
       <div className="mb-4 flex items-center justify-between">
@@ -81,16 +90,16 @@ export default function BookmarksPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {items.map((item) => (
+        {items.map((item: { _id: string; title: string; posts: [] }) => (
           <div
-            key={item.id}
-            className={`${item.color} relative rounded-lg p-4`}
+            key={item._id}
+            className={` bg-gray-200 relative rounded-lg p-4`}
           >
             <div className="flex items-start justify-between">
               <div>
                 <h3 className="font-medium">{item.title}</h3>
                 <p className="text-sm text-gray-500">
-                  {item.postsCount} Posts • {item.lastUpdated}
+                  {item.posts.length || "0"} Posts •
                 </p>
               </div>
               <DropdownMenu>
@@ -116,24 +125,26 @@ export default function BookmarksPage() {
             <DialogTitle>Create new folder</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium">Folder name</label>
-              <Input
-                value={newFolderName}
-                onChange={(e) => setNewFolderName(e.target.value)}
-                placeholder="Enter folder name"
-                className="mt-1"
-              />
-            </div>
-            <div className="flex justify-end gap-2">
-              <Button
-                variant="outline"
-                onClick={() => setIsCreateFolderOpen(false)}
-              >
-                Cancel
-              </Button>
-              <Button onClick={handleCreateFolder}>Next</Button>
-            </div>
+            <FormProvider {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)}>
+                <FormField
+                  control={form.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Title</FormLabel>
+                      <FormControl>
+                        <Input placeholder="title" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="pt-2">
+                  <Button type="submit">Create</Button>
+                </div>
+              </form>
+            </FormProvider>
           </div>
         </DialogContent>
       </Dialog>
