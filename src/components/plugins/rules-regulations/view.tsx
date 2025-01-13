@@ -186,7 +186,7 @@ const View = ({ forum }: { forum: TForum }) => {
         </div>
         <div>
           <div className="text-gray-500">Applicable for?</div>
-          <div>457</div>
+          <div>{rule?.significance}</div>
         </div>
       </div>
 
