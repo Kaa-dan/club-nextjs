@@ -136,7 +136,7 @@ const View = ({ forum }: { forum: TForum }) => {
     ) || [];
 
   return (
-    <div className="max-w-full bg-white p-4">
+    <div className="max-w-full p-4">
       {/* Header with ID and Privacy */}
       <div className="mb-2 flex items-center justify-between">
         <h1 className="text-xl font-medium">{rule?.title}</h1>
@@ -186,7 +186,7 @@ const View = ({ forum }: { forum: TForum }) => {
         </div>
         <div>
           <div className="text-gray-500">Applicable for?</div>
-          <div>457</div>
+          <div>{rule?.significance}</div>
         </div>
       </div>
 
@@ -251,7 +251,7 @@ const View = ({ forum }: { forum: TForum }) => {
                 </div>
               </TooltipTrigger>
 
-              <TooltipContent className="bg-white border text-black w-[200px] flex justify-between items-center  ">
+              <TooltipContent className="flex w-[200px] items-center justify-between border bg-white text-black  ">
                 <div>
                   <span className="flex justify-between">
                     <Image src={ClubIcon} alt="club" className="mr-2" />
@@ -259,7 +259,7 @@ const View = ({ forum }: { forum: TForum }) => {
                     <span className="ml-2">Clubs </span>
                   </span>
                 </div>
-                <div className="h-[5px] w-[5px] rounded-full bg-gray-500"></div>
+                <div className="size-[5px] rounded-full bg-gray-500"></div>
                 <div>
                   <span className="flex justify-between">
                     <Image src={NodeIcon} alt="node" className="mr-2" />
@@ -278,10 +278,10 @@ const View = ({ forum }: { forum: TForum }) => {
                   Adopt
                 </button>
               ) : (
-                <div className="text-red-500 font-semibold">Private</div>
+                <div className="font-semibold text-red-500">Private</div>
               )}
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-[425px] ">
               <DialogHeader>
                 <DialogTitle>Clubs and Nodes</DialogTitle>
               </DialogHeader>
@@ -300,7 +300,7 @@ const View = ({ forum }: { forum: TForum }) => {
                     filteredItems.map((item) => (
                       <div
                         key={item._id}
-                        className="flex items-center justify-between py-2"
+                        className="flex items-center  justify-between py-2"
                       >
                         <div className="flex flex-col">
                           <div className="flex items-center gap-2">
@@ -455,7 +455,7 @@ const View = ({ forum }: { forum: TForum }) => {
       </div>
 
       {/* Comment Input */}
-      <CommentsSection plugin={plugin} postId={postId} />
+      <CommentsSection plugin={plugin} postId={postId} forum={forum} />
     </div>
   );
 };

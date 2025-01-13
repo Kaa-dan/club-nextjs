@@ -11,6 +11,7 @@ type TIssuesLabel =
   | "Proposed Issues";
 
 type TProjectLable =
+  | "Club Projects"
   | "On going projects"
   | "All Projects"
   | "Global Projects"

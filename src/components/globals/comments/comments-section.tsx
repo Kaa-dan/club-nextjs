@@ -16,8 +16,8 @@ import { useSocketStore } from "@/hooks/use-socket-store";
 const CommentsSection: React.FC<{
   plugin: TPlugins;
   postId: string;
-  forumId: string;
-  forum: string;
+  forumId?: string;
+  forum?: string;
 }> = ({ plugin, postId, forumId, forum }) => {
   console.log({ plugin, nithin: "nithin" });
   const { socket, isConnected, connect, disconnect, sendComment } =

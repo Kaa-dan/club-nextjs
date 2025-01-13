@@ -3,14 +3,11 @@ import React, { useEffect, useState } from "react";
 import { useParams, usePathname } from "next/navigation";
 import TeamsSidePopover from "@/components/pages/club/club-teams";
 import ModulesBar from "@/components/pages/forum-common/module-bar";
-import { useNodeCalls } from "@/hooks/apis/use-node-calls";
-import ChapterSidebar from "@/components/pages/chapters/chapter-profile-card";
 import ForumSidebar from "@/components/globals/forum-sidebar";
 import { useChapterStore } from "@/store/chapters-store";
 import { useChapterCalls } from "@/hooks/apis/use-chapter-calls";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
-  const { fetchNodeDetails, fetchNodeJoinStatus } = useNodeCalls();
   const [currentPage, setCurrentPage] = useState("modules");
   const params = useParams<{
     nodeId: string;

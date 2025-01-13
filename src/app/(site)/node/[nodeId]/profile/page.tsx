@@ -6,8 +6,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { usePermission } from "@/lib/use-permission";
 
 import {
-  Link,
-  Copy,
   LogOut,
   Search,
   Filter,
@@ -79,7 +77,6 @@ export default function Page() {
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { nodeId } = useParams<{ nodeId: string }>();
-  const [clickTrigger, setClickTrigger] = useState<boolean>(false);
   const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
 
   const visibleUsers = 5;
@@ -249,9 +246,10 @@ export default function Page() {
     handleClear(userId);
     setIsEditing((prev) => ({ ...prev, [userId]: false }));
   };
+  console.log({ currentNode });
   return (
     <>
-      <Card className="ml-5 mt-5 w-full max-w-3xl">
+      <Card className="ml-5 mt-5 w-full  max-w-3xl">
         <CardHeader className="space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-2">
@@ -352,10 +350,10 @@ export default function Page() {
             <div>
               <h4 className="font-semibold">Modules</h4>
               <p className="text-sm">
-                <span className="text-green-500">12 Modules</span>
+                <span className="text-green-500">4 Modules</span>
               </p>
             </div>
-            <div>
+            {/* <div>
               <h4 className="font-semibold">Contributions</h4>
               <p className="text-sm text-muted-foreground">132</p>
             </div>
@@ -364,7 +362,7 @@ export default function Page() {
               <p className="text-sm">
                 <span className="text-green-500">12 Clubs</span>
               </p>
-            </div>
+            </div> */}
             <div>
               <h4 className="font-semibold">Founded</h4>
               <p className="text-sm text-muted-foreground">

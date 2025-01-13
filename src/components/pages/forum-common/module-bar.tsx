@@ -41,7 +41,7 @@ const ModulesBar: React.FC<ModulesBarProps> = ({ forumId, plugin, forum }) => {
       link: "rules",
       name: "Rules",
       icon: plugin === "rules" ? ICONS.BarRulesIconGreen : ICONS.BarRulesIcon,
-      notifications: 8,
+      // notifications: 8,
     },
     {
       link: "issues",
@@ -65,7 +65,7 @@ const ModulesBar: React.FC<ModulesBarProps> = ({ forumId, plugin, forum }) => {
   const basePath = getBasePath();
 
   return (
-    <div className="mb-2 ml-5 flex w-10/12 max-w-screen-lg items-center overflow-x-auto rounded-lg bg-white p-4 text-xs shadow-md">
+    <div className="mb-2 ml-5  flex w-10/12 max-w-screen-lg items-center overflow-x-auto rounded-lg p-4 text-xs shadow-md">
       {modules.map((module, index) => (
         <Link key={index} href={`${basePath}/${module.link}`}>
           <div className="relative flex h-11 cursor-pointer flex-col items-center justify-end gap-2 rounded-sm p-1 px-4 hover:bg-slate-50">

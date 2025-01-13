@@ -44,30 +44,35 @@ import plugin from "tailwindcss";
 import { map } from "zod";
 import { formatDate, formatTimeAgo } from "@/lib/utils";
 import { useClubStore } from "@/store/clubs-store";
+import { usePermission } from "@/lib/use-permission";
 interface Item {
   _id: string;
   name: string;
   description: string;
-  userRole: string;
+  role: string;
 }
 
 interface ClubAndNodesData {
   clubs: Item[];
   nodes: Item[];
 }
+
 const IssueView = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
-  console.log({ forumId, forum, nithin: "hey i am nithin " });
   const { currentUserRole } = useClubStore((state) => state);
+
   const { globalUser } = useTokenStore((state) => state);
-  const router = useRouter();
+
   const [issue, setIssue] = useState<TIssue>();
+
   const { postId, plugin } = useParams<{
     plugin: TPlugins;
     postId: string;
   }>();
 
   const [clubAndNodes, setClubAndNodes] = useState<ClubAndNodesData>();
+
   const [searchTerm, setSearchTerm] = useState("");
+
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const visibleUsers = 2;
@@ -75,6 +80,7 @@ const IssueView = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
   const remainingUsers = totalUsers - visibleUsers;
   const displayRemainingCount = remainingUsers > 100 ? "100+" : remainingUsers;
 
+  //setting filtered item -> front end filteration
   const filteredItems = useMemo(() => {
     const filterFn = (item: Item) =>
       item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -90,6 +96,7 @@ const IssueView = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
     return [...clubs, ...nodes];
   }, [clubAndNodes, searchTerm]);
 
+  //fetching single issue
   const fetchSpecificIssue = () => {
     IssuesEndpoints.fetchSpecificIssue(postId)
       .then((res) => {
@@ -108,9 +115,11 @@ const IssueView = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
     });
   }, []);
 
+  //fetching node and clubs that are not adopted the issue
   function fetchNodesAndClubs() {
     IssuesEndpoints.getClubsNodesNotAdopted(postId as string).then((res) => {
       console.log("effect1");
+      console.log({ responseNithin: res });
       setClubAndNodes(res);
     });
   }
@@ -119,32 +128,29 @@ const IssueView = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
     fetchNodesAndClubs();
   }, []);
 
-  const adopt = (item: { _id: string; type: "Club" | "Node" }) => {
+  //handler for adopting
+  const adoptHandler = (item: { _id: string; type: "Club" | "Node" }) => {
+    console.log({ consolingItem: item });
+
     const entityType = item.type === "Club" ? "club" : "node";
+
     const data = {
       [entityType]: item._id,
-      issueId: postId,
+      issues: postId,
     };
+
     IssuesEndpoints.adoptOrProposeIssue(data)
       .then((res) => {
         toast.success("rule adopted successfully");
         fetchNodesAndClubs();
       })
       .catch((err) => {
-        toast.error(err.message || "something went error");
-        console.log({ err });
+        console.log({ err: err.response.data.message, nithin: "nithinraj" });
+        toast.error(
+          err?.response?.data?.message || err.message || "something went error"
+        );
       });
   };
-
-  const images =
-    issue?.files?.filter((file) => file.mimetype.includes("image")) || [];
-  const pdfs =
-    issue?.files?.filter((file) => file.mimetype === "application/pdf") || [];
-  const otherFiles =
-    issue?.files?.filter(
-      (file) =>
-        !file.mimetype.includes("image") && file.mimetype !== "application/pdf"
-    ) || [];
 
   return (
     <>
@@ -300,7 +306,7 @@ const IssueView = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
                             (
                               <div
                                 key={item._id}
-                                className="flex items-center justify-between py-2"
+                                className="flex  items-center justify-between py-2"
                               >
                                 <div className="flex flex-col">
                                   <div className="flex items-center gap-2">
@@ -331,9 +337,9 @@ const IssueView = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
                                 </div>
                                 <Button
                                   size="sm"
-                                  onClick={() => adopt(item as any)}
+                                  onClick={() => adoptHandler(item as any)}
                                 >
-                                  {item.userRole === "admin"
+                                  {["admin", "owner"]?.includes(item.role)
                                     ? "Adopt"
                                     : "Propose"}
                                 </Button>
