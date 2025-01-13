@@ -474,9 +474,11 @@ export class Endpoints {
       throw error;
     }
   }
-  static async acceptDebate(debateId: string) {
+  static async acceptDebate(debateId: string, type: string) {
     try {
-      const response = await withTokenAxios.put(`/debate/accept/${debateId}`);
+      const response = await withTokenAxios.put(
+        `/debate/accept/${debateId}/${type}`
+      );
       return response.data;
     } catch (error) {
       throw error;
@@ -639,6 +641,43 @@ export class Endpoints {
           position,
         }
       );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async createBookmark(title: { title: string }) {
+    try {
+      const response = await withTokenAxios.post("bookmarks/create", title);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async fetchFolders(folderId?: string) {
+    try {
+      const response = await withTokenAxios.get(
+        `/bookmarks?folderId=${folderId}`
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async addToBookmark(
+    entityType: string,
+    entityId: string,
+    folderId: string
+  ) {
+    try {
+      const response = await withTokenAxios.post("bookmarks/add", {
+        entityType,
+        entityId,
+        folderId,
+      });
       return response.data;
     } catch (error) {
       throw error;

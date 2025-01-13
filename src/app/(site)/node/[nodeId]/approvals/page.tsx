@@ -27,7 +27,7 @@ const ApprovalPage = () => {
   return (
     <div className="flex flex-col items-center space-y-4 bg-gray-50 p-4">
       {/* Header with horizontal lines */}
-      <div className="flex w-full items-center ">
+      <div className="flex w-full items-center">
         <hr className="grow border-t border-gray-300" />
         <span className="px-4 text-xs font-medium text-gray-500">
           Approvals

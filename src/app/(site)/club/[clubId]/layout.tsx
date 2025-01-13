@@ -1,6 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+// import ClubProfileCard from "@/components/pages/club/club-profile-card";
+
 import TeamsSidePopover from "@/components/pages/club/club-teams";
 import { useClubCalls } from "@/hooks/apis/use-club-calls";
 import ModulesBar from "@/components/pages/forum-common/module-bar";
