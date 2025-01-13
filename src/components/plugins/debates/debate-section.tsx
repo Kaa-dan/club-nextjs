@@ -11,6 +11,7 @@ import {
   Pin,
   Trash2,
 } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 import { ReplySection } from "./reply-section";
 import Image from "next/image";
 import UserHoverCard from "@/components/globals/user-hover-card";
@@ -104,60 +105,63 @@ export const DebateCard: React.FC<DebateCardProps> = ({
   const { currentUserRole: userClubRole } = useClubStore((state) => state);
   const { currentUserRole: userNodeRole } = useNodeStore((state) => state);
 
-  
   interface ReactionEntry {
     user: string;
     date: string;
   }
-  
+
   const handleVote = async (type: "relevant" | "irrelevant") => {
     if (!userId) return;
-  
+
     // Store previous state for rollback
     const previousRelevant = [...relevant];
     const previousIrrelevant = [...irrelevant];
-  
+
     if (type === "relevant") {
-      const isCurrentlyRelevant = relevant.some((entry:any) => entry.user === userId);
-      
+      const isCurrentlyRelevant = relevant.some(
+        (entry: any) => entry.user === userId
+      );
+
       setRelevant(
         isCurrentlyRelevant
-          ? relevant.filter((entry:any) => entry.user !== userId)
+          ? relevant.filter((entry: any) => entry.user !== userId)
           : [...relevant, { user: userId, date: new Date().toISOString() }]
       );
-  
+
       // Remove from irrelevant if exists
-      if (irrelevant.some((entry:any) => entry.user === userId)) {
-        setIrrelevant(irrelevant.filter((entry:any) => entry.user !== userId));
+      if (irrelevant.some((entry: any) => entry.user === userId)) {
+        setIrrelevant(irrelevant.filter((entry: any) => entry.user !== userId));
       }
     } else {
-      const isCurrentlyIrrelevant = irrelevant.some((entry:any) => entry.user === userId);
-      
+      const isCurrentlyIrrelevant = irrelevant.some(
+        (entry: any) => entry.user === userId
+      );
+
       setIrrelevant(
         isCurrentlyIrrelevant
-          ? irrelevant.filter((entry:any) => entry.user !== userId)
+          ? irrelevant.filter((entry: any) => entry.user !== userId)
           : [...irrelevant, { user: userId, date: new Date().toISOString() }]
       );
-  
+
       // Remove from relevant if exists
-      if (relevant.some((entry:any)=> entry.user === userId)) {
-        setRelevant(relevant.filter((entry:any) => entry.user !== userId));
+      if (relevant.some((entry: any) => entry.user === userId)) {
+        setRelevant(relevant.filter((entry: any) => entry.user !== userId));
       }
     }
-  
+
     try {
       const updatedArgument = await Endpoints.toggleVote(debateId, type);
-      
+
       // Update with server response
       setRelevant(updatedArgument.relevant);
       setIrrelevant(updatedArgument.irrelevant);
     } catch (error) {
       console.error("Error toggling vote:", error);
-      
+
       // Rollback on error
       setRelevant(previousRelevant);
       setIrrelevant(previousIrrelevant);
-      
+
       toast.error("Failed to update vote");
     }
   };
@@ -262,8 +266,12 @@ export const DebateCard: React.FC<DebateCardProps> = ({
     fetchRepliesForComment();
   }, [showComments]);
 
-  const isRelevant = relevant.some((item:{user:string,date:Date}) => item.user == userId);
-  const isIrrelevant = irrelevant.some((item:{user:string,date:Date}) => item.user == userId);
+  const isRelevant = relevant.some(
+    (item: { user: string; date: Date }) => item.user == userId
+  );
+  const isIrrelevant = irrelevant.some(
+    (item: { user: string; date: Date }) => item.user == userId
+  );
   const isCurrentUserAuthor = currentUserId === authorId; // Current user authored the argument
   const userCanDelete = currentUserId === argumentAuthorId; // User is the commenter
   console.log({ userClubRole });
@@ -1066,6 +1074,7 @@ export const DebateCard: React.FC<DebateCardProps> = ({
 // }
 
 export function DebateSection({ forum }: { forum: TForum }) {
+  const searchParams = useSearchParams();
   const { postId, clubId, nodeId } = useParams<{
     postId: string;
     clubId: string;
@@ -1190,6 +1199,9 @@ export function DebateSection({ forum }: { forum: TForum }) {
   };
 
   const fetchArgs = () => {
+    const type = searchParams.get("type");
+    const adoptedId = searchParams.get("adoptedId");
+    const idToCheck = type === "adopted" ? adoptedId : postId;
     Endpoints.viewDebate(postId).then((res) => {
       setAuthor(res.createdBy._id);
       setPinnedAgainstCount(res.pinnedAgainstCount);
@@ -1197,7 +1209,7 @@ export function DebateSection({ forum }: { forum: TForum }) {
       setEndingDate(res.closingDate as Date);
     });
 
-    Endpoints.fetchDebateArgs(postId)
+    Endpoints.fetchDebateArgs(idToCheck as string)
       .then((res) => {
         const support = res.filter(
           (arg: Argument) => arg.participant.side === "support"
