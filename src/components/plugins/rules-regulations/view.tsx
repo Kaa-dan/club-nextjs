@@ -136,7 +136,7 @@ const View = ({ forum }: { forum: TForum }) => {
     ) || [];
 
   return (
-    <div className="max-w-full bg-white p-4">
+    <div className="max-w-full p-4">
       {/* Header with ID and Privacy */}
       <div className="mb-2 flex items-center justify-between">
         <h1 className="text-xl font-medium">{rule?.title}</h1>
@@ -281,7 +281,7 @@ const View = ({ forum }: { forum: TForum }) => {
                 <div className="font-semibold text-red-500">Private</div>
               )}
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-[425px] ">
               <DialogHeader>
                 <DialogTitle>Clubs and Nodes</DialogTitle>
               </DialogHeader>
@@ -300,7 +300,7 @@ const View = ({ forum }: { forum: TForum }) => {
                     filteredItems.map((item) => (
                       <div
                         key={item._id}
-                        className="flex items-center justify-between py-2"
+                        className="flex items-center  justify-between py-2"
                       >
                         <div className="flex flex-col">
                           <div className="flex items-center gap-2">
@@ -455,7 +455,7 @@ const View = ({ forum }: { forum: TForum }) => {
       </div>
 
       {/* Comment Input */}
-      {/* <CommentsSection plugin={plugin} postId={postId} forum={forum} forumId={forumId} /> */}
+      {/* <CommentsSection plugin={plugin} postId={postId} forum={forum} forumId={forumId} forum={forum} /> */}
     </div>
   );
 };

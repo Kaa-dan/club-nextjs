@@ -20,10 +20,11 @@ import { cn } from "@/lib/utils";
 import UserHoverCard from "../user-hover-card";
 import {
   DropdownMenu,
-  DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-} from "@radix-ui/react-dropdown-menu";
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { usePermission } from "@/lib/use-permission";
 
 const processCommentText = (text: string) => {
   return text?.split(" ")?.map((word, index) => {
@@ -47,10 +48,11 @@ interface InteractionState {
 
 const Comment: React.FC<{
   comment: TCommentType;
-  forumId: string;
-  forum: string;
+  forumId?: string;
+  forum: string | undefined;
   // postId:string
 }> = ({ comment, forumId, forum }) => {
+  const { hasPermission } = usePermission();
   const { setComments, comments } = useCommentsStore((state) => state);
   const { globalUser } = useTokenStore((state) => state);
   const { postId, plugin } = useParams<{ postId: string; plugin: TPlugins }>();
@@ -126,7 +128,6 @@ const Comment: React.FC<{
   //make solution handler
   const handleMakeSolution = async (commentId: string) => {
     try {
-      // forum forumId commentId postId
       const bodyObj = {
         forum,
         forumId,
@@ -134,6 +135,7 @@ const Comment: React.FC<{
         postId,
       };
       const response = await Endpoints.createSolution(bodyObj);
+
       toast.success("Comment marked as solution!");
     } catch (error) {
       console.error("Error marking as solution:", error);
@@ -234,23 +236,21 @@ const Comment: React.FC<{
             </span>
           </div>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button>
+          {hasPermission("update:asset") && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
                 <MoreHorizontal className="size-4 text-gray-500" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem
-                onClick={() => handleMakeSolution(comment?._id)}
-                className="gap-2"
-              >
-                <span className="cursor-pointer text-sm font-thin  mt-6 bg-green-400 text-white">
-                  Make Solution
-                </span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  onClick={() => handleMakeSolution(comment?._id)}
+                  className="gap-2"
+                >
+                  <span className="cursor-pointer">Make Solution</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
 
         <p className="mt-1 whitespace-pre-wrap text-sm">
