@@ -59,6 +59,7 @@ export function BookmarkModal({
         console.log({ error });
       } finally {
         setOpen(false);
+        setSelectedFolder("");
       }
     }
   };

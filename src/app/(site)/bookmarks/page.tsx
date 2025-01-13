@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/form";
 import { Endpoints } from "@/utils/endpoint";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const schema = z.object({
   title: z
@@ -70,6 +71,7 @@ export default function BookmarksPage() {
       toast.error("error while creating folder");
     }
   };
+  const router = useRouter();
   return (
     <div className="p-6">
       <div className="mb-4 flex items-center justify-between">
@@ -92,6 +94,9 @@ export default function BookmarksPage() {
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {items.map((item: { _id: string; title: string; posts: [] }) => (
           <div
+            onClick={() => {
+              router.push(`/bookmarks/${item._id}`);
+            }}
             key={item._id}
             className={` bg-gray-200 relative rounded-lg p-4`}
           >

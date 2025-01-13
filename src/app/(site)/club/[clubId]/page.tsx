@@ -66,16 +66,19 @@ interface BasePost {
 interface ProjectPost extends BasePost {
   type: "projects";
   projectSignificance: string;
+  isBookmarked: boolean;
 }
 
 interface DebatePost extends BasePost {
   type: "debate";
   debateSignificance: string;
+  isBookmarked: boolean;
 }
 
 interface IssuePost extends BasePost {
   type: "issues";
   issueSignificance: string;
+  isBookmarked: boolean;
 }
 
 type Post = ProjectPost | DebatePost | IssuePost;
@@ -98,6 +101,7 @@ const NodePage: React.FC = () => {
     try {
       const response = await Endpoints.getFeeds("club", clubId, page);
       const newPosts = response.items;
+      console.log({ response });
 
       setPosts((prev) => [...prev, ...newPosts]);
       setHasMore(response.hasMore);
@@ -394,17 +398,21 @@ const PostComponent: React.FC<PostComponentProps> = ({
                 {post.irrelevant?.length || "0"} Not Relevant
               </span>
             </Button>
-            <Button variant="outline" size="sm" className="gap-2">
-              <Bookmark className="size-4" />
-              <span
-                onClick={() => {
-                  setOpen(true);
-                  setPostId(post._id);
-                  setPostType(post.type);
-                }}
-                className="hidden lg:inline"
-              >
-                Save
+            <Button
+              onClick={() => {
+                setOpen(true);
+                setPostId(post._id);
+                setPostType(post.type);
+              }}
+              variant="outline"
+              size="sm"
+              className="gap-2"
+            >
+              <Bookmark
+                className={`size-4 ${post.isBookmarked ? "fill-current" : ""}`}
+              />
+              <span className="hidden lg:inline">
+                {post.isBookmarked ? "saved" : "save"}
               </span>
             </Button>
           </div>

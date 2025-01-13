@@ -656,9 +656,11 @@ export class Endpoints {
     }
   }
 
-  static async fetchFolders() {
+  static async fetchFolders(folderId?: string) {
     try {
-      const response = await withTokenAxios.get("/bookmarks");
+      const response = await withTokenAxios.get(
+        `/bookmarks?folderId=${folderId}`
+      );
       return response.data;
     } catch (error) {
       throw error;
