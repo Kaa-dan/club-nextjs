@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Dispatch, SetStateAction } from "react";
 import { useInView } from "react-intersection-observer";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -25,6 +25,7 @@ import {
   Eye,
   File,
   MoreVertical,
+  Save,
   Smile,
   ThumbsDown,
   ThumbsUp,
@@ -39,6 +40,7 @@ import {
   CarouselNext,
 } from "@/components/ui/carousel";
 import { useTokenStore } from "@/store/store";
+import { BookmarkModal } from "@/components/globals/bookmark/bookmark-modal";
 
 interface FileType {
   url: string;
@@ -64,21 +66,27 @@ interface BasePost {
 interface ProjectPost extends BasePost {
   type: "projects";
   projectSignificance: string;
+  isBookmarked: boolean;
 }
 
 interface DebatePost extends BasePost {
   type: "debate";
   debateSignificance: string;
+  isBookmarked: boolean;
 }
 
 interface IssuePost extends BasePost {
   type: "issues";
   issueSignificance: string;
+  isBookmarked: boolean;
 }
 
 type Post = ProjectPost | DebatePost | IssuePost;
 
 const NodePage: React.FC = () => {
+  const [open, setOpen] = useState(false);
+  const [postId, setPostId] = useState("");
+  const [postType, setPostType] = useState("");
   const [posts, setPosts] = useState<Post[]>([]);
   const [page, setPage] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(false);
@@ -93,6 +101,7 @@ const NodePage: React.FC = () => {
     try {
       const response = await Endpoints.getFeeds("club", clubId, page);
       const newPosts = response.items;
+      console.log({ response });
 
       setPosts((prev) => [...prev, ...newPosts]);
       setHasMore(response.hasMore);
@@ -170,12 +179,17 @@ const NodePage: React.FC = () => {
   return (
     <div className="mt-4 flex w-full flex-col items-start gap-3  px-4">
       {posts.map((post, index) => (
-        <PostComponent
-          clubId={clubId}
-          key={`${post._id}-${index}`}
-          post={post}
-          onRelevancyUpdate={handleRelevancyUpdate}
-        />
+        <>
+          <PostComponent
+            setOpen={setOpen}
+            setPostId={setPostId}
+            setPostType={setPostType}
+            clubId={clubId}
+            key={`${post._id}-${index}`}
+            post={post}
+            onRelevancyUpdate={handleRelevancyUpdate}
+          />
+        </>
       ))}
 
       {loading && (
@@ -197,12 +211,25 @@ const NodePage: React.FC = () => {
           No posts available
         </div>
       )}
+      {postId && (
+        <BookmarkModal
+          open={open}
+          postType={postType}
+          postId={postId}
+          setOpen={setOpen}
+        />
+      )}
+      {postType}
     </div>
   );
 };
 
 interface PostComponentProps {
   post: Post;
+  setOpen: Dispatch<SetStateAction<boolean>>;
+  setPostId: Dispatch<SetStateAction<string>>;
+  setPostType: Dispatch<SetStateAction<string>>;
+
   clubId: string;
   onRelevancyUpdate: (
     postId: string,
@@ -215,6 +242,9 @@ const PostComponent: React.FC<PostComponentProps> = ({
   post,
   clubId,
   onRelevancyUpdate,
+  setOpen,
+  setPostId,
+  setPostType,
 }) => {
   const { globalUser } = useTokenStore((state) => state);
   const userId = globalUser?._id;
@@ -368,9 +398,22 @@ const PostComponent: React.FC<PostComponentProps> = ({
                 {post.irrelevant?.length || "0"} Not Relevant
               </span>
             </Button>
-            <Button variant="outline" size="sm" className="gap-2">
-              <Bookmark className="size-4" />
-              <span className="hidden lg:inline">Save</span>
+            <Button
+              onClick={() => {
+                setOpen(true);
+                setPostId(post._id);
+                setPostType(post.type);
+              }}
+              variant="outline"
+              size="sm"
+              className="gap-2"
+            >
+              <Bookmark
+                className={`size-4 ${post.isBookmarked ? "fill-current" : ""}`}
+              />
+              <span className="hidden lg:inline">
+                {post.isBookmarked ? "saved" : "save"}
+              </span>
             </Button>
           </div>
         )}

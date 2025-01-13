@@ -78,7 +78,7 @@ const useDebates = (forum: TForum, forumId: string) => {
         String(currentPages.globalDebates)
       );
       if (response) {
-        console.log({ hello: response.pagination });
+        console.log({ hello: response });
         setGlobalDebates(response.data || []);
         setTotalPages((prev) => ({
           ...prev,
@@ -119,7 +119,7 @@ const useDebates = (forum: TForum, forumId: string) => {
         String(currentPages.proposed)
       );
       if (response) {
-        setProposed(response || []);
+        setProposed(response.data || []);
         setTotalPages((prev) => ({
           ...prev,
           proposed: response.pagination?.totalPages || 1,
