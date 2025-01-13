@@ -179,7 +179,7 @@ const NodePage: React.FC = () => {
       ))}
 
       {loading && (
-        <div className="item-center flex w-full justify-center p-4">
+        <div className="flex w-full items-center justify-center p-4">
           <div className="size-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
         </div>
       )}
@@ -244,7 +244,7 @@ const PostComponent: React.FC<PostComponentProps> = ({
   };
 
   return (
-    <Card className="w-full max-w-md">
+    <Card className="w-full max-w-md ">
       <CardHeader className="space-y-0 pb-4">
         <div className="flex items-start justify-between">
           <div className="flex gap-3">
