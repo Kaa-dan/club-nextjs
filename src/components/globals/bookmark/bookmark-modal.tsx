@@ -1,5 +1,4 @@
 "use client";
-
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,36 +15,47 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Folder, Plus, Bookmark } from "lucide-react";
 import { Endpoints } from "@/utils/endpoint";
 import { toast } from "sonner";
-// This would typically come from your backend or state management
+
+interface FolderPost {
+  createdAt: string;
+  entity: {
+    entityId: string;
+    entityType: string;
+  };
+  _id: string;
+}
+
+interface BookmarkFolder {
+  _id: string;
+  title: string;
+  user: string;
+  posts: FolderPost[];
+  createdAt: string;
+  updatedAt: string;
+}
 
 export function BookmarkModal({
   postId,
   setOpen,
   postType,
   open,
+  fetchPosts,
 }: {
   postId: string;
   setOpen: Dispatch<SetStateAction<boolean>>;
   postType: string;
   open: boolean;
+  fetchPosts: () => void;
 }) {
-  const [folders, setFolders] = useState([]);
+  const [folders, setFolders] = useState<BookmarkFolder[]>([]);
   const [newFolderName, setNewFolderName] = useState("");
   const [selectedFolder, setSelectedFolder] = useState<string>("");
-  console.log({ postType });
-  // const handleCreateFolder = () => {
-  //   if (newFolderName.trim()) {
-  //     const newFolder = {
-  //       id: folders.length + 1,
-  //       name: newFolderName.trim(),
-  //     };
-  //     setFolders([...folders, newFolder]);
-  //     setNewFolderName("");
-  //     setSelectedFolder(newFolder.id);
-  //   }
-  // };
 
-  const handleBookmark = async () => {
+  const isPostInFolder = (folder: BookmarkFolder) => {
+    return folder.posts.some((post) => post.entity.entityId === postId);
+  };
+  console.log({ postType, postId });
+  const handleAction = async () => {
     if (selectedFolder) {
       try {
         const response = await Endpoints.addToBookmark(
@@ -53,13 +63,23 @@ export function BookmarkModal({
           postId,
           selectedFolder
         );
-        toast.success(response.message);
+        const selectedFolderData = folders.find(
+          (folder) => folder._id === selectedFolder
+        );
+        const isAlreadyBookmarked = selectedFolderData
+          ? isPostInFolder(selectedFolderData)
+          : false;
+        toast.success(
+          isAlreadyBookmarked ? "Removed from folder" : "Added to folder"
+        );
+        fetchPosts();
       } catch (error) {
-        toast.error("error adding to bookmark");
+        toast.error("Error updating bookmark");
         console.log({ error });
       } finally {
         setOpen(false);
         setSelectedFolder("");
+        console.log({ postType, postId });
       }
     }
   };
@@ -72,32 +92,64 @@ export function BookmarkModal({
       .catch((err) => {
         console.log({ err });
       });
-  }, []);
+  }, [open]);
+
+  const getButtonText = () => {
+    if (!selectedFolder) return "Select a folder";
+
+    const selectedFolderData = folders.find(
+      (folder) => folder._id === selectedFolder
+    );
+    return selectedFolderData && isPostInFolder(selectedFolderData)
+      ? "Remove from folder"
+      : "Add to folder";
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Bookmark Post</DialogTitle>
+          <div className="flex items-center justify-between">
+            <DialogTitle>Bookmark Post</DialogTitle>
+          </div>
           <DialogDescription>
             Choose a folder to save this post or create a new one.
           </DialogDescription>
         </DialogHeader>
         <ScrollArea className="mt-4 max-h-[300px] pr-4">
-          {folders.map((folder: { _id: string; title: string }) => (
+          {folders.map((folder) => (
             <Button
               key={folder._id}
-              variant={selectedFolder == folder._id ? "secondary" : "ghost"}
+              variant={selectedFolder === folder._id ? "secondary" : "ghost"}
               className="w-full justify-start mb-2"
               onClick={() => setSelectedFolder(folder._id)}
             >
-              <Folder
-                className={`${selectedFolder === folder._id ? "text-white" : "text-black"} mr-2 h-4 w-4`}
-              />
-              <span
-                className={`${selectedFolder === folder._id ? "text-white" : "text-black"}`}
-              >
-                {folder.title}
-              </span>
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center space-x-2">
+                  <Folder
+                    className={`${
+                      selectedFolder === folder._id
+                        ? "text-white"
+                        : "text-black"
+                    } h-4 w-4`}
+                  />
+                  <span
+                    className={`${
+                      selectedFolder === folder._id
+                        ? "text-white"
+                        : "text-black"
+                    }`}
+                  >
+                    {folder.title}
+                  </span>
+                </div>
+                <Bookmark
+                  className={`${
+                    selectedFolder === folder._id ? "text-white" : "text-black"
+                  } h-4 w-4`}
+                  fill={isPostInFolder(folder) ? "currentColor" : "none"}
+                />
+              </div>
             </Button>
           ))}
         </ScrollArea>
@@ -113,8 +165,19 @@ export function BookmarkModal({
           </Button>
         </div>
         <DialogFooter>
-          <Button onClick={handleBookmark} disabled={!selectedFolder}>
-            Bookmark
+          <Button
+            onClick={handleAction}
+            disabled={!selectedFolder}
+            variant={
+              selectedFolder &&
+              folders
+                .find((f) => f._id === selectedFolder)
+                ?.posts.some((p) => p.entity.entityId === postId)
+                ? "destructive"
+                : "default"
+            }
+          >
+            {getButtonText()}
           </Button>
         </DialogFooter>
       </DialogContent>

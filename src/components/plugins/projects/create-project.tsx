@@ -39,7 +39,7 @@ import { currencyData } from "@/utils/data/currency";
 import { format } from "date-fns";
 import { Info, InfoIcon, Plus, PlusCircle, Trash2, X } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useMemo } from "react";
 import ReactQuill from "react-quill-new";
 import { toast } from "sonner";
@@ -55,6 +55,7 @@ export default function ProjectForm({
 }) {
   const { currentClub } = useClubStore((state) => state);
   const { currentNode } = useNodeStore((state) => state);
+  const { nodeId } = useParams<{ nodeId: string }>();
   const router = useRouter();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -205,7 +206,9 @@ export default function ProjectForm({
 
       // Wait for the API call to complete
       await ProjectApi.create(formData);
-      router.push(`/${forum}/${forumId}/projects`);
+      if (forum === "chapter")
+        router.push(`/node/${nodeId}/${forum}/${forumId}/projects`);
+      else router.push(`/${forum}/${forumId}/projects`);
 
       toast.success("Project created successfully");
 
@@ -906,6 +909,7 @@ export default function ProjectForm({
                           <Input
                             placeholder="Enter value"
                             value={param.value}
+                            type="number"
                             onChange={(e) => {
                               const newValue = [...field.value];
                               newValue[index] = {

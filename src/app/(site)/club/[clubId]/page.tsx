@@ -95,13 +95,13 @@ const NodePage: React.FC = () => {
   const { clubId } = useParams<{ clubId: string }>();
 
   const fetchPosts = async (): Promise<void> => {
+    console.log("called...");
     if (loading || !hasMore) return;
 
     setLoading(true);
     try {
       const response = await Endpoints.getFeeds("club", clubId, page);
       const newPosts = response.items;
-      console.log({ response });
 
       setPosts((prev) => [...prev, ...newPosts]);
       setHasMore(response.hasMore);
@@ -217,9 +217,9 @@ const NodePage: React.FC = () => {
           postType={postType}
           postId={postId}
           setOpen={setOpen}
+          fetchPosts={fetchPosts}
         />
       )}
-      {postType}
     </div>
   );
 };

@@ -466,11 +466,34 @@ export function RulesTable({
   totalPage: any;
   currentPage: any;
 }) {
+  console.log({ currentPage });
   const columns: ColumnDef<Rule>[] = [
     {
       accessorKey: "sno",
       header: "No.",
-      cell: ({ row }) => <div className="font-medium">{row.index + 1}</div>,
+      cell: ({ row }) => {
+        // Get the current page based on the active tab
+        const getPageNumber = (tab: any) => {
+          switch (tab) {
+            case "Global Rules":
+              return currentPage.globalRules;
+            case "Active":
+              return currentPage.activeRules;
+            case "All Rules":
+              return currentPage.activeRules;
+            case "My Rules":
+              return currentPage.myRules;
+            default:
+              return 1;
+          }
+        };
+
+        return (
+          <div className="font-medium">
+            {Number((getPageNumber(tab) - 1) * 10) + row.index + 1}
+          </div>
+        );
+      },
     },
     {
       accessorKey: "title",

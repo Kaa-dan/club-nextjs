@@ -246,7 +246,6 @@ export default function Page() {
     handleClear(userId);
     setIsEditing((prev) => ({ ...prev, [userId]: false }));
   };
-  console.log({ currentNode });
   return (
     <>
       <Card className="ml-5 mt-5 w-full  max-w-3xl">
@@ -304,13 +303,15 @@ export default function Page() {
                   <Invite entityId={nodeId} type={"node"} />
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="gap-2 text-red-500 hover:text-red-600"
-                      >
-                        <LogOut className="size-4" />
-                        <span>Leave Node</span>
-                      </Button>
+                      {hasPermission("permission:leave") && (
+                        <Button
+                          variant="outline"
+                          className="gap-2 text-red-500 hover:text-red-600"
+                        >
+                          <LogOut className="size-4" />
+                          <span>Leave Node</span>
+                        </Button>
+                      )}
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
@@ -413,7 +414,7 @@ export default function Page() {
             <TableHeader>
               <TableRow className="hover:bg-transparent">
                 <TableHead className="w-[280px]">{`Member's Name`}</TableHead>
-                <TableHead className="w-[120px]">Level</TableHead>
+                {/* <TableHead className="w-[120px]">Level</TableHead> */}
                 <TableHead className="w-[120px] text-center">
                   Contribution
                 </TableHead>
@@ -454,9 +455,9 @@ export default function Page() {
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell>
+                  {/* <TableCell>
                     <RoleBadge role={member?.role} />
-                  </TableCell>
+                  </TableCell> */}
                   <TableCell className="text-center">{0}</TableCell>
                   <TableCell>
                     <div className="flex w-[300px] items-center space-x-2">

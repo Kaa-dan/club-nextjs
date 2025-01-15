@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -7,15 +9,15 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarImage, AvatarFallback } from "@radix-ui/react-avatar";
-import { Label } from "@radix-ui/react-label";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectTrigger,
   SelectValue,
   SelectContent,
   SelectItem,
-} from "@radix-ui/react-select";
+} from "@/components/ui/select";
 import { X, Search, Mail } from "lucide-react";
 import { PointerEvent, useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -63,7 +65,7 @@ export default function Invite({ entityId, type }: InviteProps): JSX.Element {
       setAllUsers(response);
     } catch (error) {
       console.log({ error });
-      toast("can't fetch user right now");
+      toast.error("Can't fetch users right now");
     }
   };
 
@@ -105,13 +107,13 @@ export default function Invite({ entityId, type }: InviteProps): JSX.Element {
   return (
     <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
       <DialogTrigger asChild>
-        <Button className="gap-2 ">
+        <Button className="gap-2">
           <span>+ Invite </span>
         </Button>
       </DialogTrigger>
       <DialogContent
         className="sm:max-w-[500px]"
-        onPointerDownOutside={(e) => e.preventDefault()}
+        // onPointerDownOutside={(e: PointerEvent) => e.preventDefault()}
       >
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">
@@ -120,9 +122,9 @@ export default function Invite({ entityId, type }: InviteProps): JSX.Element {
         </DialogHeader>
         <hr />
 
-        <div className="grid gap-4 py-4 ">
+        <div className="grid gap-4 py-4">
           <div className="relative flex gap-5">
-            <Search className="absolute left-2 top-2.5 size-4 text-muted-foreground" />
+            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setSearch(e.target.value)
@@ -130,79 +132,68 @@ export default function Invite({ entityId, type }: InviteProps): JSX.Element {
               placeholder="Search members..."
               className="pl-8"
             />
-            <div className="flex items-center space-x-2 rounded-md border px-2">
-              <Mail />
-              <Label htmlFor="email-invite">Email</Label>
-            </div>
           </div>
           <hr />
-          <div className="rounded-md">
-            <Select>
-              {/* country select  */}
-              <SelectTrigger className="w-1/2">
-                <SelectValue placeholder="Select Location" />
-              </SelectTrigger>
-              <SelectContent className="bg-white ">
-                <SelectItem className="w-full" value="new-york">
-                  New York
-                </SelectItem>
-                <SelectItem value="los-angeles">Los Angeles</SelectItem>
-                <SelectItem value="chicago">Chicago</SelectItem>
-                <SelectItem value="houston">Houston</SelectItem>
-                <SelectItem value="miami">Miami</SelectItem>
-                <SelectItem value="seattle">Seattle</SelectItem>
-                <SelectItem value="boston">Boston</SelectItem>
-                <SelectItem value="san-francisco">San Francisco</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+
           <div className="max-h-[200px] space-y-4 overflow-y-auto">
-            {allUsers?.map((user, idx) => (
-              <div
-                key={idx}
-                className="flex items-center  w-[95%] justify-between"
-              >
-                <div className="flex gap-4">
-                  <div className="size-16">
-                    <Avatar>
-                      <AvatarImage
-                        src={user?.profileImage}
-                        alt={user?.firstName}
-                      />
-                      <AvatarFallback>
-                        {user?.firstName?.charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
-                  </div>
-                  <div className="flex flex-col justify-center text-lg text-slate-600">
-                    <div className="flex gap-4">
-                      <p className="font-medium uppercase leading-none">
-                        {user?.firstName}
-                      </p>
-                      <p className="font-medium uppercase leading-none">
-                        {user?.lastName}
-                      </p>
-                    </div>
-                    <div className="text-base uppercase text-slate-400">
-                      doctor
-                    </div>
-                  </div>
-                </div>
-                <button
-                  onClick={() =>
-                    sentInvitationHandler(entityId, user?._id, type)
-                  }
-                  className="rounded-md  px-2 py-1 bg-green-400  text-white"
+            {allUsers.length > 0 ? (
+              allUsers.map((user, idx) => (
+                <div
+                  key={idx}
+                  className="flex w-[95%] items-center justify-between"
                 >
-                  Invite
-                </button>
+                  <div className="flex gap-4">
+                    <div className="h-16 w-16">
+                      <Avatar>
+                        <AvatarImage
+                          src={user?.profileImage}
+                          alt={user?.firstName}
+                        />
+                        <AvatarFallback>
+                          {user?.firstName?.charAt(0)}
+                        </AvatarFallback>
+                      </Avatar>
+                    </div>
+                    <div className="flex flex-col justify-center text-lg text-slate-600">
+                      <div className="flex gap-4">
+                        <p className="font-medium uppercase leading-none">
+                          {user?.firstName}
+                        </p>
+                        <p className="font-medium uppercase leading-none">
+                          {user?.lastName}
+                        </p>
+                      </div>
+                      <div className="text-base uppercase text-slate-400">
+                        doctor
+                      </div>
+                    </div>
+                  </div>
+                  <Button
+                    onClick={() =>
+                      sentInvitationHandler(entityId, user?._id, type)
+                    }
+                    className="bg-green-400 text-white hover:bg-green-500"
+                  >
+                    Invite
+                  </Button>
+                </div>
+              ))
+            ) : (
+              <div className="flex items-center justify-center h-[200px] text-slate-500">
+                No search results found
               </div>
-            ))}
+            )}
           </div>
         </div>
         <div className="flex justify-end space-x-2">
-          <Button variant="outline">Cancel</Button>
-          <Button>Copy Link</Button>
+          <Button
+            onClick={() => {
+              setInviteOpen(false);
+            }}
+            variant="outline"
+          >
+            Cancel
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
