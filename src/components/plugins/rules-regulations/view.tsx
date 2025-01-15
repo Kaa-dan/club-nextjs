@@ -57,6 +57,7 @@ interface ClubAndNodesData {
 const View = ({ forum }: { forum: TForum }) => {
   const { globalUser } = useTokenStore((state) => state);
   const router = useRouter();
+  const [showComment, setShowComment] = useState(false);
   const [rule, setRule] = useState<TRule>();
   const { postId, plugin } = useParams<{
     plugin: TPlugins;
@@ -405,15 +406,17 @@ const View = ({ forum }: { forum: TForum }) => {
       ))}
 
       {/* Interaction Bar */}
-      <div className="flex items-center justify-between border-t py-4">
+      <div className="flex items-center justify-between border-t  py-4">
         <div className="flex gap-6">
-          <button className="flex items-center gap-1">
+          <button
+            onClick={() => {
+              Endpoints.likeRules(postId).then(() => {
+                fetchSpecificRule();
+              });
+            }}
+            className="flex items-center gap-1"
+          >
             <ThumbsUp
-              onClick={() => {
-                Endpoints.likeRules(postId).then(() => {
-                  fetchSpecificRule();
-                });
-              }}
               className="size-4  text-green-500"
               fill={
                 rule?.relevant?.includes(globalUser?._id)
@@ -425,13 +428,15 @@ const View = ({ forum }: { forum: TForum }) => {
               {rule?.relevant?.length} Relevant
             </span>
           </button>
-          <button className="flex items-center gap-1">
+          <button
+            onClick={() => {
+              Endpoints.disLikeRules(postId).then(() => {
+                fetchSpecificRule();
+              });
+            }}
+            className="flex items-center gap-1"
+          >
             <ThumbsDown
-              onClick={() => {
-                Endpoints.disLikeRules(postId).then(() => {
-                  fetchSpecificRule();
-                });
-              }}
               fill={
                 rule?.irrelevant?.includes(globalUser?._id)
                   ? "currentColor"
@@ -443,7 +448,10 @@ const View = ({ forum }: { forum: TForum }) => {
               {rule?.irrelevant?.length} Not Relevant
             </span>
           </button>
-          <button className="flex items-center gap-1">
+          <button
+            onClick={() => setShowComment((prev) => !prev)}
+            className="flex items-center gap-1"
+          >
             <MessageCircle className="size-4" />
             <span className="text-sm">Comments</span>
           </button>
@@ -455,7 +463,12 @@ const View = ({ forum }: { forum: TForum }) => {
       </div>
 
       {/* Comment Input */}
-      <CommentsSection plugin={plugin} postId={postId} forum={forum} />
+      <CommentsSection
+        plugin={plugin}
+        postId={postId}
+        forum={forum}
+        showComment={showComment}
+      />
     </div>
   );
 };

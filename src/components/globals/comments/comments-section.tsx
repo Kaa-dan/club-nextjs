@@ -18,7 +18,8 @@ const CommentsSection: React.FC<{
   postId: string;
   forumId?: string;
   forum?: string;
-}> = ({ plugin, postId, forumId, forum }) => {
+  showComment?: boolean;
+}> = ({ plugin, postId, forumId, forum, showComment }) => {
   console.log({ plugin, nithin: "nithin" });
   const { socket, isConnected, connect, disconnect, sendComment } =
     useSocketStore();
@@ -94,7 +95,7 @@ const CommentsSection: React.FC<{
 
   return (
     <div className="mx-auto  w-full max-w-2xl">
-      <CommentInput />
+      {showComment && <CommentInput />}
       <div className="flex justify-between border-b p-4">
         <div className="font-medium">Comments ({comments?.length || 0})</div>
         <DropdownMenu>
