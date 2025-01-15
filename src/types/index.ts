@@ -62,6 +62,7 @@ export type TClub = {
   isPublic: boolean;
   status: string;
   members?: any[];
+  createdAt: any;
 };
 
 export interface Request {

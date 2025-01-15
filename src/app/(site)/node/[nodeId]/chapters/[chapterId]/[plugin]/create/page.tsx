@@ -1,28 +1,29 @@
+import React from "react";
 import { CustomBreadcrumb } from "@/components/globals/breadcrumb-component";
-import View from "@/components/plugins/rules-regulations/view";
-import { viewPluginConfig } from "@/components/plugins/view-plugins.config";
+import { createPluginConfig } from "@/components/plugins/create-plugins.config";
+
 const Page = async ({
   params,
 }: {
-  params: Promise<{ clubId: string; plugin: string }>;
+  params: Promise<{ nodeId: string; plugin: string; chapterId: string }>;
 }) => {
-  const { clubId, plugin } = await params;
+  const { nodeId, plugin, chapterId } = await params;
 
   const isValidPlugin = (plugin: string): plugin is TPlugins =>
-    plugin in viewPluginConfig;
+    plugin in createPluginConfig;
 
   if (!isValidPlugin(plugin)) return <div>Plugin not found</div>;
 
-  const config = viewPluginConfig[plugin];
+  const config = createPluginConfig[plugin];
   const PluginComponent = config.component;
 
   const breadcrumbItems = [
-    { label: config.title, href: `/club/${clubId}/${plugin}` },
-    { label: `View ${plugin.slice(0, -1)} details` },
+    { label: config.title, href: `/node/${nodeId}/${chapterId}/${plugin}` },
+    { label: `Create new ${plugin}` },
   ];
 
   return (
-    <div className=" min-w-full ">
+    <div className=" min-w-full">
       <div className="flex flex-col gap-4">
         <div>
           <h1 className="text-xl">{config.title}</h1>
@@ -32,8 +33,8 @@ const Page = async ({
         </div>
         <CustomBreadcrumb items={breadcrumbItems} className="my-1" />
 
-        <div className="w-full ">
-          <PluginComponent forumId={clubId} forum="club" />
+        <div className="w-full">
+          <PluginComponent forumId={chapterId} forum="chapter" />
         </div>
       </div>
     </div>

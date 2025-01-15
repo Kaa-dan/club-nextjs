@@ -77,7 +77,12 @@ export default function ViewProject({
           <FAQList faqs={project?.faqs!} />
         </TabsContent>
       </Tabs>
-      <CommentsSection plugin={plugin} postId={postId} />
+      <CommentsSection
+        plugin={plugin}
+        postId={postId}
+        forum={forum}
+        forumId={forumId}
+      />
     </>
   );
 }

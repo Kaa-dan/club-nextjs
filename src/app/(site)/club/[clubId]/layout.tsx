@@ -61,15 +61,10 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <div className="relative flex w-full gap-6 ">
+    <div className="relative flex w-full gap-6  ">
       <>
-        <div className=" flex  w-11/12  gap-3">
+        <div className=" flex  w-11/12 gap-3 ">
           <div className="w-1/4 shrink-0 flex-col">
-            {/* <ClubProfileCard
-              currentPage={currentPage}
-              setCurrentPage={setCurrentPage}
-              clubId={params.clubId}
-            /> */}
             <ForumSidebar
               type="club"
               currentPage={currentPage}

@@ -649,7 +649,6 @@ const CONSTANTS = {
 
 // Types
 type IssueStatus = "draft" | "published";
-type TForum = "club" | "node"; // Add more types as needed
 
 // Schema
 const formSchema = z.object({
@@ -838,7 +837,7 @@ export default function CreateIssueForm({
   );
 
   return (
-    <div className="mx-auto bg-red-500 p-6">
+    <div className="mx-auto  p-6">
       <Card className="p-4">
         <Form {...form}>
           <form className="w-full space-y-6">
@@ -941,7 +940,7 @@ export default function CreateIssueForm({
                             toast.warning("Please select a valid future date");
                           }
                         }}
-                        className="w-full pl-10 pr-4 py-2 border justify-center text-green-300 font-semibold border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                        className="w-full justify-center rounded-md border border-slate-300 py-2 pl-10 pr-4 font-semibold  focus:outline-none focus:ring-2 "
                       />
                     </div>
                     <FormMessage />
@@ -987,43 +986,6 @@ export default function CreateIssueForm({
               />
             </div>
 
-            {/* Who Should Address */}
-            <FormField
-              control={form.control}
-              name="whoShouldAddress"
-              render={({ field }) => (
-                <FormItem className="flex w-full flex-col md:w-1/2">
-                  <TooltipLabel
-                    label="Who should address"
-                    tooltip="Select who should be responsible for this issue"
-                  />
-                  <FormControl>
-                    <MultiSelect
-                      options={
-                        forum === "club"
-                          ? currentClub?.members?.map((member: any) => ({
-                              title: member?.user?.userName,
-                              value: member?.user?._id,
-                            })) || []
-                          : currentNode?.members?.map((member: any) => ({
-                              title: member?.user?.userName,
-                              value: member?.user?._id,
-                            })) || []
-                      }
-                      defaultValue={field.value || []}
-                      onValueChange={(selectedValues) => {
-                        field.onChange(selectedValues);
-                      }}
-                      placeholder="Select who should address"
-                      variant="inverted"
-                      maxCount={1}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
             {/* Description */}
             <FormField
               control={form.control}
@@ -1056,7 +1018,7 @@ export default function CreateIssueForm({
                 className="cursor-pointer"
                 ref={imageRef}
               />
-              <FormDescription>
+              <FormDescription className="my-0 py-0 text-gray-500">
                 Upload images, PDFs, Word documents, or Excel files (max 5MB
                 each)
               </FormDescription>
@@ -1100,6 +1062,43 @@ export default function CreateIssueForm({
                 </div>
               )}
             </div>
+
+            {/* Who Should Address */}
+            <FormField
+              control={form.control}
+              name="whoShouldAddress"
+              render={({ field }) => (
+                <FormItem className="flex w-full flex-col">
+                  <TooltipLabel
+                    label="Who should address"
+                    tooltip="Select who should be responsible for this issue"
+                  />
+                  <FormControl>
+                    <MultiSelect
+                      options={
+                        forum === "club"
+                          ? currentClub?.members?.map((member: any) => ({
+                              title: member?.user?.userName,
+                              value: member?.user?._id,
+                            })) || []
+                          : currentNode?.members?.map((member: any) => ({
+                              title: member?.user?.userName,
+                              value: member?.user?._id,
+                            })) || []
+                      }
+                      defaultValue={field.value || []}
+                      onValueChange={(selectedValues) => {
+                        field.onChange(selectedValues);
+                      }}
+                      placeholder="Select who should address"
+                      variant="inverted"
+                      maxCount={3}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             {/* Privacy Settings */}
             <FormField

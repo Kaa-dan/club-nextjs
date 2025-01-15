@@ -56,7 +56,7 @@ const RulesLayout = ({
     ruleCount,
     setCurrentPages,
   } = useRules(forum, forumId);
-
+  console.log({ globalRules });
   const [activeTab, setActiveTab] = useState("Active");
 
   const tabs: TabData[] = [
