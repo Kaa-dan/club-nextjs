@@ -118,6 +118,7 @@ interface IDebate {
   adoptionInfo: any;
   type: string;
   adoptionId: string;
+  creator: IUser;
 }
 
 interface DebateTableProps {
@@ -297,7 +298,7 @@ export default function DebateTable({
     accessorKey: "createdBy",
     header: "Posted by",
     cell: ({ row }) => {
-      const { firstName, profileImage } = row.original.createdBy;
+      const { firstName, profileImage } = row.original.creator;
       return (
         <div className="flex items-center gap-2">
           <Avatar>

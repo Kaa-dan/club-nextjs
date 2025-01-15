@@ -36,6 +36,7 @@ const IssuesLayout = ({
     currentPages,
     setCurrentPages,
     totalPages,
+    issueCount,
   } = useIssues(forum, forumId);
 
   const { hasPermission } = usePermission();
@@ -43,19 +44,19 @@ const IssuesLayout = ({
   const tabs: TabData[] = [
     {
       label: "Live Issues",
-      count: liveIssues.length || 0,
+      count: issueCount.liveIssues || 0,
     },
     {
       label: "All Issues",
-      count: allIssues.length || 0,
+      count: issueCount.allIssues || 0,
     },
     {
       label: "Global Library",
-      count: globalIssues.length || 0,
+      count: issueCount.globalIssues || 0,
     },
     {
       label: "My Issues",
-      count: myIssues.length || 0,
+      count: issueCount.myIssues || 0,
     },
   ];
 

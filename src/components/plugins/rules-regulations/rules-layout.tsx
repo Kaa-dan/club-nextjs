@@ -53,6 +53,7 @@ const RulesLayout = ({
     loading,
     currentPages,
     totalPages,
+    ruleCount,
     setCurrentPages,
   } = useRules(forum, forumId);
 
@@ -61,15 +62,15 @@ const RulesLayout = ({
   const tabs: TabData[] = [
     {
       label: "Active",
-      count: activeRules.length || 0,
+      count: ruleCount.activeRules || 0,
     },
     {
       label: "All Rules",
-      count: activeRules.length || 0,
+      count: ruleCount.activeRules || 0,
     },
     {
       label: "Global Rules",
-      count: globalRules.length || 0,
+      count: ruleCount.globalRules || 0,
     },
     {
       label: "My Rules",

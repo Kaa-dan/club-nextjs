@@ -30,6 +30,13 @@ const useIssues = (forum: TForum, forumId: string) => {
     proposedIssues: 1,
   });
 
+  const [issueCount, setIssueCount] = useState({
+    myIssues: 0,
+    allIssues: 0,
+    liveIssues: 0,
+    globalIssues: 0,
+    proposedIssues: 0,
+  });
   // Individual fetch functions
   const fetchMyIssues = useCallback(async () => {
     try {
@@ -43,6 +50,11 @@ const useIssues = (forum: TForum, forumId: string) => {
         setTotalPages((prev) => ({
           ...prev,
           myIssues: response.pagination?.totalPages || 1,
+        }));
+
+        setIssueCount((prev) => ({
+          ...prev,
+          myIssues: response.pagination.totalItems,
         }));
       }
     } catch (err) {
@@ -64,6 +76,10 @@ const useIssues = (forum: TForum, forumId: string) => {
           ...prev,
           allIssues: response.pagination?.totalPages || 1,
         }));
+        setIssueCount((prev) => ({
+          ...prev,
+          allIssues: response?.pagination?.totalItems || 0,
+        }));
       }
     } catch (err) {
       console.error("Error fetching all issues:", err);
@@ -84,6 +100,11 @@ const useIssues = (forum: TForum, forumId: string) => {
           ...prev,
           liveIssues: response.pagination?.totalPages || 1,
         }));
+
+        setIssueCount((prev) => ({
+          ...prev,
+          liveIssues: response?.pagination?.totalItems || 0,
+        }));
       }
     } catch (err) {
       console.error("Error fetching live issues:", err);
@@ -101,6 +122,11 @@ const useIssues = (forum: TForum, forumId: string) => {
         setTotalPages((prev) => ({
           ...prev,
           globalIssues: response.pagination?.totalPages || 1,
+        }));
+
+        setIssueCount((prev) => ({
+          ...prev,
+          globalIssues: response?.pagination?.totalItems || 0,
         }));
       }
     } catch (err) {
@@ -121,6 +147,11 @@ const useIssues = (forum: TForum, forumId: string) => {
         setTotalPages((prev) => ({
           ...prev,
           proposedIssues: response.pagination?.totalPages || 1,
+        }));
+
+        setIssueCount((prev) => ({
+          ...prev,
+          proposedIssues: response?.pagination?.totalItems || 0,
         }));
       }
     } catch (err) {
@@ -184,6 +215,7 @@ const useIssues = (forum: TForum, forumId: string) => {
     loading,
     clickTrigger,
     setClickTrigger,
+    issueCount,
     // Pagination states
     currentPages,
     totalPages,

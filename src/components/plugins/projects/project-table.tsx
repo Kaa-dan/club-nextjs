@@ -323,7 +323,29 @@ export default function ProjectTable({
     {
       accessorKey: "sno",
       header: "SNO",
-      cell: ({ row }) => <div className="font-medium">{row.index + 1}</div>,
+      cell: ({ row }) => {
+        // Get current page based on project tab
+        const getCurrentPage = (tab: any) => {
+          switch (tab) {
+            case "All Projects":
+              return currentPages.allProjects;
+            case "On going projects":
+              return currentPages.activeProjects;
+            case "Global Projects":
+              return currentPages.globalProjects;
+            case "My Projects":
+              return currentPages.myProjects;
+            default:
+              return 1;
+          }
+        };
+
+        return (
+          <div className="font-medium">
+            {Number((getCurrentPage(tab) - 1) * 10) + row.index + 1}
+          </div>
+        );
+      },
     },
     {
       accessorKey: "Projects",
