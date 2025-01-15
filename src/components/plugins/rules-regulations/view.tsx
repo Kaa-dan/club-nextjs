@@ -455,10 +455,10 @@ const View = ({ forum }: { forum: TForum }) => {
             <MessageCircle className="size-4" />
             <span className="text-sm">Comments</span>
           </button>
-          <button className="flex items-center gap-1">
+          {/* <button className="flex items-center gap-1">
             <Share2 className="size-4" />
             <span className="text-sm">Share</span>
-          </button>
+          </button> */}
         </div>
       </div>
 

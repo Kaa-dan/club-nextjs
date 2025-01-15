@@ -718,6 +718,7 @@ const ContentDailog = ({
     form.reset(formData);
   }, [formData, form]);
 
+  //handler for
   const fetchUserNodesOrClubs = async () => {
     console.log("fetchUserNodesOrClubs");
     try {

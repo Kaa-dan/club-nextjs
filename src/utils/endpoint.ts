@@ -175,14 +175,24 @@ export class Endpoints {
       throw error;
     }
   }
-
-  static async getActiveRules(type: string, Id: string, page: string) {
+  static async getActiveRules(
+    type: string,
+    Id: string,
+    page: string,
+    search: string
+  ) {
     try {
-      const queryParams = new URLSearchParams({
+      const params: Record<string, string> = {
         type: type,
         from: Id,
         page: page,
-      }).toString();
+      };
+
+      if (search) {
+        params.search = search;
+      }
+
+      const queryParams = new URLSearchParams(params).toString();
 
       const response = await withTokenAxios.get(
         `rules-regulations/get-all-active-rules?${queryParams}`
@@ -193,13 +203,18 @@ export class Endpoints {
     }
   }
 
-  static async getGlobalRules(page: string) {
+  static async getGlobalRules(page: string, search?: string) {
     try {
-      const queryParams = new URLSearchParams({
-        page,
-      }).toString();
+      const queryParams = new URLSearchParams();
+      queryParams.append("page", page);
+
+      // Add search to query params if it exists and isn't empty
+      if (search?.trim()) {
+        queryParams.append("search", search.trim());
+      }
+
       const response = await withTokenAxios.get(
-        `rules-regulations?${queryParams}`
+        `rules-regulations?${queryParams.toString()}`
       );
       return response.data;
     } catch (error) {

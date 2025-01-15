@@ -2,8 +2,8 @@ import { Endpoints } from "@/utils/endpoint";
 import { useCallback, useState, useEffect } from "react";
 import { RulesAndRegulationsEndpoints } from "@/utils/endpoints/plugins/rules-and-regulations";
 
-const useRules = (forum: TForum, forumId: string) => {
-  // Keeping existing states
+const useRules = (forum: TForum, forumId: string, search: string) => {
+  // States for different rule types
   const [activeRules, setActiveRules] = useState([]);
   const [globalRules, setGlobalRules] = useState([]);
   const [offenses, setOffenses] = useState([]);
@@ -11,7 +11,7 @@ const useRules = (forum: TForum, forumId: string) => {
   const [loading, setLoading] = useState(false);
   const [clickTrigger, setClickTrigger] = useState(false);
 
-  // Adding pagination states
+  // Pagination states
   const [currentPages, setCurrentPages] = useState({
     globalRules: 1,
     activeRules: 1,
@@ -26,13 +26,14 @@ const useRules = (forum: TForum, forumId: string) => {
     myRules: 1,
   });
 
-  // Individual fetch functions
+  // Fetching active rules
   const fetchActiveRules = useCallback(async () => {
     try {
       const response = await Endpoints.getActiveRules(
         forum,
         forumId,
-        String(currentPages.activeRules)
+        String(currentPages.activeRules),
+        search
       );
       if (response) {
         setActiveRules(response.data);
@@ -44,12 +45,14 @@ const useRules = (forum: TForum, forumId: string) => {
     } catch (err) {
       console.error("Error fetching active rules:", err);
     }
-  }, [forum, forumId, currentPages.activeRules]);
+  }, [forum, forumId, currentPages.activeRules, search]);
 
+  // Fetching global rules
   const fetchGlobalRules = useCallback(async () => {
     try {
       const response = await Endpoints.getGlobalRules(
-        String(currentPages.globalRules)
+        String(currentPages.globalRules),
+        search
       );
       if (response) {
         setGlobalRules(response.data);
@@ -61,8 +64,9 @@ const useRules = (forum: TForum, forumId: string) => {
     } catch (err) {
       console.error("Error fetching global rules:", err);
     }
-  }, [currentPages.globalRules]);
+  }, [currentPages.globalRules, search]);
 
+  // Fetching offenses
   const fetchOffenses = useCallback(async () => {
     try {
       const response = await RulesAndRegulationsEndpoints.fetchOffeses(
@@ -81,13 +85,16 @@ const useRules = (forum: TForum, forumId: string) => {
     }
   }, [forum, forumId, currentPages.offenses]);
 
+  // Fetching single user rules
   const fetchMyRules = useCallback(async () => {
     try {
+      console.log("consoling inside user rule ");
       const response =
         await RulesAndRegulationsEndpoints.fetchMyRulesOnNodeOrClub(
           forum,
           forumId,
-          String(currentPages.myRules)
+          String(currentPages.myRules),
+          search
         );
       if (response) {
         setMyRules(response.data);
@@ -99,9 +106,9 @@ const useRules = (forum: TForum, forumId: string) => {
     } catch (err) {
       console.error("Error fetching my rules:", err);
     }
-  }, [forum, forumId, currentPages.myRules]);
+  }, [forum, forumId, currentPages.myRules, search]);
 
-  // Combined fetch function (keeping existing structure)
+  // Combined fetch function
   const fetchAllData = useCallback(async () => {
     setLoading(true);
     await Promise.allSettled([
@@ -113,7 +120,19 @@ const useRules = (forum: TForum, forumId: string) => {
     setLoading(false);
   }, [fetchActiveRules, fetchGlobalRules, fetchOffenses, fetchMyRules]);
 
-  // Effects for initial load and click trigger
+  // Effect for search with debouncing
+  useEffect(() => {
+    const debounceTimer = setTimeout(() => {
+      if (search !== undefined) {
+        // Fetch all searchable rule types
+        Promise.all([fetchActiveRules(), fetchGlobalRules(), fetchMyRules()]);
+      }
+    }, 300); // 300ms debounce delay
+
+    return () => clearTimeout(debounceTimer);
+  }, [search, fetchActiveRules, fetchGlobalRules, fetchMyRules]);
+
+  // Effect for initial load and click trigger
   useEffect(() => {
     fetchAllData();
   }, [forumId, clickTrigger]);
@@ -136,7 +155,7 @@ const useRules = (forum: TForum, forumId: string) => {
   }, [currentPages.myRules]);
 
   return {
-    // Existing returns
+    // Data states
     activeRules,
     globalRules,
     offenses,
@@ -144,7 +163,7 @@ const useRules = (forum: TForum, forumId: string) => {
     loading,
     clickTrigger,
     setClickTrigger,
-    // New pagination-related returns
+    // Pagination states
     currentPages,
     totalPages,
     setCurrentPages,
