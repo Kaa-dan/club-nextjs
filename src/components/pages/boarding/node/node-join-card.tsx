@@ -21,19 +21,23 @@ const NodeJoinCard: React.FC<{
   isLoading: boolean;
   onJoin: (id: string) => void;
   reCAPTCHA: boolean;
+  requestedNodes: any;
 }> = ({
   node: { name, profileImage, members, coverImage, location, ...node },
   requested,
   onJoin,
   isLoading,
   reCAPTCHA,
+  requestedNodes,
 }) => {
+  console.log({ node });
   const { clubJoinStatus } = useClubStore();
   const [isDailogOpen, setIsDailogOpen] = React.useState(false);
   const { globalUser } = useTokenStore((state) => state);
-
+  console.log({ clubJoinStatus });
+  console.log({ requestedNodes });
   return (
-    <Card className="flex w-36 flex-col gap-1 rounded-sm p-3 text-xs">
+    <Card className="flex  w-36 flex-col gap-1 rounded-sm p-3 text-xs">
       <Image
         height={200}
         width={200}
@@ -50,7 +54,7 @@ const NodeJoinCard: React.FC<{
         <MapPin size={"1rem"} className="text-red-500" />
         <span className="truncate">{`${location}`}</span>
       </div>
-      {clubJoinStatus ? (
+      {requestedNodes.includes(node._id) ? (
         <div className="pointer-events-none rounded-sm bg-[#22b573] text-center text-white opacity-60">
           Requested
         </div>
@@ -84,11 +88,11 @@ const NodeJoinCard: React.FC<{
               Request to join this node?
             </span>
             <Button
-              disabled={isLoading || clubJoinStatus || requested}
+              disabled={requestedNodes.includes(node._id)}
               className="mx-auto w-1/3"
               onClick={() => onJoin(node._id)}
             >
-              {clubJoinStatus ? (
+              {requestedNodes.includes(node._id) ? (
                 "Requested"
               ) : isLoading ? (
                 <Loader2 className="animate-spin text-white" />
