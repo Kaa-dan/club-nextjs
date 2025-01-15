@@ -298,7 +298,7 @@ function DataTable({
         </TableBody>
       </Table>
 
-      <div className="flex items-center justify-end space-x-2 py-4">
+      <div className="flex items-center justify-end space-x-2 p-4">
         <div className="flex items-center gap-1 text-sm text-muted-foreground">
           <span>Page</span>
           <span className="font-medium">
@@ -561,7 +561,7 @@ export function RulesTable({
       header: "Posted by",
       cell: ({ row }) => {
         const postedBy: any = row.getValue("createdBy") as Rule["createdBy"];
-        console.log("postedBy", row.original);
+        console.log({ postedBy });
         return (
           <div className="flex items-center gap-2">
             <Avatar className="size-8">
@@ -718,6 +718,7 @@ const ContentDailog = ({
     form.reset(formData);
   }, [formData, form]);
 
+  //handler for
   const fetchUserNodesOrClubs = async () => {
     console.log("fetchUserNodesOrClubs");
     try {

@@ -21,10 +21,7 @@ import { useState } from "react";
 import { Endpoints } from "@/utils/endpoint";
 import ClubMembersList from "@/components/pages/club/club-members-list";
 
-import { toast } from "sonner";
-import { TClub } from "@/types";
 import { useClubStore } from "@/store/clubs-store";
-import { Dialog, DialogTrigger } from "@radix-ui/react-dialog";
 import { useTokenStore } from "@/store/store";
 import { useClubCalls } from "@/hooks/apis/use-club-calls";
 
@@ -44,6 +41,8 @@ export default function Page() {
   const handleInviteClick = () => {
     setInvite(true); // Open the modal
   };
+
+  console.log({ currentClub });
 
   return (
     <>
@@ -148,22 +147,33 @@ export default function Page() {
             <div>
               <h4 className="font-semibold">Modules</h4>
               <p className="text-sm">
-                <span className="text-green-500">12 Modules</span>
+                <span className="text-green-500">4 Modules</span>
               </p>
             </div>
-            <div>
+            {/* <div>
               <h4 className="font-semibold">Contributions</h4>
               <p className="text-sm text-muted-foreground">15.2k</p>
-            </div>
+            </div> */}
             <div>
-              <h4 className="font-semibold">Clubs</h4>
+              <h4 className="font-semibold">Chapters</h4>
               <p className="text-sm">
-                <span className="text-green-500">12 Clubs</span>
+                <span className="text-green-500">
+                  {currentClub?.chapters?.length}
+                </span>
               </p>
             </div>
             <div>
               <h4 className="font-semibold">Founded</h4>
-              <p className="text-sm text-muted-foreground">1996</p>
+              <p className="text-sm text-muted-foreground">
+                {new Date(currentClub?.club?.createdAt).toLocaleDateString(
+                  "en-US",
+                  {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  }
+                )}
+              </p>
             </div>
           </div>
         </CardHeader>

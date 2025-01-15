@@ -43,6 +43,9 @@ const RulesLayout = ({
   forumId: string;
 }) => {
   const { hasPermission } = usePermission();
+  const [search, setSearch] = useState("");
+
+  //custom hook for getting data according to tabs
   const {
     activeRules,
     globalRules,
@@ -54,8 +57,9 @@ const RulesLayout = ({
     currentPages,
     totalPages,
     setCurrentPages,
-  } = useRules(forum, forumId);
+  } = useRules(forum, forumId, search);
 
+  console.log({ search });
   const [activeTab, setActiveTab] = useState("Active");
 
   const tabs: TabData[] = [
@@ -157,9 +161,14 @@ const RulesLayout = ({
                 </Link>
                 <div className="relative flex-1">
                   <Search className="absolute left-2 top-2.5 size-4 text-muted-foreground" />
-                  <Input placeholder="Search for rules..." className="pl-8" />
+                  <Input
+                    onChange={(e) => setSearch(e.target.value)}
+                    value={search}
+                    placeholder="Search for rules..."
+                    className="pl-8"
+                  />
                 </div>
-                <Button variant="outline" size="icon">
+                {/* <Button variant="outline" size="icon">
                   <span className="sr-only">Filter</span>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -195,7 +204,7 @@ const RulesLayout = ({
                     <rect width="7" height="7" x="14" y="14" rx="1" />
                     <rect width="7" height="7" x="3" y="14" rx="1" />
                   </svg>
-                </Button>
+                </Button> */}
               </div>
               {tab.label === "Report Offenses" ? (
                 <OffenceTable

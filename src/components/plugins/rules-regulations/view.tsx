@@ -57,6 +57,7 @@ interface ClubAndNodesData {
 const View = ({ forum }: { forum: TForum }) => {
   const { globalUser } = useTokenStore((state) => state);
   const router = useRouter();
+  const [showComment, setShowComment] = useState(false);
   const [rule, setRule] = useState<TRule>();
   const { postId, plugin } = useParams<{
     plugin: TPlugins;
@@ -186,7 +187,7 @@ const View = ({ forum }: { forum: TForum }) => {
         </div>
         <div>
           <div className="text-gray-500">Applicable for?</div>
-          <div>457</div>
+          <div>{rule?.significance}</div>
         </div>
       </div>
 
@@ -251,7 +252,7 @@ const View = ({ forum }: { forum: TForum }) => {
                 </div>
               </TooltipTrigger>
 
-              <TooltipContent className="bg-white border text-black w-[200px] flex justify-between items-center  ">
+              <TooltipContent className="flex w-[200px] items-center justify-between border bg-white text-black  ">
                 <div>
                   <span className="flex justify-between">
                     <Image src={ClubIcon} alt="club" className="mr-2" />
@@ -259,7 +260,7 @@ const View = ({ forum }: { forum: TForum }) => {
                     <span className="ml-2">Clubs </span>
                   </span>
                 </div>
-                <div className="h-[5px] w-[5px] rounded-full bg-gray-500"></div>
+                <div className="size-[5px] rounded-full bg-gray-500"></div>
                 <div>
                   <span className="flex justify-between">
                     <Image src={NodeIcon} alt="node" className="mr-2" />
@@ -278,7 +279,7 @@ const View = ({ forum }: { forum: TForum }) => {
                   Adopt
                 </button>
               ) : (
-                <div className="text-red-500 font-semibold">Private</div>
+                <div className="font-semibold text-red-500">Private</div>
               )}
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px] ">
@@ -405,15 +406,17 @@ const View = ({ forum }: { forum: TForum }) => {
       ))}
 
       {/* Interaction Bar */}
-      <div className="flex items-center justify-between border-t py-4">
+      <div className="flex items-center justify-between border-t  py-4">
         <div className="flex gap-6">
-          <button className="flex items-center gap-1">
+          <button
+            onClick={() => {
+              Endpoints.likeRules(postId).then(() => {
+                fetchSpecificRule();
+              });
+            }}
+            className="flex items-center gap-1"
+          >
             <ThumbsUp
-              onClick={() => {
-                Endpoints.likeRules(postId).then(() => {
-                  fetchSpecificRule();
-                });
-              }}
               className="size-4  text-green-500"
               fill={
                 rule?.relevant?.includes(globalUser?._id)
@@ -425,13 +428,15 @@ const View = ({ forum }: { forum: TForum }) => {
               {rule?.relevant?.length} Relevant
             </span>
           </button>
-          <button className="flex items-center gap-1">
+          <button
+            onClick={() => {
+              Endpoints.disLikeRules(postId).then(() => {
+                fetchSpecificRule();
+              });
+            }}
+            className="flex items-center gap-1"
+          >
             <ThumbsDown
-              onClick={() => {
-                Endpoints.disLikeRules(postId).then(() => {
-                  fetchSpecificRule();
-                });
-              }}
               fill={
                 rule?.irrelevant?.includes(globalUser?._id)
                   ? "currentColor"
@@ -443,19 +448,27 @@ const View = ({ forum }: { forum: TForum }) => {
               {rule?.irrelevant?.length} Not Relevant
             </span>
           </button>
-          <button className="flex items-center gap-1">
+          <button
+            onClick={() => setShowComment((prev) => !prev)}
+            className="flex items-center gap-1"
+          >
             <MessageCircle className="size-4" />
             <span className="text-sm">Comments</span>
           </button>
-          <button className="flex items-center gap-1">
+          {/* <button className="flex items-center gap-1">
             <Share2 className="size-4" />
             <span className="text-sm">Share</span>
-          </button>
+          </button> */}
         </div>
       </div>
 
       {/* Comment Input */}
-      <CommentsSection plugin={plugin} postId={postId} forum={forum} />
+      <CommentsSection
+        plugin={plugin}
+        postId={postId}
+        forum={forum}
+        showComment={showComment}
+      />
     </div>
   );
 };

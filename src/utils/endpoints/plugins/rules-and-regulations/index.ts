@@ -19,12 +19,15 @@ export class RulesAndRegulationsEndpoints {
   static async fetchMyRulesOnNodeOrClub(
     forum: TForum,
     entityId: string,
-    page: string
+    page: string,
+    search: string
   ) {
+    console.log({ searchFromFetchMyruels: search });
     const queryParams = new URLSearchParams({
       type: forum,
       entity: entityId,
       page: page,
+      search: search, // Added search parameter
     }).toString();
 
     const response = await withTokenAxios.get(

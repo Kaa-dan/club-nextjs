@@ -649,7 +649,6 @@ const CONSTANTS = {
 
 // Types
 type IssueStatus = "draft" | "published";
-type TForum = "club" | "node"; // Add more types as needed
 
 // Schema
 const formSchema = z.object({
@@ -941,7 +940,7 @@ export default function CreateIssueForm({
                             toast.warning("Please select a valid future date");
                           }
                         }}
-                        className="w-full pl-10 pr-4 py-2 border justify-center text-green-300 font-semibold border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                        className="w-full justify-center rounded-md border border-slate-300 py-2 pl-10 pr-4 font-semibold text-green-300 focus:outline-none focus:ring-2 focus:ring-green-500"
                       />
                     </div>
                     <FormMessage />

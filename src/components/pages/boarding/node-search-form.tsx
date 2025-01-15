@@ -1,20 +1,18 @@
 import { Button } from "@/components/ui/button";
-import { FormControl, FormLabel } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@radix-ui/react-checkbox";
+
 import { Plus, X } from "lucide-react";
-import Link from "next/link";
 import React, { useEffect, useState } from "react";
-import { NODES } from "@/lib/constants/nodes";
-import NodeCardMini from "@/components/globals/node/node-card";
+
 import AddNodeDialog from "./node/add-node-dialog";
-import { completeOnboarding, getNodes } from "./endpoint";
 import NodeJoinCard from "./node/node-join-card";
-import { Endpoints } from "@/utils/endpoint";
-import { useTokenStore } from "@/store/store";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+
+import { Endpoints } from "@/utils/endpoint";
+import { completeOnboarding, getNodes } from "./endpoint";
+import { useTokenStore } from "@/store/store";
 
 interface ISearchResultsProps {
   setShowAddNodeDialog: (bool: boolean) => void;
@@ -49,6 +47,7 @@ const SearchResults = ({
         : nodes
     );
   }, [searchTerm, nodes]);
+  // handler to join node
   const requestToJoinNode = async (nodeId: string) => {
     try {
       setLoading(true);
@@ -68,26 +67,26 @@ const SearchResults = ({
     }
   };
 
-  const onRecaptchaChange = (token: any, nodeId: string) => {
-    if (!token) {
-      toast.error("Please complete the reCAPTCHA to proceed.");
-      return;
-    }
-    Endpoints.recaptcha(token)
-      .then((res) => {
-        if (res) {
-          requestToJoinNode(nodeId);
-          setRecaptcha(false);
-        }
-      })
-      .catch((err) => {
-        console.log({ err });
+  // const onRecaptchaChange = (token: any, nodeId: string) => {
+  //   if (!token) {
+  //     toast.error("Please complete the reCAPTCHA to proceed.");
+  //     return;
+  //   }
+  //   Endpoints.recaptcha(token)
+  //     .then((res) => {
+  //       if (res) {
+  //         requestToJoinNode(nodeId);
+  //         setRecaptcha(false);
+  //       }
+  //     })
+  //     .catch((err) => {
+  //       console.log({ err });
 
-        toast.error("something went wrong!!");
-      });
-  };
+  //       toast.error("something went wrong!!");
+  //     });
+  // };
   return (
-    <div className="flex flex-col gap-2 px-8">
+    <div className="flex flex-col   gap-2 px-8">
       <h2 className="text-lg font-semibold">Search node</h2>
       <div className="flex items-center gap-2 rounded-sm bg-slate-100">
         <Input
@@ -118,6 +117,7 @@ const SearchResults = ({
               key={index}
               node={node}
               reCAPTCHA={reCAPTCHA}
+              requestedNodes={requestedNodes}
             />
           );
         })}
@@ -135,7 +135,6 @@ interface InterestFormProps {
 export const NodeSearchForm: React.FC<InterestFormProps> = ({ setStep }) => {
   const { setGlobalUser } = useTokenStore((state) => state);
   const [isLoading, setIsLoading] = useState(false);
-  const [tncAccepted, setTncAccepted] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [showAddNodeDialog, setShowAddNodeDialog] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -156,7 +155,7 @@ export const NodeSearchForm: React.FC<InterestFormProps> = ({ setStep }) => {
     }
   };
   return (
-    <div className="mb-6 flex w-full flex-col">
+    <div className="mb-6 flex w-full  flex-col">
       <AddNodeDialog open={showAddNodeDialog} setOpen={setShowAddNodeDialog} />
       {showResults ? (
         <SearchResults
@@ -193,24 +192,6 @@ export const NodeSearchForm: React.FC<InterestFormProps> = ({ setStep }) => {
           </div>
         </>
       )}
-
-      {/* <div className="my-4 flex w-full items-center space-x-2">
-        <Checkbox
-          checked={tncAccepted}
-          onCheckedChange={(bool) => setTncAccepted(bool ? true : false)}
-        />
-
-        <Label className="flex gap-1">
-          I agree to the{" "}
-          <Link href="#" className="text-primary">
-            Terms of Services
-          </Link>{" "}
-          and{" "}
-          <Link href="#" className="text-primary">
-            Privacy Policy
-          </Link>
-        </Label>
-      </div> */}
 
       <div className="flex justify-end gap-4 border-t-2">
         <div className="mt-4 flex gap-4">

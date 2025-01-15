@@ -115,6 +115,9 @@ interface IDebate {
   openingCommentsFor?: string;
   openingCommentsAgainst?: string;
   args: IArgs;
+  adoptionInfo: any;
+  type: string;
+  adoptionId: string;
 }
 
 interface DebateTableProps {
@@ -198,8 +201,17 @@ export default function DebateTable({
       },
       cell: ({ row }) => {
         const debate = row.original;
+
         const handleClick = () => {
-          router.push(`/${forum}/${forumId}/${plugin}/${debate._id}/view`);
+          const debateUrl = `/${forum}/${forumId}/${plugin}/${debate._id}/view`;
+
+          // Only add query parameters if it's an adopted debate
+          const url =
+            debate.type === "adopted" && debate.adoptionId
+              ? `${debateUrl}?type=${debate.type}&adoptedId=${debate.adoptionId}`
+              : debateUrl;
+
+          router.push(url);
         };
         return (
           <div onClick={handleClick} className="space-y-1 hover:cursor-pointer">
@@ -381,7 +393,8 @@ export default function DebateTable({
         accessorKey: "createdBy",
         header: "Posted By",
         cell: ({ row }) => {
-          const { firstName, profileImage } = row.original.createdBy;
+          const { firstName, profileImage } = row.original.creator;
+          console.log({ firstName });
           return (
             <div className="flex items-center gap-2">
               <Avatar>
@@ -398,7 +411,10 @@ export default function DebateTable({
         header: "Action",
         cell: ({ row }) => {
           const handleApprove = () => {
-            Endpoints.acceptDebate(row.original._id)
+            Endpoints.acceptDebate(
+              row.original._id,
+              row.original.adoptionInfo.type
+            )
               .then((res) => {
                 setClickTrigger(!clickTrigger);
               })
@@ -504,7 +520,7 @@ export default function DebateTable({
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
+      <div className="flex items-center justify-end space-x-2 p-4">
         <div className="flex items-center gap-1 text-sm text-muted-foreground">
           <span>Page</span>
           <span className="font-medium">

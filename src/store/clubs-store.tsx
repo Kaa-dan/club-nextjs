@@ -4,6 +4,7 @@ import { create } from "zustand";
 interface ICurrentClub {
   club: TClub;
   members: TMembers[];
+  chapters: any;
 }
 
 interface ClubState {

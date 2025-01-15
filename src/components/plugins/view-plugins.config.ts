@@ -1,5 +1,5 @@
 import IssueView from "./issues/view-issue";
-import View from "./rules-regulations/view";
+import ViewRules from "./rules-regulations/view";
 import ViewDebate from "./debates/view-debate";
 import ViewProject from "./projects/view";
 interface PluginProps {
@@ -22,7 +22,7 @@ export const viewPluginConfig: Record<TPlugins, PluginConfig> = {
   rules: {
     title: "Rules & Regulations",
     description: "View rules and regulations",
-    component: View,
+    component: ViewRules,
   },
   debate: {
     title: "Debate",
