@@ -4,7 +4,6 @@ import { useCallback, useState, useEffect } from "react";
 import { IssuesEndpoints } from "@/utils/endpoints/issues";
 
 const useIssues = (forum: TForum, forumId: string) => {
-  // State management
   const [loading, setLoading] = useState(false);
   const [clickTrigger, setClickTrigger] = useState(false);
   const [myIssues, setMyIssues] = useState([]);
@@ -136,16 +135,16 @@ const useIssues = (forum: TForum, forumId: string) => {
       fetchMyIssues(),
       fetchAllIssues(),
       fetchLiveIssues(),
-      fetchGlobalIssues(),
       fetchProposedIssues(),
+      fetchGlobalIssues(),
     ]);
     setLoading(false);
   }, [
     fetchMyIssues,
     fetchAllIssues,
     fetchLiveIssues,
-    fetchGlobalIssues,
     fetchProposedIssues,
+    fetchGlobalIssues,
   ]);
 
   // Effects for initial load and click trigger
