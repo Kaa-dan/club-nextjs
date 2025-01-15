@@ -152,6 +152,8 @@ const IssueView = ({ forum, forumId }: { forum: TForum; forumId: string }) => {
       });
   };
 
+  const { hasPermission } = usePermission();
+
   return (
     <>
       <div className="max-w-full    p-4">

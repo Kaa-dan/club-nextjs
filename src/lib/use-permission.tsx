@@ -16,6 +16,7 @@ const ROLES = {
     "view:preferences",
 
     // Asset
+    "view:assets",
     "view:proposedAsset",
     "view:assetPrivateInfos",
     "create:asset",
@@ -41,6 +42,7 @@ const ROLES = {
   ] as const,
   admin: [
     // Common
+
     "view:profile",
     "view:newsFeed",
     "view:modules",
@@ -90,6 +92,7 @@ const ROLES = {
     "update:asset",
 
     // Asset
+    "view:assets",
     "view:proposedAsset",
     "create:asset",
     "adopt:asset",
@@ -110,6 +113,7 @@ const ROLES = {
     "view:members",
 
     // Asset
+    "view:assets",
     "propose:asset",
 
     //Chapters
@@ -123,9 +127,6 @@ const ROLES = {
 export function usePermission() {
   const { currentUserRole: clubRole } = useClubStore();
   const { currentUserRole: nodeRole } = useNodeStore();
-
-  console.log({ clubRole, nodeRole });
-
   const role = clubRole || nodeRole;
 
   const hasPermission = useCallback(
