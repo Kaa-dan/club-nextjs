@@ -561,7 +561,7 @@ export function RulesTable({
       header: "Posted by",
       cell: ({ row }) => {
         const postedBy: any = row.getValue("createdBy") as Rule["createdBy"];
-        console.log("postedBy", row.original);
+        console.log({ postedBy });
         return (
           <div className="flex items-center gap-2">
             <Avatar className="size-8">

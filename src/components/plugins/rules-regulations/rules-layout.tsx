@@ -168,7 +168,7 @@ const RulesLayout = ({
                     className="pl-8"
                   />
                 </div>
-                <Button variant="outline" size="icon">
+                {/* <Button variant="outline" size="icon">
                   <span className="sr-only">Filter</span>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -204,7 +204,7 @@ const RulesLayout = ({
                     <rect width="7" height="7" x="14" y="14" rx="1" />
                     <rect width="7" height="7" x="3" y="14" rx="1" />
                   </svg>
-                </Button>
+                </Button> */}
               </div>
               {tab.label === "Report Offenses" ? (
                 <OffenceTable
