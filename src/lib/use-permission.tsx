@@ -79,6 +79,9 @@ const ROLES = {
     "update:chapter",
     "delete:chapter",
     "publish:chapter",
+
+    //leave club
+    "permission:leave",
   ] as const,
   moderator: [
     // Common
@@ -104,6 +107,9 @@ const ROLES = {
     "update:chapter",
     "delete:chapter",
     "publish:chapter",
+
+    //leave club
+    "permission:leave",
   ] as const,
   member: [
     "view:profile",
@@ -120,6 +126,9 @@ const ROLES = {
     "view:chapter",
     "view:proposedChapters",
     "propose:chapter",
+
+    //leave club
+    "permission:leave",
   ] as const,
   VISITOR: ["view:newsFeed", "view:modules", "view:members"],
 } as const;

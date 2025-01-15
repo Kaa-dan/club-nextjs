@@ -24,6 +24,7 @@ import ClubMembersList from "@/components/pages/club/club-members-list";
 import { useClubStore } from "@/store/clubs-store";
 import { useTokenStore } from "@/store/store";
 import { useClubCalls } from "@/hooks/apis/use-club-calls";
+import { usePermission } from "@/lib/use-permission";
 
 export default function Page() {
   const { leaveClub } = useClubCalls();
@@ -42,8 +43,7 @@ export default function Page() {
     setInvite(true); // Open the modal
   };
 
-  console.log({ currentClub });
-
+  const { hasPermission } = usePermission();
   return (
     <>
       <Card className="mx-auto w-full max-w-3xl ">
@@ -101,13 +101,16 @@ export default function Page() {
                   <Invite entityId={sentClub} type={"club"} />
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="gap-2 text-red-500 hover:text-red-600"
-                      >
-                        <LogOut className="size-4" />
-                        <span>Leave Club</span>
-                      </Button>
+                      {hasPermission("permission:leave") && (
+                        <Button
+                          variant="outline"
+                          className="gap-2 text-red-500 hover:text-red-600"
+                        >
+                          <LogOut className="size-4" />
+
+                          <span>Leave Club</span>
+                        </Button>
+                      )}
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
