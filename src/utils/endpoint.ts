@@ -321,6 +321,7 @@ export class Endpoints {
 
   static async saveDraft(data: any) {
     try {
+      console.log({ console: data.get("club") });
       const response = await withTokenAxios.post(
         "/rules-regulations/draft",
         data

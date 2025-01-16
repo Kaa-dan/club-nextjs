@@ -150,7 +150,7 @@ export default function RuleForm({ forumId, forum }: RuleFormProps) {
 
   const files = watch("files") || [];
   const tags = watch("tags");
-
+  console.log({ tags });
   // File handling
   const handleFiles = useCallback(
     (newFiles: File[]) => {
@@ -277,13 +277,17 @@ export default function RuleForm({ forumId, forum }: RuleFormProps) {
       formDataToSend.append("file", fileObj.file);
     });
 
-    formDataToSend.append("forum", forumId);
+    formDataToSend.append(forum, forumId);
+
     formDataToSend.append("publishedStatus", "draft");
 
     try {
+      //sending request
       const response = await Endpoints.saveDraft(formDataToSend);
-      if (!response.isActive) {
+      console.log({ response });
+      if (response.success) {
         toast.success("saved to draft successfully");
+        router.push(`/${forum}/${forumId}/rules`);
       }
     } catch (error) {
       toast.error("Failed to save draft");
@@ -493,24 +497,17 @@ export default function RuleForm({ forumId, forum }: RuleFormProps) {
                   </Button>
                 </span>
               ))}
-              <Controller
-                name="tags"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        handleAddTag();
-                      }
-                    }}
-                    id="tags"
-                    placeholder="Enter Tags"
-                    className="h-6 flex-1 border-0 px-1 text-sm"
-                  />
-                )}
+              <Input
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleAddTag();
+                  }
+                }}
+                placeholder="Enter Tags"
+                className="h-6 flex-1 border-0 px-1 text-sm"
               />
             </div>
             {errors.tags && (
