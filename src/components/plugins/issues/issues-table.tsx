@@ -40,7 +40,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import Loader1 from "@/components/globals/loaders/loader-1";
-
+import { getFormattedDateAndTime } from "@/utils/text";
 export type Issue = {
   _id: string;
   title: string;
@@ -386,15 +386,11 @@ export default function IssueTable({
         </Button>
       ),
       cell: ({ row }) => {
-        const date = new Date(row.getValue("createdAt"));
+        const { formattedDate } = getFormattedDateAndTime(
+          row.original.createdAt
+        );
         return (
-          <div className="text-sm text-muted-foreground">
-            {date.toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-            })}
-          </div>
+          <div className="text-sm text-muted-foreground">{formattedDate}</div>
         );
       },
     },

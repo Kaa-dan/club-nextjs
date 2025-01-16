@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ArrowUpDown, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
+import { getFormattedDateAndTime } from "@/utils/text";
 import {
   ColumnDef,
   flexRender,
@@ -326,11 +327,8 @@ export default function DebateTable({
       );
     },
     cell: ({ row }) => {
-      return (
-        <div className="mx-auto text-center">
-          {format(new Date(row.original.createdAt), "dd/MM/yyyy")}
-        </div>
-      );
+      const { formattedDate } = getFormattedDateAndTime(row.original.createdAt);
+      return <div className="mx-auto text-center">{formattedDate}</div>;
     },
   };
 
