@@ -62,7 +62,7 @@ const formSchema = z.object({
   title: z.string().min(1, "Rule title is required"),
   domain: z.string().min(1, "Domain is required"),
   category: z.string().min(1, "Category is required"),
-  applicableFor: z.string().min(1, "Applicable for is required"),
+  applicableFor: z.string().optional(),
   significance: z.string().min(1, "Significance is required"),
   tags: z.array(z.string()).min(1, "Tags cannot be empty"),
   description: z

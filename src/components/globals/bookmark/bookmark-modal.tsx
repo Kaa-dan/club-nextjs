@@ -120,7 +120,7 @@ export function BookmarkModal({
           {folders.map((folder) => (
             <Button
               key={folder._id}
-              variant={selectedFolder === folder._id ? "secondary" : "ghost"}
+              variant={selectedFolder === folder._id ? "default" : "ghost"}
               className="w-full justify-start mb-2"
               onClick={() => setSelectedFolder(folder._id)}
             >
@@ -145,7 +145,9 @@ export function BookmarkModal({
                 </div>
                 <Bookmark
                   className={`${
-                    selectedFolder === folder._id ? "text-white" : "text-black"
+                    selectedFolder === folder._id
+                      ? "text-white"
+                      : "text-green-500"
                   } h-4 w-4`}
                   fill={isPostInFolder(folder) ? "currentColor" : "none"}
                 />

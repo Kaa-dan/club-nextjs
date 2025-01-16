@@ -76,7 +76,7 @@ interface DebatePost extends BasePost {
 }
 
 interface IssuePost extends BasePost {
-  type: "issues";
+  type: "issue";
   issueSignificance: string;
   isBookmarked: boolean;
 }
@@ -250,7 +250,7 @@ const PostComponent: React.FC<PostComponentProps> = ({
   const userId = globalUser?._id;
 
   const handleRelevancy = async (
-    type: "projects" | "issues" | "debate",
+    type: "projects" | "issue" | "debate",
     assetId: string,
     action: "like" | "dislike"
   ) => {
@@ -332,7 +332,7 @@ const PostComponent: React.FC<PostComponentProps> = ({
             {post.debateSignificance}
           </p>
         )}
-        {post.type === "issues" && post.issueSignificance && (
+        {post.type === "issue" && post.issueSignificance && (
           <p className="text-sm text-muted-foreground">
             {post.issueSignificance}
           </p>
