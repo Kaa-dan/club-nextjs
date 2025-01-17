@@ -29,6 +29,14 @@ const useDebates = (forum: TForum, forumId: string) => {
     proposed: 1,
   });
 
+  const [debateCount, setDebateCount] = useState({
+    ongoingDebates: 0,
+    allDebates: 0,
+    globalDebates: 0,
+    myDebates: 0,
+    proposed: 0,
+  });
+
   // Individual fetch functions
   const fetchOngoingDebates = useCallback(async () => {
     try {
@@ -38,10 +46,15 @@ const useDebates = (forum: TForum, forumId: string) => {
         String(currentPages.ongoingDebates)
       );
       if (response) {
+        console.log({ ok: response });
         setOngoingDebates(response.data || []);
         setTotalPages((prev) => ({
           ...prev,
           ongoingDebates: response.pagination?.totalPages || 1,
+        }));
+        setDebateCount((prev) => ({
+          ...prev,
+          ongoingDebates: response?.pagination?.totalItems || 0,
         }));
       }
     } catch (err) {
@@ -63,6 +76,10 @@ const useDebates = (forum: TForum, forumId: string) => {
           ...prev,
           allDebates: response.pagination?.totalPages || 1,
         }));
+        setDebateCount((prev) => ({
+          ...prev,
+          allDebates: response?.pagination?.totalItems || 0,
+        }));
       }
     } catch (err) {
       console.error("Error fetching all debates:", err);
@@ -78,11 +95,15 @@ const useDebates = (forum: TForum, forumId: string) => {
         String(currentPages.globalDebates)
       );
       if (response) {
-        console.log({ hello: response });
         setGlobalDebates(response.data || []);
         setTotalPages((prev) => ({
           ...prev,
           globalDebates: response.pagination?.totalPages || 1,
+        }));
+
+        setDebateCount((prev) => ({
+          ...prev,
+          globalDebates: response?.pagination?.totalItems || 0,
         }));
       }
     } catch (err) {
@@ -104,6 +125,11 @@ const useDebates = (forum: TForum, forumId: string) => {
           ...prev,
           myDebates: response.pagination?.totalPages || 1,
         }));
+
+        setDebateCount((prev) => ({
+          ...prev,
+          myDebates: response?.pagination?.totalItems || 0,
+        }));
       }
     } catch (err) {
       console.error("Error fetching my debates:", err);
@@ -123,6 +149,10 @@ const useDebates = (forum: TForum, forumId: string) => {
         setTotalPages((prev) => ({
           ...prev,
           proposed: response.pagination?.totalPages || 1,
+        }));
+        setDebateCount((prev) => ({
+          ...prev,
+          proposed: response?.pagination?.totalItems || 0,
         }));
       }
     } catch (err) {

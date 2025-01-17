@@ -321,6 +321,7 @@ export class Endpoints {
 
   static async saveDraft(data: any) {
     try {
+      console.log({ console: data.get("club") });
       const response = await withTokenAxios.post(
         "/rules-regulations/draft",
         data
@@ -612,7 +613,7 @@ export class Endpoints {
     }
   }
   static async relevancy(
-    type: "issues" | "debate" | "projects",
+    type: "issue" | "debate" | "projects",
     moduleId: string,
     action: "like" | "dislike"
   ) {

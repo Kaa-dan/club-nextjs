@@ -50,6 +50,7 @@ import { useNodeStore } from "@/store/nodes-store";
 
 // Utils
 import { Endpoints } from "@/utils/endpoint";
+import { usePermission } from "@/lib/use-permission";
 
 // Constants
 const FILE_CONSTRAINTS = {
@@ -125,7 +126,7 @@ export default function RuleForm({ forumId, forum }: RuleFormProps) {
   const [inputValue, setInputValue] = useState("");
   const { currentUserRole: clubUserRole } = useClubStore();
   const { currentUserRole: nodeUserRole } = useNodeStore();
-
+  const { hasPermission } = usePermission();
   const {
     control,
     handleSubmit,
@@ -150,7 +151,8 @@ export default function RuleForm({ forumId, forum }: RuleFormProps) {
 
   const files = watch("files") || [];
   const tags = watch("tags");
-
+  console.log({ tags });
+  console.log({ formerr: errors });
   // File handling
   const handleFiles = useCallback(
     (newFiles: File[]) => {
@@ -277,13 +279,17 @@ export default function RuleForm({ forumId, forum }: RuleFormProps) {
       formDataToSend.append("file", fileObj.file);
     });
 
-    formDataToSend.append("forum", forumId);
+    formDataToSend.append(forum, forumId);
+
     formDataToSend.append("publishedStatus", "draft");
 
     try {
+      //sending request
       const response = await Endpoints.saveDraft(formDataToSend);
-      if (!response.isActive) {
+      console.log({ response });
+      if (response.success) {
         toast.success("saved to draft successfully");
+        router.push(`/${forum}/${forumId}/rules`);
       }
     } catch (error) {
       toast.error("Failed to save draft");
@@ -493,24 +499,17 @@ export default function RuleForm({ forumId, forum }: RuleFormProps) {
                   </Button>
                 </span>
               ))}
-              <Controller
-                name="tags"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        handleAddTag();
-                      }
-                    }}
-                    id="tags"
-                    placeholder="Enter Tags"
-                    className="h-6 flex-1 border-0 px-1 text-sm"
-                  />
-                )}
+              <Input
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleAddTag();
+                  }
+                }}
+                placeholder="Enter Tags"
+                className="h-6 flex-1 border-0 px-1 text-sm"
               />
             </div>
             {errors.tags && (
@@ -607,10 +606,11 @@ export default function RuleForm({ forumId, forum }: RuleFormProps) {
             </label>
           </div>
 
-          {errors.files && (
-            <p className="text-sm text-red-500">{errors.files.message}</p>
+          {errors.files?.[0]?.file?.message && (
+            <p className="text-sm text-red-500">
+              {errors.files[0].file.message}
+            </p>
           )}
-
           {files.length > 0 && (
             <div className="mt-2 grid grid-cols-2 gap-2">
               {files.map((fileObj, index) => (

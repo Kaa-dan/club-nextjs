@@ -204,6 +204,9 @@ export default function ClubMembersList({
                   <span className="text-sm text-muted-foreground">(You)</span>
                 )}
               </div>
+              <div className="text-sm text-muted-foreground">
+                {row.original.role}
+              </div>
             </div>
           </div>
         );
@@ -216,29 +219,7 @@ export default function ClubMembersList({
         );
       },
     },
-    {
-      accessorKey: "role",
-      header: "Level",
-      cell: ({ row }) => {
-        const role = row?.getValue("role") as string;
-        return (
-          <Badge
-            variant="secondary"
-            className={
-              role === "owner"
-                ? "bg-red-100 text-red-800 hover:bg-red-200"
-                : role === "admin"
-                  ? "bg-green-100 text-green-800 hover:bg-green-200"
-                  : role === "moderator"
-                    ? "bg-orange-100 text-orange-800 hover:bg-orange-200"
-                    : "bg-gray-100 text-gray-800 hover:bg-gray-200"
-            }
-          >
-            {role}
-          </Badge>
-        );
-      },
-    },
+
     {
       accessorKey: "contributions",
       header: ({ column }) => {
@@ -253,7 +234,7 @@ export default function ClubMembersList({
         );
       },
       cell: ({ row }) => (
-        <div className="text-right">{row.getValue("contributions")}</div>
+        <div className="text-center">{row.getValue("contributions") || 0}</div>
       ),
     },
     {
@@ -261,7 +242,7 @@ export default function ClubMembersList({
       header: "Join Date",
       cell: ({ row }) => {
         return (
-          <div className="text-right font-medium">
+          <div className=" font-medium">
             {new Date(row.getValue("createdAt")).toLocaleDateString("en-US", {
               month: "long",
               day: "numeric",

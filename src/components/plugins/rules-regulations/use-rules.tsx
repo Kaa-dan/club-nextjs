@@ -25,8 +25,13 @@ const useRules = (forum: TForum, forumId: string, search: string) => {
     offenses: 1,
     myRules: 1,
   });
-
-  // Fetching active rules
+  const [ruleCount, setRulesCount] = useState({
+    globalRules: 0,
+    activeRules: 0,
+    offenses: 0,
+    myRules: 0,
+  });
+  // Individual fetch functions
   const fetchActiveRules = useCallback(async () => {
     try {
       const response = await Endpoints.getActiveRules(
@@ -36,10 +41,15 @@ const useRules = (forum: TForum, forumId: string, search: string) => {
         search
       );
       if (response) {
+        console.log({ response: response });
         setActiveRules(response.data);
         setTotalPages((prev) => ({
           ...prev,
           activeRules: response.pagination.totalPages || 1,
+        }));
+        setRulesCount((prev) => ({
+          ...prev,
+          activeRules: response.pagination.total,
         }));
       }
     } catch (err) {
@@ -59,6 +69,11 @@ const useRules = (forum: TForum, forumId: string, search: string) => {
         setTotalPages((prev) => ({
           ...prev,
           globalRules: response.pagination.totalPages || 1,
+        }));
+
+        setRulesCount((prev) => ({
+          ...prev,
+          globalRules: response.pagination.total,
         }));
       }
     } catch (err) {
@@ -101,6 +116,11 @@ const useRules = (forum: TForum, forumId: string, search: string) => {
         setTotalPages((prev) => ({
           ...prev,
           myRules: response.pagination.totalPages || 1,
+        }));
+
+        setRulesCount((prev) => ({
+          ...prev,
+          myRules: response.pagination.total,
         }));
       }
     } catch (err) {
@@ -163,7 +183,8 @@ const useRules = (forum: TForum, forumId: string, search: string) => {
     loading,
     clickTrigger,
     setClickTrigger,
-    // Pagination states
+    ruleCount,
+    // New pagination-related returns
     currentPages,
     totalPages,
     setCurrentPages,
