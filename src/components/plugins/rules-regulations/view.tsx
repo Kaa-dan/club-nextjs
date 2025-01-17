@@ -142,12 +142,12 @@ const View = ({ forum }: { forum: TForum }) => {
       <div className="mb-2 flex items-center justify-between">
         <h1 className="text-xl font-medium">{rule?.title}</h1>
         <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-500">9545/35</span>
+          {/* <span className="text-sm text-gray-500">9545/35</span> */}
           <div className="flex items-center gap-1">
             <span className="text-sm text-gray-500">
               {rule?.isPublic ? "Public" : "Private"}
             </span>
-            <MoreVertical className="size-4 text-gray-500" />
+            {/* <MoreVertical className="size-4 text-gray-500" /> */}
           </div>
         </div>
       </div>

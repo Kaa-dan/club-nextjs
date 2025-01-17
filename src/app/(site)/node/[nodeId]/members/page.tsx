@@ -31,8 +31,8 @@ import {
 } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { TMembers } from "@/types";
+import { useNodeStore } from "@/store/nodes-store";
 import { useTokenStore } from "@/store/store";
-import { useClubStore } from "@/store/clubs-store";
 
 export default function ClubMembersList() {
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -40,8 +40,8 @@ export default function ClubMembersList() {
     []
   );
   const [columnVisibility, setColumnVisibility] = React.useState({});
-  const { currentClub } = useClubStore((state) => state);
-  const members = currentClub?.members || [];
+  const { currentNode } = useNodeStore((state) => state);
+  const members = currentNode?.members || [];
   const { globalUser } = useTokenStore((state) => state);
 
   const columns: ColumnDef<TMembers>[] = [

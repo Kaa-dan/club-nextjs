@@ -85,7 +85,7 @@ import { ExpandableTableRow } from "./expandable-row";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import Loader1 from "@/components/globals/loaders/loader-1";
-
+import { getFormattedDateAndTime } from "@/utils/text";
 type Rule = {
   _id: string;
   id: number;
@@ -145,8 +145,7 @@ function DataTable({
       sorting,
     },
   });
-  console.log({ currentPages });
-  console.log({ totalPages });
+
   return (
     <div className="rounded-md border">
       <Table>
@@ -298,7 +297,7 @@ function DataTable({
         </TableBody>
       </Table>
 
-      <div className="flex items-center justify-end space-x-2 p-4">
+      <div className="flex items-center justify-end space-x-2 py-4">
         <div className="flex items-center gap-1 text-sm text-muted-foreground">
           <span>Page</span>
           <span className="font-medium">
@@ -466,11 +465,34 @@ export function RulesTable({
   totalPage: any;
   currentPage: any;
 }) {
+  console.log({ currentPage });
   const columns: ColumnDef<Rule>[] = [
     {
       accessorKey: "sno",
       header: "No.",
-      cell: ({ row }) => <div className="font-medium">{row.index + 1}</div>,
+      cell: ({ row }) => {
+        // Get the current page based on the active tab
+        const getPageNumber = (tab: any) => {
+          switch (tab) {
+            case "Global Rules":
+              return currentPage.globalRules;
+            case "Active":
+              return currentPage.activeRules;
+            case "All Rules":
+              return currentPage.activeRules;
+            case "My Rules":
+              return currentPage.myRules;
+            default:
+              return 1;
+          }
+        };
+
+        return (
+          <div className="font-medium">
+            {Number((getPageNumber(tab) - 1) * 10) + row.index + 1}
+          </div>
+        );
+      },
     },
     {
       accessorKey: "title",
@@ -544,15 +566,12 @@ export function RulesTable({
         </Button>
       ),
       cell: ({ row }) => {
+        const { formattedDate } = getFormattedDateAndTime(
+          row.original.publishedDate
+        );
         const date = new Date(row.getValue("publishedDate"));
         return (
-          <div className="text-sm text-muted-foreground">
-            {date.toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-            })}
-          </div>
+          <div className="text-sm text-muted-foreground">{formattedDate}</div>
         );
       },
     },

@@ -613,7 +613,7 @@ export class Endpoints {
     }
   }
   static async relevancy(
-    type: "issues" | "debate" | "projects",
+    type: "issue" | "debate" | "projects",
     moduleId: string,
     action: "like" | "dislike"
   ) {

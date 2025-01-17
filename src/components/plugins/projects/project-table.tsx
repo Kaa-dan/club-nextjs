@@ -46,7 +46,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import Loader1 from "@/components/globals/loaders/loader-1";
 import { ProjectApi } from "./projectApi";
-
+import { getFormattedDateAndTime } from "@/utils/text";
 interface DataTableProps {
   columns: ColumnDef<any>[];
   data: any[];
@@ -323,7 +323,29 @@ export default function ProjectTable({
     {
       accessorKey: "sno",
       header: "SNO",
-      cell: ({ row }) => <div className="font-medium">{row.index + 1}</div>,
+      cell: ({ row }) => {
+        // Get current page based on project tab
+        const getCurrentPage = (tab: any) => {
+          switch (tab) {
+            case "All Projects":
+              return currentPages.allProjects;
+            case "On going projects":
+              return currentPages.activeProjects;
+            case "Global Projects":
+              return currentPages.globalProjects;
+            case "My Projects":
+              return currentPages.myProjects;
+            default:
+              return 1;
+          }
+        };
+
+        return (
+          <div className="font-medium">
+            {Number((getCurrentPage(tab) - 1) * 10) + row.index + 1}
+          </div>
+        );
+      },
     },
     {
       accessorKey: "Projects",
@@ -381,15 +403,11 @@ export default function ProjectTable({
         </Button>
       ),
       cell: ({ row }) => {
-        const date = new Date(row.getValue("createdAt"));
+        const { formattedDate } = getFormattedDateAndTime(
+          row.original.createdAt
+        );
         return (
-          <div className="text-sm text-muted-foreground">
-            {date.toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-            })}
-          </div>
+          <div className="text-sm text-muted-foreground">{formattedDate}</div>
         );
       },
     },

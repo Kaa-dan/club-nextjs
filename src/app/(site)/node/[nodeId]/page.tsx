@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Dispatch, SetStateAction } from "react";
 import { useInView } from "react-intersection-observer";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -39,6 +39,7 @@ import {
   CarouselNext,
 } from "@/components/ui/carousel";
 import { useTokenStore } from "@/store/store";
+import { BookmarkModal } from "@/components/globals/bookmark/bookmark-modal";
 
 interface FileType {
   url: string;
@@ -72,13 +73,16 @@ interface DebatePost extends BasePost {
 }
 
 interface IssuePost extends BasePost {
-  type: "issues";
+  type: "issue";
   issueSignificance: string;
 }
 
 type Post = ProjectPost | DebatePost | IssuePost;
 
 const NodePage: React.FC = () => {
+  const [open, setOpen] = useState(false);
+  const [postId, setPostId] = useState("");
+  const [postType, setPostType] = useState("");
   const [posts, setPosts] = useState<Post[]>([]);
   const [page, setPage] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(false);
@@ -171,7 +175,10 @@ const NodePage: React.FC = () => {
     <div className="mt-4 flex w-full flex-col items-start gap-3  px-4">
       {posts.map((post, index) => (
         <PostComponent
-          clubId={nodeId}
+          setOpen={setOpen}
+          setPostId={setPostId}
+          setPostType={setPostType}
+          nodeId={nodeId}
           key={`${post._id}-${index}`}
           post={post}
           onRelevancyUpdate={handleRelevancyUpdate}
@@ -197,13 +204,26 @@ const NodePage: React.FC = () => {
           No posts available
         </div>
       )}
+
+      {postId && (
+        <BookmarkModal
+          open={open}
+          postType={postType}
+          postId={postId}
+          setOpen={setOpen}
+          fetchPosts={fetchPosts}
+        />
+      )}
     </div>
   );
 };
 
 interface PostComponentProps {
   post: Post;
-  clubId: string;
+  setOpen: Dispatch<SetStateAction<boolean>>;
+  setPostId: Dispatch<SetStateAction<string>>;
+  setPostType: Dispatch<SetStateAction<string>>;
+  nodeId: string;
   onRelevancyUpdate: (
     postId: string,
     action: "like" | "dislike",
@@ -213,14 +233,17 @@ interface PostComponentProps {
 
 const PostComponent: React.FC<PostComponentProps> = ({
   post,
-  clubId,
+  nodeId,
   onRelevancyUpdate,
+  setOpen,
+  setPostId,
+  setPostType,
 }) => {
   const { globalUser } = useTokenStore((state) => state);
   const userId = globalUser?._id;
 
   const handleRelevancy = async (
-    type: "projects" | "issues" | "debate",
+    type: "projects" | "issue" | "debate",
     assetId: string,
     action: "like" | "dislike"
   ) => {
@@ -270,7 +293,7 @@ const PostComponent: React.FC<PostComponentProps> = ({
           </div>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" className="size-8">
-              <Link href={`${clubId}/${post.type}/${post._id}/view`}>
+              <Link href={`${nodeId}/${post.type}/${post._id}/view`}>
                 <Eye className="size-4" />
               </Link>
               <span className="sr-only">View count</span>
@@ -302,7 +325,7 @@ const PostComponent: React.FC<PostComponentProps> = ({
             {post.debateSignificance}
           </p>
         )}
-        {post.type === "issues" && post.issueSignificance && (
+        {post.type === "issue" && post.issueSignificance && (
           <p className="text-sm text-muted-foreground">
             {post.issueSignificance}
           </p>
@@ -368,7 +391,16 @@ const PostComponent: React.FC<PostComponentProps> = ({
                 {post.irrelevant?.length || "0"} Not Relevant
               </span>
             </Button>
-            <Button variant="outline" size="sm" className="gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2"
+              onClick={() => {
+                setOpen(true);
+                setPostId(post._id);
+                setPostType(post.type);
+              }}
+            >
               <Bookmark className="size-4" />
               <span className="hidden lg:inline">Save</span>
             </Button>

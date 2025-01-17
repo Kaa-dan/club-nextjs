@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ArrowUpDown, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
+import { getFormattedDateAndTime } from "@/utils/text";
 import {
   ColumnDef,
   flexRender,
@@ -118,6 +119,7 @@ interface IDebate {
   adoptionInfo: any;
   type: string;
   adoptionId: string;
+  creator: IUser;
 }
 
 interface DebateTableProps {
@@ -297,7 +299,7 @@ export default function DebateTable({
     accessorKey: "createdBy",
     header: "Posted by",
     cell: ({ row }) => {
-      const { firstName, profileImage } = row.original.createdBy;
+      const { firstName, profileImage } = row.original.creator;
       return (
         <div className="flex items-center gap-2">
           <Avatar>
@@ -325,11 +327,8 @@ export default function DebateTable({
       );
     },
     cell: ({ row }) => {
-      return (
-        <div className="mx-auto text-center">
-          {format(new Date(row.original.createdAt), "dd/MM/yyyy")}
-        </div>
-      );
+      const { formattedDate } = getFormattedDateAndTime(row.original.createdAt);
+      return <div className="mx-auto text-center">{formattedDate}</div>;
     },
   };
 
